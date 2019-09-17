@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Courses Taught | Sayan Goswami</title>
-    <link>https://sun.cs.lsus.edu/~sgoswami/teaching/</link>
-      <atom:link href="https://sun.cs.lsus.edu/~sgoswami/teaching/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://sayangoswami.github.io/teaching/</link>
+      <atom:link href="https://sayangoswami.github.io/teaching/index.xml" rel="self" type="application/rss+xml" />
     <description>Courses Taught</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://sun.cs.lsus.edu/~sgoswami/img/background/chalkboard_thin.jpg</url>
+      <url>https://sayangoswami.github.io/img/background/chalkboard_thin.jpg</url>
       <title>Courses Taught</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/teaching/</link>
+      <link>https://sayangoswami.github.io/teaching/</link>
     </image>
     
     <item>
       <title>CSC285</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/teaching/csc285_f18/</link>
+      <link>https://sayangoswami.github.io/teaching/csc285_f18/</link>
       <pubDate>Sat, 20 Jan 2018 00:00:00 +0000</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/teaching/csc285_f18/</guid>
+      <guid>https://sayangoswami.github.io/teaching/csc285_f18/</guid>
       <description></description>
     </item>
     

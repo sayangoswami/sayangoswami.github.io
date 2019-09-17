@@ -2,109 +2,109 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Authors | Sayan Goswami</title>
-    <link>https://sun.cs.lsus.edu/~sgoswami/authors/</link>
-      <atom:link href="https://sun.cs.lsus.edu/~sgoswami/authors/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://sayangoswami.github.io/authors/</link>
+      <atom:link href="https://sayangoswami.github.io/authors/index.xml" rel="self" type="application/rss+xml" />
     <description>Authors</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 06 Aug 2018 00:00:00 -0500</lastBuildDate>
     <image>
-      <url>https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png</url>
+      <url>https://sayangoswami.github.io/img/icon-192.png</url>
       <title>Authors</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/</link>
+      <link>https://sayangoswami.github.io/authors/</link>
     </image>
     
     <item>
-      <title>Kisung lee</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/kisung-lee/</link>
+      <title>Kisung Lee</title>
+      <link>https://sayangoswami.github.io/authors/kisung-lee/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/kisung-lee/</guid>
+      <guid>https://sayangoswami.github.io/authors/kisung-lee/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Sayan Goswami</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/sayan-goswami/</link>
+      <link>https://sayangoswami.github.io/authors/sayan-goswami/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/sayan-goswami/</guid>
+      <guid>https://sayangoswami.github.io/authors/sayan-goswami/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Seung-Jong Park</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/seung-jong-park/</link>
+      <link>https://sayangoswami.github.io/authors/seung-jong-park/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/seung-jong-park/</guid>
+      <guid>https://sayangoswami.github.io/authors/seung-jong-park/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Shayan Shams</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/shayan-shams/</link>
+      <link>https://sayangoswami.github.io/authors/shayan-shams/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/shayan-shams/</guid>
+      <guid>https://sayangoswami.github.io/authors/shayan-shams/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Seungwon Yang</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/seungwon-yang/</link>
+      <link>https://sayangoswami.github.io/authors/seungwon-yang/</link>
       <pubDate>Mon, 23 Jul 2018 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/seungwon-yang/</guid>
+      <guid>https://sayangoswami.github.io/authors/seungwon-yang/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Arghya Kusum Das</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/arghya-kusum-das/</link>
+      <link>https://sayangoswami.github.io/authors/arghya-kusum-das/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/arghya-kusum-das/</guid>
+      <guid>https://sayangoswami.github.io/authors/arghya-kusum-das/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Jaeki Hong</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/jaeki-hong/</link>
+      <link>https://sayangoswami.github.io/authors/jaeki-hong/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/jaeki-hong/</guid>
+      <guid>https://sayangoswami.github.io/authors/jaeki-hong/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Ling Liu</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/ling-liu/</link>
+      <link>https://sayangoswami.github.io/authors/ling-liu/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/ling-liu/</guid>
+      <guid>https://sayangoswami.github.io/authors/ling-liu/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Richard Platania</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/richard-platania/</link>
+      <link>https://sayangoswami.github.io/authors/richard-platania/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/richard-platania/</guid>
+      <guid>https://sayangoswami.github.io/authors/richard-platania/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Wooseok Chang</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/wooseok-chang/</link>
+      <link>https://sayangoswami.github.io/authors/wooseok-chang/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/wooseok-chang/</guid>
+      <guid>https://sayangoswami.github.io/authors/wooseok-chang/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Richard Płatania</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/richard-p%C5%82atania/</link>
+      <link>https://sayangoswami.github.io/authors/richard-p%C5%82atania/</link>
       <pubDate>Mon, 05 Dec 2016 00:00:00 -0600</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/richard-p%C5%82atania/</guid>
+      <guid>https://sayangoswami.github.io/authors/richard-p%C5%82atania/</guid>
       <description></description>
     </item>
     
     <item>
       <title></title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/admin/</link>
+      <link>https://sayangoswami.github.io/authors/admin/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/authors/admin/</guid>
+      <guid>https://sayangoswami.github.io/authors/admin/</guid>
       <description>&lt;p&gt;I am an assistant professor in the department of Computer Science at LSU Shreveport.
 My research interests lie primarily in the big-data domain of de novo whole genome assembly and in general I am intested in the high-performance computing (HPC) aspect of handling scientific datasets.
 I am especially interested in desiging scalable memory-efficient tools for processing large datasets by sketching, streaming or partitioning them.&lt;/p&gt;

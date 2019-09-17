@@ -31,7 +31,7 @@
   <meta name="description" content="Spurred by a widening gap between hardware accelerators and traditional processors, numerous bioinformatics applications have harnessed the computing power of GPUs and reported substantial performance improvements compared to their CPU-based counterparts. However, most of these GPU-based applications only focus on the read alignment problem, while the field of de novo assembly still relies mostly on CPU-based solutions. This is primarily due to the nature of the assembly workload which is not only compute-intensive but also extremely data-intensive. Such workloads require large memories, making it difficult to adapt them to use GPUs with their limited memory capacities. To the best of our knowledge, no GPU-based assembler reported in the recent literature has attempted to assemble datasets larger than a few tens of gigabytes, whereas real sequence datasets are often several hundreds of gigabytes in size. In this paper, we present a new GPU-accelerated genome assembler called LaSAGNA, which can assemble large-scale sequence datasets using a single GPU by building string graphs from approximate all-pair overlaps. LaSAGNA can also run on multiple GPUs across multiple compute nodes connected by a high-speed network to expedite the assembly process. To utilize the limited memory on GPUs efficiently, LaSAGNA uses a semi-streaming approach that makes at most a logarithmic number of passes over the input data based on the available memory. Moreover, we propose a two-level streaming model, from disk to host memory and from host memory to device memory, to minimize disk I/O. Using LaSAGNA, we can assemble a 400 GB human genome dataset on a single NVIDIA K40 GPU in 17 hours, and in a little over 5 hours on an 8-node cluster of NVIDIA K20s.">
 
   
-  <link rel="alternate" hreflang="en-us" href="https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/">
+  <link rel="alternate" hreflang="en-us" href="https://sayangoswami.github.io/publication/lasagna/">
 
   
 
@@ -83,7 +83,7 @@
   
   
   
-  <link rel="stylesheet" href="/~sgoswami/css/academic.min.5c69adb93dd005d1cb361f4acaf87389.css">
+  <link rel="stylesheet" href="/css/academic.min.5c69adb93dd005d1cb361f4acaf87389.css">
 
   
 
@@ -93,11 +93,11 @@
 
   
 
-  <link rel="manifest" href="/~sgoswami/index.webmanifest">
-  <link rel="icon" type="image/png" href="/~sgoswami/img/icon-32.png">
-  <link rel="apple-touch-icon" type="image/png" href="/~sgoswami/img/icon-192.png">
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
 
-  <link rel="canonical" href="https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/">
+  <link rel="canonical" href="https://sayangoswami.github.io/publication/lasagna/">
 
   
   
@@ -110,10 +110,10 @@
   <meta property="twitter:card" content="summary">
   
   <meta property="og:site_name" content="Sayan Goswami">
-  <meta property="og:url" content="https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/">
+  <meta property="og:url" content="https://sayangoswami.github.io/publication/lasagna/">
   <meta property="og:title" content="GPU-Accelerated Large-Scale Genome Assembly | Sayan Goswami">
-  <meta property="og:description" content="Spurred by a widening gap between hardware accelerators and traditional processors, numerous bioinformatics applications have harnessed the computing power of GPUs and reported substantial performance improvements compared to their CPU-based counterparts. However, most of these GPU-based applications only focus on the read alignment problem, while the field of de novo assembly still relies mostly on CPU-based solutions. This is primarily due to the nature of the assembly workload which is not only compute-intensive but also extremely data-intensive. Such workloads require large memories, making it difficult to adapt them to use GPUs with their limited memory capacities. To the best of our knowledge, no GPU-based assembler reported in the recent literature has attempted to assemble datasets larger than a few tens of gigabytes, whereas real sequence datasets are often several hundreds of gigabytes in size. In this paper, we present a new GPU-accelerated genome assembler called LaSAGNA, which can assemble large-scale sequence datasets using a single GPU by building string graphs from approximate all-pair overlaps. LaSAGNA can also run on multiple GPUs across multiple compute nodes connected by a high-speed network to expedite the assembly process. To utilize the limited memory on GPUs efficiently, LaSAGNA uses a semi-streaming approach that makes at most a logarithmic number of passes over the input data based on the available memory. Moreover, we propose a two-level streaming model, from disk to host memory and from host memory to device memory, to minimize disk I/O. Using LaSAGNA, we can assemble a 400 GB human genome dataset on a single NVIDIA K40 GPU in 17 hours, and in a little over 5 hours on an 8-node cluster of NVIDIA K20s."><meta property="og:image" content="https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png">
-  <meta property="twitter:image" content="https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png"><meta property="og:locale" content="en-us">
+  <meta property="og:description" content="Spurred by a widening gap between hardware accelerators and traditional processors, numerous bioinformatics applications have harnessed the computing power of GPUs and reported substantial performance improvements compared to their CPU-based counterparts. However, most of these GPU-based applications only focus on the read alignment problem, while the field of de novo assembly still relies mostly on CPU-based solutions. This is primarily due to the nature of the assembly workload which is not only compute-intensive but also extremely data-intensive. Such workloads require large memories, making it difficult to adapt them to use GPUs with their limited memory capacities. To the best of our knowledge, no GPU-based assembler reported in the recent literature has attempted to assemble datasets larger than a few tens of gigabytes, whereas real sequence datasets are often several hundreds of gigabytes in size. In this paper, we present a new GPU-accelerated genome assembler called LaSAGNA, which can assemble large-scale sequence datasets using a single GPU by building string graphs from approximate all-pair overlaps. LaSAGNA can also run on multiple GPUs across multiple compute nodes connected by a high-speed network to expedite the assembly process. To utilize the limited memory on GPUs efficiently, LaSAGNA uses a semi-streaming approach that makes at most a logarithmic number of passes over the input data based on the available memory. Moreover, we propose a two-level streaming model, from disk to host memory and from host memory to device memory, to minimize disk I/O. Using LaSAGNA, we can assemble a 400 GB human genome dataset on a single NVIDIA K40 GPU in 17 hours, and in a little over 5 hours on an 8-node cluster of NVIDIA K20s."><meta property="og:image" content="https://sayangoswami.github.io/img/icon-192.png">
+  <meta property="twitter:image" content="https://sayangoswami.github.io/img/icon-192.png"><meta property="og:locale" content="en-us">
   
     
       <meta property="article:published_time" content="2018-08-06T00:00:00-05:00">
@@ -151,7 +151,7 @@
   "@type": "Article",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/"
+    "@id": "https://sayangoswami.github.io/publication/lasagna/"
   },
   "headline": "GPU-Accelerated Large-Scale Genome Assembly",
   
@@ -163,7 +163,7 @@
     "name": "Sayan Goswami",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://sun.cs.lsus.edu/~sgoswami/img/icon-512.png"
+      "url": "https://sayangoswami.github.io/img/icon-512.png"
     }
   },
   "description": "Spurred by a widening gap between hardware accelerators and traditional processors, numerous bioinformatics applications have harnessed the computing power of GPUs and reported substantial performance improvements compared to their CPU-based counterparts. However, most of these GPU-based applications only focus on the read alignment problem, while the field of de novo assembly still relies mostly on CPU-based solutions. This is primarily due to the nature of the assembly workload which is not only compute-intensive but also extremely data-intensive. Such workloads require large memories, making it difficult to adapt them to use GPUs with their limited memory capacities. To the best of our knowledge, no GPU-based assembler reported in the recent literature has attempted to assemble datasets larger than a few tens of gigabytes, whereas real sequence datasets are often several hundreds of gigabytes in size. In this paper, we present a new GPU-accelerated genome assembler called LaSAGNA, which can assemble large-scale sequence datasets using a single GPU by building string graphs from approximate all-pair overlaps. LaSAGNA can also run on multiple GPUs across multiple compute nodes connected by a high-speed network to expedite the assembly process. To utilize the limited memory on GPUs efficiently, LaSAGNA uses a semi-streaming approach that makes at most a logarithmic number of passes over the input data based on the available memory. Moreover, we propose a two-level streaming model, from disk to host memory and from host memory to device memory, to minimize disk I/O. Using LaSAGNA, we can assemble a 400 GB human genome dataset on a single NVIDIA K40 GPU in 17 hours, and in a little over 5 hours on an 8-node cluster of NVIDIA K20s."
@@ -227,7 +227,7 @@
   <div class="container">
 
     
-      <a class="navbar-brand" href="/~sgoswami/">Sayan Goswami</a>
+      <a class="navbar-brand" href="/">Sayan Goswami</a>
       
       <button type="button" class="navbar-toggler" data-toggle="collapse"
               data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -266,7 +266,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/~sgoswami/#about"><span>Home</span></a>
+          <a class="nav-link " href="/#about"><span>Home</span></a>
         </li>
 
         
@@ -295,7 +295,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/~sgoswami/#teaching"><span>Teaching</span></a>
+          <a class="nav-link " href="/#teaching"><span>Teaching</span></a>
         </li>
 
         
@@ -324,7 +324,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/~sgoswami/#publications"><span>Publications</span></a>
+          <a class="nav-link " href="/#publications"><span>Publications</span></a>
         </li>
 
         
@@ -346,7 +346,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/~sgoswami/files/cv.pdf"><span>CV</span></a>
+          <a class="nav-link " href="/files/cv.pdf"><span>CV</span></a>
         </li>
 
         
@@ -375,7 +375,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/~sgoswami/#contact"><span>Contact</span></a>
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
         </li>
 
         
@@ -450,7 +450,7 @@
 
 
 
-  <span><a href="/~sgoswami/authors/sayan-goswami/">Sayan Goswami</a></span>, <span><a href="/~sgoswami/authors/kisung-lee/">Kisung Lee</a></span>, <span><a href="/~sgoswami/authors/shayan-shams/">Shayan Shams</a></span>, <span><a href="/~sgoswami/authors/seung-jong-park/">Seung-Jong Park</a></span>
+  <span><a href="/authors/sayan-goswami/">Sayan Goswami</a></span>, <span><a href="/authors/kisung-lee/">Kisung Lee</a></span>, <span><a href="/authors/shayan-shams/">Shayan Shams</a></span>, <span><a href="/authors/seung-jong-park/">Seung-Jong Park</a></span>
 
   </div>
   
@@ -490,7 +490,7 @@
       
       
       <li>
-        <a href="https://twitter.com/intent/tweet?url=https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/&amp;text=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-twitter">
+        <a href="https://twitter.com/intent/tweet?url=https://sayangoswami.github.io/publication/lasagna/&amp;text=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-twitter">
           <i class="fab fa-twitter"></i>
         </a>
       </li>
@@ -503,7 +503,7 @@
       
       
       <li>
-        <a href="https://www.facebook.com/sharer.php?u=https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/&amp;t=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-facebook">
+        <a href="https://www.facebook.com/sharer.php?u=https://sayangoswami.github.io/publication/lasagna/&amp;t=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-facebook">
           <i class="fab fa-facebook-f"></i>
         </a>
       </li>
@@ -516,7 +516,7 @@
       
       
       <li>
-        <a href="mailto:?subject=GPU-Accelerated%20Large-Scale%20Genome%20Assembly&amp;body=https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/" target="_blank" rel="noopener" class="share-btn-email">
+        <a href="mailto:?subject=GPU-Accelerated%20Large-Scale%20Genome%20Assembly&amp;body=https://sayangoswami.github.io/publication/lasagna/" target="_blank" rel="noopener" class="share-btn-email">
           <i class="fas fa-envelope"></i>
         </a>
       </li>
@@ -529,7 +529,7 @@
       
       
       <li>
-        <a href="https://www.linkedin.com/shareArticle?url=https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/&amp;title=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-linkedin">
+        <a href="https://www.linkedin.com/shareArticle?url=https://sayangoswami.github.io/publication/lasagna/&amp;title=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-linkedin">
           <i class="fab fa-linkedin-in"></i>
         </a>
       </li>
@@ -542,7 +542,7 @@
       
       
       <li>
-        <a href="https://web.whatsapp.com/send?text=GPU-Accelerated%20Large-Scale%20Genome%20Assembly%20https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+        <a href="https://web.whatsapp.com/send?text=GPU-Accelerated%20Large-Scale%20Genome%20Assembly%20https://sayangoswami.github.io/publication/lasagna/" target="_blank" rel="noopener" class="share-btn-whatsapp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </li>
@@ -555,7 +555,7 @@
       
       
       <li>
-        <a href="https://service.weibo.com/share/share.php?url=https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/&amp;title=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-weibo">
+        <a href="https://service.weibo.com/share/share.php?url=https://sayangoswami.github.io/publication/lasagna/&amp;title=GPU-Accelerated%20Large-Scale%20Genome%20Assembly" target="_blank" rel="noopener" class="share-btn-weibo">
           <i class="fab fa-weibo"></i>
         </a>
       </li>
@@ -601,14 +601,14 @@
 
 
 
-<a class="btn btn-outline-primary my-1 mr-1" href="/~sgoswami/files/lasagna-paper.pdf" target="_blank" rel="noopener">
+<a class="btn btn-outline-primary my-1 mr-1" href="/files/lasagna-paper.pdf" target="_blank" rel="noopener">
   PDF
 </a>
 
 
 
 <button type="button" class="btn btn-outline-primary my-1 mr-1 js-cite-modal"
-        data-filename="/~sgoswami/publication/lasagna/cite.bib">
+        data-filename="/publication/lasagna/cite.bib">
   Cite
 </button>
 
@@ -654,7 +654,7 @@
           <div class="col-12 col-md-9">
             
             
-            <a href="/~sgoswami/publication/#1">
+            <a href="/publication/#1">
               Conference paper
             </a>
             
@@ -715,7 +715,7 @@
     
 
     <div class="media-body">
-      <h5 class="card-title"><a href="/~sgoswami/authors/sayan-goswami/"></a></h5>
+      <h5 class="card-title"><a href="/authors/sayan-goswami/"></a></h5>
       
       
       <ul class="network-icon" aria-hidden="true">
@@ -740,7 +740,7 @@
     
     
     
-    <script src="/~sgoswami/js/mathjax-config.js"></script>
+    <script src="/js/mathjax-config.js"></script>
     
 
     
@@ -780,7 +780,7 @@
     
     
     <script>
-      const search_index_filename = "/~sgoswami/index.json";
+      const search_index_filename = "/index.json";
       const i18n = {
         'placeholder': "Search...",
         'results': "results found",
@@ -839,7 +839,7 @@
     
     
     
-    <script src="/~sgoswami/js/academic.min.130521ecfc6f534c52c158217bbff718.js"></script>
+    <script src="/js/academic.min.130521ecfc6f534c52c158217bbff718.js"></script>
 
     
 

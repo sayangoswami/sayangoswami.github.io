@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ling Liu | Sayan Goswami</title>
-    <link>https://sun.cs.lsus.edu/~sgoswami/authors/ling-liu/</link>
-      <atom:link href="https://sun.cs.lsus.edu/~sgoswami/authors/ling-liu/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://sayangoswami.github.io/authors/ling-liu/</link>
+      <atom:link href="https://sayangoswami.github.io/authors/ling-liu/index.xml" rel="self" type="application/rss+xml" />
     <description>Ling Liu</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 11 Sep 2017 00:00:00 -0500</lastBuildDate>
     <image>
-      <url>https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png</url>
+      <url>https://sayangoswami.github.io/img/icon-192.png</url>
       <title>Ling Liu</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/authors/ling-liu/</link>
+      <link>https://sayangoswami.github.io/authors/ling-liu/</link>
     </image>
     
     <item>
       <title>Augmenting Amdahl&#39;s Second Law: A Theoretical Model to Build Cost-Effective Balanced HPC Infrastructure for Data-Driven Science</title>
-      <link>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</link>
+      <link>https://sayangoswami.github.io/publication/cloud/</link>
       <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
-      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</guid>
+      <guid>https://sayangoswami.github.io/publication/cloud/</guid>
       <description></description>
     </item>
     
