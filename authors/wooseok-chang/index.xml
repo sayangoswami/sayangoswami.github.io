@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Wooseok Chang | Sayan Goswami</title>
+    <link>https://sun.cs.lsus.edu/~sgoswami/authors/wooseok-chang/</link>
+      <atom:link href="https://sun.cs.lsus.edu/~sgoswami/authors/wooseok-chang/index.xml" rel="self" type="application/rss+xml" />
+    <description>Wooseok Chang</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 11 Sep 2017 00:00:00 -0500</lastBuildDate>
+    <image>
+      <url>https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png</url>
+      <title>Wooseok Chang</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/authors/wooseok-chang/</link>
+    </image>
+    
+    <item>
+      <title>Augmenting Amdahl&#39;s Second Law: A Theoretical Model to Build Cost-Effective Balanced HPC Infrastructure for Data-Driven Science</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</link>
+      <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
+      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kisung lee | Sayan Goswami</title>
+    <link>https://sun.cs.lsus.edu/~sgoswami/authors/kisung-lee/</link>
+      <atom:link href="https://sun.cs.lsus.edu/~sgoswami/authors/kisung-lee/index.xml" rel="self" type="application/rss+xml" />
+    <description>Kisung lee</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 06 Aug 2018 00:00:00 -0500</lastBuildDate>
+    <image>
+      <url>https://sun.cs.lsus.edu/~sgoswami/img/icon-192.png</url>
+      <title>Kisung lee</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/authors/kisung-lee/</link>
+    </image>
+    
+    <item>
+      <title>GPU-Accelerated Large-Scale Genome Assembly</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/</link>
+      <pubDate>Mon, 06 Aug 2018 00:00:00 -0500</pubDate>
+      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/lasagna/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Towards Distributed Cyberinfrastructure for Smart Cities Using Big Data and Deep Learning Technologies</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/publication/icdcs/</link>
+      <pubDate>Mon, 23 Jul 2018 00:00:00 -0500</pubDate>
+      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/icdcs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Augmenting Amdahl&#39;s Second Law: A Theoretical Model to Build Cost-Effective Balanced HPC Infrastructure for Data-Driven Science</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</link>
+      <pubDate>Mon, 11 Sep 2017 00:00:00 -0500</pubDate>
+      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/cloud/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Lazer: Distributed memory-efficient assembly of large-scale genomes</title>
+      <link>https://sun.cs.lsus.edu/~sgoswami/publication/lazer/</link>
+      <pubDate>Mon, 05 Dec 2016 00:00:00 -0600</pubDate>
+      <guid>https://sun.cs.lsus.edu/~sgoswami/publication/lazer/</guid>
+      <description>&lt;!---
+More detail can easily be written here using *Markdown* and $\rm \LaTeX$ math code.
+---&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
