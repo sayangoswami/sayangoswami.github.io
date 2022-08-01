@@ -1,0 +1,78 @@
+@charset "UTF-8";
+:root {
+  --background-color: #101f27;
+  --text-color: #eee;
+  --light-text-color: #999;
+  --primary-color: #50c3c9;
+  --secondary-color:  #f75323;
+  --link-color: var(--primary-color);
+  --link-hover-color: var(--primary-color);
+  --border-color: #eee;
+  --bullet-color: var(--secondary-color);
+  --nested-bullet-color: var(--primary-color);
+  --heading-block-color: var(--primary-color);
+  --faded-heading-color: #48555a;
+  --code-bg-color: #0a161b;
+  --yellow: #fcd534;
+  --progress-bar-color: var(--heading-block-color);
+  --body-font: 'Fira Sans', 'Roboto', -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --heading-font: 'Fira Sans', -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --code-font: 'Fira Code', Monaco, Consolas, Monaco, 'Andale Mono', monospace;
+  --base-font-size: 10px;
+  --sm-font-size: 0.9em;
+  --xs-font-size: 0.7em;
+  --xxs-font-size: 0.6em;
+  --quote-font-size: 2rem; }
+
+ td strong, li strong, blockquote strong {
+   color: var(--primary-color); }
+td strong em, li strong em, blockquote strong em {
+  color: var(--secondary-color); }
+
+  @font-face {
+  font-family: 'Fira Sans';
+  src: url("./theme/fonts/FiraSans-Regular.eot");
+  src: url("./theme/fonts/FiraSans-Regular.eot") format("embedded-opentype"), url("./theme/fonts/FiraSans-Regular.woff2") format("woff2"), url("./theme/fonts/FiraSans-Regular.woff") format("woff"), url("./theme/fonts/FiraSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'Fira Sans Semibold';
+  src: url("./theme/fonts/FiraSans-SemiBold.eot");
+  src: url("./theme/fonts/FiraSans-SemiBold.eot") format("embedded-opentype"), url("./theme/fonts/FiraSans-SemiBold.woff2") format("woff2"), url("./theme/fonts/FiraSans-SemiBold.woff") format("woff"), url("./theme/fonts/FiraSans-SemiBold.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'Roboto';
+  src: url("./theme/fonts/Roboto-Regular.eot");
+  src: url("./theme/fonts/Roboto-Regular.eot") format("embedded-opentype"), url("./theme/fonts/Roboto-Regular.woff") format("woff"), url("./theme/fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal; }
+
+.reveal pre, .reveal code {
+  font-family: var(--code-font);
+  font-size: 1.2rem;
+}
+
+section > h3::after {
+  display: block;
+  content: ' ';
+  margin-top: 10px;
+  width: 100px;
+  height: 8px;
+  background: var(--heading-block-color); }
+
+.reveal .slides {
+ text-align: left; }
+
+ .section-title h4 {
+   color: var(--faded-heading-color); }
+
+.reveal ul li::marker {
+   color: var(--bullet-color);
+}
+
+.reveal ul ul li::marker {
+   color: #50c3c9;
+}
