@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Lecture 1: Introduction</title>
+  <title>Lecture 3 - Sorting and Searching</title>
 
   <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
   <meta name="author" content="Hakim El Hattab">
@@ -74,7 +74,7 @@
         <section >
             
             <div class="section-title">
-<h2>CSC201 - Computer Organization</h2>
+<h2>Sorting and searching</h2>
 </div>
 
             </section>
@@ -85,13 +85,8 @@
     
         <section >
             
-            <h3>What you’ll learn</h3>
-<ul>
-<li>Understand what’s under the hood of a computer</li>
-<li>Learn the principles of digital design</li>
-<li>Learn to systematically debug increasingly complex designs</li>
-<li>Design and build a microprocessor</li>
-</ul>
+            <h3>Growth Rates</h3>
+<p><img src="img/CSC210-l02-image.png" alt="Alt text"></p>
 
             </section>
     
@@ -101,105 +96,28 @@
     
         <section >
             
-            <h3>Pre-requisites</h3>
+            <h3>Loop Invariants</h3>
 <ul>
-<li>A genuine interest in the inner workings of a computer</li>
-</ul>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Evaluation</h3>
-<ul>
-<li>Assignments and Quizzes - 65%</li>
-<li>Final Exam (<em>During midterm week</em>) - 35%</li>
-<li>Rubric - Based on class performance</li>
-</ul>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Attendance</h3>
-<ul>
-<li><em>No attendance if you are late by <strong>&gt; 5 minutes</strong></em> <strong>[No Exceptions]</strong></li>
-<li>Authorized/Unavoidable absence $\neq$ Marked as Present</li>
-</ul>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Class etiquettes</h3>
-<ul>
-<li>Disruptions = No attendance</li>
-</ul>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Logistics and Communication</h3>
-<ul>
-<li>All course material will be uploaded on Google Classroom
-<ul>
-<li><strong>Class code - <em>czhqalk</em></strong></li>
-</ul>
+<li>
+<p>Common method of showing <em>correctness</em></p>
 </li>
-<li>Office hours by appointment
-<ul>
-<li>Schedule using <a href="https://appt.link/meet-with-sayan-goswami/office-hours">this link</a></li>
-</ul>
+<li>
+<p>An <em>assertion</em> that we demonstrate to be <em>true each time we start a loop</em>
+iteration</p>
 </li>
-</ul>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <div class="section-title">
-<h2>How does a computer really work?</h2>
-</div>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>The Three Big Ideas</h3>
+<li>
+<p>we have to show three things about a loop invariant:</p>
 <ul>
 <li class="fragment">
-<p>Represent all data with <em>discrete values</em> </p>
+<p><em>Initialization</em>: It is true before the first iteration of the loop. </p>
 </li>
 <li class="fragment">
-<p>Store and process discrete values in the <em>binary number system</em> </p>
+<p><em>Maintenance</em>: If it is true before an iteration of the loop, it remains true before the next iteration. </p>
 </li>
 <li class="fragment">
-<p>Use <em>voltage levels to represent</em>, and electronic <em>switches to process</em> binary data </p>
+<p><em>Termination</em>: The loop terminates, and when it does, the loop invariant, along with the reason that the loop terminated, gives us a useful property. </p>
+</li>
+</ul>
 </li>
 </ul>
 
@@ -209,118 +127,27 @@
 
 
     
-        <section >
-            
-            <h3>Abstraction</h3>
-<p>Hiding details when they are not important</p>
-<p class="fragment"><em>Hierarchy</em> - A system divided into <em>modules</em> and submodules </p>
-<p class="fragment"><em>Modularity</em> - Having well-defined functions and <em>interfaces</em> </p>
-<p class="fragment"><em>Regularity</em> - Encouraging uniformity, so modules can be easily <em>reused</em> </p>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>The digital abstraction</h3>
-<p>Most physical variables are continuous</p>
-<ul>
-<li>Voltage on a wire</li>
-<li>Frequency of an oscillation</li>
-<li>Position of a mass</li>
-</ul>
-<p>Digital abstraction considers <em>discrete subset</em> of values</p>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>The analytical engine</h3>
-<ul>
-<li>Designed by Charles Babbage from 1834 – 1871</li>
-<li>Considered to be the first digital computer</li>
-<li>Built from mechanical gears, where each gear represented a discrete value (0-9)</li>
-</ul>
-<p style="width:500px;"><img src="img/csc201-l00-image.png" alt="image"></p>
-
-            </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Binary values</h3>
-<p>Digital abstraction considers discrete subset of values</p>
-<p>Two discrete values - 1’s and 0’s</p>
-<ul class="fragment">
-<li>1 = TRUE = HIGH</li>
-<li>0 = FALSE = LOW</li>
-</ul>
-<p class="fragment">How to represent 1 and 0: </p>
-<ul>
-<li class="fragment">voltage levels, rotating gears, fluid levels, etc. </li>
-</ul>
-<p class="fragment">Digital circuits use voltage levels to represent 1 and 0 </p>
-<p class="fragment">Bit: Binary digit </p>
-
-            </section>
-    
-
-
-
-    
     <section>
         <section >
-            <!-- ### From atoms to transistors
-
-<iframe width="850" height="500" src="https://www.youtube.com/embed/IcrBqCFLHIY?list=PLI9BV1FTTSQtgJ7lPeJAoK01w82poPxMC" title="How Does a Transistor Work?" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
-<!-- -- -->
-<!-- ### From transistors to logic gates
-
-<iframe width="850" height="500" src="https://www.youtube.com/embed/gI-qXk7XojA" title="Boolean Logic & Logic Gates: Crash Course Computer Science #3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
-<!-- --- -->
-<h3>Number systems</h3>
-<p>Decimal - Base 10</p>
-<p>Binary - Base 2</p>
-<p>Hexadecimal - Base 16</p>
+            <h3>Loop invariant of linear search</h3>
+<pre><code class="language-python">def linear_search(A, x):
+   for i in range(len(A)):
+      if x == A[i]:
+         return i
+   return -1
+</code></pre>
+<p><strong>Prove</strong>: the above algorithm correctly finds <code>x</code> in <code>A</code>.</p>
+<p class="fragment"><strong>Invariant</strong>: At the start of each iteration of line 2, if <code>x</code> is present in <code>A</code>, then it is present in the subarray from <code>A[i]</code> through <code>A[n-1]</code>. </p>
 
             </section>
         
             <section >
-                <h3>The positional number system</h3>
-<p>A number $n$ expressed in a base $r$ system has coefficients multiplied by powers of $r$.</p>
-<p>$n = a_n.r^{n-1} + a_{n-1}.r^{n-2} + … + a_2.r + a_1 + $</p>
-<p>$a_{-1}.r^{-1} + a_{-2}.r^{-2} … + a_{-n}.r^{-n}$,</p>
-<p>where $a$ ranges from 0 to $r$-1.</p>
-
-            </section>
-        
-            <section >
-                <h3>Example - Decimal numbers (base 10)</h3>
-<p>$(123.45)_{10} = 1 \times 10^2 + 2 \times 10 + 3 + 4 \times 10^{-1} + 5 \times 10^{-2}$</p>
-
-            </section>
-        
-            <section >
-                <h3>A few other examples</h3>
-<p>$(210.2)_5 =2 \times 5^2 + 1 \times 5 + 0 + 2 \times 5^{-1} = 55.4$
-$(127.4)_8 =1 \times 8^2 + 2 \times 8 + 7 + 4 \times 8^{-1} = 87.5$</p>
-
-            </section>
-        
-            <section >
-                <h3>Example - Binary numbers (base 2)</h3>
-<p>$(10110)_2 =1\times 2^4 + 1\times 2^2 + 1\times 2 = 22$</p>
-<p class="fragment">$(10011)_2 = (\qquad)$ </p>
+                <p class="fragment"><em>Initialization</em>: Trivially true </p>
+<p class="fragment"><em>Maintenance</em>: For iteration i, if x is present, it must be in A[i…n-1]. If we are at iteration i+1, then A[i] $\neq$ x, and therefore x if present must be in A[i+1…n-1]. </p>
+<p class="fragment"><em>Termination</em>: The loop must terminate either due to line 4 or 5. It terminates at line 4 only of we have found <code>x</code>. </p>
+<p class="fragment">For line 5 use <em>contrapositive</em>: if <code>x</code> is not present in the subarray
+from <code>A[i]</code> through <code>A[n-1]</code>, then it is not present in the array <code>A</code>. </p>
+<p class="fragment">When <code>i</code> = <code>n</code>, the subarray is empty, so it cant have <code>x</code>. </p>
 
             </section>
         
@@ -333,144 +160,280 @@ $(127.4)_8 =1 \times 8^2 + 2 \times 8 + 7 + 4 \times 8^{-1} = 87.5$</p>
     
     <section>
         <section >
-            <h3>Converting Whole numbers to binary</h3>
-<p>Given a decimal number d, repeatedly divide d by 2 and save the remainders from right to left. Keep going till you reach 0.</p>
-<p>Example: $53_{10}$</p>
-<div class="r-stack">
-<p class="fragment fade-in-then-out" data-fragment-index="1"><em>53/2 = 26 R1</em></p>
-<p class="fragment fade-in-then-out" data-fragment-index="2"><em>26/2 = 13 R0</em></p>
-<p class="fragment fade-in-then-out" data-fragment-index="3"><em>13/2 =  6 R1</em></p>
-<p class="fragment fade-in-then-out" data-fragment-index="4"><em>6/2 =  3 R0</em></p>
-<p class="fragment fade-in-then-out" data-fragment-index="5"><em>3/2 =  1 R1</em></p>
-<p class="fragment fade-in-then-out" data-fragment-index="6"><em>1/2 =  0 R1</em></p>
-</div>
-<p>Binary representation</p>
-<div class="r-stack">
-<p class="fragment fade-in-then-out" data-fragment-index="1">1</p>
-<p class="fragment fade-in-then-out" data-fragment-index="2">01</p>
-<p class="fragment fade-in-then-out" data-fragment-index="3">101</p>
-<p class="fragment fade-in-then-out" data-fragment-index="4">0101</p>
-<p class="fragment fade-in-then-out" data-fragment-index="5">10101</p>
-<p class="fragment fade-in-then-out" data-fragment-index="6">110101</p>
-</div>
-            </section>
-        
-            <section >
-                <h3>Exercise</h3>
-<p style="padding-bottom: 200px;">Convert $(17)_{10}$ to binary</p>
+            <h3>Recursion</h3>
+<p>Solve a problem by solving smaller
+instances of the same problem.</p>
+<p>Example: $n! = n.(n-1).(n-2)\dots 3.2.1$</p>
+<p>Note that $(n-1)! = (n-1).(n-2)\dots 3.2.1$</p>
+<p>Therefore $n! = n \times (n-1)!$</p>
 
             </section>
         
             <section >
-                <h3>Fractions</h3>
-<p>Given a decimal fraction d, repeatedly multiply the decimal part by 2 and save the integer part of the result from left to right. Keep going till the decimal part becomes 0.</p>
-<p>Example: $(.375)_{10}$</p>
-<div class="r-stack">
-<p class="fragment fade-in-then-out" data-fragment-index="1">.375 * 2 = 0 + .75</p>
-<p class="fragment fade-in-then-out" data-fragment-index="2">.75 * 2 = 1 + .5</p>
-<p class="fragment fade-in-then-out" data-fragment-index="3">.5 * 2 = 1 + 0</p>
-</div>
-<hr>
-<div class="r-stack">
-<p class="fragment fade-in-then-out" data-fragment-index="1">0</p>
-<p class="fragment fade-in-then-out" data-fragment-index="2">01</p>
-<p class="fragment fade-in-then-out" data-fragment-index="3">011</p>
-</div>
-<p class="fragment">$(.375)_{10} = (.011)_2$ </p>
-
-            </section>
-        
-            <section >
-                <h3>Mixed fractions</h3>
-<p>Separate the integer and fraction and work on them separately.</p>
-<p style="padding-bottom: 250px;">Example: $(41.75)_{10}$</p>
-
-            </section>
-        
-
-    </section>
-    
-
-
-
-    
-        <section >
-            
-            <div class="section-title">
-<h2>Operations on Binary numbers</h2>
-</div>
-
-            </section>
-    
-
-
-
-    
-    <section>
-        <section >
-            <h3>Binary Addition</h3>
-<p style="padding-bottom: 250px;">1011 + 0011 = ?</p>
-<p class="fragment">1110 </p>
-<p class="fragment">Terminology: The <strong>carry bit</strong> </p>
-
-            </section>
-        
-            <section >
-                <h3>Exercises</h3>
-<p>1001 + 101 =</p>
-<p class="fragment" style="padding-left: 250px;">1110 </p>
-<p>1011 + 0110 =</p>
-<p class="fragment" style="padding-left: 250px;">10001 </p>
-<p class="fragment"><strong>Overflow</strong> </p>
-
-            </section>
-        
-
-    </section>
-    
-
-
-
-    
-        <section >
-            
-            <h3>Overflow</h3>
-<p>Digital systems operate on a <em>fixed number of bits</em></p>
-<p><strong>Overflow</strong>: when result is <em>too big to fit</em> in the available number of bits</p>
-<p>Discard the Most Significant Bit (MSB)</p>
-
-            </section>
-    
-
-
-
-    
-    <section>
-        <section >
-            <h3>Signed binary numbers</h3>
+                <p>For recursion to work:</p>
 <ul>
-<li>How to represent negative numbers</li>
-</ul>
-
-            </section>
-        
-            <section >
-                <h3>Sign bit</h3>
+<li class="fragment">First, there must
+be one or more <em>base cases</em>, where we compute the solution directly
+without recursion. 
 <ul>
-<li>MSB is used for sign</li>
-<li>MSB = 1 $\implies$ negative, else positive</li>
-<li>Problems?
-<ul class="fragment">
-<li>addition doesn’t work</li>
-<li>0 has 2 representations</li>
+<li class="fragment">Base case for factorial? </li>
 </ul>
 </li>
+<li class="fragment">Second, each recursive call of the procedure must be
+on a <em>smaller instance of the same problem</em> that will eventually reach a
+base case. </li>
 </ul>
 
             </section>
         
 
     </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Recursive linear search</h3>
+<p style="padding-bottom: 400px;"></p>
+
+            </section>
+        
+            <section >
+                <pre><code data-trim="" data-line-numbers="|1|2,3|4,5|6-7|9|" data-fragment-index="1" class="language-python">def recursive_linear_search(A, x, i=0):
+   if i &gt;= len(A):
+      return -1
+   elif A[i] == x:
+      return i
+   else:
+      return recursive_linear_search(A, x, i+1)
+
+recursive_linear_search(A, x)
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Binary search</h3>
+<p style="padding-bottom: 400px;"></p>
+
+            </section>
+        
+            <section >
+                <pre><code data-trim="" data-line-numbers="|1|2,3|4|5|6-7|8-9|10-11" data-fragment-index="1" class="language-python">def binary_search(A, x):
+   p = 0
+   r = len(A)-1
+   while p &lt;= r:
+      q = int((p+r)/2)
+      if A[q] == x:
+         return q
+      elif A[q] &gt; x:
+         r = q - 1
+      else:
+         p = q + 1
+</code></pre>
+<p class="fragment" data-fragment-index="12"><strong>Loop invariant?</strong></p>
+<p class="fragment" data-fragment-index="13">At the start of each iteration of the loop of line 4, if <code>x</code> is anywhere
+in the array <code>A</code>, then it is somewhere in the subarray <code>A[p...r-1]</code></p>
+
+            </section>
+        
+            <section >
+                <h3>Analysis of Binary search</h3>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Recursive binary search</h3>
+<pre><code data-trim="" data-line-numbers="|1|2,3|4|5|6-7|8-9|10-11|13" data-fragment-index="1" class="language-python">def rec_binary_search(A, p, r, x):
+   if p &gt;= r:
+      return -1
+   else:
+      q = int((p+r)/2)
+      if A[q] == x:
+         return q
+      elif A[q] &gt; x:
+         return rec_binary_search(A, p, q-1, x)
+      else:
+         return rec_binary_search(A, q+1, r, x)
+
+rec_binary_search(A, 0, len(A)-1, x)
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Selection sort</h3>
+<p>Example:</p>
+<pre><code class="language-python">[12  9  3  7  14  11]
+</code></pre>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+        
+            <section >
+                <pre><code class="language-python">def selection_sort(A):
+   for i in range(len(A)):
+      si = find_smallest_index(A, i)
+      swap(A, i, si)
+</code></pre>
+
+            </section>
+        
+            <section >
+                <pre><code class="language-python">def find_smallest_index(A, i):
+   si = i
+   for i in range(i, len(A)):
+      if A[i] &lt; A[si]:
+         si = i
+   return si
+</code></pre>
+
+            </section>
+        
+            <section >
+                <pre><code class="language-python">def swap(A, i, si):
+   temp = A[i]
+   A[i] = A[si]
+   A[si] = temp
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h3>Loop invariant?</h3>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+        
+            <section >
+                <h3>Time complexity</h3>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Insertion sort</h3>
+<p>Example:</p>
+<pre><code class="language-python">[12  9  3  7  14  11]
+</code></pre>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+        
+            <section >
+                <pre><code data-trim="" data-line-numbers="|2|3,4|5|6,7|8" data-fragment-index="1" class="language-python">def insertion_sort(A):
+   for i in range(1, len(A)):
+      key = A[i]
+      j = i-1
+      while j &gt;= 0 and A[j] &gt; key:
+         A[j+1] = A[j]
+         j = j-1
+      A[j] = key
+</code></pre>
+<p class="fragment" data-fragment-index="9"><strong>Loop invariant?</strong></p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Time complexity</h3>
+<p style="padding-bottom: 500px;"></p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Divide and conquer</h3>
+<p><mark>TODO</mark></p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Merge sort</h3>
+<p><mark>TODO</mark></p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>The merge algorithm</h3>
+<p><mark>TODO</mark></p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Analysis of merge sort</h3>
+<p><mark>TODO</mark></p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Pro’s and cons of merge sort</h3>
+<p><mark>TODO</mark></p>
+
+            </section>
     
 
 
