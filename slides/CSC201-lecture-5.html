@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Lecture 1: Introduction</title>
+  <title>Lecture 5: Combinational Building Blocks</title>
 
   <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
   <meta name="author" content="Hakim El Hattab">
@@ -20,26 +20,26 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
   <!-- highlight Theme -->
-  
+
   <link rel="stylesheet" href="libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
-  
-	
-		
+
+
+
 	<link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/chalkboard/style.css">
-	
-	
-	
+
+
+
   <link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/customcontrols/style.css">
-  
-	
+
+
 
 
 
   <!-- Revealjs Theme -->
-  
+
   <link rel="stylesheet" href="libs/reveal.js/4.3.1/theme/night.css" id="theme">
-  
-  
+
+
 
   <link rel="stylesheet" href="libs/styles/tasklist.css">
 	<link rel="stylesheet" href="libs/styles/iota.css">
@@ -47,67 +47,67 @@
 
 
   <!-- Revealjs Theme -->
-  
+
   <link rel="stylesheet" href="custom.css">
-  
+
 
    <!-- css list -->
-	
 
-   
+
+
 
 </head>
 
 <body>
 
-   
+
 
   <div class="reveal">
 
     <!-- Any section element inside of this container is displayed as a slide -->
     <div class="slides">
 
-      
 
 
-    
+
+
         <section >
-            
+
             <div class="section-title">
 <h2>CSC201 - Computer Organization</h2>
 <h3>Combinational Building Blocks</h3>
 </div>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Multiplexer (Mux)</h3>
 <p>Selects between one of N inputs to connect to output
 log2N-bit select input – control input</p>
 <p><img src="img/csc201-l04-image.png" alt="2:1 Mux"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Multiplexer Implementations</h3>
 <p><img src="img/csc201-l04-image-1.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
     <section>
         <section >
             <h3>Logic using Multiplexers</h3>
@@ -115,79 +115,79 @@ log2N-bit select input – control input</p>
 <p><img src="img/csc201-l04-image-2.png" alt="Alt text"></p>
 
             </section>
-        
+
             <section >
                 <p>Reducing the size of the mux</p>
 <p><img src="img/csc201-l04-image-3.png" alt="Alt text"></p>
 
             </section>
-        
+
 
     </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Decoders</h3>
 <p>N inputs, 2N outputs
 One-hot outputs: only one output HIGH at once</p>
 <p><img src="img/csc201-l04-image-4.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Decoder implementation</h3>
 <p><img src="img/csc201-l04-image-5.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Logic with decoders</h3>
 <p><img src="img/csc201-l04-image-6.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Critical paths</h3>
 <p><img src="img/csc201-l04-image-7.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Adders</h3>
 <p><img src="img/csc201-l04-image-8.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Ripple-Carry Adder</h3>
 <p>Chain 1-bit adders together
 Carry ripples through entire chain
@@ -195,49 +195,49 @@ Disadvantage: slow</p>
 <p><img src="img/csc201-l04-image-9.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Subtracter</h3>
 <p><img src="img/csc201-l04-image-10.png" alt="Alt text">
 <img src="img/csc201-l04-image-11.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Multipliers</h3>
 <p>Partial products formed by multiplying a single digit of the multiplier with multiplicand
 Shifted partial products summed to form result</p>
 <p><img src="img/csc201-l04-image-15.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>4 x 4 Multiplier</h3>
 <p style="width: 1000px;"><img src="img/csc201-l04-image-16.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Dividers</h3>
 <div class="container ">
 <div class="col ">
@@ -256,13 +256,13 @@ Shifted partial products summed to form result</p>
 </div>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Dividers</h3>
 <p>A/B = Q + R/B</p>
 <div class="container ">
@@ -282,13 +282,13 @@ Shifted partial products summed to form result</p>
 </div>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Dividers</h3>
 <pre><code class="language-text">A/B = Q + R/B
 
@@ -302,55 +302,55 @@ R=R’
 </code></pre>
 <!-- ![Alt text](img/csc201-l04-image-21.png) -->
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>4 x 4 Divider</h3>
 <p style="width: 900px;"><img src="img/csc201-l04-image-22.png" alt="Alt text"></p>
 <p>Each row computes one iteration of the division algorithm.</p>
 
             </section>
-    
 
 
 
-    
+
+
     <section>
         <section >
             <h3>Comparator: Equality</h3>
 <p><img src="img/csc201-l04-image-12.png" alt="Alt text"></p>
 
             </section>
-        
+
             <section >
                 <p><img src="img/csc201-l04-image-13.png" alt="Alt text"></p>
 
             </section>
-        
+
 
     </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Comparator: Less Than</h3>
 <p><img src="img/csc201-l04-image-14.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Shifters</h3>
 <ul>
 <li>
@@ -377,13 +377,13 @@ R=R’
 </ul>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Shifters</h3>
 <ul>
 <li>
@@ -410,25 +410,25 @@ R=R’
 </ul>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Shifter Design</h3>
 <p><img src="img/csc201-l04-image-23.png" alt="Alt text">
 <img src="img/csc201-l04-image-24.png" alt="Alt text"></p>
 
             </section>
-    
 
 
 
-    
+
+
         <section >
-            
+
             <h3>Shifters as Multipliers, Dividers</h3>
 <p>A &lt;&lt; N = A × 2N</p>
 <ul>
@@ -442,7 +442,7 @@ R=R’
 </ul>
 
             </section>
-    
+
 
 
     </div>
@@ -485,7 +485,7 @@ R=R’
 <!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/recorder.js"></script>-->
 <!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/RecordRTC.js"></script>-->
 
-  
+
 
 <script>
   const printPlugins = [
@@ -493,25 +493,25 @@ R=R’
       RevealHighlight,
       RevealMath.MathJax3,
       RevealAnimate,
-      RevealChalkboard, 
+      RevealChalkboard,
 			RevealEmbedTweet,
 			RevealChart,
 		];
 
 		const plugins =  [...printPlugins,
-		RevealZoom, 
-		RevealSearch, 
-				RevealMarkdown, 
-				RevealMenu, 
+		RevealZoom,
+		RevealSearch,
+				RevealMarkdown,
+				RevealMenu,
 				RevealFullscreen,
 				RevealAnything,
 				//RevealAudioSlideshow,
 				//RevealAudioRecorder,
-				RevealCustomControls, 
+				RevealCustomControls,
 				// poll
 				// question
 				// seminar
-				Verticator 
+				Verticator
 				 ]
 
 
@@ -600,12 +600,12 @@ R=R’
         playerStyle: 'position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;', // style used for container of audio controls
         startAtFragment: false, // when moving to a slide, start at the current fragment or at the start of the slide
       },
-      
+
       chalkboard: { // font-awesome.min.css must be available
         //src: "chalkboard/chalkboard.json",
         storage: "chalkboard-demo",
       },
-      
+
 			customcontrols: {
 					controls: [
       						{
@@ -625,22 +625,22 @@ R=R’
         title: 'Toggle notes canvas (C)',
         action: 'RevealChalkboard.toggleNotesCanvas();'
       }
-      
+
 				]
 			},
 			chart: {
-					defaults: { 
+					defaults: {
 						color: 'lightgray', // color of labels
-						scale: { 
-							beginAtZero: true, 
+						scale: {
+							beginAtZero: true,
 							ticks: { stepSize: 1 },
 							grid: { color: "lightgray" } , // color of grid lines
 						},
 					},
-					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] }, 
-					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] },
+					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]},
 					pie: { backgroundColor: [ ["rgba(0,0,0,.8)" , "rgba(220,20,20,.8)", "rgba(20,220,20,.8)", "rgba(220,220,20,.8)", "rgba(20,20,220,.8)"] ]},
-					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]},
 			},
 			math: {
 				mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
@@ -648,14 +648,14 @@ R=R’
 				// pass other options into `MathJax.Hub.Config()`
 				TeX: { Macros: { RR: "{\\bf R}" } }
 				},
-				anything: [ 
+				anything: [
 				{
 		className: "plot",
 		defaults: {width:500, height: 500, grid:true},
 		initialize: (function(container, options){ options.target = "#"+container.id; functionPlot(options) })
 	 },
 	 {
-		className: "chart",  
+		className: "chart",
 		initialize: (function(container, options){ container.chart = new Chart(container.getContext("2d"), options);  })
 	 },
 	 {
@@ -664,12 +664,12 @@ R=R’
 	 },
 					],
 			// Learn about plugins: https://revealjs.com/plugins/
-			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins ) 
+			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins )
 		});
-			
 
 
-	    // Change chalkboard theme : 
+
+	    // Change chalkboard theme :
 		function changeTheme(input) {
 			var config = {};
 			config.theme = input.value;
@@ -692,7 +692,7 @@ R=R’
       		setTimeout(() => {
 				window.print();
 			  }, 2500);
-			
+
     }
 </script>
 
