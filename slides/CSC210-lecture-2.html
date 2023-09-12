@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Lecture 2 - Evaluating algorithms</title>
+
+  <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+  <meta name="author" content="Hakim El Hattab">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/reset.css">
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/reveal.css">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <!-- highlight Theme -->
+  
+  <link rel="stylesheet" href="libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
+  
+	
+		
+	<link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/chalkboard/style.css">
+	
+	
+	
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/customcontrols/style.css">
+  
+	
+
+
+
+  <!-- Revealjs Theme -->
+  
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/theme/night.css" id="theme">
+  
+  
+
+  <link rel="stylesheet" href="libs/styles/tasklist.css">
+	<link rel="stylesheet" href="libs/styles/iota.css">
+	<link rel="stylesheet" href="libs/styles/layout.css">
+
+
+  <!-- Revealjs Theme -->
+  
+  <link rel="stylesheet" href="custom.css">
+  
+
+   <!-- css list -->
+	
+
+   
+
+</head>
+
+<body>
+
+   
+
+  <div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+      
+
+
+    
+        <section >
+            
+            <div class="section-title">
+<h2>Evaluating computer algorithms</h2>
+</div>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Recap - Two main ideas</h3>
+<p class="fragment"><em>Idea 1</em>: how long the algorithm takes as a function of the size of its input</p>
+<ul class="fragment">
+<li>Robot tour</li>
+<li>Sorting</li>
+<li>Prime factorization</li>
+</ul>
+<p class="fragment"><em>Idea 2</em>: focus on how fast the function <strong>grows</strong> with the input size</p>
+<ul>
+<li class="fragment">more specifically on the <strong>order of growth</strong></li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Linear search</h3>
+<pre><code data-trim="" data-line-numbers="|1|2|3|4,5|6|1-6" data-fragment-index="1" class="language-python">def linear_search(A, x):
+   found = -1
+   for i in range(len(A)):
+      if x == A[i]:
+         found = i
+   return found
+</code></pre>
+<div class="r-stack">
+<p class="fragment fade-in-then-out" data-fragment-index="1">Function definition: The <code>linear_search</code> function takes 2 arguments - A is a list and x is the element that we are trying to find.</p>
+<p class="fragment fade-in-then-out" data-fragment-index="2">Assignment: assigning the value 1 to the variable <code>found</code></p>
+<p class="fragment fade-in-then-out" data-fragment-index="3">For-loop: <code>len(A)</code> returns the length of the list and the loop runs from 0 to the length (exclusive).</p>
+<p class="fragment fade-in-then-out" data-fragment-index="4">Check condition: If the value of the item at the current index is equal to <code>x</code>, we set found to the current index.</p>
+<p class="fragment fade-in-then-out" data-fragment-index="5">Return: Once out of the loop, we return the value at <code>found</code>.</p>
+<p class="fragment fade-in-then-out" data-fragment-index="6"><em>Question:</em> Is this the most efficient implementation?</p>
+</div>
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Characterizing running times</h3>
+<p>Recall that we characterize the running
+time as a function of the <em>input size</em></p>
+<p class="fragment"><strong>Question</strong>: What is the input size here?</p>
+<p class="fragment">We will find the time as a function of the list length</p>
+<p class="fragment">Simplifying assumption: each individual operation takes a <em>fixed amount of time</em> independent of input size</p>
+<ul class="fragment">
+<li>arithmetic/logical operations</li>
+<li>function calls/returns</li>
+<li>memory accesses</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Running time of linear search</h3>
+<pre><code data-trim="" data-line-numbers="|1|1|2|2|3|3|4|4|5|5|6|6|1-6" data-fragment-index="1" class="language-python">def linear_search(A, x):
+   found = -1
+   for i in range(len(A)):
+      if x == A[i]:
+         found = i
+   return found
+</code></pre>
+<div class="r-stack">
+<p class="fragment fade-in-then-out" data-fragment-index="2">$c_1 \times 1$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="4">$c_2 \times 1$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="6">$c_3 \times (n+1)$, where $n$ is the length of the array.</p>
+<p class="fragment fade-in-then-out" data-fragment-index="8">$c_4 \times n$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="10">$c_5 \times n_x$, where $n_x$ is the number of occurrences of $x$ in $A$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="12">$c_6 \times 1$</p>
+<p class="fragment" data-fragment-index="13">Total time $ = c_1 + c_2 + c_3(n+1) + c_4n + c_5n_x + c_6$</p>
+</div>
+<p class="fragment" data-fragment-index="14">$ = c_1+c_2+c_3+c_6 + (c_3+c_4)n + c_5n_x$</p>
+<p class="fragment" data-fragment-index="15">$ = k_1 + k_2n + k_3n_x$</p>
+<p class="fragment" data-fragment-index="16"><em>Question:</em> What is the range of $n_x$?</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Upper and Lower bound</h3>
+<p class="fragment">$n_x$ lies between $0$ and $n-1$.</p>
+<p class="fragment">The <em>upper bound</em> of running time is <em>$k_1 + k_2n + k_3n$</em> and the <em>lower bound</em> is <em>$k_1 + k_2n$</em></p>
+<p class="fragment">Both of these bounds are of the form $c + nd$ , where $c$ and $d$
+are constants that do not depend on $n$ - <em><strong>a linear function</strong></em></p>
+<p class="fragment">We use a special notation to indicate that a running time is <em>bounded
+from above and below</em> by some linear functions of $n$.</p>
+<p class="fragment">We write that the running time
+is <strong>$\mathcal{\Theta}(n)$</strong>.</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Order of growth</h3>
+<p>Only the <em>dominant term</em> in the running time,
+and we <em>don’t consider coefficients</em></p>
+<p>Coefficients matter, but depend heavily on the <em>extrinsic factors</em></p>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>What happened to the constant and lower order terms?</h3>
+<p class="fragment">Recall that we are only concerned with how a function grows with input size.
+For linear search its $c + nd =$ <em>$\mathcal{\Theta}(n)$</em>.</p>
+<p class="fragment">Why do we ignore the lower order term $c$?</p>
+<p class="fragment">As n increases, it dominates the lower order terms.</p>
+<ul class="fragment">
+<li>Extra precision is not worth the effort</li>
+</ul>
+<p class="fragment">Why do we ignore the constant factor $d$?</p>
+<p class="fragment">$d$ depends on many other extrinsic factors which we cannot calculate. Hence it serves no purpose in evaluating the speed of an algorithm, or comparing one algorithm with another.</p>
+
+            </section>
+        
+            <section >
+                <h3>Example</h3>
+<p>$n^2/4 + 100n + 50 = \Theta(\qquad)_?$</p>
+<p class="fragment"><em>Question:</em> When will the lower order terms dominate $n^2/4$? </p>
+<p class="fragment"><em>Question:</em> What does dominate mean in this context? </p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>A better implementation of linear search</h3>
+<pre><code class="language-python">def linear_search(A, x):
+   for i in range(len(A)):
+      if x == A[i]:
+         return i
+   return -1
+</code></pre>
+<p class="fragment"><em>Question:</em> Does this algorithm and the one before solve the same problem?</p>
+<p class="fragment"><em>Question:</em> In terms of the performance, how is this algorithm different?</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Running time of better linear search</h3>
+<pre><code data-trim="" data-line-numbers="|1|1|2|2|3,4|3,4|5|5|1-5" data-fragment-index="1" class="language-python">def linear_search(A, x):
+   for i in range(len(A)):
+      if x == A[i]:
+         return i
+   return -1
+</code></pre>
+<div class="r-stack">
+<p class="fragment fade-in-then-out" data-fragment-index="2,3">$c_1 \times 1$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="4,5">$c_1 \times 1 + c_2 \times (\qquad)^?$</p>
+<!-- $c_1 \times 1 + c_2 \times [?] + c_3 \times [?]$ {class="fragment fade-in-then-out" data-fragment-index="6"} -->
+<p class="fragment fade-in-then-out" data-fragment-index="6,7">$c_1 \times 1 + c_2 \times (\qquad)^? + c_3 \times (\qquad)^? + c_4 \times (\qquad)^?$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="8">$c_1 \times 1 + c_2 \times (\qquad)^? + c_3 \times (\qquad)^? + c_4 \times (\qquad)^? + c_5 \times (\qquad)^?$</p>
+<p class="fragment fade-in-then-out" data-fragment-index="9">$c_1 + c_2 \times x_i + c_3 \times x_i + c_4 + c_5$, where $x_i$ is the first index where $x$ appears in $A$, or $n$ if $x$ does not appear in $A$.</p>
+</div>
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Upper and lower bounds</h3>
+<p class="fragment"><em>$c_1 + c_2 \times x_i + c_3 \times x_i + c_4 + c_5 = k_1 + k_2\times x_i$</em> </p>
+<p class="fragment">In the worst case, the algorithm requires <em>$\mathcal{\Theta}(n)$</em> steps.</p>
+<p class="fragment">In the best case, it requires <em>$\mathcal{\Theta}(1)$</em> (constant w.r.t input).</p>
+<p class="fragment">In the average case, it takes _______________</p>
+<p class="fragment">So we see that we cannot use $\mathcal{\Theta}$ notation for a blanket statement that
+covers all cases of the running time.</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>The Big-oh notation</h3>
+<p class="fragment">When we say that an algorithm takes <em>$\mathcal{O}(n)$</em>, we mean that the algorithm takes $\mathcal{\Theta}(n)$ steps in the <em>worst case</em>, regardless of what the best case is.</p>
+<p class="fragment">When we say an algorithm takes <em>$\mathcal{\Omega}(n)$</em> steps, we mean that the algorithm takes $\mathcal{\Theta}(n)$ steps in the <em>best case</em>.</p>
+<p class="fragment"><strong>Question:</strong> How would you characterize the running time of the better linear search in $\mathcal{O}$ and $\mathcal{\Omega}$ notation?</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Characterize the running time for the following algorithm</h3>
+<pre><code data-trim="" data-line-numbers="" class="language-python">def useless_algo(A):
+  n = len(A)
+  sum = 0
+  for i in range(n):
+    sum += A[i]
+  for i in range(n*n):
+    sum += A[0]
+  return 0 == sum % 2
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Upper Bound: Big-O</h3>
+<div class="container ">
+<div class="col ">
+<div>
+<p>Consider any two functions $f(n)$ and $g(n)$. We say that $g(n)$ is an asymptotic upper bound of $f(n)$ if there exists two positive constants $c &gt; 0$ and $n_0 &gt; 0$ such that $f(n) \leq c \times g(n)$ for
+every $n \geq n_0$.</p>
+<p class="fragment" data-fragment-index="1">If $g(n)$ is an asymptotic upper bound of $f(n)$, then we write $f(n) = O(g(n))$.</p>
+</div>
+</div>
+<p style="padding-right: 20px;"></p>
+<div class="col ">
+<div>
+<p style="width:450px;" class="fragment" data-fragment-index="2"><img src="img/CSC210-l01-image.png" alt="Alt text"> </p>
+</div>
+</div>
+</div>
+
+            </section>
+        
+            <section >
+                <h3>Example 1</h3>
+<p>Show that $5 = O(1)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 5$ and $g(n) = 1$. <br>
+Choose $c = 6$ and $n_0 = 1$. <br>
+Then, $cg(n) = 6\times 1 &gt; 5 = f(n)$.</p>
+
+            </section>
+        
+            <section >
+                <h3>Example 2</h3>
+<p>Show that $16 + 7n = O(n)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 16 + 7n$ and $g(n) = n$. <br>
+Choose $c = 23$ and $n_0 = 1$; <br>
+Then, $cg(n) = 23n \geq 16 + 7n = f(n)$ for any $n \geq 1$.</p>
+<p class="fragment">Alternatively, you can also choose $c = 8$ and $n_0 = 20$; then $cg(n) = 8n \geq 7n+16 = f(n)$ for any $n \geq 16$. </p>
+
+            </section>
+        
+            <section >
+                <h3>example 3</h3>
+<p>Show that $K_1n + K_2n^2 = O(n^2)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = K_1n + K_2n^2$ and $g(n) = n^2$. <br>
+Choose $c = (K_1+K_2)$ and $n_0 = 1$; <br>
+Then, $cg(n) = K_1n^2 + K_2n^2 \geq  K_1n + K_2n^2 = f(n)$ for any $n\geq1$. </p>
+
+            </section>
+        
+            <section >
+                <h3>Example 4</h3>
+<p>Show that $6n^2 + 14 = O(n^3)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 6n^2 + 14$ and $g(n) = n^3$. <br>
+Choose $c = 1$ and $n_0 = 8$; <br>
+Then, $cg(n) = n^3 &gt;  6n^2 + 14 = f(n)$ for any $n\geq 7$. </p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Lower Bound: Big-Omega</h3>
+<div class="container ">
+<div class="col ">
+<div>
+<p>Consider any two functions $f(n)$ and $g(n)$. We say that $g(n)$ is an asymptotic lower bound of $f(n)$ if there exists two positive constants $c &gt; 0$ and $n_0 &gt; 0$ such that $f(n) \geq c \times g(n)$ for
+every $n \geq n_0$.</p>
+<p class="fragment">If $g(n)$ is an asymptotic lower bound of $f(n)$, then we write $f(n) = \Omega(g(n))$.</p>
+</div>
+</div>
+<p style="padding-right: 20px;"></p>
+<div class="col ">
+<div>
+<p class="fragment" style="width:450px;"><img src="img/CSC210-l01-image-1.png" alt="Alt text"></p>
+</div>
+</div>
+</div>
+
+            </section>
+        
+            <section >
+                <h3>Example 1</h3>
+<p>Show that $5 = \Omega(1)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 5$ and $g(n) = 1$. <br>
+Choose $c = 1$ and $n_0 = 1$; <br>
+Then, $cg(n) = 1\times 1 &lt; 5 = f(n)$. </p>
+
+            </section>
+        
+            <section >
+                <h3>Example 2</h3>
+<p>Show that $16 + 7n = \Omega(n)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 16 + 7n$ and $g(n) = n$. <br>
+Choose $c = 5$ and $n_0 = 1$; <br>
+Then, $cg(n) = 5n &lt; 5n+16 = f(n)$ for any $n\geq 1$. </p>
+
+            </section>
+        
+            <section >
+                <h3>Example 3</h3>
+<p>Show that $K_1n + K_2n^2 = \Omega(n^2)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = K_1n + K_2n^2$ and $g(n) = n^2$. <br>
+Choose $c = K_2$ and $n_0 = 1$; <br>
+Then, $cg(n) = K_2n^2 \leq K_1n + K_2n^2 = f(n)$ for any $n \geq 1$. </p>
+
+            </section>
+        
+            <section >
+                <h3>Example 4</h3>
+<p>Show that $6n^2 + 14 = \Omega(n)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 6n^2 + 14$ and $g(n) = n$. <br>
+Now choose $c = 1$ and $n_0 = 1$; <br>
+Then, $cg(n) = n &lt;  6n^2 + 14 = f(n)$ for any $n\geq 1$. </p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Tight Bound: Big-Theta</h3>
+<div class="container ">
+<div class="col ">
+<div>
+<p>Consider any two functions $f(n)$ and $g(n)$. We say that $g(n)$ is an asymptotic tight bound of $f(n)$ if there exists three positive constants $c_1 &gt; 0$, $c_2 &gt; 0$, and $n_0 &gt; 0$ such that $c_2 \times g(n) \geq f(n) \geq c_1 \times g(n)$ for
+every $n \geq n_0$.</p>
+<p class="fragment">If $g(n)$ is an asymptotic tight bound of $f(n)$, then we write $f(n) = \Theta(g(n))$.</p>
+</div>
+</div>
+<p style="padding-right: 20px;"></p>
+<div class="col ">
+<div>
+<p class="fragment" style="width:450px;"><img src="img/CSC210-l01-image-2.png" alt="Alt text"></p>
+</div>
+</div>
+</div>
+
+            </section>
+        
+            <section >
+                <h3>Example 1</h3>
+<p>Show that $5 = \Theta(1)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 5$ and $g(n) = 1$. Choose $n_0 = 1$. <br>
+If $c_2 = 6$, then $c_2g(n) = 6\times 1 &gt; 5 = f(n)$.<br>
+If $c_1 = 1$, then $c_1g(n) = 1\times 1 &lt; 5 = f(n)$.</p>
+
+            </section>
+        
+            <section >
+                <h3>Example 2</h3>
+<p>Show that $16 + 7n = \Theta(n)$</p>
+<p>Proof:</p>
+<p class="fragment">Let $f(n) = 16 + 7n$ and $g(n) = n$. Choose $n_0 = 1$. <br>
+If $c_2 = 23$, then $c_2g(n) = 23n \geq 16 + 7n = f(n)$ for any $n \geq 1$.<br>
+If $c_1 = 5$, then $c_1g(n) = 5n &lt; 5n+16 = f(n)$ for any $n \geq 1$.</p>
+
+            </section>
+        
+            <section >
+                <h3>Example 3</h3>
+<p>Show that $K_1n + K_2n^2 = O(n^2)$</p>
+<p class="fragment">Proof:
+Let $f(n) = K_1n + K_2n^2$ and $g(n) = n^2$. Choose $n_0 = 1$. <br>
+If $c_2 = (K_1+K_2)$, then $c_2g(n) = K_1n^2 + K_2n^2 \geq  K_1n + K_2n^2 = f(n)$ for any $n\geq 1$.<br>
+If $c_1 = K_2$, then $c_1g(n) = K_2n^2 \leq K_1n + K_2n^2 = f(n)$ for any $n \geq 1$. </p>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h3>Important properties</h3>
+<ul>
+<li class="fragment">If $f(n) = O(g(n))$ then $g(n) = \Omega(f(n))$, and vice-versa. </li>
+<li class="fragment">If $f(n) = O(g(n))$ then $\alpha f(n) = O(g(n))$ for any constant $\alpha &gt; 0$.</li>
+<li class="fragment">If $f(n) = O(g(n))$ and $g(n) = O(h(n))$ then $f(n) = O(h(n))$.</li>
+<li class="fragment">$f(n) = \Theta(g(n))$ if and only if $f(n) = O(g(n))$ and $f(n) = \Omega(g(n))$.</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h3>Important properties (contd.)</h3>
+<ul>
+<li class="fragment">If $f_1(n) = O(g(n))$ and $f_2(n) = O(g(n))$ then $f_1(n) + f_2(n) = O(g(n))$.</li>
+<li class="fragment">If $f_1(n) = O(g_1(n))$ and $f_2(n) = O(g_2(n))$ then $f_1(n) + f_2(n) = O(g_{max}(n))$, where $g_{max}(n)$ is the asymptotically larger function among $g_1(n)$ and $g_2(n)$.</li>
+<li class="fragment">If $f_1(n) = O(g_1(n))$ and $f_2(n) = O(g_2(n))$ then $f_1(n)*f_2(n) = O(g_1(n)*g_2(n))$.</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Another way to understand asymptotic bounds</h3>
+<p class="fragment">$f(n) = O(g(n))$ iff $\lim_{n\rightarrow \infty}\frac{g(n)}{f(n)} &gt; 0$ </p>
+<p class="fragment">$f(n) = \Omega(g(n))$ iff $\lim_{n\rightarrow \infty}\frac{f(n)}{g(n)} &gt; 0$ </p>
+<p class="fragment">$f(n) = \Theta(g(n))$ iff $\lim_{n\rightarrow \infty}\frac{g(n)}{f(n)} =c_1$ and $\lim_{n\rightarrow \infty}\frac{g(n)}{f(n)} =c_2$, where $c_1$ and $c_2$ are two arbitrary non-zero finite constants. </p>
+
+            </section>
+    
+
+
+    </div>
+
+
+  </div>
+
+  <div class="line top"></div>
+  <div class="line bottom"></div>
+  <div class="line left"></div>
+  <div class="line right"></div>
+
+  <script src="libs/reveal.js/4.3.1/reveal.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/notes/notes.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/markdown/markdown.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/highlight/highlight.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/math/math.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/fullscreen/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/animate/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/animate/svg.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/Chart.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/d3.v3.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3.patch.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/queue.v1.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/topojson.v1.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/function-plot.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/customcontrols/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/embed-tweet/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chart/chart.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chart/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/verticator/verticator.js"></script>
+
+<script src="libs/reveal.js/4.3.1/plugin/zoom/zoom.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/search/search.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/menu/menu.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chalkboard/plugin.js"></script>
+
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/plugin.js"></script>  -->
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/recorder.js"></script>-->
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/RecordRTC.js"></script>-->
+
+  
+
+<script>
+  const printPlugins = [
+      RevealNotes,
+      RevealHighlight,
+      RevealMath.MathJax3,
+      RevealAnimate,
+      RevealChalkboard, 
+			RevealEmbedTweet,
+			RevealChart,
+		];
+
+		const plugins =  [...printPlugins,
+		RevealZoom, 
+		RevealSearch, 
+				RevealMarkdown, 
+				RevealMenu, 
+				RevealFullscreen,
+				RevealAnything,
+				//RevealAudioSlideshow,
+				//RevealAudioRecorder,
+				RevealCustomControls, 
+				// poll
+				// question
+				// seminar
+				Verticator 
+				 ]
+
+
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
+		Reveal.initialize({
+			controls: true,
+      controlsTutorial: true,
+      controlsLayout: 'bottom-right',
+      controlsBackArrows: 'faded',
+      progress: true,
+      slideNumber: false,
+      //#showSlideNumber "all" "print" "speaker"
+      hash: true, //# hash: false,
+      //# respondToHashChanges: true,
+      //# history: false,
+      keyboard: true,
+      //#keyboardCondition: null,
+      overview: true,
+      center: true,
+      touch: true,
+      loop: false,
+      rtl: false,
+      //#navigationMode: 'default', linear grid
+      shuffle: false,
+      fragments: true,
+      fragmentInURL: false,
+      embedded: false,
+      help: true,
+      //#pause: true
+      showNotes: false,
+      autoPlayMedia: false, // TODO fix this to a nullable value
+      //#preloadIframes: null. true false
+      //#autoAnimate: true
+      //#autoAnimateMatcher: null,
+      //#autoAnimateEasing: 'ease',
+      //autoAnimateDuration: 1.0,
+      //#autoAnimateUnmatched: true
+      //#autoAnimateStyles: []
+      autoSlide: 0, // TODO fix this to a falseable value
+      autoSlideStoppable: true,
+      autoSlideMethod: '0',
+      defaultTiming: 120,
+      mouseWheel: false,
+      //#previewLinks: false
+      //#postMessage: true, // TODO : this can cause issues with the vscode api ???
+      //#postMessageEvents: false,
+      //#focusBodyOnPageVisibilityChange: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      //#pdfMaxPagesPerSlide: Number.POSITIVE_INFINITY,
+      //#pdfSeparateFragments: true,
+      //#pdfPageHeightOffset: -1,
+      viewDistance: 3,
+      //#mobileViewDistance: 2,
+      display: 'block',
+      //#hideInactiveCursor: true,
+      //#hideCursorTime: 5000
+
+      // Parallax Background
+      parallaxBackgroundImage: '',
+      parallaxBackgroundSize: '',
+      parallaxBackgroundHorizontal: 0,
+      parallaxBackgroundVertical: 0,
+
+      //Presentation Size
+      width: 1200,
+			height: 700,
+			margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2,
+      disableLayout: false,
+
+      audio: {
+        prefix: 'audio/', // audio files are stored in the "audio" folder
+        suffix: '.ogg', // audio files have the ".ogg" ending
+        textToSpeechURL: null, // the URL to the text to speech converter
+        defaultNotes: false, // use slide notes as default for the text to speech converter
+        defaultText: false, // use slide text as default for the text to speech converter
+        advance: 0, // advance to next slide after given time in milliseconds after audio has played, use negative value to not advance
+        autoplay: false, // automatically start slideshow
+        defaultDuration: 5, // default duration in seconds if no audio is available
+        defaultAudios: true, // try to play audios with names such as audio/1.2.ogg
+        playerOpacity: 0.05, // opacity value of audio player if unfocused
+        playerStyle: 'position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;', // style used for container of audio controls
+        startAtFragment: false, // when moving to a slide, start at the current fragment or at the start of the slide
+      },
+      
+      chalkboard: { // font-awesome.min.css must be available
+        //src: "chalkboard/chalkboard.json",
+        storage: "chalkboard-demo",
+      },
+      
+			customcontrols: {
+					controls: [
+      						{
+						  id: 'toggle-overview',
+						  title: 'Toggle overview (O)',
+						  icon: '<i class="fa fa-th"></i>',
+						  action: 'Reveal.toggleOverview();'
+						}
+						,
+      {
+        icon: '<i class="fa fa-pen-square"></i>',
+        title: 'Toggle chalkboard (B)',
+        action: 'RevealChalkboard.toggleChalkboard();'
+      },
+      {
+        icon: '<i class="fa fa-pen"></i>',
+        title: 'Toggle notes canvas (C)',
+        action: 'RevealChalkboard.toggleNotesCanvas();'
+      }
+      
+				]
+			},
+			chart: {
+					defaults: { 
+						color: 'lightgray', // color of labels
+						scale: { 
+							beginAtZero: true, 
+							ticks: { stepSize: 1 },
+							grid: { color: "lightgray" } , // color of grid lines
+						},
+					},
+					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] }, 
+					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					pie: { backgroundColor: [ ["rgba(0,0,0,.8)" , "rgba(220,20,20,.8)", "rgba(20,220,20,.8)", "rgba(220,220,20,.8)", "rgba(20,20,220,.8)"] ]},
+					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+			},
+			math: {
+				mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+				config: 'TeX-AMS_HTML-full',
+				// pass other options into `MathJax.Hub.Config()`
+				TeX: { Macros: { RR: "{\\bf R}" } }
+				},
+				anything: [ 
+				{
+		className: "plot",
+		defaults: {width:500, height: 500, grid:true},
+		initialize: (function(container, options){ options.target = "#"+container.id; functionPlot(options) })
+	 },
+	 {
+		className: "chart",  
+		initialize: (function(container, options){ container.chart = new Chart(container.getContext("2d"), options);  })
+	 },
+	 {
+		className: "anything",
+		initialize: (function(container, options){ if (options && options.initialize) { options.initialize(container)} })
+	 },
+					],
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins ) 
+		});
+			
+
+
+	    // Change chalkboard theme : 
+		function changeTheme(input) {
+			var config = {};
+			config.theme = input.value;
+			Reveal.getPlugin("RevealChalkboard").configure(config);
+			input.blur();
+		}
+
+		// // Handle the message inside the webview
+        // window.addEventListener('message', event => {
+
+        //     const message = event.data; // The JSON data our extension sent
+
+        //     switch (message.command) {
+        //         case 'refactor':
+        //             Reveal.toggleHelp();
+        //     }
+        // });
+
+		if (window.location.search.match(/print-pdf-now/gi)) {
+      		setTimeout(() => {
+				window.print();
+			  }, 2500);
+			
+    }
+</script>
+
+</body>
+
+</html>
