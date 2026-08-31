@@ -222,10 +222,10 @@
 <section id="before-we-start" class="slide level2">
 <h2>Before We Start</h2>
 <ul>
-<li><strong>COSC420: Distributed/Parallel Computing</strong> — Mon/Wed/Fri, 50 min each. <strong>Monday = Lecture A, Wednesday = Lecture B, Friday = Lab.</strong></li>
-<li>Grading has seven components: Checkpoints, Labs, Quizzes, Midterm, Final, Capstone, Engaged Learning — see the syllabus for exact weights.</li>
-<li><strong>What this course assumes you know:</strong> computer organization — memory, registers, the CPU. <strong>What it does not assume:</strong> any operating systems or networking course. Every explanation this semester is built from computer-organization concepts up, never from OS/networking vocabulary down.</li>
-<li><strong>The promise:</strong> by the last week of the semester, you and a partner will build and demo a real distributed data pipeline — files stored across machines, code that runs on a cluster, a live dashboard backed by a database. Today, every one of those phrases should sound unfamiliar. That’s the correct starting point.</li>
+<li class="fragment"><strong>COSC420: Distributed/Parallel Computing</strong> — Mon/Wed/Fri, 50 min each. <strong>Monday = Lecture A, Wednesday = Lecture B, Friday = Lab.</strong></li>
+<li class="fragment">Grading has seven components: Checkpoints, Labs, Quizzes, Midterm, Final, Capstone, Engaged Learning — see the syllabus for exact weights.</li>
+<li class="fragment"><strong>What this course assumes you know:</strong> computer organization — memory, registers, the CPU. <strong>What it does not assume:</strong> any operating systems or networking course. Every explanation this semester is built from computer-organization concepts up, never from OS/networking vocabulary down.</li>
+<li class="fragment"><strong>The promise:</strong> by the last week of the semester, you and a partner will build and demo a real distributed data pipeline — files stored across machines, code that runs on a cluster, a live dashboard backed by a database. Today, every one of those phrases should sound unfamiliar. That’s the correct starting point.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Don’t read the syllabus line by line — point at it, move on fast. The one sentence worth pausing on is “what this course does not assume” — say it out loud, it visibly lowers anxiety in the room before the cold open.</p>
@@ -251,23 +251,22 @@
 </section>
 <section id="your-first-week-at-streambase" class="slide level2">
 <h2>Your First Week at StreamBase</h2>
-<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout callout-none no-icon callout-style-simple">
 <div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Important</strong></p>
-</div>
 <div class="callout-content">
 <p>Imagine you just started a data engineering internship at <strong>StreamBase</strong>, a fast-growing streaming startup.</p>
 </div>
 </div>
 </div>
+<div class="fragment">
 <p>Your manager pulls you aside Monday morning:</p>
+</div>
+<div class="fragment">
 <blockquote>
 <p><em>“StreamBase has 200 million subscribers. Every stream, pause, skip, and rating gets logged — we’re sitting on 80 billion events in our data lake. The content licensing team meets in December and they need to know: <strong>which genres and films should we prioritize next quarter?</strong> That question requires distributed processing — one machine can’t touch 80 billion rows. We use HDFS and Spark for exactly this. Your job: build and validate the pipeline on a 100K-row sample first. If the aggregations are right and the dashboard answers the question, we scale it up. The code doesn’t change. Only the data does. Demo is December 11.”</em></p>
 </blockquote>
+</div>
+<div class="fragment">
 <p>You’d probably say: <em>“Sure — what’s HDFS? What’s Spark?”</em></p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Pause after the quote. Let it land. Ask: “How many of you know what HDFS is? Spark? MongoDB? A REST API?” Nobody should raise their hand.</p>
@@ -282,15 +281,16 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="why-this-should-sound-like-nonsense" class="slide level2">
-<h2>Why This Should Sound Like Nonsense</h2>
+<section id="why-this-should-sound-like-gibberish" class="slide level2">
+<h2>Why This Should Sound Like Gibberish</h2>
 <p>That’s the correct reaction — and the whole point of this course.</p>
 <ul>
-<li><strong>HDFS</strong>, <strong>Spark</strong>, and <strong>MongoDB</strong> are all tools for working with data that doesn’t fit on one machine. You’ll meet each one by name later this semester: HDFS in Module 3, Spark in Module 4, MongoDB in Module 5.</li>
-<li>The manager’s ask sounds intimidating because of the number — <strong>80 billion events</strong>. But notice the actual instruction: <em>build and validate on a 100K-row sample first.</em></li>
-<li><strong>The key idea for the entire course:</strong> the code you write for 100,000 rows is the <em>same code</em> that runs on 80 billion rows. Distributed tools are built so the program doesn’t change size with the data — only the number of machines running it does.</li>
-<li>You are not learning toy versions of these tools. You are learning the real tools, on data small enough to fit in your head.</li>
+<li class="fragment"><strong>HDFS</strong>, <strong>Spark</strong>, and <strong>MongoDB</strong> are all tools for working with data that doesn’t fit on one machine. You’ll meet each one by name later this semester: HDFS in Module 3, Spark in Module 4, MongoDB in Module 5.</li>
+<li class="fragment">The manager’s ask sounds intimidating because of the number — <strong>80 billion events</strong>. But notice the actual instruction: <em>build and validate on a 100K-row sample first.</em></li>
+<li class="fragment"><strong>The key idea for the entire course:</strong> the code you write for 100,000 rows is the <em>same code</em> that runs on 80 billion rows. Distributed tools are built so the program doesn’t change size with the data — only the number of machines running it does.</li>
+<li class="fragment">You are not learning toy versions of these tools. You are learning the real tools, on data small enough to fit in your head.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> This slide used to live only in speaker notes — it’s promoted to a real slide because “the code doesn’t change, only the scale does” is the single idea that makes the rest of the semester make sense, and students need it to study from, not just hear once.</p>
@@ -309,11 +309,14 @@
 <section id="why-cant-we-just-use-excel" class="slide level2">
 <h2>Why Can’t We Just Use Excel?</h2>
 <p>80 billion rows. One machine. One core. Let’s do the arithmetic.</p>
+<div class="fragment">
 <ul>
 <li>A laptop with 16 GB of RAM can hold roughly <strong>200 million integers</strong> in memory at once.</li>
 <li>80 billion rows is <strong>400× that</strong> — you would need on the order of <strong>400 machines</strong> just to <em>store</em> the data, before any processing starts.</li>
 <li>Even if it fit, processing 80 billion rows sequentially at a generous 1 million rows/second would take <strong>over 22 hours</strong> — for one pass over the data, one time.</li>
 </ul>
+</div>
+<div class="fragment">
 <p><strong>Distributed computing</strong> is the answer: split the data across many machines, process each machine’s chunk in parallel, then combine the results. That’s literally what HDFS (storage) and Spark (processing) exist to do — and it’s why this course spends three modules on them.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep this to the arithmetic — it’s meant to be a quick, visceral “oh, that’s why” moment. The deeper “why parallel hardware exists at all” question is the next slide.</p>
@@ -328,15 +331,16 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="why-now-clock-speeds-the-multicore-turn" class="slide level2">
 <h2>Why Now? Clock Speeds &amp; the Multicore Turn</h2>
 <p>This isn’t a new problem tools just recently got good at solving — it’s a hardware story you can trace from what you already know.</p>
 <ul>
-<li>From the 1970s to roughly <strong>2005</strong>, CPUs got faster mainly by raising clock speed — more cycles per second, every year, like clockwork (literally).</li>
-<li>Around 2005 that stopped. Faster clock speeds mean more heat, and chips had hit a <strong>thermal wall</strong>: you cannot dissipate the heat a much-faster single core would generate at a size that fits in a laptop.</li>
-<li>The industry’s answer wasn’t “wait for a breakthrough” — it was <strong>stop making one core faster, and put more cores on the chip instead.</strong> Your laptop’s 8 or 16 cores are a direct consequence of that 2005 pivot.</li>
-<li>Consequence for you as a programmer: <strong>the hardware is already parallel.</strong> A program that only ever uses one core is leaving most of the machine idle. Learning to write code that uses multiple cores isn’t optional specialization anymore — it’s how you use the hardware you already own.</li>
+<li class="fragment">From the 1970s to roughly <strong>2005</strong>, CPUs got faster mainly by raising clock speed — more cycles per second, every year, like clockwork (literally).</li>
+<li class="fragment">Around 2005 that stopped. Faster clock speeds mean more heat, and chips had hit a <strong>thermal wall</strong>: you cannot dissipate the heat a much-faster single core would generate at a size that fits in a laptop.</li>
+<li class="fragment">The industry’s answer wasn’t “wait for a breakthrough” — it was <strong>stop making one core faster, and put more cores on the chip instead.</strong> Your laptop’s 8 or 16 cores are a direct consequence of that 2005 pivot.</li>
+<li class="fragment">Consequence for you as a programmer: <strong>the hardware is already parallel.</strong> A program that only ever uses one core is leaving most of the machine idle. Learning to write code that uses multiple cores isn’t optional specialization anymore — it’s how you use the hardware you already own.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> Ask first, before giving the answer: “Does anyone know why your laptop has multiple cores instead of one really fast core?” Let a guess or two land, then confirm with the thermal-wall explanation. This is the one moment all semester that connects directly to computer organization — transistors, clock cycles, heat — spend the full 5 minutes, don’t compress it.</p>
@@ -355,9 +359,9 @@
 <section id="netflix-one-answer-200-million-times" class="slide level2">
 <h2>Netflix: One Answer, 200 Million Times</h2>
 <ul>
-<li>Every subscriber’s homepage is <strong>personalized</strong> — Netflix computes a <em>different</em> ranked list of titles for each of its 200 million subscribers, and recomputes it continuously as viewing behavior changes.</li>
-<li>Those rankings are trained on <strong>billions</strong> of individual signals: ratings, watches, pauses, skips, even how long you hovered over a title before clicking.</li>
-<li>Put those together: <strong>200 million personalized answers</strong>, each depending on a model trained on billions of events, updated continuously. No single machine reads billions of events and produces 200 million distinct outputs fast enough to matter — this is an aggregation-and-machine-learning problem that <em>requires</em> many machines working at once.</li>
+<li class="fragment">Every subscriber’s homepage is <strong>personalized</strong> — Netflix computes a <em>different</em> ranked list of titles for each of its 200 million subscribers, and recomputes it continuously as viewing behavior changes.</li>
+<li class="fragment">Those rankings are trained on <strong>billions</strong> of individual signals: ratings, watches, pauses, skips, even how long you hovered over a title before clicking.</li>
+<li class="fragment">Put those together: <strong>200 million personalized answers</strong>, each depending on a model trained on billions of events, updated continuously. No single machine reads billions of events and produces 200 million distinct outputs fast enough to matter — this is an aggregation-and-machine-learning problem that <em>requires</em> many machines working at once.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> The number that matters is 200 million <em>distinct</em> answers, not one shared answer computed once. Don’t get pulled into explaining how recommendation algorithms work — the point is scale, not ML technique.</p>
@@ -376,9 +380,9 @@
 <section id="google-the-problem-that-started-it-all" class="slide level2">
 <h2>Google: The Problem That Started It All</h2>
 <ul>
-<li>In 2004, Google faced a concrete problem: <strong>index and rank the entire web</strong> — billions of pages, far more text than any one machine could even read through, let alone process into a searchable index.</li>
-<li>Their solution was to split the job across <strong>thousands of ordinary machines</strong>, each handling a slice of the web, with a common pattern for combining partial results into one answer. They published this pattern as a paper: <strong>“MapReduce: Simplified Data Processing on Large Clusters.”</strong></li>
-<li>That single paper is the reason <strong>Module 3</strong> of this course exists. In a few weeks you will write a MapReduce job yourself, using the exact pattern Google described in 2004 — it’s not a historical curiosity, it’s the design underneath Hadoop and, indirectly, Spark.</li>
+<li class="fragment">In 2004, Google faced a concrete problem: <strong>index and rank the entire web</strong> — billions of pages, far more text than any one machine could even read through, let alone process into a searchable index.</li>
+<li class="fragment">Their solution was to split the job across <strong>thousands of ordinary machines</strong>, each handling a slice of the web, with a common pattern for combining partial results into one answer. They published this pattern as a paper: <strong>“MapReduce: Simplified Data Processing on Large Clusters.”</strong></li>
+<li class="fragment">That single paper is the reason <strong>Module 3</strong> of this course exists. In a few weeks you will write a MapReduce job yourself, using the exact pattern Google described in 2004 — it’s not a historical curiosity, it’s the design underneath Hadoop and, indirectly, Spark.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Say “Module 3” out loud — a direct forward-reference, not a vague “later in the course.” Worth noting explicitly that this is 20-year-old, still-load-bearing computer science, not a dated example.</p>
@@ -397,9 +401,9 @@
 <section id="amazon-black-friday" class="slide level2">
 <h2>Amazon: Black Friday</h2>
 <ul>
-<li>On Black Friday, Amazon processes <strong>thousands of orders per second</strong> — and many of those orders are competing to read and write the <em>same</em> piece of data: how many units of a given item are left in stock.</li>
-<li>A single database server handling that load has two bad options: fall behind and get too slow to be usable, or let two operations touch the same data at once and <strong>corrupt it</strong> — for example, two customers both “successfully” buying the last unit of an item that only had one left.</li>
-<li>The fix is to <strong>spread both the data and the load across many machines</strong> — techniques called replication and sharding, which you’ll see in detail in <strong>Module 5</strong>. For now, just notice the shape of the problem: <em>multiple things touching the same data at the same instant, with no one in charge of ordering them.</em> Hold onto that shape — it is exactly the problem this entire module is about, just at the scale of two threads instead of two machines.</li>
+<li class="fragment">On Black Friday, Amazon processes <strong>thousands of orders per second</strong> — and many of those orders are competing to read and write the <em>same</em> piece of data: how many units of a given item are left in stock.</li>
+<li class="fragment">A single database server handling that load has two bad options: fall behind and get too slow to be usable, or let two operations touch the same data at once and <strong>corrupt it</strong> — for example, two customers both “successfully” buying the last unit of an item that only had one left.</li>
+<li class="fragment">The fix is to <strong>spread both the data and the load across many machines</strong> — techniques called replication and sharding, which you’ll see in detail in <strong>Module 5</strong>. For now, just notice the shape of the problem: <em>multiple things touching the same data at the same instant, with no one in charge of ordering them.</em> Hold onto that shape — it is exactly the problem this entire module is about, just at the scale of two threads instead of two machines.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min, the longest of the three vignettes.</strong> The last sentence is a deliberate, explicit plant for Session 3’s race conditions — say it clearly rather than leaving it implicit, since this slide is what students will re-read when race conditions are introduced and should recognize the connection themselves.</p>
@@ -510,8 +514,8 @@
 <h2>Parallel vs.&nbsp;Distributed: Two Kitchens</h2>
 <p>You’ll hear both words all semester. They are not the same thing, and the difference sets the shape of this whole course.</p>
 <ul>
-<li><strong>Parallel</strong> = <strong>one kitchen, many cooks.</strong> Everyone shares the same counters, the same stove, the same ingredients — reaching into the same space at the same time. This is <strong>Module 1</strong>: multiple threads inside a single running program, sharing the same memory.</li>
-<li><strong>Distributed</strong> = <strong>many separate kitchens, coordinating over the phone.</strong> Each kitchen has its own space and equipment; nothing is shared directly, everything that crosses between them is sent as an explicit message. This is <strong>Modules 2 through 6</strong>: separate machines, each with their own memory, coordinating over a network.</li>
+<li class="fragment"><strong>Parallel</strong> = <strong>one kitchen, many cooks.</strong> Everyone shares the same counters, the same stove, the same ingredients — reaching into the same space at the same time. This is <strong>Module 1</strong>: multiple threads inside a single running program, sharing the same memory.</li>
+<li class="fragment"><strong>Distributed</strong> = <strong>many separate kitchens, coordinating over the phone.</strong> Each kitchen has its own space and equipment; nothing is shared directly, everything that crosses between them is sent as an explicit message. This is <strong>Modules 2 through 6</strong>: separate machines, each with their own memory, coordinating over a network.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> State both definitions plainly and let them sit — the payoff slide is next.</p>

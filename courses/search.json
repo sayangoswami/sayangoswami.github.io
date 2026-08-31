@@ -1117,7 +1117,7 @@
     "href": "cosc435/slides/01-intro.html#the-question-this-course-answers",
     "title": "Introduction",
     "section": "The Question This Course Answers",
-    "text": "The Question This Course Answers\n\nYou are given a problem and a chip with thousands of tiny processors. How do you split the problem into thousands of pieces that can all run at the same time, and keep those processors from sitting idle?\n\n\nEvery module this semester answers one piece of this question\nBy the end, you’ll write code that runs on real GPU hardware — not simulate it, not read about it, actually run it\n\n\n~2 min. This is the organizing question of the whole course — plant it early, return to it at the start of every module going forward (module01 already references “the question for this course”)."
+    "text": "The Question This Course Answers\n\nYou are given a problem and a chip with thousands of tiny processors. How do you split the problem into thousands of pieces that can all run at the same time, and keep those processors from sitting idle?\n\n\n\nEvery module this semester answers one piece of this question\nBy the end, you’ll write code that runs on real GPU hardware — not simulate it, not read about it, actually run it\n\n\n~2 min. This is the organizing question of the whole course — plant it early, return to it at the start of every module going forward (module01 already references “the question for this course”)."
   },
   {
     "objectID": "cosc435/slides/01-intro.html#the-capstone-teaser-songs-as-numbers",
@@ -1152,21 +1152,21 @@
     "href": "cosc435/slides/01-intro.html#colab-anatomy",
     "title": "Introduction",
     "section": "Colab Anatomy",
-    "text": "Colab Anatomy\n\n\n\nCells run top to bottom, but you can re-run any single cell out of order — this will bite you if you’re not careful (a variable from a deleted cell can still “exist” until you restart)\n“Runtime → Restart runtime” clears everything and starts fresh — your escape hatch when things get weird\n\n\n~3 min. Live-demo this on the projector rather than just showing the diagram — actually create a cell, run it, edit a markdown cell, and deliberately show the “stale variable” gotcha by running cells out of order."
+    "text": "Colab Anatomy\n\n\n\n\nCells run top to bottom, but you can re-run any single cell out of order — this will bite you if you’re not careful (a variable from a deleted cell can still “exist” until you restart)\n“Runtime → Restart runtime” clears everything and starts fresh — your escape hatch when things get weird\n\n\n~3 min. Live-demo this on the projector rather than just showing the diagram — actually create a cell, run it, edit a markdown cell, and deliberately show the “stale variable” gotcha by running cells out of order."
   },
   {
     "objectID": "cosc435/slides/01-intro.html#selecting-a-gpu-runtime",
     "href": "cosc435/slides/01-intro.html#selecting-a-gpu-runtime",
     "title": "Introduction",
     "section": "Selecting a GPU Runtime",
-    "text": "Selecting a GPU Runtime\n\n\n\nBy default, a new Colab notebook runs on a CPU-only machine — you must explicitly request a GPU\nFree-tier Colab gives you an NVIDIA T4 GPU, with usage limits that reset periodically\nChanging runtime type disconnects and reconnects your notebook — any variables you had are lost, so save your work first\n\n# The check every notebook should start with this semester:\nimport torch\nprint(\"GPU available:\", torch.cuda.is_available())\nprint(\"GPU name:\", torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"none\")\n\n~3 min. Live-demo selecting the GPU runtime and running this check cell. This exact check reappears as the opening cell of Lab 1 — make sure everyone sees it succeed once, live, before Friday."
+    "text": "Selecting a GPU Runtime\n\n\n\n\nBy default, a new Colab notebook runs on a CPU-only machine — you must explicitly request a GPU\nFree-tier Colab gives you an NVIDIA T4 GPU, with usage limits that reset periodically\nChanging runtime type disconnects and reconnects your notebook — any variables you had are lost, so save your work first\n\n# The check every notebook should start with this semester:\nimport torch\nprint(\"GPU available:\", torch.cuda.is_available())\nprint(\"GPU name:\", torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"none\")\n\n~3 min. Live-demo selecting the GPU runtime and running this check cell. This exact check reappears as the opening cell of Lab 1 — make sure everyone sees it succeed once, live, before Friday."
   },
   {
     "objectID": "cosc435/slides/01-intro.html#the-weekly-rhythm",
     "href": "cosc435/slides/01-intro.html#the-weekly-rhythm",
     "title": "Introduction",
     "section": "The Weekly Rhythm",
-    "text": "The Weekly Rhythm\n[DIAGRAM] — A simple repeating-cycle diagram: three boxes in a row labeled “Mon: Lecture,” “Wed: Lecture,” “Fri: Lab + Checkpoint,” connected by an arrow looping back from the third box to the first, labeled “next week.” A small badge on the “Fri” box reads “~20 min checkpoint at the end.”\n\nMonday and Wednesday: lecture (this room, this format)\nFriday: lab session — guided, hands-on, graded on completion, no time pressure\nThe last ~20 minutes of most Friday labs: a checkpoint — timed, individually-seeded, auto-graded\nRoughly every three weeks, a lecture opens with a 15-minute Blackboard quiz covering the previous module\n\n\n~3 min. Students consistently confuse labs (relaxed, completion-graded) with checkpoints (timed, auto-graded, higher stakes) early in the semester — be explicit that they are different activities on the same day."
+    "text": "The Weekly Rhythm\n\n\n\n\nMonday and Wednesday: lecture (this room, this format)\nFriday: lab session — guided, hands-on, graded on completion, no time pressure\nThe last ~20 minutes of most Friday labs: a checkpoint — timed, individually-seeded, auto-graded\nRoughly every three weeks, a lecture opens with a 15-minute Blackboard quiz covering the previous module\n\n\n~3 min. Students consistently confuse labs (relaxed, completion-graded) with checkpoints (timed, auto-graded, higher stakes) early in the semester — be explicit that they are different activities on the same day."
   },
   {
     "objectID": "cosc435/slides/01-intro.html#how-youre-graded-in-brief",
@@ -1335,6 +1335,13 @@
     "title": "COSC420 — Slides",
     "section": "",
     "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\n \n\n\n \n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "cosc120/slides/01-intro.html#hello-world",
+    "href": "cosc120/slides/01-intro.html#hello-world",
+    "title": "What Is a Program?",
+    "section": "Hello World",
+    "text": "Hello World"
   },
   {
     "objectID": "cosc120/slides/01-intro.html#learning-outcomes",
@@ -1824,21 +1831,21 @@
     "href": "cosc420/slides/01-intro.html#your-first-week-at-streambase",
     "title": "Introduction",
     "section": "Your First Week at StreamBase",
-    "text": "Your First Week at StreamBase\n\n\n\n\n\n\nImportant\n\n\nImagine you just started a data engineering internship at StreamBase, a fast-growing streaming startup.\n\n\n\nYour manager pulls you aside Monday morning:\n\n“StreamBase has 200 million subscribers. Every stream, pause, skip, and rating gets logged — we’re sitting on 80 billion events in our data lake. The content licensing team meets in December and they need to know: which genres and films should we prioritize next quarter? That question requires distributed processing — one machine can’t touch 80 billion rows. We use HDFS and Spark for exactly this. Your job: build and validate the pipeline on a 100K-row sample first. If the aggregations are right and the dashboard answers the question, we scale it up. The code doesn’t change. Only the data does. Demo is December 11.”\n\nYou’d probably say: “Sure — what’s HDFS? What’s Spark?”\n\nTiming: 4 min. Pause after the quote. Let it land. Ask: “How many of you know what HDFS is? Spark? MongoDB? A REST API?” Nobody should raise their hand."
+    "text": "Your First Week at StreamBase\n\n\n\nImagine you just started a data engineering internship at StreamBase, a fast-growing streaming startup.\n\n\n\n\nYour manager pulls you aside Monday morning:\n\n\n\n“StreamBase has 200 million subscribers. Every stream, pause, skip, and rating gets logged — we’re sitting on 80 billion events in our data lake. The content licensing team meets in December and they need to know: which genres and films should we prioritize next quarter? That question requires distributed processing — one machine can’t touch 80 billion rows. We use HDFS and Spark for exactly this. Your job: build and validate the pipeline on a 100K-row sample first. If the aggregations are right and the dashboard answers the question, we scale it up. The code doesn’t change. Only the data does. Demo is December 11.”\n\n\n\nYou’d probably say: “Sure — what’s HDFS? What’s Spark?”\n\nTiming: 4 min. Pause after the quote. Let it land. Ask: “How many of you know what HDFS is? Spark? MongoDB? A REST API?” Nobody should raise their hand."
   },
   {
-    "objectID": "cosc420/slides/01-intro.html#why-this-should-sound-like-nonsense",
-    "href": "cosc420/slides/01-intro.html#why-this-should-sound-like-nonsense",
+    "objectID": "cosc420/slides/01-intro.html#why-this-should-sound-like-gibberish",
+    "href": "cosc420/slides/01-intro.html#why-this-should-sound-like-gibberish",
     "title": "Introduction",
-    "section": "Why This Should Sound Like Nonsense",
-    "text": "Why This Should Sound Like Nonsense\nThat’s the correct reaction — and the whole point of this course.\n\nHDFS, Spark, and MongoDB are all tools for working with data that doesn’t fit on one machine. You’ll meet each one by name later this semester: HDFS in Module 3, Spark in Module 4, MongoDB in Module 5.\nThe manager’s ask sounds intimidating because of the number — 80 billion events. But notice the actual instruction: build and validate on a 100K-row sample first.\nThe key idea for the entire course: the code you write for 100,000 rows is the same code that runs on 80 billion rows. Distributed tools are built so the program doesn’t change size with the data — only the number of machines running it does.\nYou are not learning toy versions of these tools. You are learning the real tools, on data small enough to fit in your head.\n\n\nTiming: 4 min. This slide used to live only in speaker notes — it’s promoted to a real slide because “the code doesn’t change, only the scale does” is the single idea that makes the rest of the semester make sense, and students need it to study from, not just hear once."
+    "section": "Why This Should Sound Like Gibberish",
+    "text": "Why This Should Sound Like Gibberish\nThat’s the correct reaction — and the whole point of this course.\n\nHDFS, Spark, and MongoDB are all tools for working with data that doesn’t fit on one machine. You’ll meet each one by name later this semester: HDFS in Module 3, Spark in Module 4, MongoDB in Module 5.\nThe manager’s ask sounds intimidating because of the number — 80 billion events. But notice the actual instruction: build and validate on a 100K-row sample first.\nThe key idea for the entire course: the code you write for 100,000 rows is the same code that runs on 80 billion rows. Distributed tools are built so the program doesn’t change size with the data — only the number of machines running it does.\nYou are not learning toy versions of these tools. You are learning the real tools, on data small enough to fit in your head.\n\n\nTiming: 4 min. This slide used to live only in speaker notes — it’s promoted to a real slide because “the code doesn’t change, only the scale does” is the single idea that makes the rest of the semester make sense, and students need it to study from, not just hear once."
   },
   {
     "objectID": "cosc420/slides/01-intro.html#why-cant-we-just-use-excel",
     "href": "cosc420/slides/01-intro.html#why-cant-we-just-use-excel",
     "title": "Introduction",
     "section": "Why Can’t We Just Use Excel?",
-    "text": "Why Can’t We Just Use Excel?\n80 billion rows. One machine. One core. Let’s do the arithmetic.\n\nA laptop with 16 GB of RAM can hold roughly 200 million integers in memory at once.\n80 billion rows is 400× that — you would need on the order of 400 machines just to store the data, before any processing starts.\nEven if it fit, processing 80 billion rows sequentially at a generous 1 million rows/second would take over 22 hours — for one pass over the data, one time.\n\nDistributed computing is the answer: split the data across many machines, process each machine’s chunk in parallel, then combine the results. That’s literally what HDFS (storage) and Spark (processing) exist to do — and it’s why this course spends three modules on them.\n\nTiming: 4 min. Keep this to the arithmetic — it’s meant to be a quick, visceral “oh, that’s why” moment. The deeper “why parallel hardware exists at all” question is the next slide."
+    "text": "Why Can’t We Just Use Excel?\n80 billion rows. One machine. One core. Let’s do the arithmetic.\n\n\nA laptop with 16 GB of RAM can hold roughly 200 million integers in memory at once.\n80 billion rows is 400× that — you would need on the order of 400 machines just to store the data, before any processing starts.\nEven if it fit, processing 80 billion rows sequentially at a generous 1 million rows/second would take over 22 hours — for one pass over the data, one time.\n\n\n\nDistributed computing is the answer: split the data across many machines, process each machine’s chunk in parallel, then combine the results. That’s literally what HDFS (storage) and Spark (processing) exist to do — and it’s why this course spends three modules on them.\n\nTiming: 4 min. Keep this to the arithmetic — it’s meant to be a quick, visceral “oh, that’s why” moment. The deeper “why parallel hardware exists at all” question is the next slide."
   },
   {
     "objectID": "cosc420/slides/01-intro.html#why-now-clock-speeds-the-multicore-turn",

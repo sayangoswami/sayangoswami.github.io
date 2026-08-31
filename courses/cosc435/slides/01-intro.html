@@ -234,10 +234,10 @@
 <section id="why-this-course-why-now" class="slide level2">
 <h2>Why This Course, Why Now</h2>
 <ul>
-<li>Every app you used this morning likely touched a GPU somewhere: the phone camera’s portrait mode, a voice assistant, a recommendation feed, a video call’s background blur</li>
-<li>Large AI models (the kind behind ChatGPT, image generators, etc.) are trained and run almost entirely on GPUs — not CPUs</li>
-<li>Five years ago, “GPU programming” was a niche graphics/gaming skill. Today it’s one of the most in-demand skills in computing, from finance to genomics to robotics</li>
-<li>This course teaches you to <em>think</em> and <em>program</em> in the style that makes GPUs fast — not just to call a library</li>
+<li class="fragment">Every app you used this morning likely touched a GPU somewhere: the phone camera’s portrait mode, a voice assistant, a recommendation feed, a video call’s background blur</li>
+<li class="fragment">Large AI models (the kind behind ChatGPT, image generators, etc.) are trained and run almost entirely on GPUs — not CPUs</li>
+<li class="fragment">Five years ago, “GPU programming” was a niche graphics/gaming skill. Today it’s one of the most in-demand skills in computing, from finance to genomics to robotics</li>
+<li class="fragment">This course teaches you to <em>think</em> and <em>program</em> in the style that makes GPUs fast — not just to call a library</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Ask the room: “What app did you use this morning that was probably running on a GPU somewhere?” Let a few answers land before revealing the list above. The goal is to make “GPU” feel less like obscure hardware and more like the engine behind things they already use daily.</p>
@@ -258,6 +258,7 @@
 <blockquote>
 <p>You are given a problem and a chip with thousands of tiny processors. How do you split the problem into thousands of pieces that can all run <em>at the same time</em>, and keep those processors from sitting idle?</p>
 </blockquote>
+<div class="fragment">
 <ul>
 <li>Every module this semester answers one piece of this question</li>
 <li>By the end, you’ll write code that runs on real GPU hardware — not simulate it, not read about it, actually run it</li>
@@ -275,14 +276,15 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-capstone-teaser-songs-as-numbers" class="slide level2">
 <h2>The Capstone Teaser: Songs as Numbers</h2>
 <ul>
-<li>Imagine a music app with 100,000 songs. Each song is described by 64 numbers (a “fingerprint” capturing its tempo, mood, instrumentation, etc.)</li>
-<li>To find songs similar to one you like, the app multiplies your song’s 64 numbers against every other song’s 64 numbers, and adds up the results — a <strong>dot product</strong></li>
-<li>Do that 100,000 times, for every user, in real time: that’s 100,000 × 64 multiply-and-add operations, repeated continuously — a textbook GPU workload</li>
-<li>This exact computation is your semester-long capstone project</li>
+<li class="fragment">Imagine a music app with 100,000 songs. Each song is described by 64 numbers (a “fingerprint” capturing its tempo, mood, instrumentation, etc.)</li>
+<li class="fragment">To find songs similar to one you like, the app multiplies your song’s 64 numbers against every other song’s 64 numbers, and adds up the results — a <strong>dot product</strong></li>
+<li class="fragment">Do that 100,000 times, for every user, in real time: that’s 100,000 × 64 multiply-and-add operations, repeated continuously — a textbook GPU workload</li>
+<li class="fragment">This exact computation is your semester-long capstone project</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Don’t explain the math of dot products yet — that’s Session 3 and EL-01 (3Blue1Brown). Here the point is purely motivational: a concrete, relatable, real system that needs exactly the kind of massive repeated arithmetic a GPU is built for.</p>
@@ -303,9 +305,9 @@
 
 <!-- **[DIAGRAM]** — Two side-by-side scenes. *Left:* a single, highly-skilled cashier serving one customer at a time from a long line, labeled "CPU: minimize time per customer." *Right:* twenty ordinary cashiers, each serving one customer simultaneously from twenty short lines, labeled "GPU: maximize customers served per minute." A clock icon on the left, a stopwatch-with-many-ticks icon on the right. -->
 <img data-src="images/cpu-vs-gpu.png" alt="Two side-by-side scenes. Left: a single, highly-skilled cashier serving one customer at a time from a long line, labeled 'CPU: minimize time per customer.' Right: twenty ordinary cashiers, each serving one customer simultaneously from twenty short lines, labeled 'GPU: maximize customers served per minute.' A clock icon on the left, a stopwatch-with-many-ticks icon on the right." class="r-stretch"><ul>
-<li>The single expert cashier is <em>faster per customer</em> — but the line is long</li>
-<li>Twenty ordinary cashiers are each <em>slower per customer</em> — but together they clear the crowd faster</li>
-<li>This is the entire CPU-vs-GPU design philosophy in one picture — Module 1 gives you the real numbers behind it</li>
+<li class="fragment">The single expert cashier is <em>faster per customer</em> — but the line is long</li>
+<li class="fragment">Twenty ordinary cashiers are each <em>slower per customer</em> — but together they clear the crowd faster</li>
+<li class="fragment">This is the entire CPU-vs-GPU design philosophy in one picture — Module 1 gives you the real numbers behind it</li>
 </ul>
 <aside class="notes">
 <p>~4 min. This analogy will get reused (and made precise) in Module 1 — plant it now so it’s familiar vocabulary later. Deliberately avoid the word “throughput” here if it hasn’t landed yet; let the picture carry it, then attach the vocabulary word at the end.</p>
@@ -324,10 +326,10 @@
 <section id="from-graphics-card-to-compute-engine" class="slide level2">
 <h2>From Graphics Card to Compute Engine</h2>
 <ul>
-<li>GPUs were originally built for one job: color millions of screen pixels, many times per second, for video games</li>
-<li>Coloring a pixel is simple arithmetic, and every pixel’s color is independent of its neighbors — the same simple job, repeated millions of times, with no coordination needed</li>
-<li>Around 2007, NVIDIA released tools (CUDA) letting programmers repurpose that pixel-coloring hardware for <em>any</em> problem shaped like “the same simple job, repeated millions of times” — not just pixels</li>
-<li>Scientific simulation, finance, and eventually AI all turned out to be full of exactly that shape of problem</li>
+<li class="fragment">GPUs were originally built for one job: color millions of screen pixels, many times per second, for video games</li>
+<li class="fragment">Coloring a pixel is simple arithmetic, and every pixel’s color is independent of its neighbors — the same simple job, repeated millions of times, with no coordination needed</li>
+<li class="fragment">Around 2007, NVIDIA released tools (CUDA) letting programmers repurpose that pixel-coloring hardware for <em>any</em> problem shaped like “the same simple job, repeated millions of times” — not just pixels</li>
+<li class="fragment">Scientific simulation, finance, and eventually AI all turned out to be full of exactly that shape of problem</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Keep this brief — it’s context, not testable content. The full CUDA programming model (kernels, threads, grids) is Module 2’s job; here we only need the historical “why does a graphics chip do AI” hook.</p>
@@ -369,7 +371,8 @@
 <h2>Colab Anatomy</h2>
 
 <!-- **[DIAGRAM]** — A labeled screenshot-style mockup of a Colab notebook window. Callouts pointing to: (1) a **code cell** with a "▶ Run" triangle to its left, (2) a **text/markdown cell** showing rendered formatted text, (3) the **output area** appearing directly below a code cell after running it, (4) the top toolbar's **"+ Code" / "+ Text"** buttons for adding cells, (5) the **Runtime** menu in the top menu bar. -->
-<img data-src="images/colab-annotated.png" alt="A labeled screenshot-style mockup of a Colab notebook window. Callouts pointing to: (1) a code cell with a '▶ Run' triangle to its left, (2) a text/markdown cell showing rendered formatted text, (3) the output area appearing directly below a code cell after running it, (4) the top toolbar's '+ Code' / '+ Text' buttons for adding cells, (5) the Runtime menu in the top menu bar." class="r-stretch"><ul>
+<img data-src="images/colab-annotated.png" alt="A labeled screenshot-style mockup of a Colab notebook window. Callouts pointing to: (1) a code cell with a '▶ Run' triangle to its left, (2) a text/markdown cell showing rendered formatted text, (3) the output area appearing directly below a code cell after running it, (4) the top toolbar's '+ Code' / '+ Text' buttons for adding cells, (5) the Runtime menu in the top menu bar." class="r-stretch"><div class="fragment">
+<ul>
 <li>Cells run top to bottom, but you <em>can</em> re-run any single cell out of order — this will bite you if you’re not careful (a variable from a deleted cell can still “exist” until you restart)</li>
 <li>“Runtime → Restart runtime” clears everything and starts fresh — your escape hatch when things get weird</li>
 </ul>
@@ -386,12 +389,14 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="selecting-a-gpu-runtime" class="slide level2">
 <h2>Selecting a GPU Runtime</h2>
 
 <!-- **[DIAGRAM]** — A two-step screenshot-style mockup: Step 1 shows the **Runtime** menu open with "Change runtime type" highlighted. Step 2 shows the resulting dialog box with a "Hardware accelerator" dropdown, highlighting the **T4 GPU** option being selected, with a "Save" button. -->
-<img data-src="images/change-runtime-2step.png" alt="Two-step screenshot-style mockup. Step 1 shows the Runtime menu open with 'Change runtime type' highlighted. Step 2 shows the resulting dialog box with a 'Hardware accelerator' dropdown, highlighting the T4 GPU option being selected, with a 'Save' button." class="r-stretch"><ul>
+<img data-src="images/change-runtime-2step.png" alt="Two-step screenshot-style mockup. Step 1 shows the Runtime menu open with 'Change runtime type' highlighted. Step 2 shows the resulting dialog box with a 'Hardware accelerator' dropdown, highlighting the T4 GPU option being selected, with a 'Save' button." class="r-stretch"><div class="fragment">
+<ul>
 <li>By default, a new Colab notebook runs on a CPU-only machine — you must explicitly request a GPU</li>
 <li>Free-tier Colab gives you an NVIDIA T4 GPU, with usage limits that reset periodically</li>
 <li>Changing runtime type disconnects and reconnects your notebook — any variables you had are lost, so save your work first</li>
@@ -413,10 +418,13 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-weekly-rhythm" class="slide level2">
 <h2>The Weekly Rhythm</h2>
-<p><strong>[DIAGRAM]</strong> — A simple repeating-cycle diagram: three boxes in a row labeled “Mon: Lecture,” “Wed: Lecture,” “Fri: Lab + Checkpoint,” connected by an arrow looping back from the third box to the first, labeled “next week.” A small badge on the “Fri” box reads “~20 min checkpoint at the end.”</p>
+
+<!-- **[DIAGRAM]** — A simple repeating-cycle diagram: three boxes in a row labeled "Mon: Lecture," "Wed: Lecture," "Fri: Lab + Checkpoint," connected by an arrow looping back from the third box to the first, labeled "next week." A small badge on the "Fri" box reads "~20 min checkpoint at the end." -->
+<img data-src="diags/weekly-cycle.svg" alt="A simple repeating-cycle diagram: three boxes in a row labeled 'Mon: Lecture,' 'Wed: Lecture,' 'Fri: Lab + Checkpoint,' connected by an arrow looping back from the third box to the first, labeled 'next week.' A small badge on the 'Fri' box reads '~20 min checkpoint at the end.'" class="r-stretch"><div class="fragment">
 <ul>
 <li>Monday and Wednesday: lecture (this room, this format)</li>
 <li>Friday: lab session — guided, hands-on, graded on completion, no time pressure</li>
@@ -436,6 +444,7 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="how-youre-graded-in-brief" class="slide level2">
 <h2>How You’re Graded, In Brief</h2>
