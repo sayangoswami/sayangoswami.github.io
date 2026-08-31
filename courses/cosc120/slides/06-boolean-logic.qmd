@@ -1,0 +1,558 @@
+---
+title: "Boolean Logic and `else if`"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+    scrollable: true
+---
+
+## Learning Outcomes
+
+- Combine conditions using `&&`, `||`, and `!` to form compound boolean expressions
+- Translate English conditions with "and," "or," and "not" into Java
+- Evaluate compound boolean expressions by working through them step by step
+- Write `else if` chains to handle multiple mutually exclusive cases
+- Order conditions in an `else if` chain correctly so no branch is unreachable
+- Choose between `else if` and nested `if` based on the structure of the problem
+- Trace execution through compound and chained conditionals for a given input
+
+## Boolean Expressions — A Quick Recap
+
+::: notes
+Recap from last lecture: a boolean expression is anything that evaluates to true or false. Relational operators (< > <= >= == !=) produce boolean results. This lecture extends that: what if we need a condition that combines two checks? We already say things like "if you are 16 and have a license, you can drive" — today we learn to write that in Java. Set up the need before introducing the operators.
+:::
+
+Last lecture: a **condition** is an expression that produces `true` or `false`.
+
+```java
+score >= 60       // true or false
+name.equals("Alice")  // true or false
+temperature < 32  // true or false
+```
+
+Sometimes one condition is not enough.
+
+We say things like:
+
+- "You can drive if you are 16 **and** have a license."
+- "You get a discount if you are a student **or** a senior."
+- "The alarm triggers if it is **not** disarmed."
+
+Java has three operators for exactly this: `&&`, `||`, and `!`.
+
+## The `&&` Operator — AND
+
+::: notes
+Both conditions must be true. Walk through the English examples first — students already reason this way. Then show the Java translation. The Venn diagram with the intersection highlighted is the most intuitive visual. The mini truth table shows all four combinations. Mention short-circuit evaluation only briefly: if the first condition is false, Java does not even check the second. This is a "fun fact" at this stage, not something students need to memorize.
+:::
+
+`&&` means **AND** — both conditions must be true for the whole expression to be true.
+
+**English → Java:**
+
+| English | Java |
+|---------|------|
+| "16 or older **and** has a license" | `age >= 16 && hasLicense` |
+| "Score above 60 **and** homework submitted" | `score > 60 && homeworkDone` |
+| "Temperature below 32 **and** it is snowing" | `temp < 32 && isSnowing` |
+| "Price over $50 **and** you have a coupon" | `price > 50 && hasCoupon` |
+
+**Truth table for `&&`:**
+
+| `A` | `B` | `A && B` |
+|-----|-----|----------|
+| true | true | **true** |
+| true | false | false |
+| false | true | false |
+| false | false | false |
+
+`&&` is only `true` when **both** sides are `true`.
+
+```java
+int age = 20;
+boolean hasLicense = true;
+
+if (age >= 16 && hasLicense) {
+    IO.println("You may drive.");
+}
+```
+
+<!-- FIGURE [draw.io or excalidraw]: Two overlapping circles. Left circle labeled "age >= 16", right circle labeled "hasLicense == true". The overlapping region in the middle is shaded/highlighted and labeled "&&  — both true". The non-overlapping regions are faded. Below the diagram: "Only the overlap satisfies &&." Clean Venn diagram style. -->
+
+## The `||` Operator — OR
+
+::: notes
+At least one condition must be true. The English examples help ground it: a discount for students OR seniors — either one qualifies. The Venn diagram for OR is the union of both circles. The key distinction from AND: with OR, both sides being true is still fine — only "both false" produces false. Walk through the truth table. A common mistake: students think OR means "one or the other but not both" — like in everyday English. In Java (and logic), OR means "at least one."
+:::
+
+`||` means **OR** — at least one condition must be true.
+
+**English → Java:**
+
+| English | Java |
+|---------|------|
+| "Student **or** senior" | `isStudent \|\| isSenior` |
+| "Rainy **or** below 40°F" | `isRaining \|\| temp < 40` |
+| "Score is 0 **or** answer is blank" | `score == 0 \|\| answer.equals("")` |
+| "Monday **or** Wednesday **or** Friday" | `day.equals("Mon") \|\| day.equals("Wed") \|\| day.equals("Fri")` |
+
+**Truth table for `||`:**
+
+| `A` | `B` | `A \|\| B` |
+|-----|-----|----------|
+| true | true | **true** |
+| true | false | **true** |
+| false | true | **true** |
+| false | false | false |
+
+`||` is only `false` when **both** sides are `false`.
+
+```java
+boolean isStudent = false;
+boolean isSenior  = true;
+
+if (isStudent || isSenior) {
+    IO.println("Discount applied.");   // runs — isSenior is true
+}
+```
+
+::: callout-note
+In everyday English, "or" sometimes means "one or the other, but not both." In Java, `||` means "at least one" — both being true is also fine.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: Two overlapping circles. Left labeled "isStudent", right labeled "isSenior". The ENTIRE area of both circles — including the overlap — is shaded and labeled "|| — at least one true". Only the area outside both circles is faded, labeled "both false — || is false". Contrast with the AND diagram where only the overlap was shaded. -->
+
+## The `!` Operator — NOT
+
+::: notes
+NOT flips the value: true becomes false, false becomes true. The English translations are straightforward — "not logged in," "not raining," "not game over." Show the truth table (just two rows). Common use: checking for the absence of something. Also: !condition is cleaner than condition == false, which students sometimes write instead.
+:::
+
+`!` means **NOT** — it flips `true` to `false` and `false` to `true`.
+
+**English → Java:**
+
+| English | Java |
+|---------|------|
+| "**Not** logged in" | `!isLoggedIn` |
+| "**Not** raining" | `!isRaining` |
+| "Game is **not** over" | `!isGameOver` |
+| "Name does **not** equal Alice" | `!name.equals("Alice")` |
+
+**Truth table for `!`:**
+
+| `A` | `!A` |
+|-----|------|
+| true | false |
+| false | true |
+
+```java
+boolean isRaining = false;
+
+if (!isRaining) {
+    IO.println("Good day for a walk!");   // runs — !false is true
+}
+
+boolean isLoggedIn = false;
+
+if (!isLoggedIn) {
+    IO.println("Please log in first.");   // runs
+}
+```
+
+::: callout-tip
+`!condition` is cleaner than writing `condition == false`. Use `!` instead.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: A circle labeled "isRaining = true". Outside the circle (the rest of the space) is shaded and labeled "!isRaining — everything that is NOT raining". An arrow points from inside the circle to outside, labeled "! flips it." Below: a simple before/after: box "true" → arrow labeled "!" → box "false"; box "false" → arrow labeled "!" → box "true". -->
+
+## Combining Operators
+
+::: notes
+Now that students know each operator individually, show how to combine them. Walk through several examples — one condition at a time. Precedence: ! is evaluated first, then &&, then ||. Parentheses override everything and are always clearer. Stress the parentheses habit: when in doubt, add parentheses. Compound conditions can get confusing fast; explicit parentheses make the intent clear and the bug easier to find.
+:::
+
+You can combine `&&`, `||`, and `!` to express complex conditions.
+
+**Examples:**
+
+```java
+// Must be 18+ AND (student OR senior)
+age >= 18 && (isStudent || isSenior)
+
+// Temperature is extreme (very cold OR very hot)
+temp < 10 || temp > 100
+
+// Eligible if NOT banned AND has enough credits
+!isBanned && credits >= 3
+
+// Pass if exam score is 60+ AND (homework done OR extra credit earned)
+examScore >= 60 && (homeworkDone || extraCredit)
+```
+
+**Precedence — order of evaluation:**
+
+1. `!` first (like a minus sign in front of a number)
+2. `&&` next
+3. `||` last
+
+```java
+// Without parentheses:
+a || b && c     // means: a || (b && c)
+
+// Much clearer with parentheses:
+a || (b && c)   // same result, but obvious
+(a || b) && c   // different result!
+```
+
+::: callout-tip
+**When combining `&&` and `||` — always use parentheses.** The precedence rules are subtle. Parentheses make your intent clear and prevent bugs.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: Three rows showing precedence. Row 1: "!" with a "1" badge — "evaluated first". Row 2: "&&" with a "2" badge — "evaluated second". Row 3: "||" with a "3" badge — "evaluated last". To the right: the expression "!a || b && c" with brackets drawn showing the grouping: "(!a) || (b && c)". Annotate each bracket with which step produced it. -->
+
+## The `else if` Chain
+
+::: notes
+else if lets you check multiple mutually exclusive cases in sequence. Java evaluates from top to bottom and stops at the first condition that is true. Only one branch ever runs — and once a branch runs, all subsequent else if and else branches are skipped. The grade classifier is the canonical example: score >= 90 is A, score >= 80 is B, etc. This also sets up the ordering problem perfectly, which gets its own slide next.
+:::
+
+`if`/`else` handles two cases. What if there are more?
+
+**English:** "If score is 90 or above → A. If 80 or above → B. If 70 or above → C. If 60 or above → D. Otherwise → F."
+
+```java
+if (score >= 90) {
+    IO.println("A");
+} else if (score >= 80) {
+    IO.println("B");
+} else if (score >= 70) {
+    IO.println("C");
+} else if (score >= 60) {
+    IO.println("D");
+} else {
+    IO.println("F");
+}
+```
+
+Java checks from top to bottom and **stops at the first true condition.**
+
+**Only one branch ever runs — never two, never zero.**
+
+| `score` | First true condition | Output |
+|---------|---------------------|--------|
+| 95 | `score >= 90` | A |
+| 83 | `score >= 80` | B |
+| 71 | `score >= 70` | C |
+| 60 | `score >= 60` | D |
+| 45 | none — `else` runs | F |
+
+<!-- FIGURE [draw.io or excalidraw]: A staircase-style flowchart (no Mermaid). Five diamonds stacked vertically, each slightly indented right: "score >= 90?", "score >= 80?", "score >= 70?", "score >= 60?", and a final rectangle labeled "else". From each diamond: a right-branch labeled "true" leads to a rectangle ("Print A", "Print B", etc.) and then an arrow exits downward past all remaining diamonds — skipping them. The "false" branch of each diamond continues straight down to the next diamond. The visual emphasis: once a true branch is found, everything below is skipped. -->
+
+## Ordering `else if` Conditions
+
+::: notes
+The ordering of else if branches is critical and one of the most common mistakes. If the conditions are not ordered correctly, some branches become unreachable — they will never run because a less specific condition caught the case first. Show the WRONG version first, trace through it, and let students figure out why every passing grade comes out as D. Then show the fix. The rule: when conditions overlap, put the most specific (most restrictive) condition first.
+:::
+
+**The order of branches matters — a lot.**
+
+What happens if we reverse the grade classifier?
+
+```java
+// WRONG — conditions in the wrong order
+if (score >= 60) {
+    IO.println("D");         // catches everyone who passes!
+} else if (score >= 70) {
+    IO.println("C");         // unreachable — score >= 70 already caught above
+} else if (score >= 80) {
+    IO.println("B");         // unreachable
+} else if (score >= 90) {
+    IO.println("A");         // unreachable
+} else {
+    IO.println("F");
+}
+```
+
+If `score` is `95`: the first condition `95 >= 60` is **true** → prints `"D"` → done. The A, B, and C branches never run.
+
+---
+
+**The rule: put the most specific condition first.**
+
+`score >= 90` is more specific than `score >= 60`. It covers fewer cases. Put it first so it has the chance to match.
+
+```java
+// CORRECT — most specific first
+if (score >= 90) {         // catches only 90–100
+    IO.println("A");
+} else if (score >= 80) {  // catches only 80–89
+    IO.println("B");
+} ...
+```
+
+<!-- FIGURE [draw.io or excalidraw]: Two vertical stacks side by side. Left stack (WRONG): diamonds labeled ">= 60", ">= 70", ">= 80", ">= 90" in that order. A bold arrow labeled "score = 95" hits ">= 60", turns TRUE, goes to box "Print D", then a big red X blocks the path to the remaining diamonds — they are crossed out and labeled "unreachable." Right stack (CORRECT): diamonds in reverse order ">= 90", ">= 80", ">= 70", ">= 60". Arrow for score = 95 falls through ">= 90" → TRUE → "Print A". Green checkmark. -->
+
+## Nested Conditionals
+
+::: notes
+Sometimes a condition only makes sense to check after another condition has already passed. Example: you can only check whether someone has a ticket if they are already old enough to attend. An if inside another if handles this. Key readability point: indentation reveals the nesting. Each level of nesting is one more indent. Warn against deep nesting — more than two levels deep is usually a sign that the logic should be reorganized. The else if chain is often a cleaner alternative.
+:::
+
+Sometimes a check only makes sense after a previous condition has already passed.
+
+```java
+void main() {
+    int age     = Integer.parseInt(IO.readln("Your age: "));
+    String ticket = IO.readln("Do you have a ticket? (yes/no) ");
+
+    if (age >= 18) {
+        // only check ticket if they are old enough
+        if (ticket.equals("yes")) {
+            IO.println("Welcome! Enjoy the show.");
+        } else {
+            IO.println("You need a ticket to enter.");
+        }
+    } else {
+        IO.println("You must be 18 or older to attend.");
+    }
+}
+```
+
+The inner `if` only runs when the outer condition (`age >= 18`) is already true.
+
+**Indentation reveals the structure** — each level of nesting is one indent deeper.
+
+::: callout-warning
+Avoid nesting more than two levels deep. Deeply nested code is hard to read and easy to get wrong. Often, `else if` or compound conditions with `&&` are a cleaner solution.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: A flowchart with two layers. Outer diamond: "age >= 18?". False branch goes left → rectangle "Too young." True branch goes right and enters a dotted box (representing "inside the if") containing a second diamond: "has ticket?". From inner diamond: true → "Welcome!", false → "Need a ticket." The dotted box should visually convey "this whole block only runs when age >= 18." -->
+
+## Nested `if` vs `else if` — Which to Use?
+
+::: notes
+This is a design decision, not a syntax lesson. else if is the right tool when the cases are mutually exclusive and at the same level — letter grades from a score, day of the week, season from a month. Nested if is the right tool when one condition is a prerequisite for another — you can only be eligible for the upgrade if you are already a member; you can only check the balance if the account exists. The over-nesting mistake: beginners often reach for nested if when else if would be simpler and clearer. Show both solutions to the same problem.
+:::
+
+Two patterns — different jobs:
+
+:::: {.columns}
+::: {.column width="50%"}
+**`else if` — parallel cases**
+
+Cases are at the same level.
+At most one applies.
+
+```java
+// What letter grade?
+if (score >= 90) {
+    IO.println("A");
+} else if (score >= 80) {
+    IO.println("B");
+} else if (score >= 70) {
+    IO.println("C");
+} else {
+    IO.println("D or F");
+}
+```
+
+*One score → one grade.
+Cases are independent.*
+:::
+::: {.column width="50%"}
+**Nested `if` — prerequisite check**
+
+One condition must pass before
+the next one even makes sense.
+
+```java
+// Are they eligible for a bonus?
+if (isEmployee) {
+    if (yearsWorked >= 5) {
+        IO.println("Eligible for bonus.");
+    } else {
+        IO.println("Not enough years.");
+    }
+} else {
+    IO.println("Not an employee.");
+}
+```
+
+*Must be an employee first.
+Then check years.*
+:::
+::::
+
+::: callout-tip
+**Ask yourself:** are the cases *side by side* (different values of the same thing)? Use `else if`. Is one condition a *prerequisite* for another? Use nested `if`.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: Two diagrams side by side. Left (else if): a horizontal row of four boxes at the same height — "A", "B", "C", "D/F" — with a single bar above them labeled "score" and an arrow pointing to one box at a time. Conveys "pick exactly one from a flat list." Right (nested if): two boxes stacked vertically — "isEmployee?" on top, "yearsWorked >= 5?" indented below it. Conveys "pass through a gate before reaching the inner check." -->
+
+## Code Example — Event Admission
+
+::: notes
+A complete program that combines && and || with an else if chain. The scenario: a venue with age rules and a VIP option. Walk through several inputs. Trace through with the class — which conditions evaluate first? Which branch runs? This also shows that compound conditions with && can replace one level of nesting.
+:::
+
+**Problem:** A venue admits guests if they are 21 or older, OR if they are 18 or older and have a VIP pass. Anyone under 18 is not admitted regardless.
+
+<!-- FIGURE [draw.io or excalidraw]: A hand-drawn flowchart (no Mermaid). Top diamond: "age >= 18?". False branch → "Not admitted (too young)." True branch → second diamond: "age >= 21 OR has VIP pass?". True → "Welcome! Come in." False → "Must be 21 without a VIP pass." Each branch ends with a terminus rectangle. -->
+
+```java
+void main() {
+    int age    = Integer.parseInt(IO.readln("Your age: "));
+    String vip = IO.readln("VIP pass? (yes/no) ");
+    boolean hasVip = vip.equals("yes");
+
+    if (age < 18) {
+        IO.println("Not admitted — must be at least 18.");
+    } else if (age >= 21 || hasVip) {
+        IO.println("Welcome! Come on in.");
+    } else {
+        IO.println("Must be 21 or older without a VIP pass.");
+    }
+}
+```
+
+**Trace through three inputs:**
+
+| age | hasVip | First true branch | Output |
+|-----|--------|------------------|--------|
+| 16 | no | `age < 18` | Not admitted |
+| 19 | yes | `age >= 21 \|\| hasVip` | Welcome! |
+| 19 | no | else | Must be 21... |
+| 25 | no | `age >= 21 \|\| hasVip` | Welcome! |
+
+## Common Mistakes
+
+::: notes
+Four mistakes that appear frequently in this unit. The precedence mistake (mixing && and || without parentheses) produces wrong results that compile fine — hardest to spot. The ordering mistake causes unreachable branches. The off-by-one in else if is subtle (>= vs > for grade boundaries). Using nested if when else if would be cleaner makes code harder to read.
+:::
+
+**1. Mixing `&&` and `||` without parentheses**
+```java
+// Intended: (isStudent || isSenior) && hasId
+// Actual:   isStudent || (isSenior && hasId)  ← different!
+if (isStudent || isSenior && hasId) { ... }
+
+// Fix — always parenthesize when mixing:
+if ((isStudent || isSenior) && hasId) { ... }
+```
+
+**2. `else if` conditions in the wrong order — unreachable branches**
+```java
+if (score >= 60) { IO.println("D"); }        // too broad — catches everyone
+else if (score >= 90) { IO.println("A"); }   // unreachable!
+
+// Fix — most specific first:
+if (score >= 90) { IO.println("A"); }
+else if (score >= 60) { IO.println("D"); }
+```
+
+**3. Using `>` instead of `>=` at grade boundaries**
+```java
+if (score > 90) { IO.println("A"); }   // misses exactly 90
+if (score >= 90) { IO.println("A"); }  // ✓
+```
+
+**4. Deep nesting when `else if` or `&&` would be cleaner**
+```java
+// Overly nested — hard to follow
+if (age >= 18) {
+    if (score >= 60) {
+        if (homeworkDone) {
+            IO.println("Pass");
+        }
+    }
+}
+
+// Cleaner with &&
+if (age >= 18 && score >= 60 && homeworkDone) {
+    IO.println("Pass");
+}
+```
+
+## Worksheet
+
+::: notes
+Reserve the last 20-30 minutes. Problems 1-3 are prediction/translation — paper first. Problems 4-6 are write-the-code. Problem 7 is the synthesis problem with a full else if chain. Watch for: missing parentheses in compound conditions; wrong ordering in else if; using == instead of .equals() on Strings; deep nesting when else if would be cleaner.
+:::
+
+**Problem 1 — Evaluate.** What does each expression produce — `true` or `false`? Work through them without running.
+
+```java
+int x = 5;
+int y = 10;
+boolean isOn = true;
+
+x > 3 && y < 20
+x > 3 && y > 20
+x > 3 || y > 20
+!(x == 5)
+!(x == 5) || isOn
+x > 0 && x < 10
+```
+
+**Problem 2 — English to Java.** Translate each condition into a Java boolean expression. Use variables `age`, `hasTicket`, `isMember`, `score`, `isWeekend`.
+
+- "18 or older and has a ticket"
+- "A member or the score is above 90"
+- "Not a weekend"
+- "Score is between 70 and 89 (inclusive)"
+- "A member and not a weekend, or score is above 95"
+
+**Problem 3 — Spot the bug.** Each snippet has one mistake. Identify and fix it.
+
+```java
+// Snippet A
+int score = 95;
+if (score >= 60) {
+    IO.println("D");
+} else if (score >= 90) {
+    IO.println("A");   // student expected "A" but got "D"
+}
+```
+
+```java
+// Snippet B — intended: (isMember || isGuest) && hasId
+if (isMember || isGuest && hasId) {
+    IO.println("Allowed");
+}
+```
+
+**Problem 4 — Write it.** Write a program that asks for a temperature in Fahrenheit and prints one of:
+- `"Freezing"` — below 32
+- `"Cold"` — 32 to 59
+- `"Comfortable"` — 60 to 79
+- `"Hot"` — 80 and above
+
+**Problem 5 — Write it.** Ask the user for two numbers and a choice of operation (`+`, `-`, `*`). Print the result. If the operation is not recognized, print `"Unknown operation"`.
+
+**Problem 6 — Write it.** Ask for a user's age and whether they have a student ID (yes/no). Print `"Full price"`, `"Student discount"` (age 13–25 with ID), `"Child"` (under 13), or `"Senior discount"` (65 and above).
+
+**Problem 7 — Trace it.** What does this print for `score = 85`? For `score = 60`? For `score = 59`?
+
+```java
+void main() {
+    int score = 85;
+
+    if (score >= 90) {
+        IO.println("A");
+    } else if (score >= 80) {
+        IO.println("B");
+    } else if (score >= 70) {
+        IO.println("C");
+    } else if (score >= 60) {
+        IO.println("D");
+    } else {
+        IO.println("F");
+    }
+
+    IO.println("Grade assigned.");
+}
+```

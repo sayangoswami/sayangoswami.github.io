@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Dynamic Programming: More Problems</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Dynamic Programming: More Problems</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="house-robber" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>House Robber</h1>
+
+</section>
+<section id="house-robber-problem" class="slide level2">
+<h2>House Robber — Problem</h2>
+<p><strong>You are a professional robber</strong> planning to rob houses along a street. Each house has a certain amount of money stashed.</p>
+<p><strong>Constraint:</strong> Adjacent houses have a security system — you <strong>cannot rob two directly adjacent houses</strong>.</p>
+<p><strong>Goal:</strong> Return the maximum amount of money you can rob tonight.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>Example:</strong></p>
+<pre><code>Input:  nums = [2, 7, 9, 3, 1]
+Output: 12
+Explanation: Rob house 1 (2) + house 3 (9) + house 5 (1) = 12</code></pre>
+<pre><code>Input:  nums = [1, 2, 3, 1]
+Output: 4
+Explanation: Rob house 1 (1) + house 3 (3) = 4</code></pre>
+<div title="Hints">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Hints</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>What are the two choices at each house?</li>
+<li>Can you define <code>dp[i]</code> as “max money robbing up to house <code>i</code>”?</li>
+<li>What is the recurrence? Think about whether you rob house <code>i</code> or skip it.</li>
+<li>Base cases: What is <code>dp[0]</code>? What is <code>dp[1]</code>?</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="house-robber-solution" class="slide level2">
+<h2>House Robber — Solution</h2>
+<p><strong>State:</strong> <code>dp[i]</code> = maximum money robbed considering houses <code>0..i</code></p>
+<p><strong>Recurrence:</strong></p>
+<p><span class="math display">\[dp[i] = \max(\underbrace{dp[i-1]}_{\text{skip house } i},\ \underbrace{nums[i] + dp[i-2]}_{\text{rob house } i})\]</span></p>
+<p><strong>Base cases:</strong> <code>dp[0] = nums[0]</code>, <code>dp[1] = max(nums[0], nums[1])</code></p>
+</section>
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a><span class="kw">def</span> rob(nums: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb3-2"><a></a>    n <span class="op">=</span> <span class="bu">len</span>(nums)</span>
+<span id="cb3-3"><a></a>    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb3-4"><a></a>        <span class="cf">return</span> nums[<span class="dv">0</span>]</span>
+<span id="cb3-5"><a></a></span>
+<span id="cb3-6"><a></a>    dp <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> n</span>
+<span id="cb3-7"><a></a>    dp[<span class="dv">0</span>] <span class="op">=</span> nums[<span class="dv">0</span>]</span>
+<span id="cb3-8"><a></a>    dp[<span class="dv">1</span>] <span class="op">=</span> <span class="bu">max</span>(nums[<span class="dv">0</span>], nums[<span class="dv">1</span>])</span>
+<span id="cb3-9"><a></a></span>
+<span id="cb3-10"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, n):</span>
+<span id="cb3-11"><a></a>        dp[i] <span class="op">=</span> <span class="bu">max</span>(dp[i<span class="op">-</span><span class="dv">1</span>],          <span class="co"># skip house i</span></span>
+<span id="cb3-12"><a></a>                    nums[i] <span class="op">+</span> dp[i<span class="op">-</span><span class="dv">2</span>]) <span class="co"># rob house i</span></span>
+<span id="cb3-13"><a></a></span>
+<span id="cb3-14"><a></a>    <span class="cf">return</span> dp[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Space optimisation</strong> — only last two values needed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="kw">def</span> rob(nums: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb4-2"><a></a>    prev2, prev1 <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb4-3"><a></a>    <span class="cf">for</span> num <span class="kw">in</span> nums:</span>
+<span id="cb4-4"><a></a>        prev2, prev1 <span class="op">=</span> prev1, <span class="bu">max</span>(prev1, num <span class="op">+</span> prev2)</span>
+<span id="cb4-5"><a></a>    <span class="cf">return</span> prev1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time:</strong> O(n) &nbsp;|&nbsp; <strong>Space:</strong> O(1) (optimised)</p>
+</section>
+<section id="house-robber-trace-through" class="slide level2">
+<h2>House Robber — Trace Through</h2>
+<pre><code>nums = [2, 7, 9, 3, 1]
+         0  1  2  3  4
+
+dp[0] = 2
+dp[1] = max(2, 7) = 7
+dp[2] = max(dp[1], nums[2] + dp[0]) = max(7, 9+2) = 11
+dp[3] = max(dp[2], nums[3] + dp[1]) = max(11, 3+7) = 11
+dp[4] = max(dp[3], nums[4] + dp[2]) = max(11, 1+11) = 12
+
+Answer: 12  ✓</code></pre>
+<div title="Pattern Insight">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Pattern Insight</strong></p>
+</div>
+<div class="callout-content">
+<p>House Robber is the canonical <strong>“skip or take”</strong> linear DP. The same recurrence structure appears in many problems — once you see <code>dp[i] = max(dp[i-1], val + dp[i-2])</code>, you’ve seen House Robber.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="longest-increasing-subsequence" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Longest Increasing Subsequence</h1>
+
+</section>
+<section id="lis-problem" class="slide level2">
+<h2>LIS — Problem</h2>
+<p>Given an integer array <code>nums</code>, return the length of the <strong>longest strictly increasing subsequence</strong>.</p>
+<blockquote>
+<p>A <strong>subsequence</strong> does not need to be contiguous.</p>
+</blockquote>
+</section>
+<section class="slide level2">
+
+<p><strong>Examples:</strong></p>
+<pre><code>Input:  nums = [10, 9, 2, 5, 3, 7, 101, 18]
+Output: 4
+Explanation: [2, 3, 7, 101] is the longest increasing subsequence</code></pre>
+<pre><code>Input:  nums = [0, 1, 0, 3, 2, 3]
+Output: 4</code></pre>
+<pre><code>Input:  nums = [7, 7, 7, 7]
+Output: 1</code></pre>
+<div title="Hints">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Hints</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>Try defining <code>dp[i]</code> as the length of the LIS <strong>ending at index <code>i</code></strong>.</li>
+<li>For each <code>i</code>, which earlier indices <code>j</code> are useful?</li>
+<li>Every element is an LIS of length at least 1.</li>
+<li>Can you build from smaller subproblems to larger ones?</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="lis-solution" class="slide level2">
+<h2>LIS — Solution</h2>
+<p><strong>State:</strong> <code>dp[i]</code> = length of the longest increasing subsequence ending at index <code>i</code></p>
+<p><strong>Recurrence:</strong></p>
+<p><span class="math display">\[dp[i] = 1 + \max_{j &lt; i,\ nums[j] &lt; nums[i]} dp[j]\]</span></p>
+<p>(If no such <code>j</code> exists, <code>dp[i] = 1</code>)</p>
+<p><strong>Answer:</strong> <code>max(dp)</code></p>
+</section>
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="kw">def</span> lengthOfLIS(nums: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb9-2"><a></a>    n <span class="op">=</span> <span class="bu">len</span>(nums)</span>
+<span id="cb9-3"><a></a>    dp <span class="op">=</span> [<span class="dv">1</span>] <span class="op">*</span> n  <span class="co"># every element is an LIS of length 1</span></span>
+<span id="cb9-4"><a></a></span>
+<span id="cb9-5"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb9-6"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i):</span>
+<span id="cb9-7"><a></a>            <span class="cf">if</span> nums[j] <span class="op">&lt;</span> nums[i]:           <span class="co"># can extend</span></span>
+<span id="cb9-8"><a></a>                dp[i] <span class="op">=</span> <span class="bu">max</span>(dp[i], dp[j] <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb9-9"><a></a></span>
+<span id="cb9-10"><a></a>    <span class="cf">return</span> <span class="bu">max</span>(dp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time:</strong> O(n²) &nbsp;|&nbsp; <strong>Space:</strong> O(n)</p>
+<div title="Bonus: O(n log n) with patience sorting">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Bonus: O(n log n) with patience sorting</strong></p>
+</div>
+<div class="callout-content">
+<p>Use binary search to maintain a <code>tails</code> array where <code>tails[k]</code> is the smallest tail element of all increasing subsequences of length <code>k+1</code>. This gives O(n log n) but is trickier to derive.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="lis-trace-through" class="slide level2">
+<h2>LIS — Trace Through</h2>
+<pre><code>nums = [10, 9, 2, 5, 3, 7, 101, 18]
+idx      0  1  2  3  4  5   6   7
+
+dp init: [1,  1,  1,  1,  1,  1,  1,  1]
+
+i=1: nums[1]=9  — no j&lt;1 with nums[j]&lt;9 strictly? nums[0]=10 ✗
+     dp[1] = 1
+
+i=2: nums[2]=2  — no j with nums[j]&lt;2
+     dp[2] = 1
+
+i=3: nums[3]=5  — j=2: nums[2]=2&lt;5 → dp[3]=max(1,dp[2]+1)=2
+     dp[3] = 2
+
+i=4: nums[4]=3  — j=2: nums[2]=2&lt;3 → dp[4]=max(1,dp[2]+1)=2
+     dp[4] = 2
+
+i=5: nums[5]=7  — j=2:dp=1, j=3:dp=2, j=4:dp=2 → dp[5]=3
+     dp[5] = 3
+
+i=6: nums[6]=101 — all j qualify → best is dp[5]=3 → dp[6]=4
+i=7: nums[7]=18  — best is dp[5]=3 → dp[7]=4
+
+dp = [1, 1, 1, 2, 2, 3, 4, 4]
+max(dp) = 4  ✓</code></pre>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="edit-distance" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Edit Distance</h1>
+
+</section>
+<section id="edit-distance-problem" class="slide level2">
+<h2>Edit Distance — Problem</h2>
+<p>Given two strings <code>word1</code> and <code>word2</code>, return the <strong>minimum number of operations</strong> to convert <code>word1</code> to <code>word2</code>.</p>
+<p><strong>Allowed operations</strong> (each counts as 1 step):</p>
+<ul>
+<li><strong>Insert</strong> a character</li>
+<li><strong>Delete</strong> a character</li>
+<li><strong>Replace</strong> a character</li>
+</ul>
+<p>Also known as the <strong>Levenshtein distance</strong>.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>Examples:</strong></p>
+<pre><code>Input:  word1 = "horse", word2 = "ros"
+Output: 3
+Explanation:
+  horse → rorse (replace 'h' with 'r')
+  rorse → rose  (delete 'r')
+  rose  → ros   (delete 'e')</code></pre>
+<pre><code>Input:  word1 = "intention", word2 = "execution"
+Output: 5</code></pre>
+<div title="Hints">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Hints</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>Think of a 2D table where <code>dp[i][j]</code> = edit distance between the first <code>i</code> chars of <code>word1</code> and first <code>j</code> chars of <code>word2</code>.</li>
+<li>What happens when <code>word1[i-1] == word2[j-1]</code>?</li>
+<li>When they differ, which of the three operations maps to which table cell?</li>
+<li>Base cases: what does converting to/from an empty string cost?</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="edit-distance-solution" class="slide level2">
+<h2>Edit Distance — Solution</h2>
+<p><strong>State:</strong> <code>dp[i][j]</code> = min edits to convert <code>word1[0..i-1]</code> → <code>word2[0..j-1]</code></p>
+<p><strong>Base cases:</strong> - <code>dp[i][0] = i</code> (delete all <code>i</code> chars) - <code>dp[0][j] = j</code> (insert all <code>j</code> chars)</p>
+<p><strong>Recurrence:</strong></p>
+<p><span class="math display">\[dp[i][j] = \begin{cases} dp[i-1][j-1] &amp; \text{if } word1[i-1] = word2[j-1] \\ 1 + \min\begin{cases} dp[i-1][j] &amp; \text{(delete)} \\ dp[i][j-1] &amp; \text{(insert)} \\ dp[i-1][j-1] &amp; \text{(replace)} \end{cases} &amp; \text{otherwise} \end{cases}\]</span></p>
+</section>
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="kw">def</span> minDistance(word1: <span class="bu">str</span>, word2: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb13-2"><a></a>    m, n <span class="op">=</span> <span class="bu">len</span>(word1), <span class="bu">len</span>(word2)</span>
+<span id="cb13-3"><a></a>    dp <span class="op">=</span> [[<span class="dv">0</span>] <span class="op">*</span> (n <span class="op">+</span> <span class="dv">1</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(m <span class="op">+</span> <span class="dv">1</span>)]</span>
+<span id="cb13-4"><a></a></span>
+<span id="cb13-5"><a></a>    <span class="co"># base cases</span></span>
+<span id="cb13-6"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(m <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb13-7"><a></a>        dp[i][<span class="dv">0</span>] <span class="op">=</span> i</span>
+<span id="cb13-8"><a></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb13-9"><a></a>        dp[<span class="dv">0</span>][j] <span class="op">=</span> j</span>
+<span id="cb13-10"><a></a></span>
+<span id="cb13-11"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, m <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb13-12"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb13-13"><a></a>            <span class="cf">if</span> word1[i<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> word2[j<span class="op">-</span><span class="dv">1</span>]:</span>
+<span id="cb13-14"><a></a>                dp[i][j] <span class="op">=</span> dp[i<span class="op">-</span><span class="dv">1</span>][j<span class="op">-</span><span class="dv">1</span>]       <span class="co"># characters match — free</span></span>
+<span id="cb13-15"><a></a>            <span class="cf">else</span>:</span>
+<span id="cb13-16"><a></a>                dp[i][j] <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">min</span>(</span>
+<span id="cb13-17"><a></a>                    dp[i<span class="op">-</span><span class="dv">1</span>][j],    <span class="co"># delete from word1</span></span>
+<span id="cb13-18"><a></a>                    dp[i][j<span class="op">-</span><span class="dv">1</span>],    <span class="co"># insert into word1</span></span>
+<span id="cb13-19"><a></a>                    dp[i<span class="op">-</span><span class="dv">1</span>][j<span class="op">-</span><span class="dv">1</span>]   <span class="co"># replace</span></span>
+<span id="cb13-20"><a></a>                )</span>
+<span id="cb13-21"><a></a></span>
+<span id="cb13-22"><a></a>    <span class="cf">return</span> dp[m][n]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time:</strong> O(m·n) &nbsp;|&nbsp; <strong>Space:</strong> O(m·n) — reducible to O(min(m,n))</p>
+</section>
+<section id="edit-distance-dp-table" class="slide level2">
+<h2>Edit Distance — DP Table</h2>
+<p><code>word1 = "horse"</code>, <code>word2 = "ros"</code></p>
+<pre><code>      ""  r   o   s
+  ""  [0,  1,  2,  3]
+  h   [1,  1,  2,  3]
+  o   [2,  2,  1,  2]
+  r   [3,  2,  2,  2]
+  s   [4,  3,  3,  2]
+  e   [5,  4,  4,  3]
+
+Answer: dp[5][3] = 3  ✓</code></pre>
+<div title="How to read the table">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>How to read the table</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>Moving <strong>left→right</strong> = insert</li>
+<li>Moving <strong>top→bottom</strong> = delete</li>
+<li>Moving <strong>diagonal</strong> = match (free) or replace (+1)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="partition-equal-subset-sum" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Partition Equal Subset Sum</h1>
+
+</section>
+<section id="partition-equal-subset-problem" class="slide level2">
+<h2>Partition Equal Subset — Problem</h2>
+<p>Given an integer array <code>nums</code>, return <code>true</code> if you can partition it into <strong>two subsets with equal sum</strong>, and <code>false</code> otherwise.</p>
+<p><strong>Examples:</strong></p>
+<pre><code>Input:  nums = [1, 5, 11, 5]
+Output: true
+Explanation: [1, 5, 5] and [11]</code></pre>
+<pre><code>Input:  nums = [1, 2, 3, 5]
+Output: false</code></pre>
+<div title="Hints">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Hints</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>If the total sum is odd, what can you immediately conclude?</li>
+<li>The target for each partition is <code>total // 2</code>.</li>
+<li>Reduce to: <strong>“Can we pick a subset that sums to <code>target</code>?”</strong></li>
+<li>This is exactly 0/1 Knapsack! <code>dp[j]</code> = can we achieve sum <code>j</code>?</li>
+<li>Process each number and update the DP table.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="partition-equal-subset-solution" class="slide level2">
+<h2>Partition Equal Subset — Solution</h2>
+<p><strong>Key insight:</strong> Partition into two equal subsets ⟺ find a subset summing to <code>total // 2</code>.</p>
+<p><strong>State:</strong> <code>dp[j]</code> = <code>True</code> if subset sum <code>j</code> is achievable</p>
+<p><strong>Recurrence (for each <code>num</code> in <code>nums</code>):</strong></p>
+<p><span class="math display">\[dp[j] = dp[j] \;\text{ OR }\; dp[j - num] \quad \text{(iterate } j \text{ from target down to } num\text{)}\]</span></p>
+<p>Iterate <code>j</code> <strong>backwards</strong> to avoid using the same element twice (0/1 constraint). If you iterate from thre front, you reuse items. - To see an example of this in action, try partitioning the set <code>{1, 5}</code> using this recurrence.</p>
+<p>Or just use a 2d DP table with the recurrence <code>dp[i][j] = dp[i-1][j]  OR  dp[i-1][j - nums[i]]</code></p>
+</section>
+
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="kw">def</span> canPartition(nums: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb19-2"><a></a>    total <span class="op">=</span> <span class="bu">sum</span>(nums)</span>
+<span id="cb19-3"><a></a>    <span class="cf">if</span> total <span class="op">%</span> <span class="dv">2</span> <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb19-4"><a></a>        <span class="cf">return</span> <span class="va">False</span>          <span class="co"># odd total → impossible</span></span>
+<span id="cb19-5"><a></a></span>
+<span id="cb19-6"><a></a>    target <span class="op">=</span> total <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb19-7"><a></a>    dp <span class="op">=</span> [<span class="va">False</span>] <span class="op">*</span> (target <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb19-8"><a></a>    dp[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span>              <span class="co"># empty subset sums to 0</span></span>
+<span id="cb19-9"><a></a></span>
+<span id="cb19-10"><a></a>    <span class="cf">for</span> num <span class="kw">in</span> nums:</span>
+<span id="cb19-11"><a></a>        <span class="co"># iterate backwards to enforce 0/1 (each num used at most once)</span></span>
+<span id="cb19-12"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(target, num <span class="op">-</span> <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb19-13"><a></a>            dp[j] <span class="op">=</span> dp[j] <span class="kw">or</span> dp[j <span class="op">-</span> num]</span>
+<span id="cb19-14"><a></a></span>
+<span id="cb19-15"><a></a>    <span class="cf">return</span> dp[target]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time:</strong> O(n · target) = O(n · sum/2) &nbsp;|&nbsp; <strong>Space:</strong> O(target)</p>
+</section>
+<section id="partition-equal-subset-trace-through" class="slide level2">
+<h2>Partition Equal Subset — Trace Through</h2>
+<pre><code>nums = [1, 5, 11, 5],  total = 22,  target = 11
+
+dp = [T, F, F, F, F, F, F, F, F, F, F, F]
+       0  1  2  3  4  5  6  7  8  9 10 11
+
+Process num=1:
+  dp = [T, T, F, F, F, F, F, F, F, F, F, F]
+
+Process num=5:
+  j=11..5: dp[6]=dp[1]=T, dp[5]=dp[0]=T
+  dp = [T, T, F, F, F, T, T, F, F, F, F, F]
+
+Process num=11:
+  j=11: dp[11]=dp[0]=T  ← found it!
+  dp = [T, T, F, F, F, T, T, F, F, F, F, T]
+
+return dp[11] = True  ✓</code></pre>
+</section>
+<section id="the-setup" class="slide level2">
+<h2>The Setup</h2>
+<blockquote>
+<p>You have <strong>k eggs</strong> and a building with <strong>n floors</strong>. There exists a critical floor <strong>f</strong> such that: - Any egg dropped from floor <strong>≤ f</strong> survives - Any egg dropped from floor <strong>&gt; f</strong> breaks</p>
+<p>Find <strong>f</strong> using the <strong>minimum number of trials</strong> in the worst case.</p>
+</blockquote>
+<div class="fragment">
+<p><strong>Rules:</strong> - A broken egg is gone — you can’t reuse it - An unbroken egg can be dropped again - You want to minimise trials <strong>in the worst case</strong></p>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>The question:</strong> with <code>k</code> eggs and <code>n</code> floors, what’s the minimum number of drops you need to <em>guarantee</em> finding <code>f</code>?</p>
+</blockquote>
+</div>
+</section>
+<section id="first-build-intuition-1-egg" class="slide level2">
+<h2>First, Build Intuition: 1 Egg</h2>
+<p>With <strong>only 1 egg</strong>, you can’t afford to break it — if it breaks, you learn nothing about higher floors and have no eggs left.</p>
+<div class="fragment">
+<p><strong>Only safe strategy:</strong> drop from floor 1, then 2, then 3…</p>
+<pre><code>1 egg, n floors → n trials in worst case</code></pre>
+</div>
+<div class="fragment">
+<p>If the critical floor is the very top, you had to check every floor below it.</p>
+<blockquote>
+<p>With 1 egg, you’re stuck with <strong>linear search</strong>.</p>
+</blockquote>
+</div>
+</section>
+<section id="binary-search-wont-work-either" class="slide level2">
+<h2>Binary Search Won’t Work Either</h2>
+<p>With <strong>infinite eggs</strong>, binary search works perfectly:</p>
+<pre><code>100 floors → try floor 50
+  breaks?  → search floors 1-49
+  survives? → search floors 51-100</code></pre>
+<p>→ <strong>O(log n)</strong> trials with unlimited eggs.</p>
+<div class="fragment">
+<p>But with <strong>2 eggs</strong>, binary search is risky:</p>
+<ul>
+<li>Drop from floor 50. It breaks. You have 1 egg left.</li>
+<li>Now you must check floors 1–49 <strong>one by one</strong>: 49 more trials!</li>
+<li>Worst case: <strong>50 trials total</strong> — no better than floor 25 as a starting point.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>The tension:</strong> go high to eliminate many floors, but risk losing your egg and being forced into a long linear scan.</p>
+</blockquote>
+</div>
+</section>
+<section id="two-eggs-the-key-insight" class="slide level2">
+<h2>Two Eggs — The Key Insight</h2>
+<p>With 2 eggs and n floors, let’s say we make at most <strong>t</strong> total trials.</p>
+<div class="fragment">
+<p><strong>Try floor <code>t</code> first.</strong> If it breaks → 1 egg, <code>t-1</code> trials left → can check <code>t-1</code> more floors. If it survives → try floor <code>t + (t-1)</code> next.</p>
+</div>
+<div class="fragment">
+<p>This gives us floors: <code>t, t+(t-1), t+(t-2), ...</code></p>
+<p>The total floors covered: <span class="math inline">\(t + (t-1) + (t-2) + \cdots + 1 = \frac{t(t+1)}{2}\)</span></p>
+</div>
+<div class="fragment">
+<p>So with 2 eggs and <code>n</code> floors, we need the smallest <code>t</code> such that <span class="math inline">\(\frac{t(t+1)}{2} \geq n\)</span>.</p>
+<p><strong>For n = 100:</strong> <span class="math inline">\(t = 14\)</span> (since <span class="math inline">\(14 \times 15 / 2 = 105 \geq 100\)</span>)</p>
+<blockquote>
+<p>Drop from floors <strong>14, 27, 39, 50, 60, 69, 77, 84, 90, 95, 99, 100…</strong></p>
+</blockquote>
+</div>
+</section>
+<section id="generalising-to-k-eggs" class="slide level2">
+<h2>Generalising to k Eggs</h2>
+<p>For arbitrary <code>k</code> eggs and <code>n</code> floors, the greedy trick doesn’t generalize cleanly.</p>
+<p><strong>Enter DP.</strong></p>
+<div class="fragment">
+<p><strong>State:</strong> <code>dp[k][n]</code> = minimum number of trials needed to find the critical floor with <code>k</code> eggs and <code>n</code> floors.</p>
+</div>
+<div class="fragment">
+<p><strong>Decision:</strong> drop from floor <code>f</code> (where <code>1 ≤ f ≤ n</code>):</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="fragment">
+<p><strong>Egg breaks</strong> 🥚💥 Critical floor is below <code>f</code>. Remaining: <code>k-1</code> eggs, <code>f-1</code> floors → <code>dp[k-1][f-1]</code> more trials</p>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="fragment">
+<p><strong>Egg survives</strong> 🥚✓ Critical floor is at <code>f</code> or above. Remaining: <code>k</code> eggs, <code>n-f</code> floors → <code>dp[k][n-f]</code> more trials</p>
+</div>
+</div></div>
+</div>
+<div class="fragment">
+<p>Since we need to handle the <strong>worst case</strong>, we take the <code>max</code>. Since we get to <strong>choose</strong> floor <code>f</code> wisely, we take the <code>min</code> over all choices.</p>
+</div>
+</section>
+<section id="the-recurrence" class="slide level2">
+<h2>The Recurrence</h2>
+<p><span class="math display">\[dp[k][n] = 1 + \min_{1 \leq f \leq n} \max\bigl(dp[k-1][f-1],\ dp[k][n-f]\bigr)\]</span></p>
+<div class="fragment">
+<p><strong>Base cases:</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dp[1][n]</code></td>
+<td><code>n</code> — with 1 egg, check each floor</td>
+</tr>
+<tr class="even">
+<td><code>dp[k][0]</code></td>
+<td><code>0</code> — no floors to check</td>
+</tr>
+<tr class="odd">
+<td><code>dp[k][1]</code></td>
+<td><code>1</code> — only one floor, one drop</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="walking-through-a-small-example" class="slide level2">
+<h2>Walking Through a Small Example</h2>
+<p><code>k = 2, n = 6</code> — let’s compute <code>dp[2][6]</code>:</p>
+<div class="fragment">
+<p>Try each floor <code>f</code> from 1 to 6:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Drop from floor <code>f</code></th>
+<th>Breaks: <code>dp[1][f-1]</code></th>
+<th>Survives: <code>dp[2][6-f]</code></th>
+<th>Worst case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>f=1</td>
+<td>dp[1][0] = 0</td>
+<td>dp[2][5] = ?</td>
+<td>need more</td>
+</tr>
+<tr class="even">
+<td>f=2</td>
+<td>dp[1][1] = 1</td>
+<td>dp[2][4] = ?</td>
+<td>need more</td>
+</tr>
+<tr class="odd">
+<td>f=3</td>
+<td>dp[1][2] = 2</td>
+<td>dp[2][3] = ?</td>
+<td>need more</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>We need to fill the table bottom-up. After filling:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>n=0</th>
+<th>n=1</th>
+<th>n=2</th>
+<th>n=3</th>
+<th>n=4</th>
+<th>n=5</th>
+<th>n=6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>k=1</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td><strong>k=2</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td><strong>3</strong></td>
+</tr>
+</tbody>
+</table>
+<p>With 2 eggs and 6 floors: <strong>3 trials</strong> suffice.</p>
+</div>
+</section>
+<section id="the-code" class="slide level2">
+<h2>The Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a></a><span class="kw">def</span> egg_drop(k, n):</span>
+<span id="cb23-2"><a></a>    <span class="co"># dp[i][j] = min trials with i eggs and j floors</span></span>
+<span id="cb23-3"><a></a>    dp <span class="op">=</span> [[<span class="dv">0</span>] <span class="op">*</span> (n <span class="op">+</span> <span class="dv">1</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(k <span class="op">+</span> <span class="dv">1</span>)]</span>
+<span id="cb23-4"><a></a></span>
+<span id="cb23-5"><a></a>    <span class="co"># Base cases</span></span>
+<span id="cb23-6"><a></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb23-7"><a></a>        dp[<span class="dv">1</span>][j] <span class="op">=</span> j          <span class="co"># 1 egg: must go floor by floor</span></span>
+<span id="cb23-8"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, k <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb23-9"><a></a>        dp[i][<span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span>          <span class="co"># 1 floor: one drop suffices</span></span>
+<span id="cb23-10"><a></a>        dp[i][<span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span>          <span class="co"># 0 floors: no drops needed</span></span>
+<span id="cb23-11"><a></a></span>
+<span id="cb23-12"><a></a>    <span class="co"># Fill the table</span></span>
+<span id="cb23-13"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, k <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb23-14"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb23-15"><a></a>            dp[i][j] <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb23-16"><a></a>            <span class="cf">for</span> f <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, j <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb23-17"><a></a>                worst <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">max</span>(dp[i<span class="op">-</span><span class="dv">1</span>][f<span class="op">-</span><span class="dv">1</span>], dp[i][j<span class="op">-</span>f])</span>
+<span id="cb23-18"><a></a>                dp[i][j] <span class="op">=</span> <span class="bu">min</span>(dp[i][j], worst)</span>
+<span id="cb23-19"><a></a></span>
+<span id="cb23-20"><a></a>    <span class="cf">return</span> dp[k][n]</span>
+<span id="cb23-21"><a></a></span>
+<span id="cb23-22"><a></a><span class="bu">print</span>(egg_drop(<span class="dv">1</span>, <span class="dv">10</span>))   <span class="co"># → 10</span></span>
+<span id="cb23-23"><a></a><span class="bu">print</span>(egg_drop(<span class="dv">2</span>, <span class="dv">10</span>))   <span class="co"># → 4</span></span>
+<span id="cb23-24"><a></a><span class="bu">print</span>(egg_drop(<span class="dv">3</span>, <span class="dv">10</span>))   <span class="co"># → 4 (wait — why?)</span></span>
+<span id="cb23-25"><a></a><span class="bu">print</span>(egg_drop(<span class="dv">2</span>, <span class="dv">100</span>))  <span class="co"># → 14</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time: O(k · n²) — Space: O(k · n)</strong></p>
+</section>
+<section id="what-the-table-tells-us" class="slide level2">
+<h2>What the Table Tells Us</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>):</span>
+<span id="cb24-2"><a></a>    row <span class="op">=</span> [egg_drop(k, n) <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>)]</span>
+<span id="cb24-3"><a></a>    <span class="bu">print</span>(<span class="ss">f"k=</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>row<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>k=1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]   # linear
+k=2: [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]    # ~sqrt(n)
+k=3: [1, 2, 2, 2, 3, 3, 3, 3, 3, 4]    # getting better
+k=4: [1, 2, 2, 2, 2, 3, 3, 3, 3, 3]    # approaching log(n)</code></pre>
+<div class="fragment">
+<p>Each extra egg buys you a better strategy. With enough eggs, you converge to binary search (O(log n)).</p>
+<blockquote>
+<p><strong>The DP table captures a whole family of optimal strategies at once.</strong></p>
+</blockquote>
+</div>
+</section>
+<section id="why-this-problem-is-a-great-dp-example" class="slide level2">
+<h2>Why This Problem is a Great DP Example</h2>
+<ul>
+<li class="fragment"><strong>The state is two-dimensional</strong> — you need to track both eggs <em>and</em> floors</li>
+<li class="fragment"><strong>The recurrence involves a min-of-max</strong> — a classic adversarial structure</li>
+<li class="fragment"><strong>Greedy fails</strong> — the right floor to drop from is non-obvious and depends on remaining resources</li>
+<li class="fragment"><strong>The base cases are meaningful</strong> — 1 egg and 0 floors have clear physical interpretations</li>
+<li class="fragment"><strong>It has real-world analogues</strong> — stress testing, binary vs linear search tradeoffs</li>
+</ul>
+</section>
+<section id="key-takeaways" class="slide level2">
+<h2>Key Takeaways</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>State</strong></td>
+<td><code>dp[k][n]</code> = min trials, k eggs, n floors</td>
+</tr>
+<tr class="even">
+<td><strong>Recurrence</strong></td>
+<td><code>1 + min over f of max(break, survive)</code></td>
+</tr>
+<tr class="odd">
+<td><strong>1 egg</strong></td>
+<td>Linear search — O(n)</td>
+</tr>
+<tr class="even">
+<td><strong>∞ eggs</strong></td>
+<td>Binary search — O(log n)</td>
+</tr>
+<tr class="odd">
+<td><strong>k eggs</strong></td>
+<td>Something in between!</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><em>“The egg drop problem is DP at its purest: you make a choice, then prepare for the worst, but choose wisely.”</em></p>
+</blockquote>
+</section></section>
+<section>
+<section id="longest-palindromic-subsequence" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Longest Palindromic Subsequence</h1>
+
+</section>
+<section id="what-is-a-palindrome" class="slide level2">
+<h2>What Is a Palindrome?</h2>
+<p>A <strong>palindrome</strong> reads the same forwards and backwards.</p>
+<div class="fragment">
+<p><strong>Words:</strong> <code>"racecar"</code>, <code>"level"</code>, <code>"noon"</code>, <code>"a"</code></p>
+<p><strong>Sequences:</strong> <code>[1, 2, 3, 2, 1]</code>, <code>[7, 7]</code></p>
+</div>
+<div class="fragment">
+<p>A <strong>subsequence</strong> keeps characters in original order but can skip some.</p>
+<pre><code>s = "b b b a b"
+         ↑ skip this 'a'
+subsequence: "b b b b"  → palindrome! length 4</code></pre>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>Problem (LC 516):</strong> Given a string <code>s</code>, find the length of its <strong>longest palindromic subsequence (LPS)</strong>.</p>
+</blockquote>
+</div>
+</section>
+<section id="warm-up-examples" class="slide level2">
+<h2>Warm-Up Examples</h2>
+<pre><code>s = "bbbab"
+LPS = "bbbb"  (length 4)   ← skip the 'a'</code></pre>
+<div class="fragment">
+<pre><code>s = "cbbd"
+LPS = "bb"   (length 2)    ← skip 'c' and 'd'</code></pre>
+</div>
+<div class="fragment">
+<pre><code>s = "agbdba"
+LPS = "abdba" (length 5)   ← skip the 'g'</code></pre>
+</div>
+<div class="fragment">
+<p><strong>Observation:</strong> the longest palindromic subsequence of <code>s</code> is the LCS of <code>s</code> and its reverse!</p>
+<pre><code>s         = "agbdba"
+reverse(s) = "abdgba"
+LCS        = "abdba"   ✓</code></pre>
+</div>
+</section>
+<section id="the-lcs-connection-elegant-shortcut" class="slide level2">
+<h2>The LCS Connection (Elegant Shortcut)</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a></a><span class="kw">def</span> lps_via_lcs(s):</span>
+<span id="cb31-2"><a></a>    <span class="cf">return</span> lcs(s, s[::<span class="op">-</span><span class="dv">1</span>])   <span class="co"># LCS of s and its reverse</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Why does this work?</strong></p>
+<p>A palindromic subsequence reads the same forwards and backwards. So it appears as a subsequence <em>both</em> in <code>s</code> (forward) and <code>s</code> (backward, i.e.&nbsp;reverse). Their LCS finds exactly the longest such match.</p>
+</div>
+<div class="fragment">
+<p>This is beautiful — but let’s also build the <strong>direct DP</strong> so we understand the structure.</p>
+</div>
+</section>
+<section id="direct-dp-thinking-about-intervals" class="slide level2">
+<h2>Direct DP: Thinking About Intervals</h2>
+<p><strong>Key idea:</strong> think about the substring <code>s[i..j]</code>.</p>
+<p>What’s the LPS of a small string? Easy. What’s the LPS of the full string? Build it up from smaller substrings.</p>
+<div class="fragment">
+<p><strong>State:</strong> <code>dp[i][j]</code> = length of LPS of substring <code>s[i..j]</code></p>
+<p><strong>We want:</strong> <code>dp[0][n-1]</code></p>
+</div>
+<div class="fragment">
+<p><strong>Base cases:</strong></p>
+<ul>
+<li><code>dp[i][i] = 1</code> — a single character is always a palindrome</li>
+<li><code>dp[i][j] = 0</code> for <code>i &gt; j</code> — empty string</li>
+</ul>
+</div>
+</section>
+<section id="the-recurrence-1" class="slide level2">
+<h2>The Recurrence</h2>
+<p>Look at the two <strong>outermost</strong> characters <code>s[i]</code> and <code>s[j]</code>:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="fragment">
+<p><strong>Case 1: <code>s[i] == s[j]</code></strong></p>
+<p>They match! Include both ends.</p>
+<pre><code>dp[i][j] = dp[i+1][j-1] + 2</code></pre>
+<blockquote>
+<p>The inner substring’s LPS, plus the two matching outer chars.</p>
+</blockquote>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="fragment">
+<p><strong>Case 2: <code>s[i] != s[j]</code></strong></p>
+<p>They don’t match. Skip one end or the other.</p>
+<pre><code>dp[i][j] = max(dp[i+1][j],
+               dp[i][j-1])</code></pre>
+<blockquote>
+<p>Take the better of skipping the left or right character.</p>
+</blockquote>
+</div>
+</div></div>
+</section>
+<section id="example-s-bbbab" class="slide level2">
+<h2>Example: <code>s = "bbbab"</code></h2>
+<p>Indices: <code>b(0) b(1) b(2) a(3) b(4)</code></p>
+<p>Fill the DP table diagonally (substrings of increasing length):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>b(0)</th>
+<th>b(1)</th>
+<th>b(2)</th>
+<th>a(3)</th>
+<th>b(4)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>b(0)</strong></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td><strong>4</strong></td>
+</tr>
+<tr class="even">
+<td><strong>b(1)</strong></td>
+<td>—</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td><strong>b(2)</strong></td>
+<td>—</td>
+<td>—</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td><strong>a(3)</strong></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td><strong>b(4)</strong></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Answer: <code>dp[0][4] = 4</code> → <code>"bbbb"</code></p>
+</div>
+</section>
+<section id="tracing-through-a-cell" class="slide level2">
+<h2>Tracing Through a Cell</h2>
+<p>How did we get <code>dp[0][4] = 4</code>?</p>
+<pre><code>s[0] = 'b',  s[4] = 'b'   → they MATCH!
+dp[0][4] = dp[1][3] + 2
+         = 2 + 2
+         = 4</code></pre>
+<div class="fragment">
+<p>And <code>dp[1][3] = 2</code> (substring <code>"bba"</code>):</p>
+<pre><code>s[1] = 'b',  s[3] = 'a'   → they DON'T match
+dp[1][3] = max(dp[2][3], dp[1][2])
+         = max(1, 2)
+         = 2</code></pre>
+<p>The matching outer characters <code>b...b</code> wrap around an inner <code>"bb"</code>.</p>
+</div>
+</section>
+<section id="the-code-1" class="slide level2">
+<h2>The Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a></a><span class="kw">def</span> lps(s):</span>
+<span id="cb36-2"><a></a>    n <span class="op">=</span> <span class="bu">len</span>(s)</span>
+<span id="cb36-3"><a></a>    <span class="co"># dp[i][j] = LPS length of s[i..j]</span></span>
+<span id="cb36-4"><a></a>    dp <span class="op">=</span> [[<span class="dv">0</span>] <span class="op">*</span> n <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb36-5"><a></a></span>
+<span id="cb36-6"><a></a>    <span class="co"># Base case: single characters</span></span>
+<span id="cb36-7"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb36-8"><a></a>        dp[i][i] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb36-9"><a></a></span>
+<span id="cb36-10"><a></a>    <span class="co"># Fill by increasing substring length</span></span>
+<span id="cb36-11"><a></a>    <span class="cf">for</span> length <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb36-12"><a></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">-</span> length <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb36-13"><a></a>            j <span class="op">=</span> i <span class="op">+</span> length <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb36-14"><a></a></span>
+<span id="cb36-15"><a></a>            <span class="cf">if</span> s[i] <span class="op">==</span> s[j]:</span>
+<span id="cb36-16"><a></a>                inner <span class="op">=</span> dp[i<span class="op">+</span><span class="dv">1</span>][j<span class="op">-</span><span class="dv">1</span>] <span class="cf">if</span> length <span class="op">&gt;</span> <span class="dv">2</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb36-17"><a></a>                dp[i][j] <span class="op">=</span> inner <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb36-18"><a></a>            <span class="cf">else</span>:</span>
+<span id="cb36-19"><a></a>                dp[i][j] <span class="op">=</span> <span class="bu">max</span>(dp[i<span class="op">+</span><span class="dv">1</span>][j], dp[i][j<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb36-20"><a></a></span>
+<span id="cb36-21"><a></a>    <span class="cf">return</span> dp[<span class="dv">0</span>][n<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb36-22"><a></a></span>
+<span id="cb36-23"><a></a><span class="bu">print</span>(lps(<span class="st">"bbbab"</span>))   <span class="co"># → 4</span></span>
+<span id="cb36-24"><a></a><span class="bu">print</span>(lps(<span class="st">"cbbd"</span>))    <span class="co"># → 2</span></span>
+<span id="cb36-25"><a></a><span class="bu">print</span>(lps(<span class="st">"agbdba"</span>))  <span class="co"># → 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time: O(n²) — Space: O(n²)</strong></p>
+</section>
+<section id="lps-vs-lcs-vs-edit-distance" class="slide level2">
+<h2>LPS vs LCS vs Edit Distance</h2>
+<p>All three use a 2D DP table over characters/indices — but the <em>question</em> differs:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 21%">
+<col style="width: 51%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>State</th>
+<th>Recurrence idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>LCS</strong></td>
+<td><code>dp[i][j]</code> over two strings</td>
+<td>Match → extend; mismatch → skip one</td>
+</tr>
+<tr class="even">
+<td><strong>Edit Distance</strong></td>
+<td><code>dp[i][j]</code> over two strings</td>
+<td>Match → carry; mismatch → min of 3 ops</td>
+</tr>
+<tr class="odd">
+<td><strong>LPS</strong></td>
+<td><code>dp[i][j]</code> over one string, two ends</td>
+<td>Match → include both; mismatch → skip one end</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<blockquote>
+<p><strong>LPS is <em>interval DP</em> on a single string.</strong> The subproblems are substrings <code>s[i..j]</code>, not prefixes.</p>
+</blockquote>
+</div>
+</section>
+<section id="a-close-cousin-minimum-insertions-to-make-a-palindrome" class="slide level2">
+<h2>A Close Cousin: Minimum Insertions to Make a Palindrome</h2>
+<blockquote>
+<p>How many characters do you need to insert into <code>s</code> to make it a palindrome?</p>
+</blockquote>
+<div class="fragment">
+<p><strong>Answer:</strong> <code>n - LPS(s)</code></p>
+</div>
+<div class="fragment">
+<p>Intuition: the LPS characters already form a palindrome. Every character <em>not</em> in the LPS needs a mirror inserted.</p>
+<pre><code>s   = "mbadm"   (n=5)
+LPS = "madam"   (length 3)   ← wait, that's length 5!
+LPS = "mam" or "mdm"  (length 3)
+
+Insertions needed = 5 - 3 = 2</code></pre>
+<blockquote>
+<p>One formula, two problems — classic DP leverage.</p>
+</blockquote>
+</div>
+</section>
+<section id="key-takeaways-1" class="slide level2">
+<h2>Key Takeaways</h2>
+<table class="caption-top">
+<tbody>
+<tr class="odd">
+<td><strong>Problem</strong></td>
+<td>Longest palindromic subsequence of <code>s</code></td>
+</tr>
+<tr class="even">
+<td><strong>State</strong></td>
+<td><code>dp[i][j]</code> = LPS of <code>s[i..j]</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Fill order</strong></td>
+<td>By increasing substring length (diagonal)</td>
+</tr>
+<tr class="even">
+<td><strong>Recurrence</strong></td>
+<td>Ends match → <code>+2</code>; mismatch → <code>max</code> of skip</td>
+</tr>
+<tr class="odd">
+<td><strong>Shortcut</strong></td>
+<td>LPS(s) = LCS(s, reverse(s))</td>
+</tr>
+<tr class="even">
+<td><strong>Cousin</strong></td>
+<td>Min insertions to make palindrome = <code>n - LPS</code></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<blockquote>
+<p><em>“When the problem is about a single string and you look at both ends simultaneously — think interval DP.”</em></p>
+</blockquote>
+</div>
+</section></section>
+<section>
+<section id="unique-paths" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Unique Paths</h1>
+
+</section>
+<section id="the-problem" class="slide level2">
+<h2>The Problem</h2>
+<blockquote>
+<p>A robot is on a <strong>m × n grid</strong>, starting at the <strong>top-left corner</strong>. It can only move <strong>right</strong> or <strong>down</strong> at each step. How many distinct paths lead to the <strong>bottom-right corner</strong>?</p>
+</blockquote>
+<div class="fragment">
+<pre><code>S . . .
+. . . .
+. . . G</code></pre>
+<p><code>m = 3 rows, n = 4 cols</code> — how many ways from S to G?</p>
+</div>
+<div class="fragment">
+<p><strong>Why only right/down?</strong> Think of it as a robot on a factory floor that can only move forward — no backtracking.</p>
+</div>
+</section>
+<section id="small-cases-build-intuition" class="slide level2">
+<h2>Small Cases Build Intuition</h2>
+<p><strong>1 × n grid</strong> (single row): only one path — go right all the way.</p>
+<pre><code>S → → → G     (1 path)</code></pre>
+<div class="fragment">
+<p><strong>m × 1 grid</strong> (single column): only one path — go down all the way.</p>
+<pre><code>S
+↓
+↓
+G             (1 path)</code></pre>
+</div>
+<div class="fragment">
+<p><strong>2 × 2 grid:</strong></p>
+<pre><code>S → .         S .
+↓   ↓   or    ↓ →
+.   G         . → G</code></pre>
+<p>→ <strong>2 paths</strong></p>
+</div>
+</section>
+<section id="grid-count-together" class="slide level2">
+<h2>3 × 3 Grid — Count Together</h2>
+<pre><code>S . .
+. . .
+. . G</code></pre>
+<div class="fragment">
+<p>How many paths? Let’s think recursively.</p>
+<p>To reach G (bottom-right), the robot came from either: - The cell <strong>above</strong> G, or - The cell <strong>to the left</strong> of G</p>
+</div>
+<div class="fragment">
+<p>So: <code>paths(G) = paths(above G) + paths(left of G)</code></p>
+<p>This is the <strong>recurrence</strong> — and it applies to every cell.</p>
+</div>
+</section>
+<section id="the-dp-table" class="slide level2">
+<h2>The DP Table</h2>
+<p><code>dp[i][j]</code> = number of distinct paths to reach cell <code>(i, j)</code></p>
+<p><strong>Recurrence:</strong> <code>dp[i][j] = dp[i-1][j] + dp[i][j-1]</code></p>
+<p><strong>Base cases:</strong> entire top row and left column are <code>1</code> (only one way to reach them).</p>
+<div class="fragment">
+<p>For a <strong>3 × 7</strong> grid:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>c0</th>
+<th>c1</th>
+<th>c2</th>
+<th>c3</th>
+<th>c4</th>
+<th>c5</th>
+<th>c6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>r0</strong></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td><strong>r1</strong></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td><strong>r2</strong></td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+<td>10</td>
+<td>15</td>
+<td>21</td>
+<td><strong>28</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Answer: <strong>28 paths</strong></p>
+</div>
+</section>
+<section id="do-you-recognise-this-table" class="slide level2">
+<h2>Do You Recognise This Table?</h2>
+<p>The values in the DP table are <strong>binomial coefficients</strong> — Pascal’s Triangle!</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>c0</th>
+<th>c1</th>
+<th>c2</th>
+<th>c3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>r0</strong></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td><strong>r1</strong></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr class="odd">
+<td><strong>r2</strong></td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td><strong>r3</strong></td>
+<td>1</td>
+<td>4</td>
+<td>10</td>
+<td><strong>20</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>The answer for an <code>m × n</code> grid is exactly <span class="math inline">\(\binom{m+n-2}{m-1}\)</span>.</p>
+<blockquote>
+<p>To go from top-left to bottom-right, you make exactly <code>(m-1)</code> down moves and <code>(n-1)</code> right moves — in some order. Choosing which steps are “down” gives the count.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<p><strong>But DP gives us this without knowing the formula!</strong> That’s the power.</p>
+</div>
+</section>
+<section id="the-code-2" class="slide level2">
+<h2>The Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a></a><span class="kw">def</span> unique_paths(m, n):</span>
+<span id="cb43-2"><a></a>    dp <span class="op">=</span> [[<span class="dv">1</span>] <span class="op">*</span> n <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(m)]   <span class="co"># fill with 1s (base cases handled)</span></span>
+<span id="cb43-3"><a></a></span>
+<span id="cb43-4"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, m):</span>
+<span id="cb43-5"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb43-6"><a></a>            dp[i][j] <span class="op">=</span> dp[i<span class="op">-</span><span class="dv">1</span>][j] <span class="op">+</span> dp[i][j<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb43-7"><a></a></span>
+<span id="cb43-8"><a></a>    <span class="cf">return</span> dp[m<span class="op">-</span><span class="dv">1</span>][n<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb43-9"><a></a></span>
+<span id="cb43-10"><a></a><span class="bu">print</span>(unique_paths(<span class="dv">3</span>, <span class="dv">7</span>))   <span class="co"># → 28</span></span>
+<span id="cb43-11"><a></a><span class="bu">print</span>(unique_paths(<span class="dv">3</span>, <span class="dv">2</span>))   <span class="co"># → 3</span></span>
+<span id="cb43-12"><a></a><span class="bu">print</span>(unique_paths(<span class="dv">1</span>, <span class="dv">1</span>))   <span class="co"># → 1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Time: O(m × n) — Space: O(m × n)</strong></p>
+<div class="fragment">
+<p>Space can be reduced to <strong>O(n)</strong> with a rolling array — we only ever look at the current and previous row.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a></a><span class="kw">def</span> unique_paths_opt(m, n):</span>
+<span id="cb44-2"><a></a>    row <span class="op">=</span> [<span class="dv">1</span>] <span class="op">*</span> n</span>
+<span id="cb44-3"><a></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, m):</span>
+<span id="cb44-4"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb44-5"><a></a>            row[j] <span class="op">+=</span> row[j<span class="op">-</span><span class="dv">1</span>]    <span class="co"># row[j] = old row[j] + new row[j-1]</span></span>
+<span id="cb44-6"><a></a>    <span class="cf">return</span> row[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="unique-paths-ii-with-obstacles" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Unique Paths II — With Obstacles</h1>
+
+</section>
+<section id="adding-obstacles" class="slide level2">
+<h2>Adding Obstacles</h2>
+<blockquote>
+<p>Same grid, same rules. But some cells have <strong>obstacles</strong> — the robot cannot pass through them.</p>
+<p><code>0</code> = free cell, <code>1</code> = obstacle</p>
+</blockquote>
+<pre><code>0 0 0
+0 1 0
+0 0 0</code></pre>
+<div class="fragment">
+<p><strong>How many paths from top-left to bottom-right?</strong></p>
+<p>The obstacle blocks two paths that went through the middle.</p>
+<p>Answer: <strong>2</strong> (instead of 6 without obstacle)</p>
+</div>
+</section>
+<section id="adjusting-the-recurrence" class="slide level2">
+<h2>Adjusting the Recurrence</h2>
+<p>Only change: if a cell has an obstacle, it contributes <strong>0</strong> paths.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a></a><span class="kw">def</span> unique_paths_obstacles(grid):</span>
+<span id="cb46-2"><a></a>    m, n <span class="op">=</span> <span class="bu">len</span>(grid), <span class="bu">len</span>(grid[<span class="dv">0</span>])</span>
+<span id="cb46-3"><a></a>    <span class="cf">if</span> grid[<span class="dv">0</span>][<span class="dv">0</span>] <span class="op">==</span> <span class="dv">1</span> <span class="kw">or</span> grid[m<span class="op">-</span><span class="dv">1</span>][n<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb46-4"><a></a>        <span class="cf">return</span> <span class="dv">0</span>    <span class="co"># start or end is blocked</span></span>
+<span id="cb46-5"><a></a></span>
+<span id="cb46-6"><a></a>    dp <span class="op">=</span> [[<span class="dv">0</span>] <span class="op">*</span> n <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(m)]</span>
+<span id="cb46-7"><a></a>    dp[<span class="dv">0</span>][<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb46-8"><a></a></span>
+<span id="cb46-9"><a></a>    <span class="co"># First column: if any obstacle, all cells below it are blocked</span></span>
+<span id="cb46-10"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, m):</span>
+<span id="cb46-11"><a></a>        dp[i][<span class="dv">0</span>] <span class="op">=</span> dp[i<span class="op">-</span><span class="dv">1</span>][<span class="dv">0</span>] <span class="cf">if</span> grid[i][<span class="dv">0</span>] <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb46-12"><a></a></span>
+<span id="cb46-13"><a></a>    <span class="co"># First row: same logic</span></span>
+<span id="cb46-14"><a></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb46-15"><a></a>        dp[<span class="dv">0</span>][j] <span class="op">=</span> dp[<span class="dv">0</span>][j<span class="op">-</span><span class="dv">1</span>] <span class="cf">if</span> grid[<span class="dv">0</span>][j] <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb46-16"><a></a></span>
+<span id="cb46-17"><a></a>    <span class="co"># Fill the rest</span></span>
+<span id="cb46-18"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, m):</span>
+<span id="cb46-19"><a></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb46-20"><a></a>            <span class="cf">if</span> grid[i][j] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb46-21"><a></a>                dp[i][j] <span class="op">=</span> <span class="dv">0</span>         <span class="co"># obstacle: no paths through here</span></span>
+<span id="cb46-22"><a></a>            <span class="cf">else</span>:</span>
+<span id="cb46-23"><a></a>                dp[i][j] <span class="op">=</span> dp[i<span class="op">-</span><span class="dv">1</span>][j] <span class="op">+</span> dp[i][j<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb46-24"><a></a></span>
+<span id="cb46-25"><a></a>    <span class="cf">return</span> dp[m<span class="op">-</span><span class="dv">1</span>][n<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="tracing-the-obstacle-example" class="slide level2">
+<h2>Tracing the Obstacle Example</h2>
+<pre><code>Grid:               DP table:
+0  0  0             1  1  1
+0  1  0             1  0  1
+0  0  0             1  1  2</code></pre>
+<div class="fragment">
+<ul>
+<li><code>dp[1][1] = 0</code> — obstacle, no path through here</li>
+<li><code>dp[1][2] = dp[0][2] + dp[1][1] = 1 + 0 = 1</code></li>
+<li><code>dp[2][1] = dp[1][1] + dp[2][0] = 0 + 1 = 1</code></li>
+<li><code>dp[2][2] = dp[1][2] + dp[2][1] = 1 + 1 = 2</code> ✓</li>
+</ul>
+</div>
+</section>
+<section id="a-useful-variant-minimum-path-sum" class="slide level2">
+<h2>A Useful Variant: Minimum Path Sum</h2>
+<blockquote>
+<p>Same grid, but now each cell has a <strong>cost</strong>. Find the path from top-left to bottom-right with <strong>minimum total cost</strong>.</p>
+</blockquote>
+<pre><code>1  3  1
+1  5  1
+4  2  1</code></pre>
+<div class="fragment">
+<p>Same structure, different recurrence:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a></a>dp[i][j] <span class="op">=</span> grid[i][j] <span class="op">+</span> <span class="bu">min</span>(dp[i<span class="op">-</span><span class="dv">1</span>][j], dp[i][j<span class="op">-</span><span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>1  4  5
+2  7  6
+6  8  7   ← minimum cost path = 7</code></pre>
+<p>Path: <code>1 → 3 → 1 → 1 → 1 = 7</code> (go right, right, down, down)</p>
+</div>
+</section>
+<section id="key-takeaways-2" class="slide level2">
+<h2>Key Takeaways</h2>
+<table class="caption-top">
+<tbody>
+<tr class="odd">
+<td><strong>State</strong></td>
+<td><code>dp[i][j]</code> = paths/cost to reach cell <code>(i,j)</code></td>
+</tr>
+<tr class="even">
+<td><strong>Recurrence</strong></td>
+<td><code>dp[i][j] = dp[i-1][j] + dp[i][j-1]</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Base cases</strong></td>
+<td>First row and column = 1 (unique paths)</td>
+</tr>
+<tr class="even">
+<td><strong>Obstacles</strong></td>
+<td>Set <code>dp[i][j] = 0</code> at blocked cells</td>
+</tr>
+<tr class="odd">
+<td><strong>Space opt.</strong></td>
+<td>Only need previous row → O(n) space</td>
+</tr>
+<tr class="even">
+<td><strong>Pattern</strong></td>
+<td>Grid DP — build from top-left to bottom-right</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<blockquote>
+<p><em>“Grid DP is like filling in a spreadsheet — each cell only looks at its neighbours, but the answer propagates beautifully.”</em></p>
+</blockquote>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

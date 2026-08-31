@@ -1,0 +1,899 @@
+---
+title: "Module 4: Apache Spark & PySpark"
+subtitle: "COSC420 — Distributed/Parallel Computing"
+author: "SI"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-bg: true
+    code-block-border-left: "#1a3a5c"
+    highlight-style: github
+    footer: "COSC420 · Module 4 · Apache Spark"
+    chalkboard: true
+    incremental: false
+execute:
+  echo: true
+---
+
+# Session 1 · Mon Oct 26 {.section}
+## What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: From Hadoop to Spark | 3 min |
+| What Is Apache Spark? | 4 min |
+| Why Spark Improves on MapReduce | 4 min |
+| RDDs vs. DataFrames | 5 min |
+| Spark Architecture | 4 min |
+| SparkSession — Your Entry Point | 3 min |
+| Creating and Inspecting a DataFrame | 4 min |
+| DataFrames Are Immutable | 3 min |
+| Lazy Evaluation — The Core Idea | 5 min |
+| Transformations vs. Actions | 4 min |
+| Lab 6 Recap / Lab 7 Preview | 3 min |
+| Bridge: Two More Sessions to Go | 2 min |
+
+12 slides, ~44 min. Module 4 only gets **three** real lecture days total in the syllabus (today,
+Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module's other two
+days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to
+earn its place; save deeper hands-on practice for the labs rather than re-deriving it here.
+:::
+
+---
+
+## Recap: From Hadoop to Spark
+
+Module 3 ended with MapReduce's biggest weakness: **every job writes its intermediate results to
+disk**, even between steps of the same pipeline. For a job that only runs once, that's fine. For
+anything iterative — trying 100 variations of a machine-learning model, or chaining ten
+transformations together — writing to disk every single step is slow.
+
+**Apache Spark** was built to fix exactly this.
+
+::: {.notes}
+**Timing: 3 min.** Just re-anchor: MapReduce's map→shuffle→reduce→disk cycle from Module 3 is the
+thing Spark is reacting against. Don't re-teach MapReduce, just point at the pain point.
+:::
+
+---
+
+## What Is Apache Spark?
+
+**Apache Spark** is a distributed data-processing engine — the successor to Hadoop MapReduce for
+most large-scale data work today.
+
+- **Key idea:** keep intermediate data **in memory** across steps of a pipeline, instead of
+  writing every step to disk the way MapReduce does.
+- Result: **10–100× faster** for workloads that reuse the same data across multiple steps
+  (iterative algorithms, interactive queries, multi-stage pipelines).
+- Written in Scala, but has full APIs in Python (**PySpark** — what we use), Java, R, and SQL.
+- Beyond the batch DataFrame work this course focuses on, Spark also has Spark SQL (write actual
+  SQL queries against a DataFrame), Structured Streaming (process data as it arrives, not just in
+  batches), and MLlib (distributed machine learning) — all part of the same engine, not separate
+  tools. We only use the batch/DataFrame piece this semester.
+- **In our classroom cluster**, Spark jobs happen to read from HDFS and get scheduled by YARN,
+  both from Module 3 — but that's a choice about *our* setup, not a requirement of Spark itself.
+  Spark can just as easily read from S3, local files, a database, or a Kafka stream; it isn't
+  tied to HDFS the way MapReduce, in practice, always was.
+
+::: {.notes}
+**Timing: 4 min.** Emphasize continuity, not replacement: HDFS and YARN don't go away in our
+setup. Spark is a new way to *compute*, sitting on the same storage and scheduling layer already
+taught — but say explicitly that this is *our* classroom's configuration, not a general Spark
+requirement (Final Q17 tests this distinction directly: Spark is not tied to HDFS). The SQL/
+streaming/MLlib bullet is Quiz 5 Q9's multi-select — keep it to one sentence each, this course
+never touches any of the three.
+:::
+
+---
+
+## Why Spark Improves on MapReduce
+
+Picture a pipeline with three steps: filter, then group, then sort.
+
+- **MapReduce:** step 1 writes its full output to disk. Step 2 reads it back from disk, computes,
+  writes its output to disk. Step 3 does the same. Three disk round-trips for one pipeline.
+- **Spark:** step 1's output stays in memory. Step 2 reads it from memory, computes, keeps its
+  result in memory. Step 3 does the same. Disk is only touched if you explicitly ask Spark to
+  save something, or if data is too big to fit in memory.
+
+::: {.callout-important}
+This matters most for **iterative** workloads — anything that reuses the same data repeatedly,
+like training a machine-learning model over many passes. A single MapReduce-style batch job that
+runs once and finishes isn't dramatically slower in MapReduce; it's *repeated* work over the same
+data where Spark's in-memory model wins big.
+:::
+
+::: {.notes}
+**Timing: 4 min.** This is Quiz 5's Q1 almost verbatim — spend real time here. The wrong-but-
+tempting answer is "Spark just has better algorithms"; the right answer is specifically about
+avoiding repeated disk I/O across steps.
+:::
+
+---
+
+## RDDs vs. DataFrames
+
+Spark actually has two ways to represent distributed data. You need to know both exist, even
+though we will work almost entirely with the second one.
+
+| | **RDD** (Resilient Distributed Dataset) | **DataFrame** |
+|---|---|---|
+| What it is | A low-level, distributed collection of *arbitrary* Python objects | A distributed table — named columns, with a schema |
+| Structure | None enforced — Spark doesn't know what's inside | Spark knows every column's name and type |
+| Optimization | None — you write exactly what runs | Spark's optimizer can rewrite your query to run faster |
+| Feels like | A distributed Python list | A distributed spreadsheet |
+
+- RDDs came first (Spark's original data structure) and are still there underneath everything.
+- DataFrames were added later, and are what virtually everyone uses for tabular data today —
+  including everything in this course, the labs, and the capstone.
+
+::: {.callout-tip}
+## Think about it
+If Spark doesn't know what's *inside* an RDD, what can't it do that it *can* do with a
+DataFrame? (Hint: think about what "optimizing a query" requires knowing about the data first.)
+:::
+
+::: {.notes}
+**Timing: 5 min.** This slide exists specifically because Quiz 5's Q2 asks students to
+distinguish RDD from DataFrame directly — don't let this be a one-line footnote. The answer to
+the callout: without column names/types, Spark can't reorder operations, push filters down, or
+pick an efficient join strategy — it just has to run your code as literally written.
+:::
+
+---
+
+## Spark Architecture
+
+```
+┌──────────────────────────────────┐
+│         Driver Program           │  ← your Python script
+│  SparkContext / SparkSession     │
+└──────────────┬───────────────────┘
+               │ task distribution
+    ┌──────────┼──────────┐
+┌───▼───┐  ┌──▼────┐  ┌──▼────┐
+│Exec 1 │  │Exec 2 │  │Exec 3 │  ← workers (run tasks)
+└───────┘  └───────┘  └───────┘
+    ↑           ↑          ↑
+    └───────────┴──────────┘
+         Cluster Manager
+              (YARN)
+```
+
+- **Driver:** coordinates the whole computation — your code runs here, and it decides what work
+  to hand out. Plays the same role Module 3's **ApplicationMaster** played for a MapReduce job:
+  one coordinator, dispatched for this one application.
+- **Executor:** a worker process that actually runs tasks and holds a slice of the data in
+  memory — the same role Module 3's **NodeManager**-run tasks played, just for Spark tasks instead
+  of Map/Reduce tasks.
+- **Cluster manager:** allocates machines/resources to your job — in our classroom cluster,
+  that's **YARN**, the exact same resource manager Module 3 used for MapReduce jobs. Spark doesn't
+  bring its own scheduler here; it asks YARN for workers, the same way a MapReduce job did.
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+A "Driver" box at the top (drawn like a small laptop/script icon, since it's literally "your
+Python code"), with a downward arrow labeled "task distribution" fanning out to three "Executor"
+icons (worker/gear icons, each shown holding a small stack of data-block icons to represent
+"holds a slice of the data in memory"). Below all three, one "Cluster Manager (YARN)" icon with
+upward arrows from each Executor back into it, visually matching Module 3's YARN diagram's
+ResourceManager/NodeManager icon style so students recognize it as the same underlying system.
+Caption: "Same YARN as Module 3 — just handing out Spark tasks instead of Map/Reduce tasks."
+:::
+
+::: {.notes}
+**Timing: 4 min.** The payoff line: "you already learned what YARN does in Module 3 — Spark just
+hands YARN a different kind of job to schedule." Don't re-explain YARN from scratch.
+:::
+
+---
+
+## SparkSession — Your Entry Point
+
+```python
+from pyspark.sql import SparkSession
+
+# Create (or reuse) a SparkSession
+spark = SparkSession.builder \
+    .appName("MyFirstSparkJob") \
+    .getOrCreate()
+
+print(spark.version)
+```
+
+- Every PySpark program starts by creating (or reusing) exactly **one** `SparkSession`.
+- `.getOrCreate()` — if a session already exists, reuse it; otherwise, create a new one.
+- **In our classroom setup:** every `%%spark` notebook cell (via `sparkmagic`, from Lab 6) already
+  has a `spark` object ready to use — you skip the `SparkSession.builder` step entirely in Labs 7
+  and 8 and the capstone. You'll still write it by hand for Checkpoint 4, since checkpoints are
+  graded as standalone code.
+
+::: {.notes}
+**Timing: 3 min.** Flag the discrepancy explicitly: checkpoints want the full `SparkSession.builder...`
+line (Quiz 5 Q3 tests this exact syntax); the labs' `%%spark` cells already have `spark` built for
+you. Both are correct, in their own context — this is not a contradiction.
+:::
+
+---
+
+## Creating and Inspecting a DataFrame
+
+```python
+data = [
+    ("Alice", "Engineering", 95000),
+    ("Bob",   "Marketing",   62000),
+]
+columns = ["name", "department", "salary"]
+
+df = spark.createDataFrame(data, columns)
+
+df.printSchema()   # show column names and inferred types
+df.show()           # print the rows
+```
+
+- `printSchema()` shows you the column names and the types Spark inferred for each.
+- `show()` prints rows to the screen — and, importantly, it's the first thing on this slide that
+  actually **runs** anything (more on why that distinction matters in a few slides).
+- You can also read a DataFrame straight from a file — covered in full next session.
+
+::: {.notes}
+**Timing: 4 min.** This mirrors Lab 7 Task 1 almost exactly — flag that connection so students
+recognize the lab as "the same two commands you just saw, applied to your own data."
+:::
+
+---
+
+## DataFrames Are Immutable
+
+**Every PySpark DataFrame, once created, never changes.** Every operation returns a **brand-new**
+DataFrame — the original is always left untouched.
+
+```python
+filtered = df.filter(df["salary"] > 70000)
+
+# df itself is completely unchanged here — still has all rows
+# filtered is a NEW DataFrame with only the matching rows
+```
+
+::: {.callout-important}
+This trips up almost everyone coming from pandas or spreadsheets, where you're used to modifying
+data in place. In PySpark, if you don't **assign the result** of an operation to a variable, the
+result is thrown away and nothing changes. `df.filter(...)` on its own line, with no `=`, does
+nothing useful.
+:::
+
+::: {.notes}
+**Timing: 3 min.** Quiz 5's Q6 asks this directly (true/false, "does filter() modify df in
+place?"). Say the rule out loud, plainly, more than once — it's one of the most-missed ideas in
+this whole module.
+:::
+
+---
+
+## Lazy Evaluation — The Core Idea
+
+```python
+# These lines define a PLAN — nothing runs yet
+filtered   = df.filter(df["salary"] > 70000)
+selected   = filtered.select("name", "salary")
+sorted_df  = selected.orderBy("salary", ascending=False)
+
+# THIS triggers computation — Spark executes the whole plan at once
+sorted_df.show()
+```
+
+- Nothing above `sorted_df.show()` actually touches the data. Spark just **records** each step as
+  part of a plan — this is called **lazy evaluation**.
+- That recorded plan has a name: a **DAG** (Directed Acyclic Graph) — a chain of steps that only
+  ever flows forward, never loops back on itself. Each transformation you chain adds one more
+  step to the DAG; nothing runs until an action triggers the whole thing at once.
+- Only when you call an action (`show()`, `count()`, ...) does Spark look at the *entire* DAG you
+  built, optimize it, and run it all at once.
+- Why bother? Because seeing the whole plan first lets Spark skip unnecessary work — for example,
+  if you `filter()` then `select()` two columns, Spark can avoid ever reading the columns you
+  didn't ask for.
+
+::: {.notes}
+**Timing: 5 min.** Quiz 5's Q8 tests this definition directly. The "why bother" bullet is the
+part students usually skip — don't let this be just "Spark waits to run things," make sure they
+leave with *why* waiting is useful. The DAG bullet is here specifically because Lab 7 Task 2 asks
+"What is a DAG in Spark? When does Spark build it and when does it execute it?" as a graded
+question — without this bullet, that question would be untaught.
+:::
+
+---
+
+## Transformations vs. Actions
+
+| Transformations (lazy — build the plan) | Actions (trigger execution) |
+|---|---|
+| `filter()` | `show()` |
+| `select()` | `count()` |
+| `groupBy()` | `collect()` |
+| `orderBy()` | `write.csv()` |
+| `withColumn()` | `first()` |
+| `join()` | `take(n)` |
+
+::: {.callout-tip}
+If a line of PySpark code **returns a DataFrame**, it's a transformation. If it **returns data or
+writes a file**, it's an action.
+:::
+
+::: {.notes}
+**Timing: 4 min.** This table is the single most quiz-relevant slide in the session — Quiz 5 Q10
+and Quiz 6 Q2 both hinge on this exact distinction. Have students apply the rule-of-thumb callout
+to two or three examples out loud before moving on.
+:::
+
+---
+
+## Lab 6 Recap / Lab 7 Preview
+
+- **Lab 6 (Oct 23, already done):** Python fluency in Colab, plus getting `sparkmagic` connected
+  to the classroom cluster from your own laptop.
+- **Lab 7 (this Friday, Oct 30):** your first real PySpark job — create a DataFrame, apply
+  transformations, and watch the transformation-vs-action distinction play out live, including
+  using `.explain()` to see Spark's execution plan for yourself.
+
+If `sparkmagic` isn't connecting yet, sort that out **before** Friday — Lab 7 assumes it works.
+
+::: {.notes}
+**Timing: 3 min.** Practical logistics slide — leave a moment for questions about `sparkmagic`
+setup specifically, since that's the most common blocker going into Lab 7.
+:::
+
+---
+
+## Bridge: Two More Sessions to Go
+
+Today was the concepts: what Spark is, how it's built, and the transformation/action model that
+everything else depends on.
+
+**Next session (Wed Oct 28):** actually loading real data and putting transformations to work —
+plus Checkpoint 4.
+
+::: {.notes}
+**Timing: 2 min.** Keep it short — just the forward pointer.
+:::
+
+---
+
+# Session 2 · Wed Oct 28 {.section}
+## Loading, Filtering, and Selecting Data + Checkpoint 4
+
+::: {.notes}
+**Full-session timing plan (50 min total, ~15–20 min of which is Checkpoint 4 itself):**
+
+| Slide | Time |
+|---|---|
+| Recap: Transformations, Actions, Laziness | 3 min |
+| Loading Data into Spark | 4 min |
+| A Word on Schemas | 3 min |
+| Filtering Rows | 4 min |
+| Selecting and Renaming Columns | 4 min |
+| Adding a Computed Column | 3 min |
+| Avoiding Common PySpark Mistakes | 5 min |
+| Worked Example: Filter → Select | 4 min |
+| Checkpoint 4 | 15–20 min |
+
+9 content slides (~30 min) + Checkpoint 4. This is deliberately lighter than Session 1 — the
+checkpoint itself eats a third of the period.
+:::
+
+---
+
+## Recap: Transformations, Actions, Laziness
+
+Three ideas from Monday, quickly:
+
+- **Transformations** (`filter`, `select`, ...) build a plan but don't run anything.
+- **Actions** (`show`, `count`, ...) trigger Spark to actually execute that plan.
+- **DataFrames are immutable** — every transformation returns a *new* DataFrame; you must assign
+  the result or it's discarded.
+
+Today: turning real files into DataFrames, and the two most common transformations you'll use on
+almost every dataset — filtering rows and selecting columns.
+
+::: {.notes}
+**Timing: 3 min.** Fast recap only — the point is to have the vocabulary ready, not re-teach it.
+:::
+
+---
+
+## Loading Data into Spark
+
+```python
+# CSV with a header row
+df = spark.read.csv("path/to/file.csv", header=True, inferSchema=True)
+
+# TSV (tab-separated) with no header
+df = spark.read.csv("path/to/file.tsv", sep="\t", header=False, inferSchema=True)
+
+# JSON
+df = spark.read.json("path/to/file.json")
+
+# From HDFS — always your own username, never a shared placeholder
+df = spark.read.csv("hdfs:///user/<your-username>/data.csv", header=True, inferSchema=True)
+```
+
+- `header=True` tells Spark the first row is column names, not data.
+- `inferSchema=True` tells Spark to scan the file and guess each column's type (integer, string,
+  double, ...) rather than treating every value as text.
+- Reading `hdfs://...` paths works exactly the same as reading a local path — Spark doesn't care
+  where the file lives, as long as it can reach it.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 5 Q4 tests this exact syntax verbatim (`spark.read.csv(..., header=True,
+inferSchema=True)`) — make sure students see and can reproduce it, not just recognize it.
+:::
+
+---
+
+## A Word on Schemas
+
+- Without `inferSchema=True`, Spark treats **every** column as a string — even columns that are
+  clearly numbers. Filtering `df["salary"] > 70000` on a string column silently does the wrong
+  thing (string comparison, not numeric).
+- `inferSchema=True` costs a little extra time (Spark has to scan the file first), but for
+  anything you'll filter or aggregate numerically, it's worth it.
+- `df.printSchema()` is your first move on *any* new dataset — confirm the types are what you
+  expect before writing a single transformation.
+
+::: {.callout-tip}
+## Think about it
+You load a CSV and `printSchema()` shows a `price` column typed as `string`, not `double`. What's
+the most likely cause — and what's the first thing you'd check in the raw file?
+:::
+
+::: {.notes}
+**Timing: 3 min.** The intended answer to the callout: either `inferSchema` was left off, or the
+column has some non-numeric values mixed in (e.g. `"N/A"`) that forced Spark to fall back to
+string for the whole column.
+:::
+
+---
+
+## Filtering Rows
+
+```python
+from pyspark.sql.functions import col
+
+# Filter rows — both forms below are equivalent
+high_earners = df.filter(df["salary"] > 70000)
+high_earners = df.filter(col("salary") > 70000)
+
+# You can also pass a filter as a plain SQL-style string
+high_earners = df.filter("salary > 70000")
+
+# .where() is just another name for the same thing
+high_earners = df.where(df["salary"] > 70000)
+```
+
+- `df["salary"]` and `col("salary")` are two ways of referring to the same column — use whichever
+  reads more clearly in context.
+- `filter()` and `where()` are exact synonyms — pick one and be consistent.
+- Remember: this **returns a new DataFrame**. `high_earners` is new; `df` still has every row.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 6 Q10 lists several of these forms as "select all that apply" — students
+need to recognize *all* of them as valid, not just the one they memorize.
+:::
+
+---
+
+## Selecting and Renaming Columns
+
+```python
+# Select specific columns
+result = df.select("name", "department", "salary")
+
+# Add a new computed column
+df = df.withColumn("salary_k", col("salary") / 1000)
+
+# Rename a column
+df = df.withColumnRenamed("salary", "annual_salary")
+```
+
+- `select()` keeps only the columns you name, in the order you name them, dropping the rest.
+- `withColumn(name, expression)` adds a new column computed from existing ones — or overwrites an
+  existing column if you reuse its name.
+- `withColumnRenamed(old, new)` changes a column's name without touching its values.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 5 Q7 tests `select()` directly. Point out the parallel with the earlier
+filter-forms slide: these are all just "transformation in, new DataFrame out," same pattern every
+time.
+:::
+
+---
+
+## Adding a Computed Column
+
+```python
+from pyspark.sql.functions import col
+
+# Wrong — this is pandas syntax, and it doesn't work in Spark
+df["new_col"] = df["col1"] * 2
+
+# Right — Spark syntax
+df = df.withColumn("new_col", col("col1") * 2)
+```
+
+The pandas-style assignment on the first line above doesn't raise an error that's obviously about
+this mistake — it just fails, because PySpark DataFrames don't support item assignment the way
+pandas DataFrames do. `withColumn` is the only correct way to add or replace a column.
+
+::: {.notes}
+**Timing: 3 min.** This is worth its own slide (not folded into "common mistakes") because it's
+the single most common first bug students hit in Lab 7 — the error message is unhelpful, so
+seeing the correct pattern *before* hitting the bug saves real debugging time.
+:::
+
+---
+
+## Avoiding Common PySpark Mistakes
+
+```python
+# ❌ Wrong — using a Python list comprehension on a Spark DataFrame
+result = [row for row in df if row["salary"] > 70000]  # doesn't use Spark at all
+
+# ✅ Right — use Spark's own filter
+result = df.filter(col("salary") > 70000)
+
+# ❌ Wrong — forgetting that filter() doesn't modify df in place
+df.filter(col("salary") > 70000)   # result thrown away — df is unchanged
+high_earners = df.filter(col("salary") > 70000)  # correct — result is captured
+```
+
+- A Python `for` loop over a DataFrame technically works, but it pulls everything to a single
+  machine and processes it one row at a time in plain Python — throwing away everything Spark is
+  for.
+- The second mistake is the immutability rule from Session 1, showing up again in real code — if
+  your DataFrame "isn't changing," check whether you forgot to assign the result.
+
+::: {.notes}
+**Timing: 5 min.** Both of these are genuinely common — if time is short, prioritize the second
+one, since it's the more frequent real bug in student code across every lab this module.
+:::
+
+---
+
+## Worked Example: Filter → Select
+
+Given a DataFrame `employees` with columns `name`, `department`, `salary`:
+
+```python
+# Goal: names and salaries of everyone in Marketing earning over $60,000
+
+marketing_high_earners = employees \
+    .filter(col("department") == "Marketing") \
+    .filter(col("salary") > 60000) \
+    .select("name", "salary")
+
+marketing_high_earners.show()
+```
+
+- Multiple `.filter()` calls chain naturally — each one narrows the DataFrame further.
+- Order between the two filters here doesn't change the result, but `select()` **must** come
+  after both filters — once you `select()` away a column, you can no longer filter on it.
+
+::: {.notes}
+**Timing: 4 min.** This example deliberately uses a different scenario from Checkpoint 4's own
+`movies.csv` example (below) so it doesn't spoil the checkpoint — but it's the exact same
+filter→select shape students are about to be graded on.
+:::
+
+---
+
+## Checkpoint 4
+
+**CP4 (today, last 15–20 minutes of class):** given a CSV and its column layout, write PySpark
+code to create a `SparkSession`, load the CSV, filter to one category, select two columns, and
+`show()` the result.
+
+Review before you start:
+- `SparkSession.builder.appName("...").getOrCreate()`
+- `spark.read.csv(path, header=True, inferSchema=True)`
+- `df.filter(df["column"] == "value")`
+- `df.select("col1", "col2")`
+
+::: {.notes}
+**Timing: 15–20 min for the checkpoint itself.** See `checkpoints/checkpoint_04.md` for the exact
+graded prompt — don't preview its specific dataset or column names before students start.
+:::
+
+---
+
+# Session 3 · Mon Nov 2 {.section}
+## GroupBy, Aggregation, Joins, and Actions + Checkpoint 5
+
+::: {.notes}
+**Full-session timing plan (50 min total, ~15 min of which is Checkpoint 5 itself):**
+
+| Slide | Time |
+|---|---|
+| Recap + Why Today Matters for Lab 8 | 3 min |
+| GroupBy and Aggregation | 4 min |
+| Aggregation Functions Reference | 3 min |
+| orderBy and the Top-N Pattern | 4 min |
+| Actions, Revisited: The Risk of `collect()` | 5 min |
+| Writing DataFrame Output | 3 min |
+| Joins in PySpark | 5 min |
+| Worked Example: A Full Multi-Step Query | 4 min |
+| Checkpoint 5 | 15 min |
+| Module 4 Summary + Bridge to Module 5 | 3 min |
+
+Note on the calendar: Nov 4 (Wed) is Wellness Day, so this is the **last** Module 4 lecture —
+everything not covered by now gets picked up hands-on in Lab 8 (Nov 6) instead.
+:::
+
+---
+
+## Recap + Why Today Matters for Lab 8
+
+So far: create/load a DataFrame, filter rows, select columns. Today adds the two operations that
+turn "look at some rows" into "answer an actual analytical question": **grouping data together**
+and **combining two datasets**.
+
+This is also exactly what Friday's Lab 8 needs — real MovieLens rating data, joined with movie
+titles, grouped by movie, to find the highest-rated films. Everything today is in direct service
+of that lab.
+
+::: {.notes}
+**Timing: 3 min.** Say the Lab 8 connection explicitly and early — it gives today's content an
+obvious "why," which matters since this is the last lecture day before that lab.
+:::
+
+---
+
+## GroupBy and Aggregation
+
+```python
+from pyspark.sql.functions import avg, count, round as spark_round, desc
+
+# Average salary and headcount by department
+df.groupBy("department") \
+  .agg(
+      spark_round(avg("salary"), 2).alias("avg_salary"),
+      count("name").alias("num_employees")
+  ) \
+  .orderBy(desc("avg_salary")) \
+  .show()
+```
+
+- `groupBy("column")` — a transformation; it doesn't compute anything on its own, it just says
+  "gather rows into groups by this column's value."
+- `.agg(...)` — applies one or more aggregation functions (`avg`, `count`, `sum`, ...) to each
+  group, producing one output row per group.
+- `.alias("name")` — renames the resulting column to something readable.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 6 Q1 and Q5 both test reading/predicting `groupBy().agg()` /
+`groupBy().sum()` output directly — walk through what the *output shape* looks like (one row per
+distinct group value), not just the syntax.
+:::
+
+---
+
+## Aggregation Functions Reference
+
+```python
+from pyspark.sql.functions import (
+    avg, count, sum as spark_sum, min, max, countDistinct
+)
+
+df.groupBy("category").agg(
+    count("*").alias("total_rows"),
+    avg("price").alias("avg_price"),
+    spark_sum("revenue").alias("total_revenue"),
+    min("price").alias("cheapest"),
+    max("price").alias("most_expensive")
+)
+```
+
+| Function | What it computes |
+|---|---|
+| `count()` | Number of rows (per group, or `count("*")` for all rows) |
+| `avg()` | Mean of a numeric column |
+| `sum()` | Total of a numeric column — note the `as spark_sum` import alias, since `sum` is also a Python built-in |
+| `min()` / `max()` | Smallest / largest value |
+| `countDistinct()` | Number of *unique* values |
+
+::: {.notes}
+**Timing: 3 min.** The `sum as spark_sum` import quirk is worth calling out explicitly — students
+who skip it and just write `sum(...)` get confusing errors from Python's built-in `sum()`
+shadowing the Spark one.
+:::
+
+---
+
+## `orderBy` and the Top-N Pattern
+
+```python
+# The "top N by some metric" pattern — you'll use this constantly
+top_5 = df.groupBy("department") \
+          .agg(spark_round(avg("salary"), 2).alias("avg_salary")) \
+          .orderBy("avg_salary", ascending=False) \
+          .limit(5)
+
+top_5.show()
+```
+
+- `orderBy(column, ascending=False)` sorts descending; `ascending=True` (or omitting it) sorts
+  ascending.
+- `.limit(n)` keeps only the first `n` rows after sorting.
+- `.show(n)` — a shortcut that sorts-then-limits-then-prints in one call, when you don't need the
+  limited DataFrame for anything else afterward.
+
+::: {.callout-tip}
+This exact pattern — `groupBy → agg → orderBy → limit/show(n)` — is precisely what Checkpoint 5
+asks you to do, and it's the core of Lab 8's "top 10 highest-rated movies" task.
+:::
+
+::: {.notes}
+**Timing: 4 min.** Quiz 6 Q4 tests `orderBy(..., ascending=False)` syntax directly. Flag the
+Checkpoint 5 connection out loud — this slide is deliberately the most directly test-relevant one
+in the session.
+:::
+
+---
+
+## Actions, Revisited: The Risk of `collect()`
+
+Session 1 introduced actions as "the things that trigger execution." One of them deserves a
+warning of its own.
+
+```python
+# ⚠️ Dangerous on a large DataFrame
+all_rows = df.collect()   # pulls EVERY row to the driver machine, as a Python list
+
+# ✅ Safer — limit first
+sample = df.limit(100).collect()
+```
+
+- `collect()` brings **all** matching rows back to the driver program, as ordinary Python
+  objects — not distributed anymore.
+- If the DataFrame is large, this can **crash the driver** — the driver has one machine's worth of
+  memory, not the whole cluster's.
+- `count()` and `show(n)` don't have this problem: `count()` returns a single number, and
+  `show(n)` only ever prints `n` rows without collecting the rest.
+
+::: {.notes}
+**Timing: 5 min.** Quiz 6 Q7 tests this risk directly ("main risk of collect() on a very large
+DataFrame") — this is a real, industry-relevant footgun, not a trivia fact, so it's worth the full
+5 minutes.
+:::
+
+---
+
+## Writing DataFrame Output
+
+```python
+# Write as CSV — creates a folder, not a single file
+df.write.csv("output/path", header=True, mode="overwrite")
+
+# Write as JSON
+df.write.json("output/path", mode="overwrite")
+```
+
+- `df.write.csv(...)` **is an action** — like `show()` or `count()`, it triggers Spark to execute
+  the full pending plan, this time saving the result to storage instead of printing it.
+- `mode="overwrite"` replaces existing data at that path; `mode="error"` (the default) fails if
+  the path already exists, to prevent accidentally destroying previous output.
+- The capstone's `spark_job.py` uses this same write pattern — except writing to MongoDB instead
+  of a CSV folder, which Module 5 covers.
+
+::: {.notes}
+**Timing: 3 min.** Quiz 6 Q8 and Q9 both test that `write.csv()` is an action, not a
+transformation — reinforce that classification explicitly, since "write" sounds like it should
+just be setup, not execution.
+:::
+
+---
+
+## Joins in PySpark
+
+```python
+# Inner join: only rows with matching keys in both DataFrames
+result = ratings.join(movies, on="movieId")
+
+# Left join: all rows from the left DataFrame, matched rows (or nulls) from the right
+result = ratings.join(movies, on="movieId", how="left")
+
+# Joining on differently-named columns
+result = df1.join(df2, df1["user_id"] == df2["id"])
+```
+
+- A **join** combines two DataFrames into one, matching rows where a key column agrees.
+- **Inner join** (the default): keep only rows that have a match in *both* DataFrames — rows with
+  no match on either side are dropped.
+- **Left join:** keep every row from the left DataFrame; unmatched rows get `null` for the right
+  DataFrame's columns instead of being dropped.
+
+::: {.callout-tip}
+## Think about it
+`ratings` has a `movieId` for every rating. `movies` has a `movieId` and `title` for every film.
+If you inner-join them, could you ever end up with *fewer* rows than `ratings` had originally?
+What would that mean about the data?
+:::
+
+::: {.notes}
+**Timing: 5 min.** The callout's answer: yes — if some `movieId` in `ratings` has no matching row
+in `movies` (a deleted or mislabeled film), the inner join silently drops those ratings. This is
+exactly the kind of thing Lab 8's Task 2 depends on getting right.
+:::
+
+---
+
+## Worked Example: A Full Multi-Step Query
+
+```python
+from pyspark.sql.functions import col, avg, count, round as spark_round, desc
+
+top_movies = ratings \
+    .groupBy("movieId") \
+    .agg(spark_round(avg("rating"), 2).alias("avg_rating"),
+         count("rating").alias("num_ratings")) \
+    .filter(col("num_ratings") >= 50) \
+    .join(movies, on="movieId") \
+    .select("title", "avg_rating", "num_ratings") \
+    .orderBy(desc("avg_rating"))
+
+top_movies.show(10, truncate=False)
+```
+
+Reading this top to bottom: group ratings by film, compute each film's average and count, keep
+only films with enough ratings to be meaningful, join in the title, keep just the columns we
+want, sort by rating, show the top 10.
+
+::: {.notes}
+**Timing: 4 min.** This is deliberately close to Lab 8 Task 2's actual solution shape — walk
+through it step by step rather than all at once, since chaining six operations together is a lot
+to take in as a single block the first time.
+:::
+
+---
+
+## Checkpoint 5
+
+**CP5 (today, last 15 minutes of class):** given a DataFrame and its schema, filter by a numeric
+threshold, sort the result descending, and show the top 3 rows.
+
+Review before you start:
+- `df.filter(df["column"] > value)`
+- `.orderBy("column", ascending=False)`
+- `.show(3)`
+
+::: {.notes}
+**Timing: 15 min for the checkpoint itself.** See `checkpoints/checkpoint_05.md` for the exact
+graded prompt (a `sales` DataFrame) — don't preview its specific numbers before students start.
+:::
+
+---
+
+## Module 4 Summary
+
+| Concept | Key idea |
+|---|---|
+| Spark vs. MapReduce | Keeps intermediate data in memory instead of writing to disk every step |
+| RDD vs. DataFrame | RDD = unstructured distributed collection; DataFrame = distributed table with a schema |
+| SparkSession | One entry point per application; `%%spark` cells already have one built |
+| DataFrame | Distributed, schema-aware, and **immutable** — every operation returns a new one |
+| Transformation | Lazy — builds a plan (`filter`, `select`, `groupBy`, `join`, ...) |
+| Action | Triggers execution (`show`, `count`, `collect`, `write.csv`, ...) |
+| `collect()` risk | Pulls all rows to the driver — can crash it on large data |
+| Join | Combine two DataFrames on a shared key — inner drops unmatched rows, left keeps them |
+
+**Connects to:** Lab 7, Lab 8, Checkpoints 4 & 5, Quizzes 5 & 6, Final Q16–Q30, Capstone
+(`spark_job.py`'s five aggregations)
+
+::: {.notes}
+**Timing: 3 min.** Bridge to Module 5: "Everything computed here has been printed or written to a
+CSV so far. Module 5 is about where the *capstone's* output actually goes — a real, shared,
+multi-user database — MongoDB."
+:::

@@ -1,0 +1,44 @@
+[
+  {
+    "listing": "/cosc130/slides/index.html",
+    "items": [
+      "/cosc130/slides/14.html",
+      "/cosc130/slides/15.html",
+      "/cosc130/slides/16.html",
+      "/cosc130/slides/generics.html",
+      "/cosc130/slides/maps_and_sets.html",
+      "/cosc130/slides/projectGuidelines.html",
+      "/cosc130/slides/projectSetup.html"
+    ]
+  },
+  {
+    "listing": "/cosc420/slides/index.html",
+    "items": [
+      "/cosc420/slides/01-intro.html"
+    ]
+  },
+  {
+    "listing": "/cosc120/slides/index.html",
+    "items": [
+      "/cosc120/slides/01-intro.html"
+    ]
+  },
+  {
+    "listing": "/cosc435/slides/index.html",
+    "items": [
+      "/cosc435/slides/01-intro.html"
+    ]
+  },
+  {
+    "listing": "/cosc445/slides/index.html",
+    "items": [
+      "/cosc445/slides/astar.html",
+      "/cosc445/slides/backtracking_pruning.html",
+      "/cosc445/slides/dynamic_programming.html",
+      "/cosc445/slides/dynamic_programming2.html",
+      "/cosc445/slides/p-np-reductions.html",
+      "/cosc445/slides/randomized_algorithms.html",
+      "/cosc445/slides/streaming_sketching.html"
+    ]
+  }
+]

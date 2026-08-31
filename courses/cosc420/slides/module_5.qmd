@@ -1,0 +1,1139 @@
+---
+title: "Module 5: Distributed Storage & NoSQL"
+subtitle: "COSC420 — Distributed/Parallel Computing"
+author: "SI"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-bg: true
+    code-block-border-left: "#1a3a5c"
+    highlight-style: github
+    footer: "COSC420 · Module 5 · Distributed Storage & NoSQL"
+    chalkboard: true
+    incremental: false
+execute:
+  echo: true
+---
+
+# Session 1 · Mon Nov 9 {.section}
+## Why Distribute Data? Replication, Sharding, and Single Points of Failure
+
+::: {.notes}
+**Full-session timing plan (50 min total, ~15 min of which is Checkpoint 6 itself):**
+
+| Slide | Time |
+|---|---|
+| Recap: From Compute to Storage | 3 min |
+| The Problem: One Machine, Too Much Load | 4 min |
+| Replication: Many Copies of the Same Data | 4 min |
+| Sharding: Splitting the Data Itself | 4 min |
+| Replication vs. Sharding — Choosing Between Them | 5 min |
+| The Cost of Replication | 3 min |
+| The Cost of Sharding | 3 min |
+| Single Points of Failure, Revisited | 3 min |
+| Checkpoint 6 | 15 min |
+| Bridge to Wednesday | 2 min |
+
+9 content slides (~31 min) + Checkpoint 6. This is Module 5's foundation session — Wednesday
+builds directly on today's replication/sharding vocabulary by asking "and what does CAP have to
+say about it?"
+:::
+
+---
+
+## Recap: From Compute to Storage
+
+Module 4 answered "how do you *compute* something at scale?" — load data into Spark, transform
+it, aggregate it, write out a result.
+
+Module 5 answers the next question: **where does that result actually live**, once it's
+computed, so that thousands of users can read it reliably at the same time? A single machine
+running a single database has exactly the same limits Module 3 opened with — one disk, one CPU,
+one point of failure — just for *storage* instead of *processing*.
+
+::: {.notes}
+**Timing: 3 min.** Quick bridge only — the point is that "why distribute" is a question we've
+already answered once (Module 3's big-data motivation), now being asked again about storage
+specifically.
+:::
+
+---
+
+## The Problem: One Machine, Too Much Load
+
+A single database server can fail in two different ways as demand grows, and they call for two
+different fixes:
+
+- **Too much traffic, data fits fine:** the machine simply can't answer requests fast enough —
+  every read and write funnels through one CPU, one network connection.
+- **Too much data, traffic is fine:** the dataset itself no longer fits on one machine's disk (or
+  even in a reasonable multiple of it), regardless of how much traffic there is.
+- **Single point of failure**, either way: if that one machine goes down, the data is completely
+  unreachable until it comes back — recall Module 2's "partial failures" idea, except now there's
+  nothing partial about it. One machine down means *everything* is down.
+
+::: {.notes}
+**Timing: 4 min.** Setting up the two-problems framing explicitly here pays off on the very next
+two slides — replication answers the first bullet, sharding answers the second.
+:::
+
+---
+
+## Replication: Many Copies of the Same Data
+
+**Replication** means keeping multiple full copies of the same data on different machines.
+
+- Every replica holds the **entire** dataset — not a piece of it.
+- Reads can be served by **any** replica, spreading read traffic across multiple machines instead
+  of funneling it through one.
+- If one replica goes down, the others still have every record — the single-point-of-failure
+  problem from the last slide goes away for reads.
+- Writes are more subtle: usually one replica (the **primary**) accepts writes, and the change is
+  then copied out to the others.
+
+::: {.callout-important}
+You've actually seen a first, simpler version of this already: Module 3's HDFS stored each block
+on 3 machines — like stocking the same ingredient at 3 kitchen branches, so one branch's fridge
+breaking down doesn't lose it. That was replication for *file blocks*, specifically for MapReduce
+jobs to read. Today's version is the general idea, for *any* database, read and written directly
+by users — not just batch jobs.
+:::
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+One database-cylinder icon labeled "Primary" at the top, with two arrows fanning down to two more
+cylinder icons labeled "Replica 1" and "Replica 2," each holding an identical small stack of
+document icons (same three icons repeated in all three cylinders, to show it's a *full* copy each
+time). A read arrow pointing into any of the three; a write arrow pointing only into the Primary.
+Caption: "Same data, three times over. Reads go anywhere. Writes go through the primary."
+:::
+
+::: {.notes}
+**Timing: 4 min.** Keep the "primary accepts writes" detail brief here — Session 2 goes deep on
+exactly *how* that copying happens (sync vs. async) and why it matters for consistency.
+:::
+
+---
+
+## Sharding: Splitting the Data Itself
+
+**Sharding** means splitting the dataset itself across multiple machines — each machine holds a
+different **slice** of the data, not a full copy.
+
+```
+Shard key: user_id
+
+Shard 1: user_id 0 – 9,999,999
+Shard 2: user_id 10,000,000 – 19,999,999
+Shard 3: user_id 20,000,000+
+```
+
+- Each shard holds only **its own fraction** of the total data — together, all shards make up the
+  whole dataset.
+- Both **storage** and **write traffic** get spread across machines, since different records live
+  (and are written) on different shards.
+- The field used to decide which shard a record belongs to is called the **shard key**.
+- A query for one specific record only needs to go to the one shard that holds it — but a query
+  that spans many records may need to check every shard.
+
+::: {.notes}
+**Timing: 4 min.** Contrast explicitly with the previous slide's diagram: replication = same data
+N times; sharding = 1/N of the data, N times. That contrast is the single most important idea in
+today's session.
+:::
+
+---
+
+## Replication vs. Sharding — Choosing Between Them
+
+| | Replication | Sharding |
+|---|---|---|
+| **Solves** | Read throughput, availability | Data volume, write throughput |
+| **Each node holds** | A full copy of all the data | A fraction of the data |
+| **Use when** | The dataset fits on one machine, but there's too much read traffic | The dataset itself is too large for one machine |
+| **Single point of failure?** | Fixed — any replica can serve reads if another fails | Not fixed by sharding alone — losing one shard still loses *its* slice of data |
+
+::: {.callout-tip}
+## Think about it
+A photo-sharing app's user-profile database is only 2 GB (tiny), but gets 200,000 profile-page
+views per second during a viral event. A separate table logging every photo upload has grown to
+40 TB and keeps growing. Which table needs replication, which needs sharding, and could a table
+ever need **both**?
+:::
+
+::: {.notes}
+**Timing: 5 min.** The callout's last question is the important one to land: yes, a table can
+need both at once (e.g., MongoDB's sharded clusters replicate *within* each shard) — that's
+exactly what Session 5's "Replication and Sharding in MongoDB" slides come back to.
+:::
+
+---
+
+## The Cost of Replication
+
+Replication isn't free — it trades storage and consistency for read throughput and availability.
+
+- **Storage cost multiplies:** 3 replicas means 3× the storage for the same data.
+- **Replicas can briefly disagree:** if a write hasn't finished copying to every replica yet, a
+  read from a lagging replica can return **stale** (out-of-date) data.
+- This lag is usually milliseconds, but it is never exactly zero — "how much staleness is
+  acceptable" is a real design decision, not a solved problem. Session 2 goes deep on this.
+
+::: {.notes}
+**Timing: 3 min.** Plant this seed deliberately — "replicas can briefly disagree" is precisely
+what Wednesday's session expands into strong vs. eventual consistency.
+:::
+
+---
+
+## The Cost of Sharding
+
+Sharding isn't free either — it trades query simplicity for scale.
+
+- **Cross-shard queries are expensive:** "find everyone named Alice" now has to ask *every* shard
+  and merge the results, instead of asking one machine.
+- **A bad shard key creates hot spots:** if your shard key clusters too much traffic onto one
+  shard (e.g., sharding by signup date when everyone signs up "today"), that one shard becomes the
+  new single overloaded machine — sharding stops helping.
+- **Resharding is hard:** once data is split across shards, changing the shard key later means
+  physically moving large amounts of data between machines.
+
+::: {.notes}
+**Timing: 3 min.** The hot-spot point is the one worth emphasizing if time is short — it's the
+most common real mistake, and it directly explains *why* choosing a good shard key matters, not
+just that one is required.
+:::
+
+---
+
+## Single Points of Failure, Revisited
+
+Tie this back to Module 2: a **single point of failure (SPOF)** is any one component whose
+failure takes down the whole system. An un-replicated database is a textbook SPOF.
+
+- Replication removes the SPOF **for reads** — any surviving replica can still answer queries.
+- It does **not**, by itself, remove the SPOF for writes if there's still exactly one primary
+  accepting them — if the primary goes down, *something* has to take over, which is a real,
+  nontrivial problem (this is exactly the mechanism behind the GitHub split-brain case study from
+  Module 2, Session 3 — a failover mechanism promoting a new primary is precisely what created
+  that incident).
+- Sharding, on its own, does not remove any SPOF — it just changes *what* is lost when one machine
+  fails: instead of losing everything, you lose that shard's slice of the data.
+
+::: {.notes}
+**Timing: 3 min.** Explicitly naming the GitHub case study connection here rewards students who
+retained Module 2 — say it out loud rather than assuming they'll make the connection themselves.
+:::
+
+---
+
+## Checkpoint 6
+
+**CP6 (today, last 15 minutes of class):** given a scenario, decide whether replication or
+sharding better solves the described problem, and explain why in 2–3 sentences.
+
+Review before you start: ask yourself which of the two problems from the start of today's session
+the scenario describes — **too much traffic** on data that fits fine (→ replication), or **too
+much data / write load** that no longer fits on one machine (→ sharding).
+
+::: {.notes}
+**Timing: 15 min for the checkpoint itself.** See `checkpoints/checkpoint_06.md` for the exact
+graded scenarios — don't preview its specific news-site/ride-sharing examples before students
+start; today's slides deliberately used a different example (the photo-sharing app).
+:::
+
+---
+
+## Bridge to Wednesday
+
+Today assumed replicas eventually catch up with each other, and left "how eventually?" mostly
+unanswered. That question is exactly where Module 2's CAP theorem comes back — now applied
+specifically to storage.
+
+::: {.notes}
+**Timing: 2 min.** Short forward-reference only.
+:::
+
+---
+
+# Session 2 · Wed Nov 11 {.section}
+## The CAP Theorem, Revisited for Storage
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: Replication's Loose Thread | 3 min |
+| Recap: The CAP Theorem (from Module 2) | 3 min |
+| Applying CAP to a Replicated Database | 5 min |
+| Strong Consistency | 4 min |
+| Eventual Consistency | 4 min |
+| Synchronous vs. Asynchronous Replication | 5 min |
+| A Worked Scenario: Checking Your Bank Balance | 5 min |
+| Read Preference: Choosing Where to Read From | 4 min |
+| Consistency Is a Spectrum, Not a Switch | 4 min |
+| Bridge to Friday's Worksheet | 3 min |
+
+10 slides, ~40 min. This session leans on Module 2's CAP content directly — don't re-derive the
+theorem from scratch, just re-anchor it and apply it.
+:::
+
+---
+
+## Recap: Replication's Loose Thread
+
+Monday ended on an unresolved tension: replicas are supposed to hold "the same data," but a write
+takes time to copy from the primary to every replica. **For that window of time, they don't quite
+agree.**
+
+Today's question: what should a read do when it lands in that window?
+
+::: {.notes}
+**Timing: 3 min.** This is the whole session in one sentence — keep this slide tight so it lands
+as a genuine open question, not a rhetorical one.
+:::
+
+---
+
+## Recap: The CAP Theorem (from Module 2)
+
+Module 2, Session 2 covered this in full — a fast re-anchor:
+
+| | |
+|---|---|
+| **C**onsistency | Every read gets the latest write, or an error |
+| **A**vailability | Every request gets *a* response |
+| **P**artition tolerance | The system keeps working despite a network split |
+
+**The theorem:** during a network partition, a distributed system must choose between
+Consistency and Availability — it cannot fully guarantee both at once.
+
+::: {.notes}
+**Timing: 3 min.** Genuinely just a recap slide — if a student is shaky on this, point them back
+to Module 2's slides rather than re-teaching the proof sketch here.
+:::
+
+---
+
+## Applying CAP to a Replicated Database
+
+A replica set (Monday's picture: one primary, several replicas) is itself a small distributed
+system — so CAP applies to it directly.
+
+- If a **network partition** separates a replica from the primary, that replica has a choice:
+  - **Refuse to answer reads** until it can confirm it's caught up (favors **Consistency**)
+  - **Answer with whatever data it currently has**, possibly stale (favors **Availability**)
+- This is *exactly* Module 2's CAP trade-off, just applied to "should this specific replica answer
+  this specific read" instead of "should the whole system answer this specific request."
+
+::: {.callout-important}
+Even **without** a network partition, replication introduces a smaller version of this same
+choice: does the primary wait for replicas to confirm a write before telling the client "done" —
+trading speed for certainty — or does it say "done" immediately and let the copying happen in the
+background? That's the next four slides.
+:::
+
+::: {.notes}
+**Timing: 5 min.** The callout is the pivot from "CAP during rare partitions" to "consistency
+trade-offs during totally normal operation" — make sure that shift is explicit, since it's easy
+to think CAP only matters when something is broken.
+:::
+
+---
+
+## Strong Consistency
+
+**Strong consistency:** every read reflects the most recent write, no matter which
+replica answers it.
+
+- To guarantee this, a write typically can't be considered "done" until it has been confirmed by
+  enough replicas that no read could possibly see stale data.
+- **Cost:** writes are slower — the primary has to wait for confirmation before responding to the
+  client.
+- **Benefit:** no surprises. Once a write succeeds, every subsequent read, from any replica, sees
+  it.
+
+::: {.notes}
+**Timing: 4 min.** Keep this and the next slide symmetric in structure (definition → cost →
+benefit) so the contrast is easy to hold in mind together.
+:::
+
+---
+
+## Eventual Consistency
+
+**Eventual consistency:** replicas are allowed to be temporarily out of sync — but if no new
+writes happen, they will all *eventually* converge to the same value.
+
+- The primary can respond "done" to the client as soon as **it** has the write, without waiting
+  for replicas to catch up.
+- **Cost:** a read immediately after a write might hit a replica that hasn't caught up yet, and
+  see the old value.
+- **Benefit:** writes are fast, and the system keeps working even if a replica is temporarily
+  slow or unreachable.
+
+::: {.callout-tip}
+## Think about it
+Quiz 7 will ask about this directly: **asynchronous replication can lead to replicas temporarily
+having different versions of the data.** Why "asynchronous," specifically — what would
+*synchronous* replication have to do differently to prevent that?
+:::
+
+::: {.notes}
+**Timing: 4 min.** The callout's answer is the bridge into the next slide: synchronous replication
+would have to wait for replicas to confirm before acknowledging the write — which is strong
+consistency's mechanism, described from the replication-mechanics angle instead of the CAP angle.
+:::
+
+---
+
+## Synchronous vs. Asynchronous Replication
+
+This is the actual mechanism behind the strong/eventual distinction:
+
+| | Synchronous replication | Asynchronous replication |
+|---|---|---|
+| Primary waits for replicas before confirming write? | Yes | No |
+| Write speed | Slower | Faster |
+| Consistency | Strong | Eventual |
+| Risk if primary crashes right after a write | None — replicas already have it | Replicas may be missing the most recent write(s) |
+
+- **Synchronous** = strong consistency's mechanism: the primary refuses to say "done" until
+  replicas confirm.
+- **Asynchronous** = eventual consistency's mechanism: the primary says "done" immediately and
+  copies the change out afterward.
+
+::: {.notes}
+**Timing: 5 min.** This table is the payoff of the whole strong-vs-eventual discussion — make
+sure students leave able to map "strong consistency" → "synchronous replication" and "eventual
+consistency" → "asynchronous replication" without hesitation.
+:::
+
+---
+
+## A Worked Scenario: Checking Your Bank Balance
+
+You just transferred $500 out of your checking account. One second later, you refresh the app and
+check your balance.
+
+- **If the bank uses strong consistency:** your new balance is guaranteed correct, every time —
+  worth the extra write latency for money, where "slightly out of date" is unacceptable.
+- **If the bank instead used eventual consistency and you got unlucky:** you might briefly see
+  your *old* balance, as if the transfer hadn't happened — even though it genuinely went through.
+- Compare this to a **social media "like" count**: if that count is briefly off by one because of
+  replication lag, essentially nobody notices or cares.
+
+::: {.callout-tip}
+## Think about it
+Name one more real system where you'd insist on strong consistency, and one more where eventual
+consistency would be perfectly fine. What's the actual property that decides which one you pick?
+:::
+
+::: {.notes}
+**Timing: 5 min.** The intended takeaway for the callout: the deciding property is roughly "cost
+of showing stale data" versus "cost of slower writes" — not some fixed rule about what kind of app
+it is.
+:::
+
+---
+
+## Read Preference: Choosing Where to Read From
+
+Many real databases let you choose, **per query**, how strict to be — rather than picking strong
+or eventual consistency for the whole system once and for all.
+
+- **Read from the primary:** always current, but funnels all reads through one machine — no
+  read-scaling benefit from having replicas at all.
+- **Read from any replica** ("secondary" reads): spreads read load across machines, at the cost of
+  possibly-stale results.
+- This setting is usually called **read preference**, and it's a real, named option you'll see
+  again in MongoDB specifically, in Session 5.
+
+::: {.notes}
+**Timing: 4 min.** Flag explicitly that this is forward-referencing real MongoDB terminology —
+students will see "read preference" again in two sessions and should recognize it as the same idea
+introduced here, not a new concept.
+:::
+
+---
+
+## Consistency Is a Spectrum, Not a Switch
+
+Strong and eventual consistency are the two ends of a range, not the only two options:
+
+- Some systems let you require confirmation from just **some** replicas (not all, not just one) —
+  a middle ground between the two extremes.
+- Some systems guarantee **causal consistency**: if event B happened *because of* event A, every
+  node sees A before B — even if unrelated events can still arrive in different orders on
+  different nodes.
+- The exact terminology varies by database. What matters for this course: consistency is a design
+  **choice with a dial**, not a single fixed property a database either has or doesn't.
+
+::: {.notes}
+**Timing: 4 min.** Keep this conceptual and brief — the goal is "there's more nuance here than
+strong-vs-eventual if you go looking," not to teach every consistency model by name.
+:::
+
+---
+
+## Bridge to Friday's Worksheet
+
+Monday gave you two tools (replication, sharding). Today gave you a dial (how strict to be about
+consistency). Friday: no new concepts — just practice combining all three into an actual design,
+working through three storage scenarios in small groups.
+
+::: {.notes}
+**Timing: 3 min.** Forward-reference only — don't preview Friday's specific scenarios.
+:::
+
+---
+
+# Session 3 · Fri Nov 13 {.section}
+## In-Class Activity: The Storage Design Worksheet
+
+::: {.notes}
+**Full-session timing plan (50 min total) — this is an ungraded, discussion-driven in-class
+activity, not a lecture. Slides here are prompts, not content to present at students.**
+
+| Slide | Time |
+|---|---|
+| Framing: No New Concepts Today | 2 min |
+| Scenario 1: A Note-Taking App | 10 min |
+| Scenario 2: A Flight-Search Engine | 10 min |
+| Scenario 3: A Multiplayer Game's Leaderboard | 10 min |
+| Class Discussion: Comparing Answers | 12 min |
+| Wrap-Up | 6 min |
+
+**Instructor note:** work scenarios in groups of 2–3, on paper or a shared doc. For each, groups
+should decide: replicate, shard, both, or neither — and if replicating, strong or eventual
+consistency, and why. There is genuine room for disagreement on all three; resist giving "the"
+right answer during group work, save it for the discussion slide.
+:::
+
+---
+
+## Framing: No New Concepts Today
+
+Everything you need is already covered: replication, sharding, single points of failure (Monday);
+strong vs. eventual consistency, synchronous vs. asynchronous replication (Wednesday).
+
+Today's job: **combine** those tools into an actual design decision, for three different
+scenarios, and defend your reasoning to the class.
+
+::: {.notes}
+**Timing: 2 min.** Set expectations: this is discussion and small-group work, not a lecture.
+:::
+
+---
+
+## Scenario 1: A Note-Taking App
+
+A note-taking app has 3 million users. Each user's notes are small (a few KB total) and are read
+and written almost exclusively by that one user — nobody else ever sees your notes.
+
+**In your group, decide:** replicate, shard, both, or neither? If replicating, strong or eventual
+consistency? What's the worst thing that happens if you get this wrong?
+
+::: {.notes}
+**Timing: 10 min including group work.** Push toward: total data volume is enormous (3M users ×
+notes) but each *individual* user's working set is tiny and only touched by one person — this
+maps cleanly to sharding by user ID, with mild replication for availability; strong consistency
+isn't very important since each user only ever reads their own writes.
+:::
+
+---
+
+## Scenario 2: A Flight-Search Engine
+
+A flight-search engine stores current seat availability for every flight, globally. Millions of
+users search and book simultaneously. Double-booking the same seat is a serious, costly problem.
+
+**In your group, decide:** replicate, shard, both, or neither? If replicating, strong or eventual
+consistency? What's the worst thing that happens if you get this wrong?
+
+::: {.notes}
+**Timing: 10 min including group work.** Push toward: this is the strong-consistency case — two
+people should never be told the same seat is available after one of them already booked it. Sharding
+by flight/route is reasonable for scale, but each shard's availability data needs strong
+consistency, not eventual.
+:::
+
+---
+
+## Scenario 3: A Multiplayer Game's Leaderboard
+
+A multiplayer game shows a global "Top 100 players this week" leaderboard, updated as players
+finish matches. Millions of matches finish per hour, worldwide.
+
+**In your group, decide:** replicate, shard, both, or neither? If replicating, strong or eventual
+consistency? What's the worst thing that happens if you get this wrong?
+
+::: {.notes}
+**Timing: 10 min including group work.** Push toward: extremely high write volume (matches
+finishing constantly) argues for sharding; the leaderboard itself tolerates real staleness — if
+your new high score takes a few seconds to appear, nobody is harmed — so eventual consistency is
+an easy, correct call here, in sharp contrast to Scenario 2.
+:::
+
+---
+
+## Class Discussion: Comparing Answers
+
+::: {.callout-tip}
+## Think about it — full class, 10–12 min
+Compare your group's Scenario 2 (flight seats) and Scenario 3 (leaderboard) answers side by side.
+Both have huge write volume. Why did one need strong consistency and the other didn't? What's the
+*actual* question you should ask yourself to decide, for any new system?
+:::
+
+::: {.notes}
+**Timing: 12 min.** Push toward: the deciding question isn't "how much traffic" — it's "what's
+the cost of a user briefly seeing wrong/stale data, versus the cost of slower writes." Scale
+determines *whether you need to shard*; the cost of staleness determines *how consistent you need
+to be*. These are two separate axes, and today's scenarios were picked to make that separation
+visible.
+:::
+
+---
+
+## Wrap-Up
+
+Every real storage decision in this course — and in industry — comes down to combining the same
+handful of tools you now have: replicate for availability and read scale, shard for volume and
+write scale, and dial consistency to match how much staleness a given piece of data can tolerate.
+
+**Monday: what kind of database actually implements these tools — the landscape of NoSQL database
+types.**
+
+::: {.notes}
+**Timing: 6 min** (including whatever discussion time is left over from the previous slide).
+Close on the forward-reference to keep momentum into Monday.
+:::
+
+---
+
+# Session 4 · Mon Nov 16 {.section}
+## The NoSQL Landscape
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: Storage Design Is Solved — Now, What Software? | 3 min |
+| Why Not Just a Relational Database? | 4 min |
+| The NoSQL Landscape | 4 min |
+| Document Stores | 4 min |
+| Key-Value Stores | 4 min |
+| Column-Family Stores | 4 min |
+| Graph Databases | 4 min |
+| Choosing the Right Type | 5 min |
+| NoSQL vs. Relational — The Real Trade-off | 4 min |
+| Bridge: MongoDB, Specifically | 3 min |
+
+11 slides, ~39 min.
+:::
+
+---
+
+## Recap: Storage Design Is Solved — Now, What Software?
+
+The last three sessions covered *concepts* that apply to any storage system — replication,
+sharding, consistency. Today: the actual **kinds of database software** that implement these
+concepts, and which kind fits which job.
+
+::: {.notes}
+**Timing: 3 min.** Fast bridge — the shift is from "storage design theory" to "here are the
+products."
+:::
+
+---
+
+## Why Not Just a Relational Database?
+
+Relational databases (PostgreSQL, MySQL) are excellent for structured, transactional data — and
+remain the right choice for a huge share of real applications. They start to struggle when you
+need to:
+
+- Store data whose structure **varies** from record to record (not every record has the same
+  fields)
+- **Scale out**, in Module 3's terms — spread both data and load across many machines — rather
+  than **scale up** (buying one increasingly expensive bigger machine)
+- Serve extremely high read or write volume with a simpler, less rigid query model
+
+**NoSQL** ("Not only SQL") databases are a family of alternatives designed around these needs.
+
+::: {.notes}
+**Timing: 4 min.** Resist framing this as "NoSQL is better" — it's a trade-off, and the slide
+right before the module summary makes that explicit again.
+:::
+
+---
+
+## The NoSQL Landscape
+
+| Type | Data Model | Examples | Best For |
+|---|---|---|---|
+| **Document** | JSON-like documents | MongoDB, CouchDB | User profiles, product catalogs, flexible records |
+| **Key-Value** | Plain key → value | Redis, DynamoDB | Caching, sessions, extremely simple lookups |
+| **Column-Family** | Rows with dynamic columns, optimized for huge write volume | Cassandra, HBase | Time-series, write-heavy logging |
+| **Graph** | Nodes and edges with relationships | Neo4j | Social networks, recommendations, fraud detection |
+
+We focus on **document stores** (MongoDB) for the rest of this module — the most common
+general-purpose choice in industry, and what the capstone uses.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 7 Q4 tests "which type is MongoDB" directly — make sure "document store"
+sticks as MongoDB's category before moving on.
+:::
+
+---
+
+## Document Stores — The Mental Model
+
+- Data is stored as **documents** — JSON-like objects — instead of rows in a table.
+- Documents in the same collection **do not need identical fields.**
+- There's no schema to define upfront — you just insert documents, and the structure can vary.
+
+```json
+// User document
+{ "name": "Alice", "email": "alice@example.com", "premium": true }
+
+// Another user document — different fields, same collection
+{ "name": "Bob", "email": "bob@example.com", "age": 29, "plan": "free" }
+```
+
+::: {.callout-tip}
+Flexible schema is a genuine trade-off, not a pure win: nothing stops one document from having a
+typo'd field name that silently doesn't match the others — the database won't catch it for you.
+:::
+
+::: {.notes}
+**Timing: 4 min.** Quiz 7 Q7 tests this exact property (two documents, same collection, different
+fields — true). The callout previews the "cost" side that the module-end trade-off slide expands
+on.
+:::
+
+---
+
+## Key-Value Stores
+
+The simplest possible model: every value is stored under a unique key, and that's it.
+
+```
+SET session:abc123 "user_id=42,expires=..."
+GET session:abc123
+```
+
+- The database treats the value as an **opaque blob** — it doesn't know or care what's inside.
+- Extremely fast, often **in-memory** (Redis) — ideal when you always look things up by one exact
+  key and don't need to query by the value's contents.
+- Common uses: caching, session storage, rate limiting, real-time leaderboards.
+
+::: {.notes}
+**Timing: 4 min.** Tie "real-time leaderboards" back to Session 3's Scenario 3 — same use case,
+now with a concrete technology attached to it.
+:::
+
+---
+
+## Column-Family Stores
+
+Designed for **massive write throughput** distributed across many machines — think logging
+billions of events per day.
+
+- Rows have a partition key; the set of columns can vary per row within a partition (similar
+  flexibility idea to document stores, different underlying structure).
+- No joins, and query patterns are deliberately limited — you design your tables around the
+  specific queries you'll run, not the other way around.
+- Used by companies with enormous, constant write volume: Netflix, Apple, Instagram all use
+  Cassandra for parts of their infrastructure.
+
+::: {.notes}
+**Timing: 4 min.** Keep this brief relative to document/key-value — it's the least directly
+relevant type to this course's labs and capstone, included for landscape completeness and because
+Quiz 7 references NoSQL types generally.
+:::
+
+---
+
+## Graph Databases
+
+Built around **relationships** as first-class data, not an afterthought.
+
+- **Nodes** (entities) and **edges** (relationships between them), both of which can have their
+  own properties.
+- Query language example (Neo4j's Cypher): `MATCH (a:Person)-[:FRIEND]->(b:Person) RETURN b`
+- Ideal when the interesting questions are about *connections*: "friends of friends," "people who
+  bought A also bought B," fraud rings, recommendation engines.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 7 Q5's recommendation-engine question maps directly here — say the
+"people who bought A also bought B" phrase out loud, since it's close to the quiz's own wording.
+:::
+
+---
+
+## Choosing the Right Type
+
+| Scenario | Best fit |
+|---|---|
+| Flexible, general-purpose records — user profiles, catalogs | Document (MongoDB) |
+| Exact-key lookups, need extreme speed | Key-value (Redis) |
+| Enormous, constant write volume | Column-family (Cassandra) |
+| The interesting question is about relationships | Graph (Neo4j) |
+| Transactions, strict schema, strong consistency by default | Relational (PostgreSQL/MySQL) |
+
+::: {.callout-tip}
+## Think about it
+A ride-sharing app needs: (1) driver profile records that vary a bit driver-to-driver, (2) a
+constant firehose of GPS location pings from every active driver, and (3) "which drivers are
+friends/referred each other" for a referral bonus program. Which NoSQL type fits each piece?
+:::
+
+::: {.notes}
+**Timing: 5 min.** Intended mapping: (1) document store for profiles, (2) column-family for the
+GPS firehose, (3) graph for the referral relationships — the point is that one real system often
+uses *multiple* NoSQL types for different parts of itself, not just one.
+:::
+
+---
+
+## NoSQL vs. Relational — The Real Trade-off
+
+| | Relational | NoSQL (general) |
+|---|---|---|
+| Schema | Fixed, enforced upfront | Flexible or absent |
+| Joins | First-class, well-optimized | Limited or discouraged |
+| Consistency | Strong, by default | Often tunable — your choice, per Session 2 |
+| Horizontal scaling | Harder | Designed in from the start |
+| Best for | Transactional, strongly related data | High-scale, flexible, or high-write-volume data |
+
+::: {.callout-important}
+Neither family is "better." The right choice depends on your data's shape, your consistency
+needs, and your scale — the same design questions from Sessions 1–3, now pointed at a concrete
+product decision instead of an abstract scenario.
+:::
+
+::: {.notes}
+**Timing: 4 min.** Quiz 7 Q6 tests two of this table's rows directly (schema flexibility, and "no
+universally superior option") — this slide is close to that question's own framing.
+:::
+
+---
+
+## Bridge: MongoDB, Specifically
+
+Wednesday: hands-on with the one NoSQL database this course actually uses — MongoDB. Collections,
+documents, and the four CRUD operations you'll need for Checkpoint 7, Lab 9, and the capstone.
+
+::: {.notes}
+**Timing: 3 min.** Forward-reference only.
+:::
+
+---
+
+# Session 5 · Wed Nov 18 {.section}
+## MongoDB: Collections, Documents, and CRUD + Checkpoint 7
+
+::: {.notes}
+**Full-session timing plan (50 min total, ~15 min of which is Checkpoint 7 itself):**
+
+| Slide | Time |
+|---|---|
+| Recap + Today's Plan | 3 min |
+| MongoDB Concepts | 3 min |
+| CRUD — Create | 4 min |
+| CRUD — Read, and Query Operators | 5 min |
+| CRUD — Update and Delete | 4 min |
+| Replication in MongoDB | 4 min |
+| Sharding in MongoDB | 4 min |
+| Beyond CRUD: Counting for the Capstone | 3 min |
+| MongoDB Atlas | 3 min |
+| Checkpoint 7 | 15 min |
+| Module 5 Summary + Bridge | 2 min |
+
+10 content slides (~33 min) + Checkpoint 7. Lab 9 (Friday) and the capstone give students many
+more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely
+on the labs to build muscle memory.
+:::
+
+---
+
+## Recap + Today's Plan
+
+Monday and last week gave you the concepts (replication, sharding, consistency, document stores).
+Today: the actual syntax — MongoDB's terminology, and the four CRUD operations (Create, Read,
+Update, Delete) you'll be tested on today and use for the rest of the course.
+
+::: {.notes}
+**Timing: 3 min.** Brief orientation only.
+:::
+
+---
+
+## MongoDB Concepts
+
+| MongoDB | Relational equivalent |
+|---|---|
+| Database | Database |
+| Collection | Table |
+| Document | Row |
+| Field | Column |
+| `_id` | Primary key (auto-generated) |
+
+```python
+from pymongo import MongoClient
+
+client = MongoClient("mongodb+srv://...")
+db     = client["my_database"]
+col    = db["my_collection"]
+```
+
+::: {.notes}
+**Timing: 3 min.** This mapping table is worth reading straight through once — it's the
+Rosetta Stone for everything that follows.
+:::
+
+---
+
+## CRUD — Create
+
+```python
+# Insert one document
+result = col.insert_one({
+    "name": "Alice",
+    "dept": "Engineering",
+    "salary": 95000
+})
+print(result.inserted_id)  # the auto-generated _id
+
+# Insert many documents at once
+col.insert_many([
+    {"name": "Bob",  "salary": 62000},
+    {"name": "Carol","salary": 78000},
+])
+```
+
+- `_id` is created automatically for every document — a unique identifier, unless you supply your
+  own.
+- `insert_one` returns one new `_id`; `insert_many` returns a list of them.
+
+::: {.notes}
+**Timing: 4 min.** Quiz 7 Q8 tests `insertOne` syntax directly (shell form: `db.students.insertOne(...)`)
+— note that the Python driver spells it `insert_one` (snake_case) while the MongoDB shell spells it
+`insertOne` (camelCase); both are correct in their own context, and worth pointing out explicitly
+since Lab 9 uses the Python form and Checkpoint 7 uses shell syntax.
+:::
+
+---
+
+## CRUD — Read, and Query Operators
+
+```python
+# Find all documents
+for doc in col.find():
+    print(doc)
+
+# Find with an exact-match filter
+engineers = col.find({"dept": "Engineering"})
+
+# Filter with a comparison operator
+high_earners = col.find({"salary": {"$gt": 80000}})
+
+# Sort and limit
+col.find().sort("salary", -1).limit(5)   # top 5 by salary
+```
+
+| Operator | Meaning |
+|---|---|
+| `$gt` / `$lt` | Greater than / less than |
+| `$gte` / `$lte` | ≥ / ≤ |
+| `$ne` | Not equal |
+| `$in` | Value is in a given list |
+| `$exists` | Field exists on the document |
+
+::: {.notes}
+**Timing: 5 min.** Quiz 7 Q9 and Q10 both test this directly — `find({})` returns *everything*
+(Q10), and `$lt` versus `$gt` (Q9). Say both of those out loud explicitly, they're easy to
+mix up under quiz pressure.
+:::
+
+---
+
+## CRUD — Update and Delete
+
+```python
+# Update ONE matching document
+col.update_one(
+    {"name": "Alice"},
+    {"$set": {"salary": 100000}}
+)
+
+# Update ALL matching documents
+col.update_many(
+    {"dept": "Engineering"},
+    {"$mul": {"salary": 1.10}}   # 10% raise for everyone matched
+)
+
+# Delete
+col.delete_one({"name": "Bob"})
+col.delete_many({"active": False})
+```
+
+- `$set` replaces a field's value outright; `$mul` multiplies a numeric field by a factor.
+- `update_one`/`delete_one` affect only the **first** match; `update_many`/`delete_many` affect
+  **every** match.
+
+::: {.notes}
+**Timing: 4 min.** This maps almost exactly onto Checkpoint 7's Task 3 (updateOne + $set) and Task
+4 (deleteMany) — don't use the checkpoint's own `active`/department fields as the live example
+here if you want to avoid spoiling it outright, though the operators themselves obviously must be
+taught plainly.
+:::
+
+---
+
+## Replication in MongoDB
+
+Session 1's general replication concept, applied concretely: MongoDB uses **replica sets** —
+typically 3 nodes, 1 primary + 2 secondaries.
+
+```
+Write → Primary → Secondary 1
+                → Secondary 2
+Read ← Primary (default) or a Secondary (if read preference allows it)
+```
+
+- All writes go to the **primary**; changes replicate out to secondaries — asynchronously by
+  default, which is Session 2's "eventual consistency" in a real product.
+- If the primary fails, the remaining secondaries automatically elect a new primary.
+- **Read preference** (Session 2's concept, by its real name here): `primary` (always current) or
+  `secondaryPreferred` (may be slightly stale, spreads out read load).
+
+::: {.notes}
+**Timing: 4 min.** This is the payoff moment for Session 1 and Session 2 — say explicitly "this is
+the exact same replication and consistency material from last week, now with MongoDB's own
+names on it."
+:::
+
+---
+
+## Sharding in MongoDB
+
+Session 1's general sharding concept, applied concretely: when a collection outgrows one machine,
+split it across **shards** using a **shard key**.
+
+```
+Shard key: user_id
+
+Shard 1: user_id 0 – 9,999,999
+Shard 2: user_id 10,000,000 – 19,999,999
+Shard 3: user_id 20,000,000+
+```
+
+- A router process (**`mongos`**) directs each query to the right shard(s), transparently to your
+  application code — you don't write different queries for a sharded vs. unsharded collection.
+- A poorly chosen shard key creates the **hot spots** Session 1 warned about — e.g., sharding by
+  signup date sends all of today's traffic to one shard.
+- In practice, each shard is *also* a replica set — sharding and replication are combined, not
+  either/or, answering Session 1's "can a table need both?" callout question directly: yes.
+
+::: {.notes}
+**Timing: 4 min.** Land the "combined, not either/or" point explicitly — it's the resolution to
+the open question from Session 1's photo-sharing-app callout.
+:::
+
+---
+
+## Beyond CRUD: Counting for the Capstone
+
+One operation beyond plain CRUD is worth knowing now, because the capstone's `flask_app.py` needs
+it for its dashboard's stat cards:
+
+```python
+# Count documents matching a filter
+col.count_documents({"dept": "Engineering"})
+
+# A simple aggregation: average salary
+from pymongo import MongoClient
+col.aggregate([
+    {"$group": {"_id": None, "avg_salary": {"$avg": "$salary"}}}
+])
+```
+
+- `count_documents(filter)` — how many documents match, without fetching them.
+- MongoDB's full **aggregation pipeline** (multi-stage `$match`/`$group`/`$sort` chains) is more
+  than this course goes deep on — the capstone only needs simple counts and averages like the
+  example above, not the full pipeline syntax.
+
+::: {.notes}
+**Timing: 3 min.** Keep this genuinely light — it exists so students aren't caught off guard by
+`flask_app.py`'s stat-card queries, not to teach the aggregation pipeline as a topic in its own
+right.
+:::
+
+---
+
+## MongoDB Atlas — Cloud-Managed MongoDB
+
+- No server to set up yourself — MongoDB Atlas hosts and manages it for you.
+- Free tier (M0): enough storage for this course's work, no credit card required.
+- Handles replication, backups, and monitoring automatically — the replica-set mechanics from two
+  slides ago happen behind the scenes.
+- Connection string format: `mongodb+srv://user:password@cluster.mongodb.net/`
+
+::: {.callout-tip}
+Atlas is what you'll use in Lab 9, the capstone, and — realistically — in most entry-level
+industry jobs. The managed service is exactly what lets you use everything from today without
+running a database server yourself.
+:::
+
+::: {.notes}
+**Timing: 3 min.** This is largely logistics for Friday's lab — keep it brief.
+:::
+
+---
+
+## Checkpoint 7
+
+**CP7 (today, last 15 minutes of class):** given a MongoDB collection's documents, write the
+query for four tasks: two `find()` queries (an exact match, and a comparison operator), one
+`updateOne` with `$set`, and one `deleteMany` with a filter.
+
+Review before you start:
+- `db.collection.find({field: value})`
+- `db.collection.find({field: {$gt: value}})`
+- `db.collection.updateOne({filter}, {$set: {field: value}})`
+- `db.collection.deleteMany({filter})`
+
+::: {.notes}
+**Timing: 15 min for the checkpoint itself.** See `checkpoints/checkpoint_07.md` for the exact
+graded prompt (an `employees` collection) — don't preview its specific documents before students
+start.
+:::
+
+---
+
+## Module 5 Summary
+
+| Concept | Key idea |
+|---|---|
+| Replication | Full copies of the data on multiple nodes — solves read throughput and availability |
+| Sharding | Splitting the data itself across nodes — solves data volume and write throughput |
+| Strong consistency | Every read reflects the latest write — costs write latency |
+| Eventual consistency | Replicas converge over time — reads can briefly be stale |
+| Document store | JSON-like documents, flexible schema — MongoDB |
+| MongoDB CRUD | `insert_one/many`, `find`, `update_one/many`, `delete_one/many` |
+| Replica set / sharded cluster | MongoDB's names for replication and sharding, combined in practice |
+
+**Connects to:** Checkpoints 6 & 7, Quiz 7, Lab 9, Final Q31–Q45, Capstone (`spark_job.py`'s
+direct-to-MongoDB writes, `flask_app.py`'s queries)
+
+::: {.notes}
+**Timing: 2 min.** Bridge to Friday's Lab 9 (MongoDB Atlas CRUD, hands-on) and Quiz 7, both on
+Nov 20 — then to Module 6: "everything computed and stored so far still needs a way for a user to
+actually see it — that's Flask and the REST API, next."
+:::

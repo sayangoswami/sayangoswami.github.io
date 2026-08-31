@@ -1,0 +1,271 @@
+---
+title: "Writing a Class"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+---
+
+## Learning Outcomes
+
+- Write a class definition with the correct syntax: fields declared in the class body, a constructor with the same name as the class
+- Write a constructor that initializes fields using `this.field = parameter`
+- Create an object by calling `new ClassName(args)` and passing arguments that match the constructor
+- Access and modify an object's fields using dot notation after construction
+- Use a student-defined class inside a loop or alongside other objects to solve a problem
+
+## From Using to Writing
+
+Last lecture you **used** an existing class:
+
+```java
+Dog rex = new Dog();
+rex.name = "Rex";
+rex.age  = 3;
+rex.bark();
+```
+
+Today you learn to **write** one.
+
+Everything you saw in deck 18 — the fields, the methods, the `new` keyword — now has a syntax you can produce yourself.
+
+::: notes
+Explicit callback to deck 18. Students know what a class IS conceptually; now they learn how to write one. The example from last lecture is still the mental model — Dog — and we'll use a Student class today as the running example. Keep emphasizing that the syntax is just formalizing what they already understand.
+:::
+
+## Anatomy of a Class
+
+```java
+class Dog {        // ← "class" keyword + class name (capital letter)
+
+    // fields go here
+
+    // constructor goes here
+
+    // methods go here
+
+}                  // ← closing brace
+```
+
+Rules:
+- The class name starts with a **capital letter** by convention
+- Everything inside the `{` `}` belongs to the class
+- The file should be named `Dog.java` (class name + `.java`)
+
+::: notes
+The capital-letter convention is strong in Java — it distinguishes class names (Dog, Student, BankAccount) from variable names (dog, student, myAccount). The one-class-per-file rule is standard Java; mention it but don't dwell — some setups allow multiple small classes in one file, which the course IDE may do.
+:::
+
+## Fields — The Object's State
+
+Fields are variables declared **inside the class**, outside any method:
+
+```java
+class Student {
+    String name;    // each Student object gets its own name
+    int grade;      // each Student object gets its own grade
+    int year;
+}
+```
+
+- Every object built from `Student` gets its **own copy** of `name`, `grade`, and `year`
+- Fields are accessible from any method inside the class
+- Default values if not set: `0` for numbers, `null` for Strings
+
+<!-- FIGURE [draw.io or excalidraw]: Three Student object boxes side by side. Each has its own name/grade/year fields with different values. An arrow from the "Student CLASS" box points to each of the three objects, labeled "each object gets its own copy." -->
+
+::: notes
+Distinguish fields from local variables (which only exist during one method call). A field lives for the entire lifetime of the object — created when the object is created, destroyed when the object is no longer used. Each object's fields are completely independent, just like each student has their own grade on a test.
+:::
+
+## The Constructor
+
+A **constructor** is a special method that runs **automatically** when you write `new`:
+
+```java
+class Student {
+    String name;
+    int grade;
+
+    Student(String name, int grade) {   // constructor: same name as class, no return type
+        this.name  = name;
+        this.grade = grade;
+    }
+}
+```
+
+Three things that make a constructor special:
+1. Its name **exactly matches** the class name (capital letter included)
+2. It has **no return type** (not even `void`)
+3. It runs automatically every time `new Student(...)` is called
+
+::: notes
+The constructor is the "set up" code — it runs once, right when the object is born, to put it in a valid initial state. No return type: nothing is returned because the constructor doesn't need to — it builds the object from the inside. It IS the object during construction.
+:::
+
+## `this` — Which Object Are We Talking About?
+
+Inside the constructor (or any instance method), **`this`** refers to the object currently being built or called on.
+
+```java
+Student(String name, int grade) {
+    this.name  = name;    // this.name  = the FIELD;  name  = the PARAMETER
+    this.grade = grade;   // this.grade = the FIELD;  grade = the PARAMETER
+}
+```
+
+Without `this`, the parameter would shadow the field — Java wouldn't know which `name` you meant.
+
+::: {.callout-tip}
+**Rule of thumb:** use `this.fieldName` on the left-hand side whenever the parameter has the same name as the field. It removes all ambiguity.
+:::
+
+::: notes
+The this keyword is the biggest stumbling block in constructors. Draw it out: when we write new Student("Alice", 88), Java creates a fresh empty Student object, then calls the constructor with that object as "this". this.name refers to the field inside that brand-new object; name (alone) refers to the parameter. Assigning this.name = name copies the parameter value into the field — that's what "initializing" means.
+:::
+
+## Creating an Object with `new`
+
+```java
+Student alice = new Student("Alice", 88);
+Student bob   = new Student("Bob",   74);
+```
+
+What happens step by step:
+
+1. Java creates a fresh `Student` object in memory
+2. The constructor `Student("Alice", 88)` runs
+3. `this.name = "Alice"` and `this.grade = 88` are set
+4. The finished object is handed to `alice`
+
+Now `alice.name` is `"Alice"` and `alice.grade` is `88`.
+
+<!-- FIGURE [draw.io or excalidraw]: Sequence diagram. "new Student('Alice', 88)" → Java creates empty object box → constructor runs (this.name = 'Alice', this.grade = 88 fill in the box) → filled box handed to variable "alice". -->
+
+::: notes
+Walk through the four steps slowly. Step 2 is the key one students miss — the constructor isn't called manually, it's called by new automatically. Step 4 is the reference assignment: alice doesn't hold the object itself, it holds a link to it (just like arrays). This is why alice.name accesses the field through the dot.
+:::
+
+## Accessing Fields After Construction
+
+Once an object exists, use dot notation to read or change its fields:
+
+```java
+Student alice = new Student("Alice", 88);
+
+IO.println(alice.name);    // Alice
+IO.println(alice.grade);   // 88
+
+alice.grade = 95;          // update the field
+IO.println(alice.grade);   // 95
+```
+
+Fields set by the constructor are **just variables** — you can read and change them the same way as in deck 18.
+
+::: notes
+Nothing new syntactically here — reinforce that dot notation works exactly as shown in deck 18. The constructor set the initial values; nothing prevents the field from being changed afterward. (Later, the private keyword and getters/setters will control this — but that's deck 20+.)
+:::
+
+## Using a Class in a Loop
+
+Classes become powerful when you create many objects:
+
+```java
+String[] names  = {"Alice", "Bob", "Carol", "Dave"};
+int[]    grades = {88, 74, 91, 65};
+
+Student[] roster = new Student[4];
+
+for (int i = 0; i < names.length; i++) {
+    roster[i] = new Student(names[i], grades[i]);
+}
+
+// Print every student
+for (int i = 0; i < roster.length; i++) {
+    IO.println(roster[i].name + ": " + roster[i].grade);
+}
+```
+
+An **array of objects** — each slot holds a reference to one `Student`.
+
+::: notes
+This is the payoff: instead of parallel arrays (names[] and grades[] that must stay in sync), you have one array of Student objects where every piece of a student's data travels together. Point out the syntax roster[i].name — index into the array to get the object, then dot-access the field. Ask: "What would roster[2].grade print?" 91.
+:::
+
+## Code Example
+
+```java
+class Student {
+    String name;
+    int grade;
+
+    Student(String name, int grade) {
+        this.name  = name;
+        this.grade = grade;
+    }
+}
+
+void main() {
+    Student alice = new Student("Alice", 88);
+    Student bob   = new Student("Bob",   74);
+
+    IO.println(alice.name + " scored " + alice.grade);
+    IO.println(bob.name   + " scored " + bob.grade);
+
+    alice.grade = 95;    // curve applied
+    IO.println(alice.name + " curved grade: " + alice.grade);
+    IO.println(bob.grade);   // bob is unaffected: 74
+}
+```
+
+::: notes
+Walk through every line. When alice.grade is updated, bob.grade is untouched — they are separate objects. This is the independent-state guarantee from deck 18 in action with real constructor syntax. Ask students to predict the output before revealing it.
+:::
+
+## Common Mistakes
+
+::: {.callout-warning}
+**Constructor name doesn't match class name**
+`class Student { student(...) { } }` — lowercase `s` gives a compile error. The constructor name must match exactly, capital letter included.
+:::
+
+::: {.callout-warning}
+**Adding a return type to the constructor**
+`void Student(...)` — a `void` return type turns it into a regular method, not a constructor. The real constructor never runs.
+:::
+
+::: {.callout-warning}
+**Forgetting `this.` when field and parameter share a name**
+`name = name;` — both sides refer to the parameter. The field is never set (stays `null`).
+:::
+
+::: {.callout-warning}
+**Forgetting `new`**
+`Student alice = Student("Alice", 88);` — missing `new` is a compile error. You must use `new` to create an object.
+:::
+
+::: notes
+The "void Student" mistake is subtle — Java sees it as a regular method named Student, not a constructor, and generates a default constructor instead. Students will then find their fields are null despite "calling the constructor." The this.name = name vs name = name mistake silently leaves the field at its default value — a null name or 0 grade.
+:::
+
+## Worksheet
+
+1. Write a class `Rectangle` with fields `int width` and `int height`, and a constructor that sets both. In `main`, create two `Rectangle` objects with different dimensions and print each one's width and height.
+
+2. Add a method `int area()` to `Rectangle` that returns `width * height`. Call it from `main` on both rectangles.
+
+3. Write a class `Counter` with one `int` field `count` initialized to `0` in the constructor (no parameters needed). Add `void increment()` (adds 1), `void decrement()` (subtracts 1), and `int getCount()` (returns count). Demonstrate all three in `main`.
+
+4. Write a class `Point` with fields `int x` and `int y`. Create an array of 5 `Point` objects using a loop, setting each point's `x` and `y` to `i` and `i * 2`. Print all five points.
+
+5. **Predict the output:**
+   ```java
+   Student a = new Student("Ana", 80);
+   Student b = new Student("Ben", 90);
+   a.grade = b.grade;
+   b.grade = 70;
+   IO.println(a.grade);
+   IO.println(b.grade);
+   ```

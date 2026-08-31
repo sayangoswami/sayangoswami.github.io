@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300..700&display=swap');
+
+/*********************************************
+ * QUARTO / REVEAL.JS VARIABLES
+ *********************************************/
+:root {
+  /* Core Colors */
+  --r-background-color: #ffffff; /* Your light cream background */
+  --r-main-color: #000000;
+  --r-heading-color: #007a78;
+  --r-link-color: #003b49;
+  --r-link-color-hover: #8b7c69;
+  --r-selection-background-color: #26351C;
+  --r-selection-color: #ffffff;
+
+  /* Typography */
+  --r-main-font: 'Atkinson Hyperlegible', sans-serif;
+  --r-heading-font: 'Atkinson Hyperlegible', sans-serif;
+  --r-code-font: 'JetBrains Mono', monospace;
+  --r-main-font-size: 25px;
+  
+  /* Custom Accents */
+  --primary-color: #1d4289;   /* Bold color */
+  --secondary-color: #d3273e; /* Italic color */
+  --bullet-color: var(--secondary-color);
+  --nested-bullet-color: var(--primary-color);
+}
+
+/*********************************************
+ * GLOBAL OVERRIDES
+ *********************************************/
+.reveal-viewport {
+  background-color: var(--r-background-color) !important;
+}
+
+.reveal {
+  font-family: var(--r-main-font);
+  font-size: var(--r-main-font-size);
+  color: var(--r-main-color);
+}
+
+/* Ensure left alignment works with Quarto's layout */
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+
+/*********************************************
+ * HEADERS
+ *********************************************/
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  color: var(--r-heading-color);
+  font-family: var(--r-heading-font);
+  font-weight: bold;
+  text-transform: none;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.reveal h1 { font-size: 3.77em; }
+.reveal h2 { font-size: 2.11em; }
+.reveal h3 { font-size: 1.55em; }
+.reveal h4 { font-size: 1em; }
+
+/*********************************************
+ * LISTS & BULLETS
+ *********************************************/
+.reveal ul li::marker {
+  color: var(--bullet-color);
+}
+
+.reveal ul ul li::marker {
+  color: var(--nested-bullet-color);
+  content: '\2012\ '; /* Custom dash for nested items */
+}
+
+.reveal li {
+  margin-bottom: 0.5em;
+}
+
+/*********************************************
+ * EMPHASIS & LINKS
+ *********************************************/
+.reveal strong, .reveal b {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.reveal em, .reveal i {
+  color: var(--secondary-color);
+  font-style: italic;
+}
+
+.reveal a {
+  color: var(--r-link-color);
+  text-decoration: underline; /* Better for accessibility */
+}
+
+.reveal a:hover {
+  color: var(--r-link-color-hover);
+}
+
+/*********************************************
+ * CODE BLOCKS (Quarto Specific)
+ *********************************************/
+/* Targets Quarto's Pandoc-generated code containers */
+.reveal div.sourceCode {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  margin: 1em 0;
+  font-size: 1.6em;
+  line-height: 1.7em;
+  /* Disable ligatures */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* Inline code */
+.reveal code {
+  font-family: var(--r-code-font) !important;
+  font-variant-ligatures: contextual;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 4px;
+  border-radius: 3px;
+  /* Disable ligatures */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.reveal pre code {
+  background: none;
+  padding: 10px;
+  display: block;
+  color: inherit;
+  font-size: 1.6em;
+  /* Disable ligatures */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/*********************************************
+ * FOOTNOTES (Quarto Specific)
+ *********************************************/
+.reveal .footnotes {
+  font-size: 0.5em;
+  color: var(--r-link-color);
+  border-top: 1px solid #ccc;
+  margin-top: 2em;
+}

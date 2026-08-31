@@ -1,0 +1,709 @@
+---
+title: "Methods: `void` Methods"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+    scrollable: true
+---
+
+## Learning Outcomes
+
+- Explain what a method is and describe how methods reduce repetition and improve readability
+- Define a `void` method with no parameters
+- Call a method from `main`, including calling the same method multiple times
+- Write a method that calls other methods to build a structured program
+- Trace the flow of execution through a method call and back to the call site
+
+## What Is a Method?
+
+::: notes
+Before doing anything else, plant two vocabulary words the students will hear for the rest of the course: "method" and "call." Don't define them formally — just give them enough meaning to follow what comes next. The table is intentionally minimal. Two words. That's the whole slide. Students should leave this slide knowing what to listen for, not feeling like they learned something hard. The aha moments and the examples come on the slides that follow.
+:::
+
+You have written dozens of programs. Every instruction lived inside `main`.
+
+But what if a group of instructions belongs together and you want to use it in multiple places?
+
+Java lets you package a group of instructions, give that package a **name**, and run it anywhere — just by writing the name.
+
+| Word | Meaning |
+|------|---------|
+| **method** | a named group of instructions |
+| **call** | to make a method run by writing its name |
+
+These two words are the most important new ideas in this lecture. By the end, both will feel completely natural.
+
+## You Have Already Been Calling Methods
+
+::: notes
+This is the big callback moment. Now that "method" and "call" have been introduced as vocabulary, show students that the words describe something they have been doing all semester. The list is intentionally long to make the point land — every single item has the same pattern: a name followed by parentheses. Pause and let that sink in. Then: "Today, you learn how to write your own." This reframes a scary-sounding topic as a natural next step.
+:::
+
+Here are some lines of code from the last seven lectures:
+
+```java
+IO.println("Hello, world!")         // Lecture 1
+IO.readln("Enter your name: ")      // Lecture 2
+name.toUpperCase()                   // Lecture 7
+name.length()                        // Lecture 7
+word.charAt(0)                       // Lecture 7
+word.substring(1, 4)                 // Lecture 7
+answer.equals("yes")                 // Lecture 5
+Integer.parseInt(IO.readln("n: "))  // Lecture 3
+```
+
+Every single one of these is a **method call** — you wrote a name followed by `()`, and a group of instructions ran.
+
+Notice the pattern: **a name, followed by parentheses**.
+
+You have been calling methods since Day 1. **Today, you learn how to write your own.**
+
+<!-- FIGURE [draw.io or excalidraw]: Two columns. Left: "What you wrote" — four of the calls from the list above (pick the most recognizable ones). Right: "What it actually is" — the label "a method" repeated for each. Arrows from left to right. All four right-hand labels say the same thing. The visual argument: everything you've been writing follows the same pattern. Clean, slightly hand-drawn. -->
+
+## The Duel
+
+::: notes
+This is the central analogy for the whole lecture. The goal is maximum drama before any code appears. Harry and Voldemort are mid-duel — spells flying, stakes high. Neither wizard stops to describe what the spell does. They just shout the name. The audience doesn't need to know the magical mechanics of Avada Kedavra — they just see the result. The key idea to land: a name that, when said, triggers a complete sequence of actions. Students who don't know Harry Potter can substitute any battle magic from any fiction — the structure is universal. Let this slide breathe. No code. Just the analogy.
+:::
+
+Picture the final duel. Harry faces Voldemort.
+
+Spells are flying back and forth.
+
+Harry does **not** shout:
+
+> *"I am gathering magical energy in a protective dome shape around myself, calibrating the resonant frequency to deflect incoming dark magic, initializing the shield at full power..."*
+
+He shouts:
+
+> ## **"Protego!"**
+
+Voldemort does **not** announce:
+
+> *"I am directing a focused stream of lethal dark energy toward you at approximately 45 degrees, initiating the killing curse sequence..."*
+
+He shouts:
+
+> ## **"Avada Kedavra!"**
+
+Each spell is a **name** for a complex sequence of actions. In the heat of battle, nobody cares about the steps — they call the spell, and **the spell knows what to do**.
+
+<!-- FIGURE [draw.io or excalidraw]: A dramatic dueling scene. Two figures face each other — one in dark robes, one in lighter robes — with bolts of light flying between them. Speech bubbles: dark figure: "Avada Kedavra!" Light figure: "Protego!" The bolts of light are mid-air, crackling. The scene should feel urgent and cinematic, not decorative. No Java code on this slide — just the analogy, as vivid as possible. The professor will add a meme or movie still here later. -->
+
+## The Duel in Java
+
+::: notes
+Now translate the analogy into code. The structure is identical: a name that triggers a sequence of steps. The only difference from real magic: you write the spell yourself. Walk through the Java duel line by line in main() — it reads almost exactly like the battle narration. Point out that main reads like a story: first Voldemort attacks, then Harry defends, then again. The details of each spell are hidden inside the method definition. The duel is legible without knowing the magical mechanics. This is the exact same benefit methods provide in any real program.
+:::
+
+In Java, a spell looks like this — you write the steps once, under a name:
+
+```java
+void avadaKedavra() {
+    IO.println("*a jet of green light flies*");
+    IO.println("*the killing curse is cast*");
+}
+
+void protego() {
+    IO.println("*a shimmering shield materializes*");
+    IO.println("*the curse is deflected*");
+}
+```
+
+And the duel itself:
+
+```java
+void main() {
+    avadaKedavra();    // Voldemort attacks
+    protego();          // Harry defends
+    avadaKedavra();    // again
+    protego();          // again
+    IO.println("Harry wins.");
+}
+```
+
+`main` reads like the battle. The details of each spell are tucked away inside their own block. You don't need to know the magical mechanics to follow the story.
+
+**The only difference from real magic: you write the spells yourself.**
+
+And once you have — calling them is exactly that simple.
+
+::: callout-note
+In the next two lectures you will learn how to make spells that take input ("*cast at this target*") and produce a result ("*and tell me if it worked*"). For now, every method just does its thing.
+:::
+
+## Methods Are Mini-Recipes
+
+::: notes
+The recipe analogy complements the spell analogy: where the spell emphasizes simplicity of invocation, the recipe emphasizes how a large task is decomposed into smaller named tasks. A Thanksgiving dinner recipe does not copy the gravy recipe inline — it says "make the gravy" and points elsewhere. This is exactly how a well-structured program works: main reads like a table of contents, and each method is a self-contained sub-recipe. The visual hierarchy (big card at top, smaller cards below) should make the structure feel natural and obvious.
+:::
+
+Imagine writing a recipe for a full Thanksgiving dinner.
+
+At one point it says: **"Step 4: Make the gravy."**
+
+It does not paste the entire gravy recipe into the middle of the Thanksgiving recipe. It just says the name. The gravy recipe exists separately, and you look it up when you need it.
+
+Your program works the same way:
+
+```
+void main()         ←  "Cook Thanksgiving Dinner"
+    roastTurkey()   ←  Step 1 — see turkey recipe
+    makeSides()     ←  Step 2 — see sides recipe
+    makeGravy()     ←  Step 3 — see gravy recipe
+    serveDinner()   ←  Step 4 — see service recipe
+```
+
+`main` is the head chef — it coordinates everything but delegates the actual work. Each method is a focused, self-contained task. The head chef doesn't need to know how to make gravy — they just need to know when to call for it.
+
+<!-- FIGURE [draw.io or excalidraw]: A hierarchy diagram. At the top: a large recipe card titled "Thanksgiving Dinner" (labeled "main"). It has four steps, each reading "Step N: [methodName]()." Four arrows point downward, one to each of four smaller recipe cards: "roastTurkey()", "makeSides()", "makeGravy()", "serveDinner()". Each smaller card has two or three step lines inside. The top card doesn't contain the steps — it points to the smaller cards. Warm color for the top card, neutral for the sub-cards. Slightly hand-drawn. -->
+
+## `void main()` — You Already Wrote a Method
+
+::: notes
+This is the biggest aha moment of the lecture. Every student has been staring at "void main() { }" since the first day of class and now they learn that it is itself a method. Take time to annotate each part. The word "void" has been there the whole time — now it gets an explanation (doesn't produce a value; all their methods will start with void for now). The key emotional beat: "You have been writing methods since Lecture 1. Now you will write more of them — with names you choose."
+:::
+
+Look at every program you have written this semester:
+
+```java
+void main() {
+    IO.println("Hello, world!");
+    // ... all your code ...
+}
+```
+
+That `void main() { ... }` — **that is a method.**
+
+You have been writing a method since Lecture 1 without knowing it.
+
+`main` is a special method: Java looks for it when your program starts and runs it automatically. Everything inside its braces is the body of the `main` method.
+
+The word `void` means *"this method does not produce a value."* All the methods you write in this lecture will start with `void` — more on this in a future lecture.
+
+**You already know how to write a method. Now you will write them with names you choose.**
+
+<!-- FIGURE [draw.io or excalidraw]: A code block showing the familiar `void main() { IO.println("Hello, world!"); }`. Four annotation arrows, each pointing to a different part of the code: (1) "void" → "means: doesn't produce a value (for now, all your methods start with void)". (2) "main" → "the name — Java always runs this one first". (3) "()" → "parentheses — always required". (4) the { } block → "the body — the steps that run when this method is called". A large bracket around the entire thing, labeled: "THIS IS A METHOD." The arrows should feel like a professor annotating a chalkboard diagram. -->
+
+## `main` Is Special
+
+::: notes
+Students now know that main is a method — but they need to understand why it is different from every other method they will write. Three rules, stated plainly: every program must have one, there must be exactly one, and Java starts there. The "no main" and "two mains" error cases are worth spending a moment on — students will hit both of these at some point this semester. The analogy: every story has a first page. main is Java's first page. All other methods are chapters that only get read when the story calls for them.
+:::
+
+`main` is a method — but it is a **special** one. Three rules set it apart from every other method you will write:
+
+**1. Every program must have a `main` method.**
+When you run a program, Java looks for `main` to know where to start. No `main` — no starting point — Java stops with an error.
+
+**2. There must be exactly one `main`.**
+If you write two methods both named `main`, Java doesn't know which one to start from. That is also an error.
+
+**3. Java always starts at `main` — and only at `main`.**
+Every other method you write sits quietly until something calls it. `main` is the only method that runs automatically.
+
+```java
+void main() {
+    // Java starts here — always
+}
+
+void printBanner() {
+    // this only runs if something calls printBanner()
+}
+```
+
+::: callout-warning
+If your program produces no output and you are not sure why — check that you have a `main` method, and that your code is inside it.
+:::
+
+Think of `main` as the opening scene. Every story has to start somewhere. In a Java program, it always starts at `main`.
+
+## Why Write Your Own Methods?
+
+::: notes
+Three reasons, stated plainly before any code. Keep this slide short — the code examples on the next two slides will make the argument concrete. Students often get the "avoid repetition" point immediately; the "change in one place" and "better names" points need the code examples to land properly. Plant the ideas here, let the code make them real.
+:::
+
+There are three reasons to write your own methods:
+
+**1. Avoid repetition.**
+Write a group of instructions once. Call it as many times as you need. Never copy-paste the same lines again.
+
+**2. Give things names.**
+`printHeader()` tells the reader exactly what is about to happen. Three raw `IO.println` lines tell them nothing until they've read all three.
+
+**3. Change in one place.**
+Need to update the steps? Update the method body — not every place you used it.
+
+These three benefits compound as programs get longer. Let's see them in action.
+
+## The Problem: Without Methods
+
+::: notes
+Show the code that everyone writes before they know about methods. The repeated header block is highlighted — three copies of the exact same three lines. Ask students how they would change the header from "=" to "*". They would have to find and change three places. What if it appeared twenty times? This sets up the next slide's fix perfectly. Don't solve the problem yet — just make students feel the pain.
+:::
+
+```java
+void main() {
+    IO.println("====================");
+    IO.println("=  SCORE BOARD     =");
+    IO.println("====================");
+    IO.println("Alice: 95");
+    IO.println("Bob:   87");
+    IO.println("====================");
+    IO.println("=  SCORE BOARD     =");
+    IO.println("====================");
+    IO.println("Charlie: 91");
+    IO.println("Diana:   78");
+    IO.println("====================");
+    IO.println("=  SCORE BOARD     =");
+    IO.println("====================");
+}
+```
+
+The header appears **three times** — three identical copies of three lines.
+
+Now imagine: you want to change the header style. You must find and edit **all three copies** — and hope you don't miss one.
+
+If the header appeared twenty times, you would need to edit sixty lines.
+
+There has to be a better way.
+
+<!-- FIGURE [draw.io or excalidraw]: The code block above, with the three header sections highlighted in yellow. Red circles around each highlighted section labeled "copy #1", "copy #2", "copy #3". A label at the bottom: "Three copies. Three places to update. Easy to miss one." -->
+
+## The Fix: With a Method
+
+::: notes
+Now the payoff. The method is defined once. Calling it three times is three short lines. If you want to change the header, you change the method body — one place, done. Ask the class: how many lines long is main now? How many would it be if there were twenty calls? The version with a method actually gets shorter relative to the without-method version as repetition increases — methods scale. End with: "main reads like a table of contents. Each method does one thing."
+:::
+
+```java
+void printHeader() {
+    IO.println("====================");
+    IO.println("=  SCORE BOARD     =");
+    IO.println("====================");
+}
+
+void main() {
+    printHeader();
+    IO.println("Alice: 95");
+    IO.println("Bob:   87");
+    printHeader();
+    IO.println("Charlie: 91");
+    IO.println("Diana:   78");
+    printHeader();
+}
+```
+
+The header is **defined once**. To change it, change one place. `main` is shorter and reads clearly.
+
+Three calls. One definition. If the header appears twenty times, you write `printHeader()` twenty times — not sixty lines of IO.println. And to update the style, you still change just one place.
+
+<!-- FIGURE [draw.io or excalidraw]: Two tall code blocks side by side. Left ("Without a method" — red X): the previous slide's code, with the three header blocks highlighted and labeled "copy #1", "copy #2", "copy #3". Right ("With a method" — green check): the fixed version. A bracket spans the printHeader() definition labeled "defined once." Three arrows from the three printHeader() calls in main converge on the single definition. The left block is visibly much taller. The height gap is the argument. -->
+
+## Defining a `void` Method
+
+::: notes
+Walk through the anatomy one piece at a time. Students have seen every one of these elements before: "void" is in main; the name follows the same naming rules as variables; the parentheses have been in every method call they have ever written; and the braces are the same as in if-statements. Nothing here is truly new — this is just putting a name to something they already know. The anatomy figure with labeled arrows is the most important visual on this slide.
+:::
+
+A `void` method has this structure:
+
+```java
+void methodName() {
+    // the body — steps that happen when this method is called
+}
+```
+
+Every part has a job:
+
+- **`void`** — this method does not produce a value
+- **`methodName`** — the name you choose (write it like a short command)
+- **`()`** — parentheses, always required
+- **`{ }`** — the body: the steps that run when the method is called
+
+Nothing here is new. You have seen every one of these pieces before — in `main`, in `if` statements, in every method you have already been calling.
+
+<!-- FIGURE [draw.io or excalidraw]: A single code block showing `void greetUser() { IO.println("Hello!"); IO.println("Welcome."); }`. Four annotation arrows: (1) pointing to "void" → "doesn't produce a value"; (2) pointing to "greetUser" → "the name — you choose this"; (3) pointing to "()" → "parentheses — always required"; (4) pointing to the { } block → "the body — the steps that run". The arrows should feel like labels on a diagram, not prose. -->
+
+## Method Examples
+
+::: notes
+Three examples, each with a clear purpose. Students should be able to read each method name and immediately know what it does — that's the whole point of the naming principle. Ask students to predict what each method prints before revealing or running it. The examples are short by design: the body of each method is one or two lines. This is intentional — students often think a method has to be long. Even a method that prints a single line is worth having if it has a good name and might be called more than once.
+:::
+
+Here are three methods, each doing one clear thing:
+
+```java
+void printSeparator() {
+    IO.println("--------------------");
+}
+
+void printWelcome() {
+    IO.println("Welcome to COSC 120!");
+    IO.println("Let's write some Java.");
+}
+
+void printGoodbye() {
+    IO.println("Thanks for learning with us.");
+    IO.println("See you next class!");
+}
+```
+
+You can read each name and know exactly what it does — before reading the body. That is what a good method name does.
+
+You can call all three from `main`:
+
+```java
+void main() {
+    printWelcome();
+    printSeparator();
+    printGoodbye();
+}
+```
+
+## Naming Your Methods
+
+::: notes
+The naming rules are the same as for variables, with one important addition: method names should be verb phrases — they describe an action, not a thing. A variable stores a value (a noun: "score", "name"). A method does something (a verb phrase: "printScore", "readName"). The good/bad examples are important — students often default to meaningless names when they are not sure what a method does. If a student cannot name a method well, that is a sign the method is trying to do too many things. Good naming is a design skill, not just a style preference.
+:::
+
+Method names follow the same rules as variable names — with one key addition: **use a verb phrase**, because a method does something.
+
+```java
+// ✓ Good names — describe an action clearly
+void printHeader() { ... }
+void showMenu() { ... }
+void drawLine() { ... }
+void displayScore() { ... }
+void printEventSchedule() { ... }
+
+// ✗ Poor names — say nothing about what the method does
+void stuff() { ... }
+void doThings() { ... }
+void method1() { ... }
+void myMethod() { ... }
+```
+
+Rules:
+
+- **camelCase**: `printHeader`, not `PrintHeader` or `print_header`
+- **Start with a verb**: print, show, draw, display, compute, check
+- **Be specific**: `printEventSchedule()` beats `printStuff()`
+
+::: callout-tip
+If you cannot name a method clearly, it might be trying to do too many things. Split it into smaller methods, each with one job and one clear name.
+:::
+
+## Calling a Method
+
+::: notes
+The mechanics are simple: name followed by parentheses and a semicolon. Two points to stress: (1) defining a method does not run it — you must call it; and (2) you can call it as many times as you want, and the method body runs fresh each time. The note about definition order is useful: in Java, unlike some other languages, the order of method definitions doesn't matter. Java reads all definitions before running anything. Students who have internalized "Java reads top to bottom" will be surprised, so flag it explicitly.
+:::
+
+Once a method is defined, you **call** it — write its name, parentheses, semicolon:
+
+```java
+void main() {
+    printWelcome();       // the lines inside printWelcome run now
+    printSeparator();     // then the lines inside printSeparator
+    printGoodbye();       // then the lines inside printGoodbye
+}
+```
+
+That is the whole spell. One line. The details are inside the method.
+
+---
+
+You can call the same method **as many times as you want:**
+
+```java
+void main() {
+    printSeparator();
+    IO.println("First section");
+    printSeparator();
+    IO.println("Second section");
+    printSeparator();
+}
+```
+
+Each call runs the method body fresh from top to bottom. One definition. Unlimited calls.
+
+::: callout-note
+In Java, the order of method definitions does not matter. You can write `printWelcome` below `main` and Java will still find it. Java reads all the definitions before running anything.
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: Split diagram. Left: the `printSeparator()` definition in a box (just one IO.println line inside). Right: `void main()` showing four calls to printSeparator(). Four arrows, one from each call, all converging on the single definition box on the left. Label: "Four calls. One definition." The arrows should look like four people calling the same phone number. -->
+
+## The Flow of Execution
+
+::: notes
+The most important mechanical concept of the lecture. Students need a clear mental model: the computer is executing line by line in main, hits a method call, leaves main, jumps to the method body, executes every line top to bottom, reaches the closing brace, and returns to main at exactly the next line. "Exactly where it left off" is the key phrase. Walk through the numbered comments one by one, waiting after each step. Then show the output. The figure — two vertical timelines connected by forward and return arrows — is what makes this concrete. Call stack mechanics are intentionally omitted.
+:::
+
+When your program hits a method call, here is exactly what happens:
+
+```java
+void main() {                       // 1. Java starts here
+    IO.println("Before");           // 2. prints "Before"
+    printBanner();                  // 3. JUMP to printBanner
+    IO.println("After");            // 6. back here — continues
+}
+
+void printBanner() {                // 4. runs from top to bottom
+    IO.println("=========");        //    prints "========="
+    IO.println("  Hello!  ");       //    prints "  Hello!  "
+    IO.println("=========");        //    prints "========="
+}                                   // 5. closing brace — COME BACK
+```
+
+**Output:**
+```
+Before
+=========
+  Hello!
+=========
+After
+```
+
+The program **jumps** into the method, runs it completely, then **comes back** to the next line in `main`. "After" prints after the banner, not before it.
+
+---
+
+What happens when you call the same method **twice?**
+
+```java
+void main() {
+    IO.println("Round 1:");
+    printBanner();            // jump in, run, come back
+    IO.println("Round 2:");
+    printBanner();            // jump in again, run again, come back
+    IO.println("Done.");
+}
+```
+
+```
+Round 1:
+=========
+  Hello!
+=========
+Round 2:
+=========
+  Hello!
+=========
+Done.
+```
+
+Two separate trips. Each time, the method runs from top to bottom, then execution returns to `main`.
+
+<!-- FIGURE [draw.io or excalidraw]: Two vertical timelines side by side. Left timeline labeled "main()": rectangles top to bottom — "IO.println: Before", "printBanner()" call box, "IO.println: After". A bold rightward arrow labeled "JUMP" goes from the printBanner() box to the top of the right timeline. Right timeline labeled "printBanner()": three rectangles — "IO.println: =========", "IO.println:   Hello!  ", "IO.println: =========". After the last rectangle, a bold leftward arrow labeled "COMES BACK" returns to the left timeline, landing just below the printBanner() call box (at "IO.println: After"). The forward and return arrows are the visual focus — the "detour and return" shape should be clear. -->
+
+## Methods That Call Other Methods
+
+::: notes
+A method can call other methods inside its body. This is the payoff of the whole recipe hierarchy analogy — now it's code. Main calls printTicket, which calls three helpers. Reading main tells you everything that happens at the highest level; reading printTicket tells you the structure; reading each helper tells you the actual output lines. You never have to hold the whole program in your head at once. Walk through the execution flow verbally: main → printTicket → printHeader (runs, comes back) → printDetails (runs, comes back) → printFooter (runs, comes back) → back to printTicket → back to main.
+:::
+
+A method can call other methods inside its body — this is how large programs are built:
+
+```java
+void printHeader() {
+    IO.println("============================");
+    IO.println("        MOVIE TICKET        ");
+    IO.println("============================");
+}
+
+void printDetails() {
+    IO.println("Movie:  The Matrix");
+    IO.println("Date:   Saturday, Aug 22");
+    IO.println("Time:   7:30 PM");
+    IO.println("Seat:   Row C, Seat 12");
+}
+
+void printFooter() {
+    IO.println("============================");
+    IO.println("      Enjoy the show!       ");
+    IO.println("============================");
+}
+
+void printTicket() {
+    printHeader();
+    printDetails();
+    printFooter();
+}
+
+void main() {
+    printTicket();    // one line. that's it.
+}
+```
+
+---
+
+Three levels of detail, each at the right level:
+
+- Read `main` → prints a ticket
+- Read `printTicket` → header, then details, then footer
+- Read each helper → the actual lines of output
+
+You never have to hold the whole program in your head at once. You zoom in only as far as you need to.
+
+<!-- FIGURE [draw.io or excalidraw]: A tree/org-chart hierarchy. Top box: "main()" with one arrow pointing down to "printTicket()". From printTicket(), three arrows fan down to: "printHeader()", "printDetails()", "printFooter()". Each bottom box has two or three output lines inside it (smaller, faded font). Label the whole diagram: "A program as a hierarchy of named tasks." The tree structure mirrors the recipe card hierarchy from the earlier slide — connecting the analogy back to code. -->
+
+## Code Example — Event Schedule
+
+::: notes
+A complete, runnable program using everything in this lecture: multiple void methods, methods calling methods, the same method called multiple times. Ask students to predict the output before revealing it. Then ask: what would you change if you wanted a different separator style? (Just printSeparator.) What if you wanted to add a new event? (Just add a line to printSchedule.) What if you wanted to print the schedule twice? (Call printSchedule twice in main.) Each question has a one-word answer: one method, one place. That's the payoff.
+:::
+
+```java
+void printSeparator() {
+    IO.println("--------------------------------");
+}
+
+void printWelcome() {
+    IO.println("  Welcome to the COSC 120 Lab!  ");
+    IO.println("  Instructor: Prof. Goswami      ");
+}
+
+void printSchedule() {
+    IO.println("9:00  AM   Opening remarks");
+    IO.println("9:15  AM   Team introductions");
+    IO.println("10:00 AM   Lab session 1");
+    IO.println("12:00 PM   Lunch");
+    IO.println("1:00  PM   Lab session 2");
+    IO.println("3:00  PM   Demos and wrap-up");
+}
+
+void printClosing() {
+    IO.println("  Questions? Email cosc120@smcm.edu");
+    IO.println("  See you there!                   ");
+}
+
+void main() {
+    printSeparator();
+    printWelcome();
+    printSeparator();
+    printSchedule();
+    printSeparator();
+    printClosing();
+    printSeparator();
+}
+```
+
+`main` reads like a table of contents. Each method does exactly one thing.
+
+## Common Mistakes
+
+::: notes
+Four mistakes that appear in almost every student's code the first week. The most dangerous is defining without calling — the program compiles and runs, just silently does less than expected. Missing parentheses and code outside a method are compile errors, so at least they are caught early. Poor naming compiles fine but creates invisible technical debt. Go through each one slowly, asking students to identify what is wrong before revealing the answer.
+:::
+
+**1. Defining a method but never calling it**
+
+```java
+void printBanner() {       // defined...
+    IO.println("=====");
+}
+
+void main() {
+    IO.println("Hello!");  // ...but never called — banner never prints
+}
+```
+
+Java does not warn you. The method simply never runs.
+
+---
+
+**2. Forgetting `()` when calling**
+
+```java
+printBanner;     // ✗ — not a method call; won't compile
+printBanner();   // ✓
+```
+
+---
+
+**3. Writing code outside any method**
+
+```java
+IO.println("Hello");   // ✗ — not inside any method; won't compile
+
+void main() {
+    IO.println("Hello");   // ✓
+}
+```
+
+Every executable line must live inside the `{ }` of some method.
+
+---
+
+**4. Naming a method something vague**
+
+```java
+void stuff() { ... }           // ✗ — what does "stuff" do?
+void doIt() { ... }            // ✗ — do what, exactly?
+void printEventSchedule() { }  // ✓ — says exactly what it does
+```
+
+A method name is a promise to whoever reads the code. Keep it.
+
+## Worksheet
+
+::: notes
+Reserve 20–30 minutes. Problems 1–2 are tracing on paper — students predict before running. Problems 3–5 are write-it. Problem 6 is synthesis with an open-ended creative element. Watch for: method defined but not called; missing parentheses; code outside a method; vague names. Problem 6 has many valid solutions — encourage creativity in what they choose to format.
+:::
+
+**Problem 1 — Trace it.** What does this program print? Work through it step by step on paper before running it.
+
+```java
+void sayHello() {
+    IO.println("Hello!");
+    IO.println("How are you?");
+}
+
+void sayBye() {
+    IO.println("Goodbye!");
+}
+
+void main() {
+    sayHello();
+    IO.println("---");
+    sayHello();
+    IO.println("---");
+    sayBye();
+}
+```
+
+**Problem 2 — Spot the bugs.** Find every mistake and fix it.
+
+```java
+void printTitle {
+    IO.println("= My Program =")
+}
+
+void main() {
+    IO.println("Starting...");
+    printTitle
+    IO.println("Done.");
+}
+
+IO.println("This line is floating around.")
+```
+
+*(How many bugs are there? What kind of error does each one cause?)*
+
+**Problem 3 — Write it.** Write a method called `printDivider` that prints a line of 20 asterisks. Call it from `main` three times, with `IO.println("Section")` between each call.
+
+**Problem 4 — Write it.** Write a program with three methods:
+- `printOpening` — prints a title and a subtitle
+- `printBody` — prints three to five lines of content (a letter, an announcement, anything you like)
+- `printClosing` — prints a sign-off
+
+Call all three from `main`.
+
+**Problem 5 — Write it.** Write a method called `printReceipt` that calls three helper methods: `printReceiptHeader`, `printReceiptItems`, and `printReceiptFooter`. Each helper prints two to four lines. Call `printReceipt` from `main`.
+
+**Problem 6 — Write it (synthesis).** Write a program that prints a coffee shop menu using at least four methods. Your `main` should be no more than six lines long. The output should look like something you would actually hand to a customer.

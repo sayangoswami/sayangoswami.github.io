@@ -1,0 +1,475 @@
+---
+title: "Arithmetic Expressions"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+    scrollable: true
+---
+
+## Learning Outcomes
+
+- Write arithmetic expressions using `+`, `-`, `*`, `/`, and `%`
+- Explain how integer division differs from regular division and predict its result
+- Predict the order of evaluation in an expression by applying operator precedence rules
+- Use parentheses to control evaluation order
+- Convert string input to an integer with `Integer.parseInt` and use it in a computation
+- Use `+` to join strings with `String` concatenation
+
+## Why Arithmetic?
+
+::: notes
+This is the motivational opener — spend real time here. The goal is to make students feel the significance of what they are about to learn. Every useful computation that a computer performs, from a video game physics engine to GPS navigation to the systems that guide spacecraft, reduces to arithmetic. Not magic — arithmetic. And the computer does it at a scale and speed that is hard to grasp. The course arc: we learn the operators today, then we combine them in expressions, then we repeat them billions of times using loops, then we apply them to collections of data. Today is the foundation of all of that.
+:::
+
+Every program that has ever run on a computer — games, GPS, streaming video, weather forecasts, the systems that control spacecraft — is built on arithmetic.
+
+Not magic. **Arithmetic.**
+
+A modern computer can perform **hundreds of millions to billions** of arithmetic operations every second.
+
+What makes programs powerful is not any one operation — it's **combining** simple operations and **repeating** them at enormous speed.
+
+Here is the course in one sentence:
+
+> Learn the operators → combine them into expressions → repeat them with loops → apply them to collections of data.
+
+Today: the operators.
+
+<!-- FIGURE [draw.io or excalidraw]: A large central circle labeled "Arithmetic" with arrows radiating outward to labeled boxes: "Video game physics", "GPS navigation", "Weather forecasting", "Streaming audio/video", "Rocket guidance". Below the circle, a small note: "~1 billion operations per second." The figure should feel like a map of possibilities, not a wall of text. -->
+
+## What Is an Expression?
+
+::: notes
+Name the concept before diving into operators. An expression is any piece of code that the computer can evaluate to produce a single value. 3 + 4 is an expression. score * 2 is an expression. Even a lone literal like 42 is an expression. Expressions appear everywhere in programs — on the right side of an assignment, as arguments to IO.println, and later as conditions in if statements and loops. Once students see that distinction, every piece of syntax they encounter will feel more organized.
+:::
+
+An **expression** is any combination of values, variables, and operators that the computer can evaluate to produce a single value.
+
+| Expression | Evaluates to |
+|------------|-------------|
+| `3 + 4` | `7` |
+| `10 - 3` | `7` |
+| `score * 2` | twice whatever `score` holds |
+| `100` | `100` |
+
+Expressions appear everywhere in a program:
+
+```java
+int total = price * quantity;   // expression on the right side
+IO.println(score + 10);         // expression inside IO.println(...)
+```
+
+The computer evaluates the expression first, then uses the result.
+
+## Arithmetic Operators
+
+::: notes
+Walk through each operator one at a time. Addition, subtraction, and multiplication are unsurprising — just flag that multiplication uses * not ×. Division is where things get interesting; hold the full explanation for the next slide. Modulo is the one students have never seen before — introduce the symbol and give the one-line definition, then hold examples for its own slide. The table is a reference; students should not try to memorize it on first pass.
+:::
+
+Java has five arithmetic operators:
+
+| Operator | Name | Example | Result |
+|----------|------|---------|--------|
+| `+` | Addition | `3 + 4` | `7` |
+| `-` | Subtraction | `10 - 3` | `7` |
+| `*` | Multiplication | `6 * 7` | `42` |
+| `/` | Division | `10 / 4` | `2` ← watch out |
+| `%` | Modulo (remainder) | `10 % 3` | `1` |
+
+A quick note on each:
+
+- Multiplication is `*` — not `×` and not `·`
+- Division with two whole numbers does **not** give a decimal — more on this next
+- Modulo (`%`) gives the **remainder** after division — more on this soon
+
+## Operator Precedence
+
+::: notes
+PEMDAS from math class still applies in Java. Multiplication and division are evaluated before addition and subtraction. Within the same level, evaluation goes left to right. Parentheses override everything. Show a worked example where the answer changes depending on whether parentheses are present. The practical advice — when in doubt, add parentheses — is worth repeating. A program with extra parentheses is easier to read and less likely to have a subtle bug.
+:::
+
+Java follows the same precedence rules as mathematics.
+
+**PEMDAS still applies:**
+
+1. Parentheses first
+2. Multiplication and division (left to right)
+3. Addition and subtraction (left to right)
+
+---
+
+What does `2 + 3 * 4` evaluate to?
+
+```
+  2 + 3 * 4
+= 2 + 12        ← multiplication first
+= 14
+```
+
+Not `20`. Multiplication happens before addition.
+
+---
+
+Parentheses override everything:
+
+```
+  (2 + 3) * 4
+= 5 * 4         ← parentheses first
+= 20
+```
+
+::: callout-tip
+**When in doubt — add parentheses.** A program with extra parentheses is clearer and less likely to surprise you.
+:::
+
+## Integer Division
+
+::: notes
+This is one of the most common surprises for beginners and it will bite them for weeks if they do not understand it clearly. When both operands are ints, Java performs integer division: the result is always a whole number and the decimal part is simply dropped — not rounded, just gone. 7 / 2 is 3, not 3.5, not 4. Show this with several examples. Then show how to get a decimal result: if either operand is a double, the division is decimal division. Make the connection back to types: it is the type of the operands that determines what kind of division happens.
+:::
+
+Here is the most common surprise in this entire lecture:
+
+```java
+int result = 7 / 2;
+IO.println(result);    // prints 3, not 3.5
+```
+
+When both values are whole numbers, Java does **integer division** — the decimal part is dropped.
+
+| Expression | Result | Why |
+|------------|--------|-----|
+| `7 / 2` | `3` | decimal part dropped |
+| `10 / 3` | `3` | decimal part dropped |
+| `1 / 4` | `0` | 0.25 → drops to 0 |
+| `8 / 2` | `4` | divides evenly — no issue |
+
+::: callout-warning
+The decimal part is **dropped**, not rounded. `7 / 2` gives `3`, not `4`.
+:::
+
+To get a decimal result, make one of the values a decimal number:
+
+```java
+double result = 7.0 / 2;    // one operand is a double → 3.5
+```
+
+The type of the operands determines the type of the result.
+
+<!-- FIGURE [draw.io or excalidraw]: A visual of integer division as actual division with remainder. Show 7 ÷ 2: a box on the left with "7", an arrow pointing to a division operation, splitting into two outputs: a box labeled "quotient = 3" (highlighted, this is what / gives) and a smaller box labeled "remainder = 1" (slightly faded, this is what % gives). Label the diagram: "/ keeps the quotient" and "% keeps the remainder." -->
+
+## The Modulo Operator `%`
+
+::: notes
+Modulo is the one operator most students haven't seen before. The concept is simple — it is the remainder after division — but it takes a moment to click. Walk through the division-with-remainder picture: 7 divided by 2 goes 3 times with 1 left over. That leftover is what % gives you. Then show the practical uses, which are genuinely useful and will appear repeatedly throughout the course: checking even/odd, extracting the last digit of a number, wrapping around a fixed range.
+:::
+
+`%` gives the **remainder** after integer division.
+
+Think of it as division with leftovers:
+
+```
+7 ÷ 2 → goes 3 times, with 1 left over
+7 % 2  →  1
+```
+
+More examples:
+
+| Expression | Think | Result |
+|------------|-------|--------|
+| `10 % 3` | 3 goes into 10 three times (9), leaving 1 | `1` |
+| `15 % 5` | 5 goes into 15 exactly — no remainder | `0` |
+| `7 % 10` | 10 goes into 7 zero times, leaving 7 | `7` |
+
+**Practical uses you will see again and again:**
+
+```java
+// Is a number even or odd?
+n % 2    // produces 0 if even, 1 if odd
+
+// What is the last digit of a number?
+n % 10   // extracts the ones digit
+
+// Stay within a fixed range (e.g., hours on a clock)
+hour % 24
+```
+
+::: callout-note
+`%` only tells you the remainder — not how many times the division went. That is what `/` is for.
+:::
+
+## Introducing Flowcharts
+
+::: notes
+Introduce flowcharts as a planning tool before writing code. Professional programmers sketch the logic of a program before writing a single line — flowcharts are one way to do that. Three symbols are enough for now: the oval marks where a program starts and ends; the rectangle describes a step or action; the arrow shows what happens next. Diamonds (for decisions) come in the next lecture when we cover conditionals. Show a completely non-programming example first — making toast — so students absorb the symbols without the distraction of syntax. Then show a programming example.
+:::
+
+Before writing code, it helps to **plan** what the program should do.
+
+A **flowchart** is a diagram that shows the steps of a program and how they connect.
+
+Three symbols are enough for now:
+
+| Symbol | Shape | Meaning |
+|--------|-------|---------|
+| Start / End | Oval | Where the program begins and ends |
+| Step | Rectangle | A single action (compute, read, print) |
+| Flow | Arrow | What happens next |
+
+---
+
+Example — making toast:
+
+```{mermaid}
+flowchart TD
+    A([Start]) --> B[Put bread in toaster]
+    B --> C[Push lever down]
+    C --> D[Wait for toast to pop]
+    D --> E[Remove toast]
+    E --> F([End])
+```
+
+::: callout-note
+We will add a **diamond** shape for decisions — *"if this, do that; otherwise, do this"* — when we cover conditionals next week.
+:::
+
+## `Integer.parseInt` — Numbers from the User
+
+::: notes
+IO.readln always produces a String — even if the user types 42, the program receives the text "42", not the number 42. That distinction matters because you cannot do arithmetic on text. To convert "42" to the number 42, use Integer.parseInt. The syntax is straightforward: wrap the String in Integer.parseInt(...). Mention that if the user types something that is not a valid number — like "hello" — the program will crash. Handling that gracefully is a topic for later in the course.
+:::
+
+`IO.readln` always produces a `String` — even if the user types a number.
+
+```java
+String input = IO.readln("How many minutes? ");
+// input holds "137" — the TEXT, not the number
+```
+
+You **cannot** do arithmetic on a `String`:
+
+```java
+input / 60    // ERROR — can't divide text
+```
+
+`Integer.parseInt` converts a `String` to an `int`:
+
+```java
+int minutes = Integer.parseInt(input);
+// now minutes holds the number 137
+```
+
+Or in one step:
+
+```java
+int minutes = Integer.parseInt(IO.readln("How many minutes? "));
+```
+
+::: callout-warning
+If the user types something that is not a whole number — like `"hello"` or `"3.5"` — the program will crash. Handling that gracefully is a topic for later in the course.
+:::
+
+## Putting It Together
+
+::: notes
+Walk through the flowchart first, then the code. Trace through a concrete example — 137 minutes — step by step with the class before running the program. 137 / 60 = 2 (integer division, decimal dropped). 137 % 60 = 17 (remainder). Output: "2 hours and 17 minutes." Make sure students verify the math by hand before the program confirms it. This builds the habit of reasoning about code before running it.
+:::
+
+**Problem:** Ask the user how many minutes they have been studying. Print the equivalent hours and minutes.
+
+---
+
+**Plan it first:**
+
+```{mermaid}
+flowchart LR
+    A([Start]) --> B["Read input from user"]
+    B --> C["Convert to int: minutes"]
+    C --> D["hours = minutes / 60"]
+    D --> E["remaining = minutes % 60"]
+    E --> F["Print hours and remaining"]
+    F --> G([End])
+```
+
+---
+
+**Now write it:**
+
+```java
+void main() {
+    int minutes = Integer.parseInt(IO.readln("Minutes studied: "));
+
+    int hours     = minutes / 60;
+    int remaining = minutes % 60;
+
+    IO.println("Hours:");
+    IO.println(hours);
+    IO.println("Minutes left over:");
+    IO.println(remaining);
+}
+```
+
+Sample run (`137` entered):
+```
+Minutes studied: 137
+Hours:
+2
+Minutes left over:
+17
+```
+
+## String Concatenation
+
+::: notes
+This is the formal introduction of string concatenation, deferred from the variables deck. The + operator does two different things depending on the types involved. int + int is arithmetic. String + anything is concatenation — the values are joined into a single String. The anything part is important: Java automatically converts a number to its text form before joining. Show the clean cases first, then the surprising mixed case. The left-to-right evaluation rule is the key to understanding "5" + 3 + 4 = "534" vs 5 + 3 + "4" = "84". Connect back to deck 02: we printed labels and values on separate lines because we did not have concatenation yet — now we can put them on the same line.
+:::
+
+The `+` operator does **different things** depending on the types involved.
+
+**With two numbers — addition:**
+```java
+int a = 5;
+int b = 3;
+IO.println(a + b);     // prints: 8
+```
+
+**With a `String` — concatenation (joining):**
+```java
+String first = "Hello, ";
+String second = "world!";
+IO.println(first + second);    // prints: Hello, world!
+```
+
+**Mixing a `String` and a number:**
+```java
+int score = 42;
+IO.println("Score: " + score);   // prints: Score: 42
+```
+
+Java converts the number to text automatically before joining.
+
+---
+
+**Watch out — order matters:**
+
+```java
+IO.println("Total: " + 5 + 3);   // prints: Total: 53  ← not 8!
+IO.println("Total: " + (5 + 3)); // prints: Total: 8   ← add first
+```
+
+Evaluation goes left to right: `"Total: " + 5` produces `"Total: 5"`, then `"Total: 5" + 3` produces `"Total: 53"`.
+
+::: callout-tip
+**Recall from last lecture:** we printed labels and values on separate lines because we did not have `+` yet. Now we can write `IO.println("Score: " + score)` and put them on one line.
+:::
+
+## Common Mistakes
+
+::: notes
+Four mistakes that will appear in student code in the first few weeks. Integer division truncation is the most common — stress it again. The concatenation surprise (mixing + with Strings and numbers in unexpected ways) is the most confusing. Make sure students leave knowing these pitfalls by name so they can recognize them when they appear.
+:::
+
+**1. Expecting a decimal from integer division**
+```java
+int result = 7 / 2;
+IO.println(result);    // prints 3 — not 3.5
+```
+Fix: make one operand a decimal — `7.0 / 2`.
+
+---
+
+**2. Missing parentheses changing the result**
+```java
+int avg = 10 + 20 / 2;   // prints 20 — not 15
+int avg = (10 + 20) / 2; // prints 15 — as intended
+```
+
+---
+
+**3. The concatenation surprise**
+```java
+IO.println("Answer: " + 2 + 3);   // prints: Answer: 23
+IO.println("Answer: " + (2 + 3)); // prints: Answer: 5
+```
+Once a `String` is involved, `+` becomes concatenation — not addition.
+
+---
+
+**4. Forgetting `Integer.parseInt`**
+```java
+String input = IO.readln("Enter a number: ");
+IO.println(input * 2);   // ERROR — can't multiply a String
+```
+Fix: `int n = Integer.parseInt(input);`
+
+## Worksheet
+
+::: notes
+Reserve the last 20-30 minutes. Problems 1-3 are prediction/tracing — students work on paper first, then verify in the IDE. Problems 4-5 require writing code. Problem 6 is the synthesis problem that combines everything from today with IO.readln. Common things to watch for: integer division surprises, concatenation vs addition confusion, forgetting Integer.parseInt.
+:::
+
+**Problem 1 — Predict the output.** Work through each expression on paper, then verify in the IDE.
+
+```java
+void main() {
+    IO.println(10 + 3 * 2);
+    IO.println((10 + 3) * 2);
+    IO.println(7 / 2);
+    IO.println(7 % 2);
+    IO.println(1 / 4);
+    IO.println("Result: " + 2 + 3);
+    IO.println("Result: " + (2 + 3));
+}
+```
+
+**Problem 2 — Fill in the result.**
+
+| Expression | Result |
+|------------|--------|
+| `17 / 5` | |
+| `17 % 5` | |
+| `100 % 10` | |
+| `3 % 7` | |
+| `"Hi" + " " + "there"` | |
+
+**Problem 3 — What type?** For each computation, should you use `int` or `double`?
+
+- The number of students in a class, divided into groups of 4
+- A student's average score across 3 tests
+- The remainder when a score is divided by 10
+- The number of hours in 250 minutes
+
+**Problem 4 — Write the expression.** Write a single Java expression for each:
+
+- The number of whole hours in `totalMinutes` minutes
+- The leftover minutes after extracting hours from `totalMinutes`
+- Whether `n` is even (hint: use `%`)
+- The last digit of the number `n`
+
+**Problem 5 — Spot the bug.** Each program below has one mistake. Find and fix it.
+
+```java
+// Program A
+void main() {
+    int a = 10;
+    int b = 3;
+    double result = a / b;
+    IO.println(result);   // expected: 3.333...
+}
+```
+
+```java
+// Program B
+void main() {
+    int x = 5;
+    IO.println("Double: " + x + x);   // expected: Double: 10
+}
+```
+
+**Problem 6 — Write it.** Ask the user to enter a number of seconds. Print how many full minutes that is, and how many seconds are left over.
+
+Example: `137` seconds → `2 minutes, 17 seconds`

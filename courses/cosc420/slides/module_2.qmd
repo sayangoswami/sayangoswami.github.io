@@ -1,0 +1,1107 @@
+---
+title: "Module 2: Distributed Systems Concepts"
+subtitle: "COSC420 — Distributed/Parallel Computing"
+author: "SI"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-bg: true
+    code-block-border-left: "#1a3a5c"
+    highlight-style: github
+    footer: "COSC420 · Module 2 · Distributed Systems"
+    logo: ""
+    chalkboard: true
+    incremental: false
+execute:
+  echo: true
+---
+
+# Session 1 · Mon Sep 21 {.section}
+## What Makes Distributed Systems Hard
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: One Kitchen, Many Kitchens | 3 min |
+| What Is a Distributed System? | 4 min |
+| Why Distribute? | 4 min |
+| The Catch | 3 min |
+| Messages Get Lost, Delayed, or Reordered | 5 min |
+| Partial Failures | 4 min |
+| The Timeout Problem: Dead or Just Slow? | 5 min |
+| No Global Clock | 5 min |
+| Ordering Without a Shared Clock | 5 min |
+| Four Ways a Node Can Fail | 5 min |
+| The Fallacies of Distributed Computing | 4 min |
+| Bridge: These Problems Don't Go Away | 3 min |
+
+12 slides, ~50 min. This session is the foundation the entire module rests on — every later session (CAP, REST, the case study) is really "here's one specific way people manage these exact problems." Say that explicitly at the start.
+:::
+
+---
+
+## Recap: One Kitchen, Many Kitchens
+
+Module 1 ended on this picture: **parallel** = one kitchen, many cooks sharing the same counters. **Distributed** = many separate kitchens, coordinating over the phone, sharing nothing directly.
+
+Module 2 is entirely about that second picture — and about one hard truth: **the phone line between kitchens is not reliable.**
+
+- Each kitchen (a **node**) has its own memory, its own state, its own clock on the wall.
+- The only way one kitchen learns anything about another is by **sending a message** — a phone call, a courier — across a network that can be slow, or drop the call, or deliver things out of order.
+- Everything in this session is a consequence of that one fact.
+
+::: {.notes}
+**Timing: 3 min.** Just re-anchor the picture from Module 1's last slide — don't re-derive it. This slide's whole job is continuity.
+:::
+
+---
+
+## What Is a Distributed System?
+
+A **distributed system** is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.
+
+- **Google Search** — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.
+- **Netflix** — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.
+- **Your bank's ATM network** — every ATM is a separate machine, but they all need to agree on your account balance.
+
+::: {.callout-tip}
+## Think about it
+Name one app or service you used *this morning* that you'd guess is a distributed system. What tipped you off — was it the scale, or something about how it behaved?
+:::
+
+::: {.notes}
+**Timing: 4 min.** Let 2–3 students answer the callout question out loud before moving on — email, maps, any app with a login are all fair answers, and hearing several examples cements the definition better than the definition alone.
+:::
+
+---
+
+## Why Distribute?
+
+Three genuine reasons, not just "because it's trendy":
+
+- **Scale** — one machine has a ceiling (recall Module 1, Session 1: one machine can't hold 80 billion rows). A distributed system grows by adding more machines, not by buying an impossibly bigger one.
+- **Availability** — if one server goes down, others can keep serving requests. A single machine has no backup; if it fails, the whole service fails with it.
+- **Geography** — serving a user in Tokyo from a datacenter in Tokyo is faster than serving them from Virginia. Distributing lets you put copies of your system physically close to your users.
+
+::: {.notes}
+**Timing: 4 min.** Keep this brisk and positive — it's the sales pitch. The very next slide is the catch, and the contrast lands better if this slide doesn't undercut itself early.
+:::
+
+---
+
+## The Catch
+
+Every benefit on the last slide comes at a cost: **you now have more than one machine that has to agree with itself.**
+
+- Networks are unreliable — messages get lost, delayed, or corrupted.
+- Machines fail independently — one kitchen can go dark while the others keep cooking.
+- Clocks drift — there is no single, shared notion of "now" across separate machines.
+
+::: {.callout-important}
+None of this is a bug you can fix once. It's a permanent property of having more than one computer. The rest of this module — CAP, replication, consistency — is the industry's answer to "given that these problems never fully go away, how do we build systems that are still useful?"
+:::
+
+::: {.notes}
+**Timing: 3 min.** This is a framing slide — its only job is to set up the next four slides as elaborations of these three bullets, in order.
+:::
+
+---
+
+## Messages Get Lost, Delayed, or Reordered
+
+Picture one kitchen calling another to relay three orders, one after another. On a single machine, "one after another" is guaranteed. Across a network, it is not.
+
+- A message can be **lost entirely** — the call drops, nobody at either end knows for sure it happened.
+- A message can be **delayed** — it arrives seconds, or minutes, later than sent, for reasons neither side controls.
+- Messages can **arrive out of order** — the second order can reach the kitchen before the first one, even though they were sent in sequence.
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two vertical timelines side by side, "Kitchen A" (sender) on the left and "Kitchen B" (receiver) on the right, time flowing downward. Draw three arrows from A to B labeled "Order 1," "Order 2," "Order 3" leaving A top-to-bottom in that order, but arriving at B in a scrambled order (e.g., Order 2 arrives first, then Order 1, then Order 3 — draw the arrows crossing each other). Caption: "Sent in order. Arrived out of order."
+:::
+
+::: {.callout-tip}
+## Think about it
+If Kitchen A sends "start Order 1" and then "cancel Order 1" a second later, and Kitchen B receives them in the *wrong* order, what goes wrong? What would you need to add to the messages themselves to prevent it?
+:::
+
+::: {.notes}
+**Timing: 5 min.** Let students actually attempt an answer to the callout before revealing that the usual fix is attaching a sequence number or timestamp to each message — don't give it away immediately, the point is to let them discover why ordering info has to travel *with* the message.
+:::
+
+---
+
+## Partial Failures
+
+- On a **single machine**, if the CPU fails, everything fails together — one clean, total failure.
+- In a **distributed system**, some machines can fail while others keep running perfectly. The system is never simply "up" or "down" — it can be up for some users and down for others, at the same instant.
+- This asymmetry is what makes distributed systems fundamentally harder to reason about than single-machine programs: you can no longer assume "the program" is in one consistent state.
+
+::: {.callout-tip}
+## Think about it
+Three of a bank's ten ATMs go offline for an hour. Is the ATM network "working" or "broken"? Who gets to decide — the bank, or each individual customer trying to use it?
+:::
+
+::: {.notes}
+**Timing: 4 min.** There's no clean right answer to the callout — that's the point. "Working for some, broken for others" is a genuinely uncomfortable middle ground that single-machine thinking doesn't prepare you for.
+:::
+
+---
+
+## The Timeout Problem: Dead or Just Slow?
+
+Here is the single hardest consequence of network unreliability: **from the outside, a crashed node and a slow node look identical.**
+
+- Kitchen A calls Kitchen B and gets no answer. Is Kitchen B's phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?
+- Kitchen A cannot tell the difference. All it knows is: *no response yet.*
+- The only tool available is a **timeout** — waiting some fixed amount of time, then assuming failure. But there's no "correct" amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that's truly gone.
+
+::: {.callout-tip}
+## Think about it
+You're designing the timeout for a payment system. What happens if you set it too short? What happens if you set it too long? Which mistake would you rather make, and why?
+:::
+
+::: {.notes}
+**Timing: 5 min.** This is a genuinely famous, unsolved-in-general problem in distributed systems — resist the urge to present a "correct" timeout value, because there isn't one; the tradeoff itself is the content.
+:::
+
+---
+
+## No Global Clock
+
+Every kitchen has a wall clock. None of them are perfectly synchronized — each one drifts a little, faster or slower, for entirely mundane reasons (temperature, manufacturing tolerance, when it was last set).
+
+- On a single machine, "what time is it" has one unambiguous answer, from one clock.
+- Across machines, **each one has its own clock, and they disagree** — usually by milliseconds, but disagree nonetheless. This is called **clock drift**.
+- Worse: even the *rate* at which each clock runs is slightly different, so the disagreement keeps changing over time, not staying fixed.
+
+::: {.callout-important}
+This means you cannot simply timestamp two events on two different machines and trust the timestamps to tell you which one happened first. A "later" timestamp might actually describe an earlier event, if that machine's clock is running fast.
+:::
+
+::: {.notes}
+**Timing: 5 min.** This is likely the most surprising idea in the session for students — most have never had reason to doubt that "5:00:03pm" means the same instant everywhere. Give it room; don't rush past the callout.
+:::
+
+---
+
+## Ordering Without a Shared Clock
+
+If you can't trust timestamps to order events, how do you know which of two things happened first?
+
+- **The puzzle:** Kitchen A and Kitchen B both claim they received the same customer's order "first." Neither trusts the other's wall clock. How do you settle it?
+- **A partial answer:** instead of asking "what time did this happen," ask "what did this event depend on knowing about?" If Kitchen B's order explicitly referenced information from Kitchen A's order (e.g., "adding to the order Kitchen A just confirmed"), then A's event must have happened first — *regardless* of what either clock says.
+- This idea — ordering by cause-and-effect instead of by clock — is called a **logical clock**, and it's a real, used solution to exactly this problem. We won't build one in this course, but the puzzle itself is worth sitting with.
+
+::: {.callout-tip}
+## Think about it
+Two students submit an assignment through two different servers, one second apart by each server's own clock — but the servers' clocks are known to disagree by up to five seconds. Can you say for certain who submitted first? What evidence *would* settle it?
+:::
+
+::: {.notes}
+**Timing: 5 min.** Keep the logical-clocks mention brief and conceptual — the goal is "this is a real, solvable problem with real solutions," not to teach vector clocks in a 50-minute session. The callout question is the actual payload of this slide.
+:::
+
+---
+
+## Four Ways a Node Can Fail
+
+Not all failures look the same. It's worth naming the shapes:
+
+| Failure type | What it looks like | Kitchen picture |
+|---|---|---|
+| **Crash** | The node stops entirely — cleanest and easiest to detect (eventually) | The kitchen goes completely dark, no lights, no phone |
+| **Omission** | The node is alive but drops some messages — receives but doesn't respond, or vice versa | The phone rings but nobody picks up some of the time |
+| **Timing** | The node responds, but too slowly to be useful | The kitchen answers the order an hour after it was needed |
+| **Byzantine** | The node responds with *incorrect* data — hardware fault, corruption, or a malicious actor | The kitchen confirms an order it never actually received |
+
+Most real systems are designed to tolerate crash and omission failures. Byzantine failures — where a node actively lies — are far harder to defend against, and are mostly a concern in specialized settings (e.g., systems that must tolerate malicious participants).
+
+::: {.notes}
+**Timing: 5 min.** Byzantine failures are the one row worth pausing on — ask "why would this be so much harder to detect than a crash?" A crashed node is silent; a Byzantine node looks completely normal while being wrong, which is what makes it dangerous.
+:::
+
+---
+
+## The Fallacies of Distributed Computing
+
+In the 1990s, engineers at Sun Microsystems (Peter Deutsch and colleagues) wrote down eight assumptions that programmers new to distributed systems make — and every one of them is false:
+
+1. The network is reliable
+2. Latency is zero
+3. Bandwidth is infinite
+4. The network is secure
+5. Topology doesn't change
+6. There is one administrator
+7. Transport cost is zero
+8. The network is homogeneous
+
+::: {.callout-tip}
+## Think about it
+Pick one of the eight. Describe a concrete way a program would break if a developer believed it was true. (Fallacy 2 — zero latency — is a good one to start with: what breaks if your code assumes a network call returns instantly?)
+:::
+
+::: {.notes}
+**Timing: 4 min.** You don't need to cover all eight in equal depth — 1 (reliability) and 2 (zero latency) are the two most directly relevant to everything else in this session, so weight discussion toward those if time is short.
+:::
+
+---
+
+## Bridge: These Problems Don't Go Away
+
+Everything in this session — lost messages, partial failures, the timeout problem, clock drift — is permanent. No clever engineering makes any of it disappear.
+
+What engineering *can* do is make explicit, principled choices about which problems to tolerate and how. **Next session: the most famous framework for making exactly that choice — the CAP theorem.**
+
+::: {.notes}
+**Timing: 3 min.** End on this forward-reference. Don't preview CAP's content, just the fact that it's coming and why it matters given everything just covered.
+:::
+
+---
+
+# Session 2 · Wed Sep 23 {.section}
+## The CAP Theorem
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: Last Time We Broke Everything | 3 min |
+| Three Things You'd Want From Any System | 4 min |
+| Consistency, Defined Precisely | 4 min |
+| Availability, Defined Precisely | 4 min |
+| Partition Tolerance, Defined Precisely | 4 min |
+| The Theorem: Pick Two, Not Three | 5 min |
+| Why "CA" Isn't Really an Option | 5 min |
+| Worked Scenario: A Partition Happens | 6 min |
+| Consistency-Favoring Systems: When in Doubt, Refuse | 4 min |
+| Availability-Favoring Systems: When in Doubt, Answer Anyway | 4 min |
+| Choosing Consistency vs. Availability | 4 min |
+| Wrap: Bridge to the Case Study | 3 min |
+
+12 slides, ~50 min. The definitions slides (Consistency/Availability/Partition Tolerance) need to match Quiz 2's precise wording — don't let the informal "pick two" framing on the next slide replace the careful definitions given first.
+:::
+
+---
+
+## Recap: Last Time We Broke Everything
+
+Session 1's punchline: networks are unreliable, nodes fail independently, and there's no shared clock. None of that is fixable.
+
+Given all of that is permanently true, a real system still has to make *some* promise to its users. The CAP theorem is a precise statement about exactly which promises you can make **at the same time** — and which you can't.
+
+::: {.notes}
+**Timing: 3 min.** Brief bridge — the whole session is really "here's the formal shape of the tradeoff Session 1 kept gesturing at."
+:::
+
+---
+
+## Three Things You'd Want From Any System
+
+Before the acronym, the plain-language wants:
+
+- **"Give me correct, up-to-date data."** — you don't want a system that tells you your bank balance is $500 when it's actually $0.
+- **"Always give me *an* answer."** — you don't want a system that just hangs, refusing to respond at all.
+- **"Keep working even when part of the network breaks."** — you don't want the whole system to go down just because two datacenters temporarily can't talk to each other.
+
+::: {.callout-tip}
+## Think about it
+Before you see the formal theorem: do you think a system could realistically promise all three of these, all the time? What would have to be true for that to work?
+:::
+
+::: {.notes}
+**Timing: 4 min.** Let students guess. Most will say "why not?" — that's exactly the intuition the theorem is going to correct.
+:::
+
+---
+
+## Consistency, Defined Precisely
+
+**Consistency** (in CAP): every read returns the most recent successfully written value — or an error. No client ever sees stale or conflicting data.
+
+- Picture every kitchen branch sharing one single, authoritative order book. The instant one branch writes an update, every other branch reading that book sees the update too — instantly, with no lag.
+- This is a **strong** guarantee. It is not "eventually correct" — it is "correct right now, every single time you look."
+
+::: {.notes}
+**Timing: 4 min.** Emphasize "or an error" — a consistent system is allowed to refuse to answer rather than answer with stale data; that detail is exactly what makes consistency-favoring systems (two slides ahead) make sense.
+:::
+
+---
+
+## Availability, Defined Precisely
+
+**Availability** (in CAP): every request to a working node receives a response — the system never simply times out or refuses. That response is **not guaranteed** to reflect the most recent write.
+
+- Picture every kitchen branch always answering the phone and giving *some* answer to "what's in my order" — even if that branch hasn't heard about a change another branch just made.
+- This is a weaker promise than it sounds: **"always answers" is not the same as "always answers correctly."** An available system can be wrong and still be available, as long as it responds.
+
+::: {.callout-important}
+This precise wording matters for the quiz: Availability means *a response happens*, not that the response is *up to date*. Confusing "available" with "correct" is the single most common mistake with this definition.
+:::
+
+::: {.notes}
+**Timing: 4 min.** The callout is worth reading verbatim — this exact confusion (available = correct) is the wrong answer on the quiz's Availability question.
+:::
+
+---
+
+## Partition Tolerance, Defined Precisely
+
+**Partition tolerance:** the system continues to operate even when the network splits it into groups that cannot communicate with each other.
+
+- A **network partition** is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.
+- "Tolerating" a partition doesn't mean the partition doesn't happen — it means the system keeps doing *something* useful on both sides of the split, rather than simply freezing entirely.
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt break drawn across a dashed line separating the two clusters, labeled "Network Partition." Within each cluster, branches are still connected to each other by solid lines (they can talk internally); no lines cross the break. Caption: "Both sides are still alive. Neither side can hear the other."
+:::
+
+::: {.notes}
+**Timing: 4 min.** Get the diagram description across verbally even without the drawn version yet — "two groups, each internally fine, cut off from each other" is the exact picture the CAP theorem's "P" is about.
+:::
+
+---
+
+## The Theorem: Pick Two, Not Three
+
+**The CAP theorem:** when a network partition occurs, a distributed system must choose between Consistency and Availability. It cannot have both, at the same time, during the partition.
+
+| | |
+|---|---|
+| **C**onsistency | Every read gets the latest write, or an error |
+| **A**vailability | Every request gets *a* response |
+| **P**artition tolerance | The system keeps working despite a network split |
+
+::: {.callout-important}
+Why can't you have all three? During a partition, one side of the split cannot reach the other. If it wants to stay **available** (answer requests), it must answer using only what it locally knows — which might be **stale**, violating consistency. If it wants to stay **consistent**, it must refuse to answer until it can confirm it has the latest data — violating availability. There is no third option once the partition has actually happened.
+:::
+
+::: {.notes}
+**Timing: 5 min.** Walk the callout's logic slowly, out loud — this is the actual proof sketch of the theorem in plain language, and it's worth more time than the table itself.
+:::
+
+---
+
+## Why "CA" Isn't Really an Option
+
+The theorem is often summarized as "pick two of three" — implying CA (Consistency + Availability, no Partition tolerance) is a valid third choice. In practice, it mostly isn't.
+
+- Choosing "no partition tolerance" means promising the network will never split. At internet scale — many machines, many datacenters, the public internet in between — that promise **will** be broken eventually.
+- When it is, a CA system has no principled answer: it wasn't designed to handle the partition at all.
+- **In practice, you choose to favor consistency or favor availability** — the real design decision is what happens *during* a partition, not whether you can avoid partitions altogether.
+
+::: {.callout-tip}
+## Think about it
+Can you think of any real system, at any scale, where you'd be confident a network partition will *never* happen? What would have to be true about it?
+:::
+
+::: {.notes}
+**Timing: 5 min.** This directly matches Quiz 2's true/false question on CA systems — make sure "networks partition eventually, at scale" is stated as plainly as it is here.
+:::
+
+---
+
+## Worked Scenario: A Partition Happens
+
+A distributed order-tracking system has two datacenters, East and West, normally kept in sync. The network between them just went down — a partition.
+
+A customer in the East datacenter's region asks: **"What's the status of my order?"**
+
+- **Option 1 (favor Consistency):** East checks whether it can confirm its data matches West's latest state. It can't — West is unreachable. East returns an error: "Unable to confirm latest status, try again later."
+- **Option 2 (favor Availability):** East answers immediately with whatever it has locally — which might be a minute out of date if West processed an update East hasn't heard about yet.
+
+::: {.callout-tip}
+## Think about it
+Which option would you choose if this were a **hospital's** patient-monitoring system? Which would you choose for a **social media** "like" counter? What's actually different about these two cases?
+:::
+
+::: {.notes}
+**Timing: 6 min.** This is the session's centerpiece — let students actually argue both sides before revealing that "it depends on the cost of being wrong," which is exactly what the next three slides formalize.
+:::
+
+---
+
+## Consistency-Favoring Systems: When in Doubt, Refuse to Answer
+
+**Consistency-favoring systems** sacrifice availability during a partition — they'd rather give no answer than a possibly-wrong one.
+
+- Traditional relational databases (PostgreSQL, MySQL, in their typical single-primary configurations)
+- HBase, ZooKeeper
+- Anywhere being *wrong* is worse than being *unavailable* — financial transactions, inventory counts that must never oversell, coordination systems other services depend on for correctness
+
+::: {.notes}
+**Timing: 4 min.** Tie directly back to the hospital half of the previous slide's callout — "refuse to answer" is the right instinct exactly when a wrong answer could cause real harm.
+:::
+
+---
+
+## Availability-Favoring Systems: When in Doubt, Answer Anyway
+
+**Availability-favoring systems** sacrifice strict consistency during a partition — they'd rather give a possibly-stale answer than no answer at all.
+
+- Cassandra, DynamoDB, CouchDB
+- DNS — described further in Session 4
+- Anywhere being *unavailable* is worse than being briefly *out of date* — a shopping cart, a social media feed, a "likes" counter
+
+::: {.notes}
+**Timing: 4 min.** Tie back to the social-media half of the previous slide's callout — nobody is harmed if a like count is off by a few for a minute, but a shopping cart that refuses to load loses the sale outright.
+:::
+
+---
+
+## Choosing Consistency vs. Availability
+
+There is no universally "correct" choice — it depends entirely on **which failure mode costs you more.**
+
+| Scenario | Cost of stale data | Cost of no answer | Likely choice |
+|---|---|---|---|
+| Bank balance | High — could overdraw an account | Moderate — customer waits | **Consistency-favoring** |
+| Shopping cart | Low — item count off by one, briefly | High — lost sale | **Availability-favoring** |
+| Airline seat booking | High — double-booked seat | Moderate — customer retries | **Consistency-favoring** |
+| Social media like count | Very low — nobody notices | Low-moderate — feels broken | **Availability-favoring** |
+
+::: {.callout-tip}
+## Think about it
+Pick a system you use often. Would you guess it favors consistency or availability — and what evidence from how it *behaves* when things go wrong would tell you which one it actually is?
+:::
+
+::: {.notes}
+**Timing: 4 min.** Encourage genuinely varied answers to the callout — the point isn't a single correct system to name, it's the reasoning process of inferring a design choice from observed behavior.
+:::
+
+---
+
+## Wrap: Bridge to the Case Study
+
+You now have the vocabulary to analyze a real distributed system failure precisely: was it a Consistency problem, an Availability problem, or the moment a partition forced a choice between them?
+
+**Friday: we apply exactly this to a real, documented outage.**
+
+::: {.notes}
+**Timing: 3 min.** Close with the forward-reference. No new content — just make sure the consistency-favoring/availability-favoring vocabulary feels ready to use before Friday.
+:::
+
+---
+
+# Session 3 · Fri Sep 25 {.section}
+## Case Study Discussion: A Real Network Partition
+
+::: {.notes}
+**Full-session timing plan (50 min total) — this is an ungraded, discussion-driven in-class activity, not a lecture. Slides here are prompts, not content to present at students.**
+
+| Slide | Time |
+|---|---|
+| Framing: No New Concepts Today | 2 min |
+| The Incident: Setting the Scene | 4 min |
+| The Trigger: A Brief Network Partition | 4 min |
+| Discussion: Predict What Should Happen | 5 min |
+| What Actually Happened: Split-Brain | 5 min |
+| Discussion: Consistency Problem, Availability Problem, or Both? | 6 min |
+| The Recovery: Choosing Consistency | 5 min |
+| Discussion: Was That the Right Call? | 6 min |
+| Connecting to the Fallacies | 4 min |
+| Small-Group Exercise: Diagnose Your Own Scenario | 7 min |
+| Wrap-Up | 2 min |
+
+**Instructor note:** the case study below is a real, publicly documented incident (GitHub's database infrastructure, October 2018), summarized here for teaching purposes with approximate figures. Before presenting, pull up GitHub's own public incident-analysis blog post to confirm exact numbers and, ideally, project it live during the "setting the scene" slide — reading from the primary source adds credibility that a paraphrase can't.
+:::
+
+---
+
+## Framing: No New Concepts Today
+
+Today, no new theory — we take everything from Sessions 1 and 2 (partial failure, network partitions, CAP, the timeout problem) and apply it to something that actually happened to a real company, on real infrastructure.
+
+Your job for the next 45 minutes: **think like the engineers who had to make these decisions in real time**, without knowing the ending in advance.
+
+::: {.notes}
+**Timing: 2 min.** Set the tone: this is discussion, not lecture. Resist the urge to over-explain before the class has had a chance to guess.
+:::
+
+---
+
+## The Incident: Setting the Scene
+
+In October 2018, GitHub — a service used by millions of developers daily — experienced a major outage affecting the accuracy and availability of data for roughly 24 hours.
+
+- GitHub's database infrastructure spans multiple physical datacenters on the US East and West coasts, kept in sync so that any datacenter can serve requests with up-to-date data.
+- The trigger was small: a routine piece of network maintenance caused a **brief network partition** — on the order of tens of seconds — between two of their East Coast facilities.
+- A partition lasting under a minute ended up causing a day-long incident. That gap between cause and consequence is exactly what today is about.
+
+::: {.notes}
+**Timing: 4 min.** Don't reveal the split-brain mechanism yet — the whole point of the next few slides is to have students reason toward it themselves.
+:::
+
+---
+
+## The Trigger: A Brief Network Partition
+
+For those tens of seconds, part of GitHub's database cluster on the East Coast could not communicate with the rest of the cluster.
+
+- GitHub's database system is designed with automatic failover: if the primary database (the one accepting writes) becomes unreachable, the system can automatically promote a different copy to become the new primary.
+- That's a reasonable design — it's meant to preserve availability during exactly this kind of network hiccup.
+- But automatic failover during a partition is precisely the scenario Session 2 warned about: **both sides of a partition might independently believe they are now in charge.**
+
+::: {.notes}
+**Timing: 4 min.** Let this slide's last line sit — it's a direct setup for the next discussion prompt.
+:::
+
+---
+
+## Discussion: Predict What Should Happen
+
+::: {.callout-tip}
+## Think about it — discuss in pairs (2 min), then share
+Given everything from Session 2: if a network partition briefly separates a database's primary copy from the rest of the cluster, and the rest of the cluster automatically promotes a new primary to keep serving requests — what happens when the partition heals a few seconds later and **both** copies think they're the real primary?
+:::
+
+Write down your prediction before the next slide reveals what actually happened.
+
+::: {.notes}
+**Timing: 5 min including discussion.** Circulate and listen for the phrase "which one is right" or "conflicting data" — that's the answer the class needs to arrive at collectively before the reveal.
+:::
+
+---
+
+## What Actually Happened: Split-Brain
+
+This exact scenario is called **split-brain**: two nodes, each convinced it is the sole authority, both accepting writes independently.
+
+- During those tens of seconds, a small number of writes were accepted by **both** the original primary and the newly promoted one — each unaware of the other's writes.
+- When the partition healed, GitHub's systems had **two divergent versions of recent data**, and no automatic way to know which write in each conflicting pair was the "real" one.
+- This is Session 1's "no global clock, no reliable ordering" problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two database-cylinder icons labeled "Original Primary" and "Newly Promoted Primary," side by side with a jagged break between them (reuse the partition-break style from Session 2's diagram). Under each cylinder, draw a small stack of write-icons flowing in — different writes on each side — to show both accepting writes independently during the split. Below, a merge arrow pointing from both cylinders down into one box labeled "Reconciliation (~24 hours)" with a question mark on the two divergent write-stacks feeding into it. Caption: "Both sides kept working. That's the problem."
+:::
+
+::: {.notes}
+**Timing: 5 min.** If a group's earlier prediction named "conflicting data" or similar, credit it explicitly before revealing this slide's framing — it reinforces that the reasoning, not just the fact, is the point.
+:::
+
+---
+
+## Discussion: Consistency Problem, Availability Problem, or Both?
+
+::: {.callout-tip}
+## Think about it — discuss in pairs (3 min), then share
+Using Session 2's precise definitions: was the *root cause* of this incident a Consistency failure, an Availability failure, or something else entirely? (Hint: was the system actually unavailable during those tens of seconds — or did trying too hard to stay available cause the real damage?)
+:::
+
+::: {.notes}
+**Timing: 6 min including discussion.** The intended insight: the partition itself briefly threatened availability, but the automatic-failover mechanism's attempt to *preserve* availability is what created the consistency violation. It's a case where optimizing for one side of CAP directly caused the failure on the other side — a subtler lesson than "pick consistency or availability" makes it sound.
+:::
+
+---
+
+## The Recovery: Choosing Consistency
+
+Once GitHub discovered the divergent data, they faced the same fork in the road as Session 2's worked scenario — except now with real, already-written, conflicting data.
+
+- They chose **consistency over availability** for the recovery: rather than guess which conflicting writes were correct (or serve stale/wrong data), they took the affected systems partially offline and manually reconciled the data.
+- This is why a network issue lasting under a minute produced an outage lasting **around 24 hours** — the partition itself was brief, but restoring a trustworthy, consistent state took far longer than the failure that caused the mess.
+
+::: {.notes}
+**Timing: 5 min.** Emphasize the asymmetry: the trigger was seconds, the consequence was a day. That gap is the single most important fact of the whole case study to remember.
+:::
+
+---
+
+## Discussion: Was That the Right Call?
+
+::: {.callout-tip}
+## Think about it — small groups (3–4 students), 4 min, then share
+GitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data. Do you agree with that choice, for a code-hosting platform specifically? Would your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system? What's the actual variable that should decide this, in general?
+:::
+
+::: {.notes}
+**Timing: 6 min including discussion.** Push groups toward naming "the cost of being wrong vs. the cost of being unavailable" explicitly — that's the same axis from Session 2's consistency-vs-availability table, now applied to a real, harder case where the "right" answer is genuinely debatable.
+:::
+
+---
+
+## Connecting to the Fallacies
+
+Look back at Session 1's eight fallacies of distributed computing. Which ones does this incident illustrate?
+
+- **"The network is reliable"** — a routine maintenance operation caused a partition; the network broke exactly when it wasn't expected to.
+- **"Topology doesn't change"** — the automatic failover mechanism existed *because* the system's designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.
+
+::: {.callout-tip}
+## Think about it
+Can you connect a third fallacy from Session 1's list to some part of this incident?
+:::
+
+::: {.notes}
+**Timing: 4 min.** Leave the third fallacy genuinely open — several are defensible (e.g., "there is one administrator" relates to coordinating a fix across a large engineering org during an active incident).
+:::
+
+---
+
+## Small-Group Exercise: Diagnose Your Own Scenario
+
+In groups of 3–4, pick **one** of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?
+
+1. **A ride-sharing app's driver-location service** loses connection between two regional servers for 30 seconds.
+2. **A university's course-registration system** briefly can't confirm seat counts are in sync across two servers during peak registration.
+3. **A multiplayer game's leaderboard** can't sync scores between two regions for a few minutes during a network blip.
+
+Be ready to defend your choice to the class — including what you'd do differently from GitHub's approach, if anything.
+
+::: {.notes}
+**Timing: 7 min, including a couple of groups reporting back.** If time is short, cut to 2 scenarios rather than rushing all 3 — depth of discussion matters more than covering everything.
+:::
+
+---
+
+## Wrap-Up
+
+Today's takeaway isn't "GitHub made a mistake" — their recovery choice was defensible and matches the consistency-favoring reasoning from Session 2. The real lesson is narrower and more useful:
+
+**A partition lasting seconds can create a consequence lasting a day, and the choice of how to respond to it is a design decision made in advance, not improvised during the incident.**
+
+Monday: back to new material — the client-server model, and what actually happens when you type a URL into a browser.
+
+::: {.notes}
+**Timing: 2 min.** Close on the forward-reference to keep momentum into Session 4.
+:::
+
+---
+
+# Session 4 · Mon Sep 28 {.section}
+## Client-Server Model & What Happens When You Type a URL
+
+::: {.notes}
+**Full-session timing plan (50 min total):**
+
+| Slide | Time |
+|---|---|
+| Recap: From Failures to How Things Talk | 3 min |
+| The Client-Server Model | 4 min |
+| Not Every Server Is Only a Server | 4 min |
+| The Journey of a URL — Step 1: The Address Book (DNS) | 5 min |
+| Step 2: Opening the Line (TCP Connection) | 4 min |
+| Step 3: Sending the Request | 5 min |
+| Step 4: The Server Does the Work | 4 min |
+| Step 5: The Response Comes Back | 4 min |
+| The Whole Journey, Start to Finish | 5 min |
+| HTTP: The Standard Order Form | 4 min |
+| HTTP Verbs | 5 min |
+| Wrap: Bridge to REST | 3 min |
+
+12 slides, ~50 min. This session introduces vocabulary (client, server, DNS, HTTP) that Session 5 uses constantly — don't let it run short even if discussion runs long elsewhere, since Session 5 assumes all of this is solid.
+:::
+
+---
+
+## Recap: From Failures to How Things Talk
+
+Sessions 1–3 were about what goes *wrong*: lost messages, partitions, split-brain. Today, before going further, we need the basics of how machines talk to each other **when things go right** — the client-server model and HTTP.
+
+::: {.notes}
+**Timing: 3 min.** Brief tonal shift — signal explicitly that today is foundational/mechanical rather than failure-focused, so students recalibrate expectations.
+:::
+
+---
+
+## The Client-Server Model
+
+The most common shape of communication between two machines: one asks, one answers.
+
+- The **client** initiates a request. Your laptop's browser, your phone's app — these are clients.
+- The **server** receives the request, does whatever work is needed, and sends back a response. A kitchen branch answering the phone is the server; the customer calling in is the client.
+- Crucially: **the client always initiates.** A server doesn't call you out of the blue to tell you your order is ready — you have to ask.
+
+::: {.callout-tip}
+## Think about it
+Name three client-server interactions you had *this morning* — before you even opened this course's slides. (Hint: your phone checking for notifications counts.)
+:::
+
+::: {.notes}
+**Timing: 4 min.** Let several students answer — email, weather app, any login screen, a map loading — the goal is making them notice how constant and invisible this pattern already is in their daily life.
+:::
+
+---
+
+## Not Every Server Is Only a Server
+
+Real systems are rarely just "one client, one server" — they're chains.
+
+- When your browser asks a web server for a page, that web server might itself act as a **client** to a database server, asking it for the data needed to build the page.
+- Distributed systems are often long chains of client-server relationships: browser → web server → application server → database — each link in the chain plays "client" to the one after it, and "server" to the one before it.
+- This is why "client" and "server" describe a **role in a specific interaction**, not a permanent label on a machine.
+
+::: {.notes}
+**Timing: 4 min.** Worth a quick concrete trace: "when you load Netflix's homepage, how many client-server hops do you think happen before you see a single thumbnail?" — no need for a precise answer, just to loosen the assumption that it's always exactly one hop.
+:::
+
+---
+
+## The Journey of a URL — Step 1: The Address Book (DNS)
+
+You type `www.example.com` into your browser. The very first problem: **that's a name, not an address.** Computers on a network find each other using numeric addresses (IP addresses), not human-friendly names.
+
+- **DNS (Domain Name System)** is the internet's address book — it translates a human-readable name like `www.example.com` into a numeric address like `93.184.216.34`.
+- Kitchen picture: you know the *name* of a restaurant branch, not its phone number. DNS is the phone directory you look the name up in before you can actually call.
+- This lookup happens automatically, in milliseconds, before your browser can even attempt to contact the server.
+
+::: {.notes}
+**Timing: 5 min.** No need to go deep into DNS internals (recursive resolvers, caching, etc.) — the one idea to land is "names have to be translated to addresses before anything else can happen."
+:::
+
+---
+
+## Step 2: Opening the Line (TCP Connection)
+
+With the numeric address in hand, your browser opens a connection to that machine.
+
+- This is like the phone actually starting to ring at the other end — a **connection** is established between your machine and the server, over which data can now flow in both directions.
+- We won't go deep into how this connection is established (that's networking-course territory) — the one thing to know is that it happens **before** any actual request is sent, and it can itself fail (recall Session 1: the line can be slow to open, or fail to open at all).
+
+::: {.notes}
+**Timing: 4 min.** Deliberately light-touch — no TCP handshake details, no OS/networking vocabulary. The goal is just to have a named step between "found the address" and "sent the request," not to teach networking.
+:::
+
+---
+
+## Step 3: Sending the Request
+
+With the line open, your browser sends an actual **request** — a structured message asking for something specific.
+
+- The request names what's being asked for (which page, which resource) and how (more on this in a moment).
+- Kitchen picture: the call has connected, and now you actually place your order — not just "hello," but "I'd like the Tuesday special, extra large."
+- The request travels across the network to the server — and, as Session 1 established, that trip is not instant and not guaranteed.
+
+::: {.notes}
+**Timing: 5 min.** This is the natural moment to plant "the request has a *format*" without fully teaching HTTP yet — that's two slides away, after the response side of the story is told first.
+:::
+
+---
+
+## Step 4: The Server Does the Work
+
+The server receives the request and does whatever is needed to fulfill it.
+
+- This might be as simple as reading a file off disk, or as complex as querying a database, running a computation, or — per the previous slide's chain idea — becoming a *client* itself to another server.
+- How long this takes varies enormously: a cached, simple page might take milliseconds; a page that requires a complex database query might take much longer.
+- Kitchen picture: the branch has your order, and is now actually cooking it — this is the part of the phone call where you're on hold.
+
+::: {.notes}
+**Timing: 4 min.** Brief — the mechanics of server-side processing aren't this course's focus; the point is just naming this as a distinct step with its own variable duration.
+:::
+
+---
+
+## Step 5: The Response Comes Back
+
+Once the work is done, the server sends a **response** back across the same connection — the requested data, plus information about whether the request succeeded.
+
+- Kitchen picture: the branch calls back with your order — "here it is," or "sorry, we're out of that."
+- Your browser receives the response and **renders** it — turning the raw data into the page you actually see.
+- This is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.
+
+::: {.notes}
+**Timing: 4 min.** Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1's failure catalogue.
+:::
+
+---
+
+## The Whole Journey, Start to Finish
+
+```
+1. You type www.example.com
+        ↓
+2. DNS lookup: name → numeric address     (the address book)
+        ↓
+3. Connection opens to that address        (the phone line connects)
+        ↓
+4. Browser sends a request                 (you place your order)
+        ↓
+5. Server does the work                    (the kitchen cooks)
+        ↓
+6. Server sends a response                 (the callback: "here it is")
+        ↓
+7. Browser renders the response            (you see the page)
+```
+
+Every one of these seven steps takes real time, and every one of them can fail independently — this single, everyday action is itself a small distributed system, with all the properties Sessions 1–3 described.
+
+::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+A horizontal 7-step flow, browser icon on the left, server icon on the right, DNS depicted as a small "address book" icon above the line between them (queried before the main connection line is drawn). Number each step 1–7 matching the list above, with small icons: a magnifying glass for DNS lookup, a phone/plug icon for the connection, an envelope for the request, a gear/pot icon for server processing, a return envelope for the response, and an eye icon for rendering.
+:::
+
+::: {.notes}
+**Timing: 5 min.** This is the payoff slide of the session — walk it top to bottom, and explicitly connect back: "this is why loading a single web page is not instantaneous, and why it sometimes fails partway through."
+:::
+
+---
+
+## HTTP: The Standard Order Form
+
+Step 4 (sending a request) and step 6 (sending a response) both need to happen in a format **both sides agree on** — otherwise the server couldn't understand the request, or the browser couldn't understand the response.
+
+- **HTTP (HyperText Transfer Protocol)** is that agreed-upon format. It's a set of rules both client and server follow for how requests and responses are structured.
+- Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.
+
+::: {.callout-tip}
+## Think about it
+Why does *everyone* need to agree on the same request/response format, rather than each server inventing its own? What would break if they didn't?
+:::
+
+::: {.notes}
+**Timing: 4 min.** The callout's answer is really "interoperability" — any client can talk to any HTTP server, precisely because the format is standardized rather than server-specific. Let students arrive at that themselves before naming it.
+:::
+
+---
+
+## HTTP Verbs
+
+An HTTP request always names an **action** it wants performed — the verb:
+
+| Verb | Operation | Kitchen picture |
+|---|---|---|
+| `GET` | Read a resource | "What's in order #42?" |
+| `POST` | Create a new resource | "Start a brand-new order" |
+| `PUT` | Replace a resource entirely | "Throw out order #42, replace it with this" |
+| `PATCH` | Partially update a resource | "Just change the drink on order #42" |
+| `DELETE` | Remove a resource | "Cancel order #42" |
+
+::: {.notes}
+**Timing: 5 min.** These five verbs, and being able to pick the right one for a scenario, are directly tested (Quiz 2's HTTP methods question) — worth a quick "which verb?" cold-call for a couple of scenarios before moving on.
+:::
+
+---
+
+## Wrap: Bridge to REST
+
+Today gave you the mechanics: client, server, DNS, connections, and HTTP as the shared format both sides speak.
+
+**Wednesday: REST — the specific *style* of using HTTP that almost the entire industry has converged on, and the format Checkpoint 2 will test you on directly.**
+
+::: {.notes}
+**Timing: 3 min.** Close on the forward-reference — Session 5 builds directly and immediately on today's HTTP-verbs slide.
+:::
+
+---
+
+# Session 5 · Wed Sep 30 {.section}
+## REST APIs: Anatomy of a Request & Response + Checkpoint 2
+
+::: {.notes}
+**Full-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):**
+
+| Slide | Time |
+|---|---|
+| Recap: HTTP Is the Protocol, REST Is the Style | 3 min |
+| What Makes an API "RESTful"? | 4 min |
+| Statelessness | 4 min |
+| Anatomy of a Request | 4 min |
+| Anatomy of a Response | 4 min |
+| HTTP Status Codes | 5 min |
+| JSON: The Language of REST Responses | 4 min |
+| Worked Example: Reading a Real Response | 6 min |
+| Why Industry Uses REST Everywhere | 3 min |
+| Lab 3 Preview | 2 min |
+| Checkpoint 2 Preview & Review | 4 min |
+
+That's ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately.
+:::
+
+---
+
+## Recap: HTTP Is the Protocol, REST Is the Style
+
+Session 4 gave you HTTP: the shared format for requests and responses. HTTP itself is fairly general — it can be used in many ways.
+
+**REST (Representational State Transfer)** is a specific, disciplined *style* of using HTTP that the industry has largely standardized on for building APIs. Today: what makes an API count as RESTful, and how to read one.
+
+::: {.notes}
+**Timing: 3 min.** Brief — just draw the HTTP-vs-REST distinction (protocol vs. a style of using it) before the rest of the session builds on it.
+:::
+
+---
+
+## What Makes an API "RESTful"?
+
+- **Resources have URLs.** Every "thing" the API exposes — a user, an order, a book — is identified by a URL, e.g. `/users/42` or `/orders/17`.
+- **The verb says what to do; the URL says what to do it to.** `GET /users/42` reads user 42. `DELETE /orders/17` removes order 17. Same verbs from Session 4, now paired with specific resource URLs.
+- **One API, many endpoints.** A single REST API commonly exposes many different URLs for different resources — `/users`, `/orders`, `/products` might all live under the same API.
+
+::: {.notes}
+**Timing: 4 min.** This slide directly matches Quiz 2's REST-structure question — "identified by a URL and an HTTP method" and "a single API can expose multiple endpoints" are both verbatim-testable ideas here.
+:::
+
+---
+
+## Statelessness
+
+**REST is stateless:** each request must contain everything the server needs to understand and fulfill it. The server does not remember anything about you between requests.
+
+- Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today's call must include everything relevant again.
+- This sounds inefficient, but it's a deliberate design choice: a stateless server can hand your *next* request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your *previous* requests.
+
+::: {.callout-tip}
+## Think about it
+If a server had to remember every client's conversation history, what would that make harder when you're trying to scale the service across many machines?
+:::
+
+::: {.notes}
+**Timing: 4 min.** The callout's intended answer connects directly back to Module 1/Session 1's scaling motivation — remembering per-client state ties a client to a specific machine, which fights against the "add more machines" scaling story.
+:::
+
+---
+
+## Anatomy of a Request
+
+```
+GET /users/42 HTTP/1.1
+Host: api.example.com
+Accept: application/json
+```
+
+- **Verb + path:** `GET /users/42` — read the resource at this URL.
+- **Headers:** metadata about the request — here, which host to talk to, and what response format is acceptable.
+- Some requests (like `POST` or `PUT`) also include a **body** — the actual data being sent, e.g. the details of a new order to create.
+
+::: {.notes}
+**Timing: 4 min.** Keep headers light — `Host` and `Accept` are enough to establish "headers carry metadata," without a full catalogue of HTTP headers.
+:::
+
+---
+
+## Anatomy of a Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Alice", "email": "alice@example.com"}
+```
+
+- **Status line:** the protocol version and a **status code** (`200 OK`) — did the request succeed, and how?
+- **Headers:** here, `Content-Type` tells the client the body is JSON — this is literally how a client knows *how to parse* what follows.
+- **Body:** the actual data requested.
+
+::: {.notes}
+**Timing: 4 min.** Point out explicitly: `Content-Type` is how Checkpoint 2's third question ("what format is the response in, and how do you know") gets answered — it's not a guess, it's stated in the headers.
+:::
+
+---
+
+## HTTP Status Codes
+
+| Range | Meaning | Examples |
+|---|---|---|
+| 2xx | Success | `200 OK`, `201 Created` |
+| 3xx | Redirect | `301 Moved Permanently` |
+| 4xx | Client error — you asked for something wrong | `400 Bad Request`, `404 Not Found`, `401 Unauthorized` |
+| 5xx | Server error — something broke on their end | `500 Internal Server Error`, `503 Service Unavailable` |
+
+::: {.callout-tip}
+## Think about it
+Why does it matter whether an error is 4xx (your fault) versus 5xx (their fault)? What would you do differently, as the client, in each case?
+:::
+
+::: {.notes}
+**Timing: 5 min.** The callout's intended answer: a 4xx means retrying the exact same request will fail again (you need to fix your request), while a 5xx might succeed on retry (the problem is transient, on the server side) — this is a genuinely useful distinction for real debugging, not just quiz trivia. Memorize 200, 201, 400, 401, 403, 404, 500 — the most commonly tested set.
+:::
+
+---
+
+## JSON: The Language of REST Responses
+
+```json
+{
+  "book": {
+    "title": "Designing Data-Intensive Applications",
+    "author": "Martin Kleppmann",
+    "year": 2017,
+    "tags": ["distributed", "databases", "systems"],
+    "available": true
+  }
+}
+```
+
+- **JSON** (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it's used by virtually every programming language, not just JavaScript.
+- Building blocks: strings, numbers, booleans, `null`, arrays `[ ]`, and objects `{ }` — objects and arrays can nest inside each other, as seen here.
+- This is the near-universal body format for REST API responses, which is exactly why `Content-Type: application/json` matters — it tells you this is the format to expect.
+
+::: {.notes}
+**Timing: 4 min.** Point out the nesting explicitly — `tags` is an array *inside* an object, which is itself the value of `"book"` — reading nested JSON correctly is exactly what Checkpoint 2 requires.
+:::
+
+---
+
+## Worked Example: Reading a Real Response
+
+```
+GET https://api.example.com/books?isbn=9780132350884
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "pages": 464
+}
+```
+
+**As a class:** what HTTP method was used? What does the `200` mean? What format is the body in, and how do we know? What is the title of the book returned?
+
+::: {.notes}
+**Timing: 6 min.** This is deliberately the same *shape* of question as Checkpoint 2, using a different book — walk through it as a group so students rehearse the exact reasoning they'll need to do individually on the checkpoint, without literally seeing the checkpoint's example in advance.
+:::
+
+---
+
+## Why Industry Uses REST Everywhere
+
+- **Universality:** any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.
+- **Statelessness → scalability:** since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1's scaling motivation, realized).
+- **Human-readable, debuggable:** JSON and plain URLs mean you can inspect what's happening with nothing more than a web browser or a simple command-line tool.
+
+::: {.callout-tip}
+## Think about it
+What would calling an API look like *without* a standard like REST — if every company invented its own request/response format? What would that cost you as a developer?
+:::
+
+::: {.notes}
+**Timing: 3 min.** Let this connect back to Session 4's "why does everyone need to agree" callout — same underlying idea (standardization enables interoperability), now applied specifically to REST's dominance.
+:::
+
+---
+
+## Lab 3 Preview
+
+**Lab 3 (this Friday, Oct 2):** you'll write a Java program that calls a real public API (the Open Library API), parses the JSON response using `HttpClient` and `org.json`, and handles a request that fails.
+
+Everything you need — the request/response anatomy, status codes, JSON structure — is exactly what today covered.
+
+::: {.notes}
+**Timing: 2 min.** Keep this brief — Lab 3 itself teaches the Java syntax (`HttpClient`, `JSONObject`, `optString`) hands-on; this slide is a pointer, not a code walkthrough.
+:::
+
+---
+
+## Checkpoint 2 Preview & Review
+
+**Checkpoint 2 runs now, in the last 15 minutes of this session:** given a REST API response, identify the HTTP method used, what the status code means, the response format (and how you know), the actual data returned, and one thing that could realistically go wrong.
+
+Quick review before you start:
+- **HTTP methods:** what each of `GET`/`POST`/`PUT`/`PATCH`/`DELETE` actually does (Session 4).
+- **Status codes:** the 2xx/4xx/5xx ranges, and what `200` specifically promises (this session).
+- **Reading JSON:** finding a specific field inside a nested object or array (this session's worked example).
+- **What can go wrong:** connect back to Session 1 — a request can be lost, delayed, or the server can be down; a real API call has real failure modes to name.
+
+::: {.notes}
+**Timing: 4 min for this review slide — the 15-min checkpoint itself follows separately and isn't slide content.** The "what can go wrong" review point is worth emphasizing — it's the one Checkpoint 2 question that pulls all the way back to Session 1's failure vocabulary rather than just this session's REST content.
+:::

@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Randomized Algorithms</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Randomized Algorithms</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="why-randomize" class="title-slide slide level1 center" data-background-color="#1a1a2e">
+<h1>Why Randomize?</h1>
+
+</section>
+<section id="the-core-idea" class="slide level2">
+<h2>The Core Idea</h2>
+<p>We’ve been designing algorithms that are <strong>deterministic</strong> — same input, same exact steps, same output every time.</p>
+<div class="fragment">
+<p><strong>What if we let the algorithm flip coins?</strong></p>
+</div>
+<div class="fragment">
+<p>Surprisingly, this can be:</p>
+<ul>
+<li><strong>Simpler</strong> to implement</li>
+<li><strong>Faster</strong> in practice</li>
+<li><strong>Harder to fool</strong> by adversaries</li>
+<li>The only known approach for some problems</li>
+</ul>
+</div>
+</section>
+<section id="two-flavors-of-randomized-algorithms" class="slide level2">
+<h2>Two Flavors of Randomized Algorithms</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="las-vegas">Las Vegas 🎰</h3>
+<p>Always gives the <strong>correct answer</strong>.<br>
+Running time varies randomly.</p>
+<p><em>“We’ll get there — just not sure when.”</em></p>
+<p><strong>Example:</strong> Randomized QuickSort</p>
+</div><div class="column" style="width:50%;">
+<h3 id="monte-carlo">Monte Carlo 🎲</h3>
+<p>Always runs in <strong>bounded time</strong>.<br>
+Answer may be wrong with small probability.</p>
+<p><em>“We’re probably right.”</em></p>
+<p><strong>Example:</strong> Bloom filters, primality testing</p>
+</div></div>
+<div class="fragment">
+<blockquote>
+<p>Most randomized algorithms we’ll see today are <strong>Monte Carlo</strong> — tunable error probability.</p>
+</blockquote>
+</div>
+</section>
+<section id="intuition-why-randomness-helps" class="slide level2">
+<h2>Intuition: Why Randomness Helps</h2>
+<p>Imagine an <strong>adversary</strong> who knows your algorithm and picks the worst-case input.</p>
+<div class="fragment">
+<ul>
+<li><strong>Deterministic QuickSort:</strong> Always pick first element as pivot → adversary gives sorted array → O(n²) every time</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li><strong>Randomized QuickSort:</strong> Pick pivot randomly → adversary can’t predict your choice → O(n log n) expected <em>no matter what</em></li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Key insight:</strong> Randomness breaks the adversary’s ability to plan against you.</p>
+</div>
+</section></section>
+<section>
+<section id="randomized-quicksort" class="title-slide slide level1 center" data-background-color="#16213e">
+<h1>Randomized QuickSort</h1>
+
+</section>
+<section id="review-what-makes-quicksort-fast-or-slow" class="slide level2">
+<h2>Review: What Makes QuickSort Fast (or Slow)?</h2>
+<pre><code>partition(A, lo, hi):
+    pivot = A[lo]          # ← this choice matters a lot!
+    ...</code></pre>
+<p>Performance depends entirely on <strong>pivot quality</strong>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Pivot Quality</th>
+<th>Partition Split</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Perfect median</td>
+<td>50/50</td>
+<td>O(n log n)</td>
+</tr>
+<tr class="even">
+<td>Pretty good</td>
+<td>25/75</td>
+<td>O(n log n)</td>
+</tr>
+<tr class="odd">
+<td>Always worst</td>
+<td>0/n</td>
+<td>O(n²)</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>We need a pivot strategy that’s <strong>good on average</strong>, regardless of input.</p>
+</div>
+</section>
+<section id="randomized-pivot-selection" class="slide level2">
+<h2>Randomized Pivot Selection</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> random</span>
+<span id="cb2-2"><a></a></span>
+<span id="cb2-3"><a></a><span class="kw">def</span> quicksort(A, lo, hi):</span>
+<span id="cb2-4"><a></a>    <span class="cf">if</span> lo <span class="op">&lt;</span> hi:</span>
+<span id="cb2-5"><a></a>        pivot_idx <span class="op">=</span> random.randint(lo, hi)   <span class="co"># random pivot!</span></span>
+<span id="cb2-6"><a></a>        A[lo], A[pivot_idx] <span class="op">=</span> A[pivot_idx], A[lo]</span>
+<span id="cb2-7"><a></a>        p <span class="op">=</span> partition(A, lo, hi)</span>
+<span id="cb2-8"><a></a>        quicksort(A, lo, p <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-9"><a></a>        quicksort(A, p <span class="op">+</span> <span class="dv">1</span>, hi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>One-line change. Huge difference.</strong></p>
+<ul>
+<li>Expected time: <strong>O(n log n)</strong> on <em>any</em> input</li>
+<li>Worst case still O(n²) — but now astronomically unlikely</li>
+<li>No adversary can engineer a bad case without knowing your coin flips</li>
+</ul>
+</div>
+</section>
+<section id="intuition-for-expected-on-log-n" class="slide level2">
+<h2>Intuition for Expected O(n log n)</h2>
+<p>Think about any two elements <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> in the array.</p>
+<div class="fragment">
+<p><strong>When do they get compared?</strong> Only when one of them is chosen as a pivot before either is “separated” from the other by an earlier partition.</p>
+</div>
+<div class="fragment">
+<p>The probability that <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> are ever compared = <span class="math inline">\(\frac{2}{\text{elements between them (inclusive)}}\)</span></p>
+</div>
+<div class="fragment">
+<p>Summing over all pairs → <strong>O(n log n) expected comparisons</strong> total.</p>
+<p><em>(This is the key insight — we don’t need to trace through recursion!)</em></p>
+</div>
+</section></section>
+<section>
+<section id="hashing-fingerprinting" class="title-slide slide level1 center" data-background-color="#0f3460">
+<h1>Hashing &amp; Fingerprinting</h1>
+
+</section>
+<section id="the-fingerprinting-idea" class="slide level2">
+<h2>The Fingerprinting Idea</h2>
+<p><strong>Problem:</strong> You have a 10 GB file. Your friend has a 10 GB file. Are they the same?</p>
+<div class="fragment">
+<p><strong>Naive:</strong> Send the whole file.</p>
+</div>
+<div class="fragment">
+<p><strong>Smart:</strong> Compute a short <strong>fingerprint</strong> (hash) of each file. Compare fingerprints.</p>
+</div>
+<div class="fragment">
+<p>A good hash function maps a big object → small digest such that:</p>
+<ul>
+<li>Same object → same hash (always)</li>
+<li>Different objects → same hash (almost never)</li>
+</ul>
+</div>
+<div class="fragment">
+<p>This is the foundation of <strong>Rabin-Karp</strong> and <strong>Bloom Filters</strong>.</p>
+</div>
+</section></section>
+<section>
+<section id="rabin-karp-string-search" class="title-slide slide level1 center" data-background-color="#0f3460">
+<h1>Rabin-Karp String Search</h1>
+
+</section>
+<section id="the-pattern-matching-problem" class="slide level2">
+<h2>The Pattern Matching Problem</h2>
+<p><strong>Input:</strong> Text <span class="math inline">\(T\)</span> of length <span class="math inline">\(n\)</span>, Pattern <span class="math inline">\(P\)</span> of length <span class="math inline">\(m\)</span><br>
+<strong>Output:</strong> All positions in <span class="math inline">\(T\)</span> where <span class="math inline">\(P\)</span> occurs</p>
+<pre><code>T = "the cat sat on the mat"
+P = "at"
+
+Matches at positions: 5, 9, 20</code></pre>
+<div class="fragment">
+<p><strong>Naive approach:</strong> Slide <span class="math inline">\(P\)</span> over <span class="math inline">\(T\)</span>, compare character by character.<br>
+Worst case: <strong>O(nm)</strong> — think T = “aaaa…a”, P = “aaa…ab”</p>
+</div>
+</section>
+<section id="rabin-karp-the-key-idea" class="slide level2">
+<h2>Rabin-Karp: The Key Idea</h2>
+<p>Instead of comparing strings character-by-character, compare their <strong>hashes</strong>.</p>
+<div class="fragment">
+<ol type="1">
+<li>Compute hash of pattern <span class="math inline">\(P\)</span> → <span class="math inline">\(h_P\)</span></li>
+<li>Slide a window of length <span class="math inline">\(m\)</span> over <span class="math inline">\(T\)</span></li>
+<li>At each position, compute hash of window → <span class="math inline">\(h_W\)</span></li>
+<li>If <span class="math inline">\(h_W = h_P\)</span> → <strong>probably</strong> a match (verify to be sure)</li>
+<li>If <span class="math inline">\(h_W \neq h_P\)</span> → <strong>definitely</strong> not a match</li>
+</ol>
+</div>
+<div class="fragment">
+<p><strong>Magic:</strong> We can update the window hash in <strong>O(1)</strong> using a <em>rolling hash</em>.</p>
+</div>
+</section>
+<section id="rolling-hash-the-mechanism" class="slide level2">
+<h2>Rolling Hash: The Mechanism</h2>
+<p>Treat each window as a number in base <span class="math inline">\(b\)</span> (e.g., <span class="math inline">\(b = 256\)</span> for ASCII):</p>
+<p><span class="math display">\[h(\text{"cat"}) = \text{'c'} \cdot b^2 + \text{'a'} \cdot b^1 + \text{'t'} \cdot b^0 \pmod{q}\]</span></p>
+<div class="fragment">
+<p>When the window slides right by one character:</p>
+<p><span class="math display">\[h_{\text{new}} = \left( h_{\text{old}} - T[i] \cdot b^{m-1} \right) \cdot b + T[i+m] \pmod{q}\]</span></p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(q\)</span> is a large prime to prevent overflow and reduce collisions.</p>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Intuition:</strong> Subtract the leftmost character’s contribution, shift everything left, add the new rightmost character. O(1) per step!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="rabin-karp-full-picture" class="slide level2">
+<h2>Rabin-Karp: Full Picture</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="kw">def</span> rabin_karp(T, P, b<span class="op">=</span><span class="dv">256</span>, q<span class="op">=</span><span class="dv">101</span>):</span>
+<span id="cb4-2"><a></a>    n, m <span class="op">=</span> <span class="bu">len</span>(T), <span class="bu">len</span>(P)</span>
+<span id="cb4-3"><a></a>    h_P <span class="op">=</span> hash_str(P, b, q)</span>
+<span id="cb4-4"><a></a>    h_W <span class="op">=</span> hash_str(T[:m], b, q)</span>
+<span id="cb4-5"><a></a>    matches <span class="op">=</span> []</span>
+<span id="cb4-6"><a></a></span>
+<span id="cb4-7"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">-</span> m <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb4-8"><a></a>        <span class="cf">if</span> h_W <span class="op">==</span> h_P:</span>
+<span id="cb4-9"><a></a>            <span class="cf">if</span> T[i:i<span class="op">+</span>m] <span class="op">==</span> P:    <span class="co"># verify (avoid false positives)</span></span>
+<span id="cb4-10"><a></a>                matches.append(i)</span>
+<span id="cb4-11"><a></a>        <span class="cf">if</span> i <span class="op">&lt;</span> n <span class="op">-</span> m:</span>
+<span id="cb4-12"><a></a>            <span class="co"># roll the hash</span></span>
+<span id="cb4-13"><a></a>            h_W <span class="op">=</span> (b <span class="op">*</span> (h_W <span class="op">-</span> <span class="bu">ord</span>(T[i]) <span class="op">*</span> <span class="bu">pow</span>(b, m<span class="op">-</span><span class="dv">1</span>, q)) <span class="op">+</span> <span class="bu">ord</span>(T[i<span class="op">+</span>m])) <span class="op">%</span> q</span>
+<span id="cb4-14"><a></a></span>
+<span id="cb4-15"><a></a>    <span class="cf">return</span> matches</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Expected time: O(n + m)</strong> — one pass, O(1) per step, rare verifications.</p>
+<p><strong>False positives</strong> (hash collision, no match): re-reduced by choosing large prime <span class="math inline">\(q\)</span>.</p>
+</div>
+</section>
+</section>
+<section>
+<section id="bloom-filters" class="title-slide slide level1 center" data-background-color="#533483">
+<h1>Bloom Filters</h1>
+
+</section>
+<section id="the-membership-problem" class="slide level2">
+<h2>The Membership Problem</h2>
+<p><strong>Question:</strong> Is element <span class="math inline">\(x\)</span> in set <span class="math inline">\(S\)</span>?</p>
+<div class="fragment">
+<p><strong>Exact solutions:</strong></p>
+<ul>
+<li>Hash table: O(1) average, but stores all elements</li>
+<li>For millions of URLs, this needs gigabytes of RAM</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>What if we allow a small error?</strong></p>
+<blockquote>
+<p>“Is this URL in our blocklist?”<br>
+Acceptable: occasionally say “yes” when it’s actually “no”<br>
+Not acceptable: say “no” when it’s actually “yes”</p>
+</blockquote>
+</div>
+</section>
+<section id="bloom-filter-the-structure" class="slide level2">
+<h2>Bloom Filter: The Structure</h2>
+<p>A Bloom filter is a <strong>bit array</strong> of <span class="math inline">\(m\)</span> bits (all initially 0) + <strong><span class="math inline">\(k\)</span> hash functions</strong>.</p>
+<div class="fragment">
+<p><strong>Insert</strong> element <span class="math inline">\(x\)</span>:<br>
+Hash <span class="math inline">\(x\)</span> with each of <span class="math inline">\(k\)</span> functions → set those <span class="math inline">\(k\)</span> bits to 1</p>
+</div>
+<div class="fragment">
+<p><strong>Query</strong> element <span class="math inline">\(x\)</span>:<br>
+Hash <span class="math inline">\(x\)</span> → check those <span class="math inline">\(k\)</span> bits</p>
+<ul>
+<li>All 1? → <strong>probably in set</strong></li>
+<li>Any 0? → <strong>definitely not in set</strong></li>
+</ul>
+</div>
+</section>
+<section id="bloom-filter-visual-example" class="slide level2">
+<h2>Bloom Filter: Visual Example</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><em>Array of 10 bits, 2 hash functions</em></p>
+<p>Insert <strong>“cat”</strong>: <span class="math inline">\(h_1\)</span>(“cat”)=2, <span class="math inline">\(h_2\)</span>(“cat”)=7 → set bits 2, 7<br>
+Insert <strong>“dog”</strong>: <span class="math inline">\(h_1\)</span>(“dog”)=1, <span class="math inline">\(h_2\)</span>(“dog”)=5 → set bits 1, 5</p>
+<pre><code>Bit index: 0 1 2 3 4 5 6 7 8 9
+           0 1 1 0 0 1 0 1 0 0</code></pre>
+<div class="fragment">
+<p>Query <strong>“cat”</strong>: bits 2,7 → both 1 ✅ <em>probably yes</em><br>
+Query <strong>“rat”</strong>: <span class="math inline">\(h_1\)</span>=1, <span class="math inline">\(h_2\)</span>=4 → bit 4 is 0 ❌ <em>definitely no</em><br>
+Query <strong>“eel”</strong>: <span class="math inline">\(h_1\)</span>=1, <span class="math inline">\(h_2\)</span>=5 → both 1… <strong>false positive!</strong></p>
+</div>
+</div><div class="column" style="width:40%;">
+<div class="fragment">
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>False positives</strong> happen when an element “accidentally” maps to all set bits.</p>
+<p><strong>False negatives</strong> are <strong>impossible</strong> — if you inserted it, those bits stay 1.</p>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="tuning-the-error-rate" class="slide level2">
+<h2>Tuning the Error Rate</h2>
+<p>The false positive rate depends on:</p>
+<ul>
+<li><strong><span class="math inline">\(m\)</span></strong> — number of bits (bigger → fewer collisions)</li>
+<li><strong><span class="math inline">\(n\)</span></strong> — number of elements inserted</li>
+<li><strong><span class="math inline">\(k\)</span></strong> — number of hash functions</li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\[\text{False positive rate} \approx \left(1 - e^{-kn/m}\right)^k\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Optimal <span class="math inline">\(k\)</span></strong> (minimizes false positives): <span class="math inline">\(k = \frac{m}{n} \ln 2 \approx 0.7 \cdot \frac{m}{n}\)</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Rule of thumb:</strong> ~10 bits per element → ~1% false positive rate with optimal <span class="math inline">\(k \approx 7\)</span> hash functions.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="real-world-bloom-filter-uses" class="slide level2">
+<h2>Real-World Bloom Filter Uses</h2>
+<ul>
+<li><strong>Browsers</strong> (Chrome): Safe Browsing — is this URL malicious? (Bloom filter downloaded locally, rare positives trigger a real server lookup)</li>
+<li><strong>Databases</strong> (Cassandra, HBase): “Does this key exist anywhere before we do a disk seek?”</li>
+<li><strong>Spell checkers</strong>: Is this word in the dictionary?</li>
+<li><strong>Network routers</strong>: Duplicate packet detection</li>
+<li><strong>CDNs</strong>: Track which objects to cache</li>
+</ul>
+<div class="fragment">
+<p><strong>Common theme:</strong> A tiny, fast “probably yes/definitely no” check that saves expensive lookups.</p>
+</div>
+</section>
+<section id="limitations-of-bloom-filters" class="slide level2">
+<h2>Limitations of Bloom Filters</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Can’t do:</strong></p>
+<ul>
+<li>Delete elements (without extensions)</li>
+<li>Return the element itself</li>
+<li>Count occurrences</li>
+<li>Enumerate members</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Variants that extend this:</strong></p>
+<ul>
+<li><strong>Counting Bloom Filter</strong>: supports deletes</li>
+<li><strong>Cuckoo Filter</strong>: also supports deletes, better cache performance</li>
+<li><strong>HyperLogLog</strong>: count distinct elements approximately</li>
+</ul>
+</div></div>
+</section></section>
+<section>
+<section id="skip-lists" class="title-slide slide level1 center" data-background-color="#2d6a4f">
+<h1>Skip Lists</h1>
+
+</section>
+<section id="motivation-ordered-dictionaries" class="slide level2">
+<h2>Motivation: Ordered Dictionaries</h2>
+<p>A hash table gives O(1) lookup but <strong>no ordering</strong>.</p>
+<p>Sorted arrays give O(log n) search but <strong>O(n) insert</strong>.</p>
+<p>Balanced BSTs give O(log n) for both but are <strong>complex to implement correctly</strong> (rotations!).</p>
+<div class="fragment">
+<p><strong>Skip List:</strong> A randomized data structure achieving O(log n) expected for search, insert, delete — with a beautifully simple idea.</p>
+</div>
+</section>
+<section id="the-skip-list-idea" class="slide level2">
+<h2>The Skip List Idea</h2>
+<p>Start with a <strong>sorted linked list</strong>. Search is O(n) — we have to walk it.</p>
+<div class="fragment">
+<p><strong>What if we add “express lanes”?</strong></p>
+</div>
+<div class="fragment">
+<pre><code>Level 1: 1 ──&gt; 3 ──&gt; 4 ──&gt; 6 ──&gt; 7 ──&gt; 8 ──&gt; 9
+Level 2: 1 ────────&gt; 4 ────────&gt; 7 ────────&gt; 9
+Level 3: 1 ────────────────────────────────&gt; 9</code></pre>
+</div>
+<div class="fragment">
+<p>Search for 6:</p>
+<ul>
+<li>Start at <em>level 3</em>: 1 → 9 (too far), drop down</li>
+<li><em>Level 2</em>: 1 → 4 → 7 (overshot), drop down</li>
+<li><em>Level 1</em>: 4 → 6 ✓</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>3 steps instead of 6</strong></p>
+</div>
+</section>
+<section id="how-levels-are-assigned" class="slide level2">
+<h2>How Levels Are Assigned</h2>
+<p>When inserting a new element, flip a coin repeatedly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="kw">def</span> random_level(max_level, p<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb7-2"><a></a>    level <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-3"><a></a>    <span class="cf">while</span> random.random() <span class="op">&lt;</span> p <span class="kw">and</span> level <span class="op">&lt;</span> max_level:</span>
+<span id="cb7-4"><a></a>        level <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-5"><a></a>    <span class="cf">return</span> level</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li>Each element appears on level 1 (always)</li>
+<li>Promoted to level 2 with probability <span class="math inline">\(p\)</span></li>
+<li>Promoted to level 3 with probability <span class="math inline">\(p^2\)</span></li>
+<li>…</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Expected number of levels:</strong> <span class="math inline">\(\log_{1/p} n\)</span><br>
+With <span class="math inline">\(p = 0.5\)</span>: <strong>~<span class="math inline">\(\log_2 n\)</span> levels</strong> — like a balanced BST, but no balancing code!</p>
+</div>
+</section>
+<section id="skip-list-vs.-balanced-bst" class="slide level2">
+<h2>Skip List vs.&nbsp;Balanced BST</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Balanced BST (e.g., AVL)</th>
+<th>Skip List</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Search</td>
+<td>O(log n) worst case</td>
+<td>O(log n) <strong>expected</strong></td>
+</tr>
+<tr class="even">
+<td>Insert</td>
+<td>O(log n) worst case</td>
+<td>O(log n) expected</td>
+</tr>
+<tr class="odd">
+<td>Delete</td>
+<td>O(log n) worst case</td>
+<td>O(log n) expected</td>
+</tr>
+<tr class="even">
+<td>Implementation</td>
+<td>Complex (rotations)</td>
+<td>Simple</td>
+</tr>
+<tr class="odd">
+<td>Concurrent access</td>
+<td>Painful</td>
+<td>Elegant</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Skip lists are used in <strong>Redis</strong> (sorted sets) and <strong>LevelDB</strong> (memtable).</p>
+</div>
+</section></section>
+<section id="summary" class="title-slide slide level1 center" data-background-color="#1a1a2e">
+<h1>Summary</h1>
+<p><em>“A randomized algorithm is an algorithm that uses random numbers to make decisions during its execution. Unlike a deterministic algorithm, different runs of a randomized algorithm on the same input can produce different results.”</em></p>
+<p>— Skiena, <em>The Algorithm Design Manual</em></p>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

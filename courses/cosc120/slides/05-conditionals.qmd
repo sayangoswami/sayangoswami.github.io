@@ -1,0 +1,443 @@
+---
+title: "Conditionals: `if` and `else`"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+    scrollable: true
+---
+
+## Learning Outcomes
+
+- Explain why programs need conditionals and how they change the flow of execution
+- Write `if` and `if`/`else` statements to control which code runs based on a condition
+- Construct conditions using relational operators (`<`, `>`, `<=`, `>=`, `==`, `!=`)
+- Trace the execution path of a conditional given a specific input value
+- Compare Strings with `.equals()` and explain why `==` does not work for Strings
+
+## Programs Don't Always Go Straight
+
+::: notes
+Every program written so far runs the same way every time: top to bottom, one line after another, no detours. That is a straight line. But real useful programs need to make decisions — do this in one situation, do something else in another. That is a branch. The visual of a straight line versus a Y-shaped split is the central image of this lecture. The humor slide is the hook: students already know "If you are happy and you know it, clap your hands." Java says the same thing. Show the Java version first for laughs, then use it to introduce the real syntax.
+:::
+
+Every program we have written so far does the same thing every run — top to bottom, no detours.
+
+<!-- FIGURE [draw.io or excalidraw]: A vertical sequence of three rounded rectangles connected by downward arrows, labeled "Step 1", "Step 2", "Step 3". Label the whole thing "Every program so far." Clean, simple, straight vertical line. -->
+
+But most programs need to **make decisions.**
+
+---
+
+You already know how this works. You have known since kindergarten:
+
+> *"If you're happy and you know it, clap your hands."*
+
+In Java:
+
+```java
+void main() {
+    String mood = IO.readln("Are you happy? (yes/no) ");
+    if (mood.equals("yes")) {
+        IO.println("Clap your hands!");
+        IO.println("(stomp your feet — coming in a future lecture)");
+    }
+}
+```
+
+The `IO.println` inside only runs **if** the condition is true. That is a conditional.
+
+<!-- FIGURE [draw.io or excalidraw]: Same vertical sequence of rectangles from above, but now one of the boxes has a diamond branching off to the right labeled "condition?". From the diamond: a path going right labeled "true" leads to a box "Clap your hands!", then rejoins the main path. A path going straight down labeled "false" skips the box entirely. The contrast with the straight-line figure above should be immediate and clear. -->
+
+## Conditionals in Everyday English
+
+::: notes
+Before showing any more Java syntax, ground the idea in language students already use. Conditionals are not a computer science invention — they are a feature of every human language. We navigate our entire lives using if/else logic. Java just requires us to be more precise about it: the condition must be something that is either true or false, and the body must be inside braces. Show the English-to-Java translation side by side. This makes the syntax feel like a formality rather than something alien.
+:::
+
+We use conditionals constantly — in language, in decisions, in instructions.
+
+:::: {.columns}
+::: {.column width="50%"}
+**In English:**
+
+- If it is raining, take an umbrella.
+- If the light is red, stop.
+- If you are hungry, eat something.
+- If the tank is empty, get gas.
+:::
+::: {.column width="50%"}
+**The structure is always the same:**
+
+```
+if [some condition is true]
+    then do [something]
+```
+:::
+::::
+
+---
+
+Java uses the same structure — just written more precisely:
+
+```java
+if (condition) {
+    // do something
+}
+```
+
+The condition must be something that is either **true** or **false** — nothing in between.
+
+The code inside the braces only runs when the condition is true. Otherwise, it is skipped entirely.
+
+<!-- FIGURE [draw.io or excalidraw]: A two-column figure. Left column: three English sentences each starting with "If..." — written in a casual handwritten style. Right column: the same three sentences translated into Java if-statements with simple conditions and IO.println bodies. Connecting arrows from each English sentence to its Java translation. The visual point: it is the same logic, just a different syntax. -->
+
+## Relational Operators
+
+::: notes
+Relational operators produce a boolean — true or false. Students have seen these symbols in math class; the only ones that look different are == (equality, not assignment) and != (not equal). Spend a moment on == vs = — this is the most common mistake in this entire unit. In math, = means equality. In Java, = means assignment and == means equality. They are completely different. Mention this now, and it will appear again in common mistakes.
+:::
+
+A condition is built from a **relational operator** — a comparison that produces `true` or `false`.
+
+| Operator | Meaning | Example | Result |
+|----------|---------|---------|--------|
+| `<` | less than | `3 < 5` | `true` |
+| `>` | greater than | `3 > 5` | `false` |
+| `<=` | less than or equal to | `5 <= 5` | `true` |
+| `>=` | greater than or equal to | `6 >= 10` | `false` |
+| `==` | equal to | `4 == 4` | `true` |
+| `!=` | not equal to | `4 != 5` | `true` |
+
+---
+
+A few things worth noting:
+
+- `==` is **two** equals signs — it checks equality
+- `=` is **one** equals sign — it stores a value (assignment). These are completely different.
+- `<=` and `>=` are written with the `<` or `>` first, then `=` — not the other way around
+
+```java
+int score = 85;
+IO.println(score > 60);    // true
+IO.println(score == 100);  // false
+IO.println(score != 85);   // false
+IO.println(score >= 85);   // true
+```
+
+## The `if` Statement
+
+::: notes
+Walk through the syntax carefully: the keyword if, the condition in parentheses, the body in braces. The body is the code that only runs when the condition is true. When the condition is false, the entire body is skipped and execution continues with whatever comes after the closing brace. Use the figure to make the two possible paths concrete. The indentation inside the braces is convention — Java does not require it, but every professional programmer uses it because it makes the structure visible at a glance.
+:::
+
+```java
+if (condition) {
+    // this code only runs when the condition is true
+}
+```
+
+The pieces:
+
+- `if` — the keyword
+- `(condition)` — something that is `true` or `false`, in parentheses
+- `{ }` — the **body**: the code that runs when the condition is true
+
+---
+
+**Example:**
+
+```java
+int score = 72;
+
+if (score >= 60) {
+    IO.println("You passed.");
+}
+
+IO.println("Done.");
+```
+
+When `score` is `72`:
+- `72 >= 60` is `true`
+- `"You passed."` is printed
+- `"Done."` is printed
+
+When `score` is `45`:
+- `45 >= 60` is `false`
+- The body is **skipped entirely**
+- `"Done."` is still printed
+
+<!-- FIGURE [draw.io or excalidraw]: A flowchart-style figure (hand-drawn, no Mermaid). A rectangle at top: "score = 72". Arrow down to a diamond: "score >= 60 ?". From the diamond: right arrow labeled "true" → rectangle "Print: You passed." → arrow rejoining the main path. Down arrow from diamond labeled "false" → skips directly to rejoining point. From the rejoining point: rectangle "Print: Done." The two paths (true takes a detour, false goes straight down) should be visually clear. -->
+
+## The `if`/`else` Statement
+
+::: notes
+With a plain if, the body either runs or is skipped. With if/else, exactly one of the two branches always runs — never both, never neither. The else branch is the default: it runs when the condition is false. The figure here is the classic Y-split: the program arrives at a fork, takes one path or the other, and both paths lead to the same place afterward. Stress "exactly one" — this is different from two separate if statements, which could both run or both be skipped.
+:::
+
+Sometimes you want to do one thing if a condition is true, and something **different** if it is false.
+
+```java
+if (condition) {
+    // runs when condition is true
+} else {
+    // runs when condition is false
+}
+```
+
+**Exactly one branch always runs** — never both, never neither.
+
+---
+
+```java
+int score = 45;
+
+if (score >= 60) {
+    IO.println("You passed.");
+} else {
+    IO.println("You did not pass.");
+}
+```
+
+When `score` is `72` → prints `"You passed."`
+When `score` is `45` → prints `"You did not pass."`
+
+<!-- FIGURE [draw.io or excalidraw]: A Y-shaped flowchart. At the top: a single rectangle "Arrive at condition". Below it: a diamond "score >= 60 ?". Left branch from diamond labeled "false" → rectangle "Print: You did not pass." Right branch labeled "true" → rectangle "Print: You passed." Both branches rejoin at a single point at the bottom with a rectangle "Continue...". The visual emphasis should be on the two branches always rejoining — exactly one runs, and then execution continues normally. -->
+
+::: callout-note
+Two separate `if` statements are **not** the same as `if`/`else`. With two `if` statements, both conditions are checked independently and both bodies could run. With `if`/`else`, only one branch runs.
+:::
+
+## Tracing a Conditional
+
+::: notes
+Tracing means following exactly what the computer does, step by step. The key habit to build: before running the program, ask "what will the condition evaluate to for this input?" That tells you which branch runs. Show both scenarios and ask students to predict before revealing. The figure — two colored paths through the same flowchart shape — makes the two possible executions concrete without needing a dense table.
+:::
+
+```java
+void main() {
+    int temperature = Integer.parseInt(IO.readln("Temperature (°F): "));
+
+    if (temperature >= 70) {
+        IO.println("It is warm outside.");
+    } else {
+        IO.println("It is cold outside.");
+    }
+
+    IO.println("Have a nice day.");
+}
+```
+
+:::: {.columns}
+::: {.column width="50%"}
+**User types `85`**
+
+`85 >= 70` → **true**
+
+✓ runs: *"It is warm outside."*
+✗ skips: else branch
+
+→ *"Have a nice day."*
+:::
+::: {.column width="50%"}
+**User types `50`**
+
+`50 >= 70` → **false**
+
+✗ skips: if branch
+✓ runs: *"It is cold outside."*
+
+→ *"Have a nice day."*
+:::
+::::
+
+<!-- FIGURE [draw.io or excalidraw]: The same Y-shaped flowchart as the if/else slide, but drawn twice side by side — or drawn once with two colored paths highlighted. Left instance (or left path): the "true" branch is highlighted/bolded, the "false" branch is faded. Right instance (or right path): opposite. Below each, the printed output is shown. The point is to make the two execution paths feel like physical routes through the same diagram. -->
+
+## Comparing Strings — `.equals()`
+
+::: notes
+This is one of the most important things to get right before students write any programs that read String input. == on Strings does not check whether they have the same content — it checks whether they are literally the same object in memory. For beginners, this distinction does not need to be explained deeply; just give the rule and the reason why: for Strings, always use .equals(). Show the bug that == produces and why .equals() fixes it. The sticky note analogy works well: == asks "are these the same sticky note?" (same physical piece of paper); .equals() asks "do these sticky notes say the same thing?" Students comparing user input to a String literal must always use .equals().
+:::
+
+You know that `==` compares two values. For numbers, this works perfectly:
+
+```java
+int score = 85;
+IO.println(score == 85);   // true ✓
+```
+
+**For Strings, `==` does not work the way you expect:**
+
+```java
+String answer = IO.readln("Type yes: ");
+
+if (answer == "yes") {          // ✗ — this may not work!
+    IO.println("You said yes.");
+}
+```
+
+Even if the user types `yes`, this condition may be `false`.
+
+---
+
+**The rule: always use `.equals()` to compare Strings.**
+
+```java
+String answer = IO.readln("Type yes: ");
+
+if (answer.equals("yes")) {     // ✓ — this always works
+    IO.println("You said yes.");
+}
+```
+
+Think of it like two sticky notes that both say `"yes"`. `==` asks *"are these physically the same sticky note?"* — almost never what you want. `.equals()` asks *"do they say the same thing?"* — which is what you actually care about.
+
+The full explanation for why `==` behaves this way on Strings is coming later in the course. For now, just remember the rule.
+
+<!-- FIGURE [draw.io or excalidraw]: Two sticky notes side by side, both with "yes" written on them. Arrow labeled "==" with a red X: "Same sticky note? NO." Arrow labeled ".equals()" with a green check: "Same words? YES." Below: two code snippets, one with == (marked wrong), one with .equals() (marked correct). -->
+
+::: callout-warning
+For String comparison, **always use `.equals()`** — never `==`. We will explain exactly why later in the course.
+:::
+
+## Code Example — Is It Warm Enough?
+
+::: notes
+A complete program that uses if/else, a relational operator, and String comparison — all in one. Walk through the flowchart, then the code, then trace through with two inputs. The program asks for a temperature and whether the person wants to go outside, then gives advice. Keep the logic simple — this deck only covers plain if/else, not boolean logic or else if.
+:::
+
+**Problem:** Ask the user for the current temperature. If it is 65°F or above, tell them it is a good day to go outside. Otherwise, suggest they stay in.
+
+<!-- FIGURE [draw.io or excalidraw]: A hand-drawn flowchart (no Mermaid). Top rectangle: "Read temperature from user". Arrow down to diamond: "temperature >= 65 ?". Right branch labeled "true" → rectangle "Print: Great day to go outside!" → rejoins. Left branch labeled "false" → rectangle "Print: Maybe stay in today." → rejoins. Bottom rectangle: "End." -->
+
+```java
+void main() {
+    int temperature = Integer.parseInt(IO.readln("Current temperature (°F): "));
+
+    if (temperature >= 65) {
+        IO.println("Great day to go outside!");
+    } else {
+        IO.println("Maybe stay in today.");
+    }
+}
+```
+
+**Sample run 1:**
+```
+Current temperature (°F): 72
+Great day to go outside!
+```
+
+**Sample run 2:**
+```
+Current temperature (°F): 48
+Maybe stay in today.
+```
+
+## Common Mistakes
+
+::: notes
+Three mistakes that will show up in almost every student's code this week. The = vs == mistake is the most frequent and the hardest to spot because the program compiles — it just does the wrong thing. Missing braces is dangerous because removing braces from a multi-line body silently changes which lines are inside the if. Using == on Strings compiles and runs but produces wrong results with user input. Go through each one slowly.
+:::
+
+**1. Using `=` instead of `==` in a condition**
+```java
+int score = 85;
+if (score = 100) {    // ERROR — this is assignment, not comparison
+    IO.println("Perfect score!");
+}
+```
+`=` stores a value. `==` compares values. In a condition, you always want `==`.
+
+---
+
+**2. Missing braces — only the first line is inside the `if`**
+```java
+if (score >= 60)
+    IO.println("Passing");
+    IO.println("Congratulations");   // always runs — NOT inside the if
+```
+
+Without braces, only the very next line is inside the `if`. Always use braces.
+
+```java
+if (score >= 60) {
+    IO.println("Passing");
+    IO.println("Congratulations");   // now both lines are inside the if ✓
+}
+```
+
+---
+
+**3. Using `==` to compare Strings**
+```java
+String name = IO.readln("Your name: ");
+if (name == "Alice") {      // ✗ — may always be false
+    IO.println("Hello, Alice!");
+}
+if (name.equals("Alice")) { // ✓ — compares the content
+    IO.println("Hello, Alice!");
+}
+```
+
+## Worksheet
+
+::: notes
+Reserve the last 20-30 minutes. Problems 1-2 are tracing — students work on paper. Problems 3-4 are write-the-code. Problem 5 is the synthesis problem. Watch for: = vs ==; missing braces; students who use == on Strings; students who write two separate if statements when they need if/else.
+:::
+
+**Problem 1 — Trace it.** What does this program print when `x` is `10`? When `x` is `3`?
+
+```java
+void main() {
+    int x = 10;   // try with 3 as well
+
+    if (x > 5) {
+        IO.println("Big");
+    } else {
+        IO.println("Small");
+    }
+
+    IO.println("Done");
+}
+```
+
+**Problem 2 — Trace it.** What does this program print for each value of `score`? Try `score = 100`, `score = 60`, `score = 59`.
+
+```java
+void main() {
+    int score = 100;   // try 60 and 59 as well
+
+    if (score >= 60) {
+        IO.println("Passing");
+    }
+
+    IO.println("Score checked.");
+}
+```
+
+*(Note: there is no `else` here. How does the output differ from an `if`/`else`?)*
+
+**Problem 3 — Spot the bugs.** Fix every mistake:
+
+```java
+void main() {
+    int age = Integer.parseInt(IO.readln("Your age: "));
+
+    if (age = 18)
+        IO.println("You are exactly 18.");
+        IO.println("Welcome!");
+    else
+        IO.println("You are not 18.");
+}
+```
+
+**Problem 4 — Write it.** Write a program that asks the user for a number. If the number is negative, print `"Negative"`. Otherwise print `"Non-negative"`.
+
+**Problem 5 — Write it.** Ask the user to enter a password. If the password is `"open sesame"`, print `"Access granted."` Otherwise print `"Access denied."`.
+
+*(Hint: what operator should you use to compare two Strings?)*
+
+**Problem 6 — Write it.** Ask the user for two integers. Print the larger one. If they are equal, print `"Equal"`.

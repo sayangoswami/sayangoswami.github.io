@@ -1,0 +1,563 @@
+---
+title: "Return Values and Scope"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+---
+
+## Learning Outcomes
+
+- Define methods that compute and return a value using the `return` statement
+- Store and use a method's return value in a variable, expression, or condition
+- Write methods with multiple `return` statements in different branches
+- Explain what scope means and identify the scope of a local variable
+- Trace a method call with a return value and show what the caller receives
+
+## The Limitation of `void`
+
+::: notes
+Open by revisiting what void means in the context of the last two lectures. Void methods DO things — they print, they perform actions. But they give nothing back. What if you need the result of a computation to use somewhere else? Show the limitation concretely: if you want to know the larger of two numbers, a void method can print it, but you can't use that printed value in a condition or store it in a variable. You have no way to get the answer OUT of the method. This sets up the natural question: what if the method could hand you the result?
+:::
+
+In the last two lectures, all methods started with `void`:
+
+```java
+void printBanner() { ... }
+void greet(String name) { ... }
+void printScore(String player, int score) { ... }
+```
+
+`void` means the method **does something** — but gives **nothing back**.
+
+That works when you just want to print or perform an action.
+
+But what if you need to **use the result of a computation?**
+
+```java
+void doubleIt(int n) {
+    IO.println(n * 2);   // prints the result — but where does it go?
+}
+
+void main() {
+    doubleIt(5);          // prints 10 — fine
+    int x = doubleIt(5); // ✗ — cannot store the result; nothing is given back
+}
+```
+
+The result disappears the moment it is printed. You cannot store it, use it in a calculation, or pass it to another method.
+
+There is a better way.
+
+## Functions in Mathematics
+
+::: notes
+Students have been writing functions since middle school. This slide is the central hook for the lecture — the direct bridge between math and programming. Go slowly and make the parallel explicit. f(x) = x² is a function: it takes a number, squares it, and produces a result. g(x, y) = x + y takes two numbers, adds them, and produces a result. The "produces a result" part is the key — the function doesn't just DO something, it GIVES YOU BACK A VALUE. Draw the parallel: the method name corresponds to f, the parameters correspond to x and y, and the "produces a result" part is what the return statement does.
+:::
+
+You have been working with functions in math for years:
+
+$$f(x) = x^2$$
+$$g(x, y) = x + y$$
+$$h(x) = 2x + 1$$
+
+Each function:
+- Takes **input** (the values in the parentheses)
+- **Computes** something
+- **Produces a result** — a value you can use anywhere
+
+When you write $f(3)$, you get back $9$. You can use that $9$ directly:
+
+$$f(3) + 1 = 10 \qquad \text{or} \qquad y = f(3) \qquad \text{or} \qquad \text{if } f(3) > 5 \ldots$$
+
+The function's result is a value you can store, combine, or compare — not something that just disappears.
+
+**Java methods work exactly the same way.** The only difference is that you also have to tell Java what *type* of value the method will produce.
+
+<!-- FIGURE [draw.io or excalidraw]: A two-column side-by-side diagram. Left column: math notation — f(x) = x², g(x,y) = x + y, h(x) = 2x + 1. Right column: Java translation (not code yet — just labels): "method name", "parameters", "computes a result", "tells Java the type". Connecting arrows from each math element to its Java counterpart. The visual point: math functions and Java methods are the same idea, just written differently. Clean, like a Rosetta Stone. -->
+
+## Methods as Functions
+
+::: notes
+Now the translation from math to Java, one piece at a time. The return type replaces void — it goes in the same position, but instead of saying "produces nothing," it says "produces a value of this type." The return keyword sends the value back to whoever called the method. Walk through the parallel carefully: f(x) = x² becomes int square(int x) { return x * x; }. The math equals sign becomes the return statement. Everything else maps directly. Show two or three translations so the pattern is clear.
+:::
+
+Translating a math function into Java:
+
+| Math | Java |
+|------|------|
+| $f(x) = x^2$ | `int square(int x) { return x * x; }` |
+| $g(x, y) = x + y$ | `int add(int x, int y) { return x + y; }` |
+| $h(x) = 2x + 1$ | `int linear(int x) { return 2 * x + 1; }` |
+
+Two things changed from `void` methods:
+
+1. **`void` is replaced by the return type** — the type of value the method produces (`int`, `double`, `String`, `boolean`, ...)
+2. **`return` sends the value back** — it is the `=` sign of the math function, written as a keyword
+
+```java
+//   return type
+//       ↓
+int square(int x) {
+    return x * x;   // ← the "= x²" part
+}
+```
+
+The method computes a value and hands it back to whoever called it.
+
+<!-- FIGURE [draw.io or excalidraw]: Two boxes side by side. Left: the math function f(x) = x² with labels: "f" = function name, "x" = input, "x²" = result. Right: the Java method int square(int x) { return x * x; } with matching labels: "square" = method name, "int x" = parameter, "int" = return type, "x * x" = computation, "return" = sends it back. Arrows connecting matching parts between the two boxes. The "equals" sign in math maps directly to the "return" keyword in Java. -->
+
+## The `return` Statement
+
+::: notes
+The mechanics of return: it sends a value back to the caller and immediately stops the method. Nothing after a return statement in the same branch will run. This is important for multiple-return methods later. Show the syntax first, then show that the method stops at return with a concrete example. The "method stops here" behavior surprises students — they expect the method to keep running. Connect to math: when f(3) = 9, you don't ask "and then what does f do?" — the function just produces the value and it's over.
+:::
+
+The `return` statement does two things:
+
+1. **Sends a value back** to whoever called the method
+2. **Stops the method immediately** — no further lines in that branch run
+
+```java
+int square(int x) {
+    return x * x;     // sends back the result AND stops the method
+    IO.println("Hi"); // ✗ — this line can never be reached; Java will warn you
+}
+```
+
+The syntax:
+
+```java
+return expression;
+```
+
+The expression can be any value of the right type — a literal, a variable, a calculation:
+
+```java
+int double(int n)   { return n * 2; }
+double half(int n)  { return n / 2.0; }
+String shout(String s) { return s.toUpperCase(); }
+boolean isEven(int n)  { return n % 2 == 0; }
+```
+
+::: callout-warning
+The type of the expression after `return` must match the return type declared before the method name. `int square(int x) { return 3.14; }` is an error — you declared `int` but tried to return a `double`.
+:::
+
+## Using the Return Value
+
+::: notes
+The return value comes back to the call site — and you can do three things with it: store it in a variable, use it directly in an expression, or use it in a condition. Show all three. The most common beginner mistake is ignoring the return value entirely — calling square(5) without doing anything with the result is legal but pointless. Also: the return value can be passed as an argument to another method, which is the basis of expression chaining.
+:::
+
+When a method returns a value, you can use that value in three ways:
+
+**1. Store it in a variable:**
+```java
+int result = square(5);        // result holds 25
+String loud = shout("hello");  // loud holds "HELLO"
+```
+
+**2. Use it directly in an expression:**
+```java
+IO.println(square(5) + 1);    // prints 26
+IO.println(square(3) * 2);    // prints 18
+```
+
+**3. Use it in a condition:**
+```java
+if (square(4) > 10) {
+    IO.println("Big square!");
+}
+
+if (isEven(score)) {
+    IO.println("Even score.");
+}
+```
+
+---
+
+You can also pass a return value directly as an argument to another method:
+
+```java
+IO.println(square(5));         // square(5) produces 25; println prints 25
+IO.println(shout("hello"));   // shout produces "HELLO"; println prints it
+```
+
+::: callout-warning
+Calling a method with a return value but doing nothing with the result is legal but almost always a mistake:
+```java
+square(5);    // computes 25 and immediately discards it — probably a bug
+```
+:::
+
+## Piecewise Functions and Multiple Returns
+
+::: notes
+In math, some functions are defined differently for different inputs — piecewise functions. The absolute value is the classic example: f(x) = x if x ≥ 0, and f(x) = -x if x < 0. In Java, this maps naturally to if/else with a return in each branch. The key rule: every path through the method must reach a return statement. If some path reaches the end without a return, Java will refuse to compile. Walk through the absolute value example carefully — students often try to write it as a single return with a conditional expression, which is fine too, but the if/else version mirrors the piecewise notation directly.
+:::
+
+In math, a piecewise function produces different results depending on the input:
+
+$$|x| = \begin{cases} x & \text{if } x \geq 0 \\ -x & \text{if } x < 0 \end{cases}$$
+
+In Java, this maps directly to `if/else` with a `return` in each branch:
+
+```java
+int abs(int x) {
+    if (x >= 0) {
+        return x;    // if x is non-negative, return x as-is
+    } else {
+        return -x;   // if x is negative, flip the sign
+    }
+}
+```
+
+Each branch reaches a `return`. The method ends as soon as one of them runs.
+
+```java
+IO.println(abs(5));    // 5
+IO.println(abs(-3));   // 3
+IO.println(abs(0));    // 0
+```
+
+---
+
+Another example — letter grade from a score:
+
+```java
+String letterGrade(int score) {
+    if (score >= 90) {
+        return "A";
+    } else if (score >= 80) {
+        return "B";
+    } else if (score >= 70) {
+        return "C";
+    } else if (score >= 60) {
+        return "D";
+    } else {
+        return "F";
+    }
+}
+```
+
+::: callout-warning
+Every path through the method must reach a `return`. If Java can find a path that doesn't, it will refuse to compile: *"missing return statement."*
+:::
+
+## Tracing a Return Value
+
+::: notes
+A step-by-step trace of a method call with a return value, to make the flow concrete. Students need to see: call happens, argument flows into parameter, method body runs, return sends the value back, the value lands at the call site where it can be stored or used. The key new step compared to deck 08 and 09 traces is what happens at the call site after the method returns — the value appears in place of the call expression.
+:::
+
+Tracing `int x = square(4)`:
+
+```java
+int square(int n) {          // 2. n = 4 (argument copied in)
+    return n * n;             // 3. computes 4*4 = 16; sends 16 back
+}
+
+void main() {
+    int x = square(4);        // 1. call: argument 4 provided
+                               // 4. 16 comes back; stored in x
+    IO.println(x);            // 5. prints 16
+}
+```
+
+Think of the call `square(4)` being **replaced by its result** — as if Java rewrote the line:
+
+```java
+int x = square(4);   →   int x = 16;
+```
+
+---
+
+The same happens with chained uses:
+
+```java
+IO.println(square(3) + 1);
+//           ↓
+IO.println(9 + 1);
+//           ↓
+IO.println(10);
+```
+
+The method call is replaced by the value it returns, wherever it appears.
+
+<!-- FIGURE [draw.io or excalidraw]: A flow diagram showing the full journey for int x = square(4). Left side: main() with the line "int x = square(4)". An arrow labeled "1. call, argument = 4" goes right into a box for square(). Inside the box: "n = 4" and "return 4*4 = 16". An arrow labeled "2. returns 16" goes back left into main(). The variable x now holds 16, shown in a labeled box. The line in main becomes "int x = 16" with the substitution shown. -->
+
+## What Is Scope?
+
+::: notes
+Scope is where a variable exists. This is the second main concept of the lecture and the natural follow-on from return values — because once you understand that variables can only be used inside their method, the question "how does the result get OUT?" is answered by: the return value. The scope concept is also the full treatment of the point briefly mentioned at the end of deck 09. Use the "bubble" analogy: each method is a bubble. Variables declared inside the bubble only exist inside the bubble. When the bubble pops (when the method ends), all variables inside disappear.
+:::
+
+**Scope** is the region of code where a variable exists and can be used.
+
+Every variable declared inside a method only exists **inside that method**:
+
+```java
+int addOne(int n) {
+    int result = n + 1;    // 'result' is born here
+    return result;          // the VALUE of result escapes — the variable does not
+}                           // 'result' ceases to exist here
+
+void main() {
+    int x = addOne(5);
+    IO.println(result);    // ✗ — ERROR: 'result' is not defined here
+    IO.println(x);         // ✓ — x holds 6 (the value that escaped)
+}
+```
+
+The return value is the **one thing that escapes** the method's scope. Everything else stays inside.
+
+<!-- FIGURE [draw.io or excalidraw]: Two bubbles representing two methods. Left bubble (addOne): contains two items — "n" and "result" — labeled as local variables inside the bubble. An arrow labeled "return value: 6" exits the bubble through a small opening and travels to the right bubble. Right bubble (main): the value 6 arrives and is stored in "x". Labels: inside each bubble = "lives here only." The arrow out of the bubble = "the one thing that escapes." When addOne's bubble "pops," n and result disappear — only the value that was returned survives. -->
+
+## Local Variables
+
+::: notes
+A local variable is any variable declared inside a method — parameters count too. All local variables are scoped to their method. This is not a limitation — it is a feature. It means methods are truly self-contained. Two different methods can use the same variable name (like "result" or "temp") without any conflict, because each lives in its own bubble. Show the non-conflict example — students are sometimes surprised that the same name in two methods is legal and completely independent.
+:::
+
+A **local variable** is a variable declared inside a method. Parameters are local variables too.
+
+All local variables:
+- Are created when the method is called
+- Only exist inside that method
+- Cease to exist when the method ends
+
+```java
+int double(int n) {
+    int result = n * 2;   // 'result' is local to double
+    return result;
+}
+
+int triple(int n) {
+    int result = n * 3;   // also named 'result' — completely independent
+    return result;
+}
+```
+
+These two `result` variables are completely separate. They happen to share a name, but they live in different bubbles. Changing one has zero effect on the other.
+
+::: callout-note
+This independence is a feature, not a bug. Methods are self-contained units. You can write and test them without worrying about variable names clashing with other methods.
+:::
+
+## `void` vs. Return: Which to Use?
+
+::: notes
+A simple decision rule that maps to the do/compute distinction. Methods that perform an action (print, modify, draw) are usually void. Methods that compute a value the caller needs to use have a return type. The math analogy is useful: in math you distinguish between "procedures" (algorithms that do a sequence of steps) and "functions" (mappings that produce a value). In Java, void = procedure, return type = function. The rule of thumb: if the caller needs to DO SOMETHING WITH the result, use a return type. If the caller just needs the method to ACT, use void.
+:::
+
+Two kinds of methods. Two different jobs:
+
+| | `void` | With return type |
+|---|--------|-----------------|
+| **Does what?** | Performs an action | Computes a value |
+| **Gives back** | Nothing | A value the caller can use |
+| **Math analogy** | Procedure | Function |
+| **Example** | `printBanner()` | `square(int x)` |
+
+**Use `void` when** the method's job is to *do something*:
+- Print output
+- Draw something
+- Save something
+
+**Use a return type when** the method's job is to *compute and hand back a value*:
+- Calculate a result
+- Check a condition and answer yes/no
+- Transform a value (uppercase, round, format)
+
+::: callout-tip
+Ask yourself: "Does the caller need to **use** this result somewhere?" If yes → return type. If the method just acts and the caller moves on → `void`.
+:::
+
+## Code Example — Grade Calculator
+
+::: notes
+A complete program that uses all three kinds of methods from the last three lectures: void (printSeparator), void with parameters (printStudent), and return methods (letterGrade, isPassing). Walk through each method's role. Ask students to trace letterGrade("Alice", 87) before revealing the output. Then ask: what would you change to make 65 the passing threshold? (One line in isPassing.) This is the synthesis example for the full three-lecture arc.
+:::
+
+```java
+String letterGrade(int score) {
+    if (score >= 90) { return "A"; }
+    else if (score >= 80) { return "B"; }
+    else if (score >= 70) { return "C"; }
+    else if (score >= 60) { return "D"; }
+    else { return "F"; }
+}
+
+boolean isPassing(int score) {
+    return score >= 60;
+}
+
+void printSeparator() {
+    IO.println("-----------------------------");
+}
+
+void printStudent(String name, int score) {
+    String grade = letterGrade(score);
+    boolean passing = isPassing(score);
+
+    IO.println("Student: " + name);
+    IO.println("Score:   " + score);
+    IO.println("Grade:   " + grade);
+    if (passing) {
+        IO.println("Status:  Passing");
+    } else {
+        IO.println("Status:  Not passing");
+    }
+}
+
+void main() {
+    printSeparator();
+    printStudent("Alice", 87);
+    printSeparator();
+    printStudent("Bob", 54);
+    printSeparator();
+    printStudent("Charlie", 92);
+    printSeparator();
+}
+```
+
+**Output:**
+```
+-----------------------------
+Student: Alice
+Score:   87
+Grade:   B
+Status:  Passing
+-----------------------------
+Student: Bob
+Score:   54
+Grade:   F
+Status:  Not passing
+-----------------------------
+Student: Charlie
+Score:   92
+Grade:   A
+Status:  Passing
+-----------------------------
+```
+
+## Common Mistakes
+
+::: notes
+Four mistakes that show up constantly this week. The most dangerous is forgetting to return — Java catches this at compile time for non-void methods, but students are still confused by the error message. Ignoring the return value is legal but almost always wrong. Using a variable outside its scope produces a confusing error message because Java just says the variable doesn't exist — students wonder where it went. Type mismatch on return is caught early. Go through each one, ideally by asking students to identify the problem before explaining.
+:::
+
+**1. Forgetting to `return` in a non-void method**
+```java
+int square(int n) {
+    int result = n * n;
+    // ✗ forgot to return — Java error: "missing return statement"
+}
+```
+
+---
+
+**2. A path through the method that never reaches `return`**
+```java
+int abs(int x) {
+    if (x >= 0) {
+        return x;
+    }
+    // ✗ what if x < 0? No return here — Java error
+}
+```
+Fix: add `else { return -x; }` or `return -x;` after the if block.
+
+---
+
+**3. Ignoring the return value**
+```java
+square(5);            // ✗ — computes 25 and immediately discards it
+int x = square(5);   // ✓ — stores the result
+```
+
+---
+
+**4. Using a local variable outside its method**
+```java
+int addOne(int n) {
+    int result = n + 1;
+    return result;
+}
+
+void main() {
+    addOne(5);
+    IO.println(result);   // ✗ — 'result' does not exist here
+}
+```
+The variable `result` lived inside `addOne` and is gone. Store the return value in a variable in `main` if you need it.
+
+## Worksheet
+
+::: notes
+Reserve 20–30 minutes. Problems 1–2 are predict-the-output. Problems 3–4 are write-it with return types. Problem 5 is a debug. Problem 6 is synthesis bringing together all three kinds of methods. Watch for: missing return; scope errors; ignoring the return value; type mismatch on return.
+:::
+
+**Problem 1 — Predict the output.** Work through it on paper before running.
+
+```java
+int triple(int n) {
+    return n * 3;
+}
+
+boolean isLong(String s) {
+    return s.length() > 5;
+}
+
+void main() {
+    int x = triple(4);
+    IO.println(x);
+    IO.println(triple(x));
+    IO.println(isLong("hello"));
+    IO.println(isLong("hi"));
+}
+```
+
+**Problem 2 — Predict the output.** Trace each call to `classify`.
+
+```java
+String classify(int n) {
+    if (n > 0) { return "positive"; }
+    else if (n < 0) { return "negative"; }
+    else { return "zero"; }
+}
+
+void main() {
+    IO.println(classify(5));
+    IO.println(classify(-3));
+    IO.println(classify(0));
+    IO.println(classify(triple(0)));
+}
+```
+
+*(Assume `triple` from Problem 1 is also defined.)*
+
+**Problem 3 — Write it.** Write a method `max(int a, int b)` that returns the larger of two integers. If they are equal, return either one. Test it from `main` with at least four pairs.
+
+**Problem 4 — Write it.** Write each of the following methods, then call all of them from `main`:
+- `double celsiusToFahrenheit(double c)` — converts Celsius to Fahrenheit: $F = \frac{9}{5}C + 32$
+- `boolean isFreezing(double fahrenheit)` — returns `true` if the temperature is at or below 32°F
+- A `main` that reads a Celsius temperature from the user, converts it, and prints whether it is freezing.
+
+**Problem 5 — Debug it.** Find and fix every mistake.
+
+```java
+int cube(int n) {
+    int result = n * n * n;
+}
+
+void main() {
+    cube(3);
+    IO.println("The cube of 3 is: " + result);
+}
+```
+
+**Problem 6 — Write it (synthesis).** Write a complete program with at least one `void` method, one `void` method with parameters, and one method with a return value. The program should ask the user for two integers and print: their sum, their product, their average (as a `double`), and which one is larger (or "equal" if they match). Each computation should be done in its own method.

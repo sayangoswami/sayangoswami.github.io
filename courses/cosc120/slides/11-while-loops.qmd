@@ -1,0 +1,358 @@
+---
+title: "`while` Loops"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+---
+
+## Learning Outcomes
+
+- Write a `while` loop with a correct initialization, condition, and update
+- Write accumulator loops that maintain a running sum, product, or count
+- Write sentinel loops that read input until a special value is seen
+- Identify and correct off-by-one errors in loop conditions
+- Trace a loop's execution iteration by iteration using a variable table
+
+## The Problem with Repetition
+
+Without loops, printing a countdown looks like this:
+
+```java
+IO.println(5);
+IO.println(4);
+IO.println(3);
+IO.println(2);
+IO.println(1);
+IO.println("Blast off!");
+```
+
+What if you needed to count down from **1 000**?
+
+::: notes
+Open with the visceral horror of copying code 1000 times. This is the gut-level motivation. Let students feel the pain before offering the relief. Don't move on until someone laughs or groans.
+:::
+
+## The Real World Already Has Loops
+
+> "Keep hitting snooze until you feel rested."
+
+> "Keep stirring until the sauce thickens."
+
+> "Keep reading messages until the inbox is empty."
+
+Computers need the same idea — **repeat an action *while* a condition holds**.
+
+::: notes
+Draw on universal experiences. The snooze alarm lands especially well for college students. The key insight: the condition is checked before each repetition, not just once at the start. This is the mental model they need before seeing any syntax.
+:::
+
+## The `while` Loop
+
+```java
+while (condition) {
+    // body — runs over and over as long as condition is true
+}
+```
+
+- Java checks the **condition** before **every** iteration
+- If `true` → run the body, then check again
+- If `false` → skip the body entirely and move on
+
+<!-- FIGURE [draw.io or excalidraw]: Flowchart — a diamond "condition?" with a YES arrow looping right into a rectangle "body" and then curving back up to the diamond, and a NO arrow pointing straight down labeled "done". Label the YES path "keep going". Use a thick curved arrow to emphasize the loop-back. -->
+
+::: notes
+Walk through the flowchart slowly. The condition is a gate that the program hits every single time before running the body — including the very first time. This is the core mental model. "Before every iteration" is worth saying three times.
+:::
+
+## Loop Anatomy
+
+Every `while` loop has three essential parts:
+
+```java
+int i = 1;           // 1. INITIALIZE  — set up the variable before the loop
+
+while (i <= 5) {     // 2. CONDITION   — checked before every iteration
+    IO.println(i);
+    i = i + 1;       // 3. UPDATE      — move toward the condition becoming false
+}
+```
+
+<!-- FIGURE [draw.io or excalidraw]: The same code block with three colored annotations. A green bracket around "int i = 1" labeled "① Initialize". A blue bracket around "i <= 5" labeled "② Condition (checked every time)". An orange bracket around "i = i + 1" labeled "③ Update". Below, a cycle diagram: box ① → diamond ② → (yes) box body → box ③ → back to ②; (no) exits. -->
+
+::: notes
+The three-part structure is the grammar of every while loop. If any one part is missing, the loop either never runs or runs forever. Drill this cycle aloud: Initialize — Check — Body — Update — Check — Body — Update — Check...
+:::
+
+## Tracing a Loop — The Variable Table
+
+```java
+int i = 1;
+while (i <= 3) {
+    IO.println("Hello " + i);
+    i = i + 1;
+}
+```
+
+| Iteration | `i` at start | `i <= 3`? | Output | `i` after update |
+|-----------|-------------|-----------|--------|-----------------|
+| 1 | 1 | true | `Hello 1` | 2 |
+| 2 | 2 | true | `Hello 2` | 3 |
+| 3 | 3 | true | `Hello 3` | 4 |
+| — | 4 | **false** | *(loop exits)* | — |
+
+::: notes
+Walk through the table row by row, slowly. The variable table is THE debugging skill for loops — students should be able to fill one in for any while loop. Emphasize: the condition is checked with the NEW value of i AFTER the update, before the next body runs.
+:::
+
+## The Countdown (Revisited)
+
+```java
+int count = 5;
+while (count >= 1) {
+    IO.println(count);
+    count = count - 1;
+}
+IO.println("Blast off! 🚀");
+```
+
+**Output:**
+```
+5
+4
+3
+2
+1
+Blast off! 🚀
+```
+
+Change `count = 5` to `count = 1000` and it still works — no copying!
+
+::: notes
+Return to the opening example and show the payoff. The loop is counting DOWN, so the update is subtraction and the condition is >=. Ask students: "What would happen if the update were count = count + 1 instead?" They should say: infinite loop.
+:::
+
+## The Accumulator Pattern
+
+**Goal:** add up all numbers from 1 to 5.
+
+```java
+int sum = 0;          // accumulator — starts at 0 (the identity for addition)
+int i = 1;
+
+while (i <= 5) {
+    sum = sum + i;    // add current number to running total
+    i = i + 1;
+}
+
+IO.println("Sum: " + sum);   // Sum: 15
+```
+
+| `i` | `sum` before | `sum` after |
+|-----|-------------|------------|
+| 1 | 0 | 1 |
+| 2 | 1 | 3 |
+| 3 | 3 | 6 |
+| 4 | 6 | 10 |
+| 5 | 10 | 15 |
+
+::: notes
+The accumulator pattern: set up a "bucket" (sum = 0) before the loop; pour each value in during the loop; read the bucket after the loop. For products, start at 1 instead of 0. For counting, add 1 conditionally inside the loop. These are the three flavors mentioned in the learning outcomes.
+:::
+
+## The Counter Pattern
+
+**Goal:** count how many words the user enters (stop at `"done"`).
+
+```java
+int count = 0;
+
+String word = IO.readln("Enter a word (or 'done' to stop): ");
+
+while (!word.equals("done")) {
+    count = count + 1;
+    word = IO.readln("Enter a word (or 'done' to stop): ");
+}
+
+IO.println("You entered " + count + " word(s).");
+```
+
+::: notes
+The counter is a special accumulator: instead of adding the value, we always add 1. Highlight that count starts at 0 before the loop. Also point out the structure: this loop is ALSO an example of the sentinel pattern — "done" is the stop signal. The next slide formalizes that.
+:::
+
+## The Sentinel Loop Pattern
+
+A **sentinel value** is a special input that means "stop — we're done":
+
+```java
+String word = IO.readln("Enter a word (or 'quit' to stop): ");  // ← prime the pump
+
+while (!word.equals("quit")) {
+    IO.println("You entered: " + word);
+    word = IO.readln("Enter a word (or 'quit' to stop): ");     // ← read again at bottom
+}
+
+IO.println("Goodbye!");
+```
+
+The read happens **twice** — once before the loop, once at the bottom of the body.
+
+<!-- FIGURE [draw.io or excalidraw]: Two-column diagram. Left column: "Before loop" — a box labeled "Read word (prime the pump)" with an arrow going down into the loop diamond. Right column: "Inside loop" — at the bottom of the loop body, another box "Read word (update for next check)" with an arrow curving back up to the diamond. Label the pattern underneath: "Read → Check → Use → Read → Check → ..." -->
+
+::: notes
+The sentinel pattern trips students up because the read appears twice. Explain why: you need a value before the condition is checked for the first time (prime the pump), and you need a fresh value at the end of each iteration or the loop will run forever on the same word. If they forget the second read, it's an infinite loop.
+:::
+
+## Infinite Loops
+
+Forgetting the update:
+
+```java
+int i = 1;
+while (i <= 5) {
+    IO.println(i);
+    // i never changes — condition stays true forever
+}
+```
+
+Updating in the wrong direction:
+
+```java
+int i = 1;
+while (i >= 1) {
+    IO.println(i);
+    i = i + 1;    // i grows → condition i >= 1 is always true
+}
+```
+
+::: {.callout-tip}
+Program seems frozen? You're probably in an infinite loop.
+Press **`Ctrl + C`** to stop it.
+:::
+
+::: notes
+Show both flavors: forgetting the update entirely, and updating in the wrong direction. The Ctrl+C tip is immediately practical and reassures students they aren't breaking anything. Ask: "How would you fix each of these?"
+:::
+
+## Off-by-One Errors
+
+Should this print 1 through 5, or 1 through 4?
+
+```java
+int i = 1;
+while (i < 5) {      // < vs <=  ← easy to mix up!
+    IO.println(i);
+    i = i + 1;
+}
+```
+
+**Output:** `1  2  3  4` — stops one short!
+
+**Fix:** change `<` to `<=`:
+
+```java
+while (i <= 5) { ... }   // now prints 1 2 3 4 5
+```
+
+**Rule of thumb:** trace the *last* iteration by hand.
+Ask: "What is `i` when the loop exits? Is that right?"
+
+::: notes
+Off-by-one errors are among the most common bugs even for experienced programmers. The trace-the-last-iteration technique is the universal antidote. Do this slowly: when i = 5, is i < 5 true or false? False — so it stops at 4. What would make it true? i <= 5. Walk it out completely.
+:::
+
+## Code Example
+
+Combining methods (decks 08–09) with a `while` loop:
+
+```java
+void printMultiples(int n, int limit) {
+    IO.println("Multiples of " + n + " up to " + limit + ":");
+    int current = n;
+    while (current <= limit) {
+        IO.println(current);
+        current = current + n;    // update is + n, not + 1
+    }
+}
+
+void main() {
+    printMultiples(3, 20);
+    IO.println("---");
+    printMultiples(7, 50);
+}
+```
+
+**Output (first call):** `3  6  9  12  15  18`
+
+::: notes
+This example stitches together methods with parameters (deck 09) and a while loop. Point out that the update is current + n rather than current + 1 — the loop can skip by any amount, not just 1. Ask students to trace the first call manually with a variable table.
+:::
+
+## Common Mistakes
+
+::: {.callout-warning}
+**Forgetting the update**
+The condition never becomes false → program freezes. Press `Ctrl + C`.
+:::
+
+::: {.callout-warning}
+**Off-by-one**
+`i < n` stops one short. `i <= n` includes `n`. Trace the last iteration to be sure.
+:::
+
+::: {.callout-warning}
+**Wrong initialization**
+Starting at 0 vs. 1 changes how many times the body runs. Count on your fingers if needed.
+:::
+
+::: {.callout-warning}
+**Forgetting the second read in a sentinel loop**
+Read the value both *before* the loop and *at the bottom of the body*. Miss either one and things break.
+:::
+
+::: notes
+These four mistakes cover the vast majority of while loop bugs students will write. Pair each with the variable-table tracing technique — it catches all of them mechanically.
+:::
+
+## Worksheet
+
+1. Write a `while` loop that prints the numbers `10, 8, 6, 4, 2` (counting down by 2s).
+
+2. Write a `while` loop that reads integers from the user one at a time, printing their running sum after each entry. Stop when the user enters `0`. Print the final total.
+
+3. Trace the following loop and fill in the variable table:
+
+   ```java
+   int x = 1;
+   int total = 0;
+   while (x <= 4) {
+       total = total + x * x;
+       x = x + 1;
+   }
+   IO.println(total);
+   ```
+
+   | `x` | `total` before | `total` after |
+   |-----|---------------|--------------|
+   | 1 | 0 | |
+   | 2 | | |
+   | 3 | | |
+   | 4 | | |
+   | 5 | | |
+
+   What does `IO.println(total)` print?
+
+4. Find and fix the bug:
+
+   ```java
+   int i = 10;
+   while (i > 0) {
+       IO.println(i);
+       i = i + 1;   // bug
+   }
+   ```
+
+5. **Challenge:** Write a `void` method `countdown(int start)` that uses a `while` loop to print every integer from `start` down to 1, then prints `"Go!"`. Call it from `main` with `start = 5` and `start = 3`.

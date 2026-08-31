@@ -1,0 +1,633 @@
+---
+title: "Methods with Parameters"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+---
+
+## Learning Outcomes
+
+- Explain what a parameter is and why methods need them
+- Define methods that accept one or more parameters of specified types
+- Distinguish between a parameter (in the definition) and an argument (in the call)
+- Explain that argument order matters and that parameters are local to the method
+- Trace a method call and show how argument values flow into parameters
+
+## The Problem with Last Lecture's Methods
+
+::: notes
+Before introducing anything new, return to the methods from last lecture and expose their limitation. Those methods were useful but rigid — every call produced identical output. The printSeparator example was fine because you always want the same separator. But what about greeting different people? Printing different scores? Those methods would need to be rewritten for every new value. The repetition problem from last lecture hasn't gone away — it has just moved: instead of repeating code inside main, now we'd repeat nearly-identical method definitions. The solution is to let the method accept input.
+:::
+
+Last lecture, every method you wrote produced the same output every time it ran:
+
+```java
+void printSeparator() {
+    IO.println("--------------------");    // always this, forever
+}
+
+void printWelcome() {
+    IO.println("Welcome to COSC 120!");   // always this name, forever
+}
+```
+
+That is fine when the output really is always the same.
+
+But what if you want to greet different people?
+
+```java
+void greetAlice() {
+    IO.println("Hello, Alice!");
+}
+
+void greetBob() {
+    IO.println("Hello, Bob!");
+}
+
+void greetCharlie() {
+    IO.println("Hello, Charlie!");
+}
+```
+
+You are right back to the repetition problem — now with nearly-identical method definitions instead of nearly-identical code blocks.
+
+There has to be a better way.
+
+<!-- FIGURE [draw.io or excalidraw]: Three method definition boxes side by side — greetAlice(), greetBob(), greetCharlie(). Each box is almost identical; the only difference is the name inside the IO.println. Red circles highlighting the different name in each box. Label: "Three methods. One difference. There has to be a better way." -->
+
+## The Spell Needs a Target
+
+::: notes
+This is the key conceptual slide of the lecture. Start with the actual spells from last lecture — avadaKedavra() and protego() — and expose their vagueness. They didn't take any targets. In a real duel, that would be absurd: you aim every spell. Then introduce Reparo as a new example that makes the targeting idea especially vivid: the same spell can fix glasses, a vase, a wand — the only thing that changes is what you point it at. The spell name tells Java what to do; the target tells it what to do it to. That target is what we are about to call a parameter. Let this slide land before any code or vocabulary appears — the intuition must come first.
+:::
+
+Last lecture, our spells looked like this:
+
+```java
+avadaKedavra();   // attacks... whom, exactly?
+protego();         // defends... against what?
+```
+
+In a real duel, that would be absurd. Harry doesn't just cast Expelliarmus into the air — he **aims** it. Every spell needs a target.
+
+Consider a different spell: **Reparo** — it fixes broken things.
+
+But *which* broken thing? That depends on what you point your wand at:
+
+- Point at Harry's cracked glasses → *the glasses are fixed*
+- Point at a shattered vase → *the vase is fixed*
+- Point at a broken wand → *the wand is fixed*
+
+The spell is the same every time. What changes is the **target** — the thing you aim it at.
+
+The spell name tells Java **what to do**. The target tells Java **what to do it to**.
+
+That target is what we are about to call a **parameter**.
+
+<!-- FIGURE [draw.io or excalidraw]: Two panels. Left: a wizard casting "Reparo!" with wand pointed at three different objects in sequence — glasses, vase, wand — each one glowing as it's repaired. Label: "Same spell. Different target each time." Right: a stylized Java call — reparo("glasses"), reparo("vase"), reparo("wand") — stacked vertically. Each call has a bracket pointing to the thing in quotes, labeled "the target." The two panels should feel like a direct translation of each other. -->
+
+## The Coffee Machine
+
+::: notes
+A third analogy that makes the parameter/argument distinction extremely concrete, and additionally explains type enforcement. The coffee machine has three containers — water, beans, milk. Each container is a parameter. What you pour into each container is the argument. You can vary the contents: soy milk, almond milk, oat milk all work in the milk container. Dark roast, medium roast, decaf all work in the beans container. But you cannot put beans in the water container — wrong type. The machine won't run. This maps perfectly to Java: the method defines named slots (parameters) of specific types; what you provide at call time (arguments) must match those types; and within a type, you have freedom to vary the value. The "press the button" moment is calling the method. Take time on this slide — the tactile nature of containers and contents lands differently from the spell/recipe analogies, and the three together reinforce the same idea from three angles.
+:::
+
+Imagine a single-serve coffee machine with three labeled containers:
+
+- A **water container** — holds water
+- A **beans container** — holds coffee beans
+- A **milk container** — holds milk
+
+You fill each container, press the button, and the machine makes your coffee using whatever you put in.
+
+<!-- FIGURE [draw.io or excalidraw]: A coffee machine drawn from the front. Three labeled compartments visible: "WATER", "BEANS", "MILK". Each compartment has a slot/opening at the top where you pour things in. Arrows pointing into each slot: water arrow into WATER, beans arrow into BEANS, milk arrow into MILK. A large "PRESS" button on the front. Output spout at the bottom dripping coffee. Label the whole machine: `makeCappuccino(...)`. This should feel like a product diagram, slightly hand-drawn. -->
+
+The containers are the **parameters** — named slots that hold the inputs.
+
+What you pour in is the **argument** — the actual value you provide each time.
+
+---
+
+The containers give you flexibility:
+
+- Milk container → soy milk, almond milk, oat milk, whole milk all work
+- Beans container → dark roast, medium roast, decaf all work
+- Water container → water. Just water.
+
+But you **cannot put beans in the water container** — wrong type. The machine won't run.
+
+```java
+void makeCappuccino(String milkType, String roastType, int waterMl) {
+    IO.println("Brewing with " + roastType + " beans");
+    IO.println("Adding " + waterMl + "ml of water");
+    IO.println("Steaming " + milkType);
+    IO.println("☕ Your cappuccino is ready.");
+}
+```
+
+```java
+makeCappuccino("oat milk", "dark roast", 200);   // ✓ — types match
+makeCappuccino(200, "dark roast", "oat milk");   // ✗ — beans in water slot!
+```
+
+The containers stay the same. The contents change with each cup.
+
+<!-- FIGURE [draw.io or excalidraw]: Same coffee machine, now shown twice side by side. Left machine (green check): "oat milk" poured into MILK slot, "dark roast" into BEANS slot, 200ml into WATER slot — all matching. Right machine (red X): 200 being poured into the MILK slot (number into a milk container), "oat milk" being poured into the WATER slot — clear mismatch. The wrong-type attempt should look obviously wrong, like trying to pour a number into a cup. -->
+
+## What Is a Parameter?
+
+::: notes
+Now the vocabulary arrives — AFTER two analogies have established the intuition. A parameter is the named slot (the container) in the method definition. An argument is what you pour into the slot at call time. The blank-form analogy is a third reinforcement: the parameter is the label on the blank ("Name:"); the argument is what you write in the blank ("Alice"). Students who connect with the magic analogy, the coffee machine, or the form — at least one of the three will stick. Present all three briefly and let students find their own anchor.
+:::
+
+A **parameter** is a named placeholder in a method definition.
+
+It represents a value that will be provided each time the method is called.
+
+Think of it like a blank in a form:
+
+```
+Hello, _______!
+         ↑
+      parameter: "name"
+      (blank to be filled in)
+```
+
+The form is written once. Each time someone fills it in, they provide a different name.
+
+In Java, the parameter goes inside the parentheses of the method definition:
+
+```java
+void greet(String name) {
+    IO.println("Hello, " + name + "!");
+}
+```
+
+The word `name` is the parameter. Inside the method body, `name` stands in for whatever value will be provided at call time.
+
+One definition. Works for any name.
+
+::: callout-note
+A parameter has two parts: a **type** (`String`) and a **name** (`name`). The type tells Java what kind of value to expect. The name is how you refer to the value inside the method body.
+:::
+
+## Defining a Method with a Parameter
+
+::: notes
+The syntax is a direct extension of what they already know. void + name + () becomes void + name + (type paramName). Everything else is the same. Walk through the anatomy carefully. The parameter lives inside the parentheses — that is why the parentheses were always required, even when empty, in deck 08. Now they are no longer empty. Show two or three examples so the pattern is clear before moving on to calling.
+:::
+
+Adding a parameter is a small change to the method definition — just add `type name` inside the parentheses:
+
+```java
+//  Without parameter:        With parameter:
+void printSeparator()         void greet(String name)
+```
+
+The full structure:
+
+```java
+void methodName(type parameterName) {
+    // the parameter is available here, as a variable
+}
+```
+
+**Examples:**
+
+```java
+void greet(String name) {
+    IO.println("Hello, " + name + "!");
+}
+
+void printScore(int score) {
+    IO.println("Your score is: " + score);
+}
+
+void reparo(String target) {
+    IO.println("*fixes the " + target + "*");
+}
+```
+
+Inside the body, the parameter behaves exactly like a variable — you can use it in expressions, pass it to `IO.println`, put it in conditions. The only difference: its value comes from whoever calls the method.
+
+<!-- FIGURE [draw.io or excalidraw]: An annotated code block showing `void greet(String name) { IO.println("Hello, " + name + "!"); }`. Annotation arrows: (1) to "String" → "the type — what kind of value to expect"; (2) to "name" → "the parameter name — how you refer to the value inside the body"; (3) to the parentheses → "parameters live here"; (4) to `name` inside IO.println → "the same parameter, used in the body." The connection between the parameter declaration and its use in the body should be visually clear. -->
+
+## What Is an Argument?
+
+::: notes
+Now the second vocabulary word: argument. The distinction between parameter and argument is one of the most commonly confused pairs in intro CS. The mnemonic: parameter is in the (definition), argument is in the (call). The parentheses start with the same letter as definition and call — P for parameter/definition, A for argument/actual. Or just: parameter is what you name it in the definition; argument is what you put there when you call it. The blank-form analogy extends naturally: the parameter is the label on the blank ("Name:"); the argument is what you write in the blank ("Alice").
+:::
+
+When you **call** a method that has a parameter, you provide a value inside the parentheses. That value is called an **argument**.
+
+```java
+greet("Alice");   // "Alice" is the argument
+greet("Bob");     // "Bob" is the argument
+```
+
+Two new words — one for each side of the exchange:
+
+| Word | Where it appears | What it is |
+|------|-----------------|------------|
+| **parameter** | in the method *definition* | the placeholder |
+| **argument** | in the method *call* | the actual value |
+
+Think of the blank-form analogy:
+- The blank labeled "Name:" is the **parameter** — it's in the form definition
+- "Alice" written in the blank is the **argument** — it's what you fill in
+
+The form (method) is defined once with a blank. Each time you fill it in (call it), you provide a different argument.
+
+::: callout-tip
+An easy way to remember: **P**arameter is in the definition (think: *P*lanning). **A**rgument is in the call (think: *A*ctual value).
+:::
+
+## Calling a Method with an Argument
+
+::: notes
+Now the full picture: define the method with a parameter, call it with an argument. Show the connection between the two. For each call, show which argument fills which parameter. The reparo example ties back to the Harry Potter analogy, making this feel like a payoff of the earlier slide. Multiple calls with different arguments demonstrates the whole point: one method, many uses.
+:::
+
+```java
+void reparo(String target) {
+    IO.println("*fixes the " + target + "*");
+}
+
+void main() {
+    reparo("glasses");   // argument: "glasses"
+    reparo("vase");      // argument: "vase"
+    reparo("wand");      // argument: "wand"
+}
+```
+
+**Output:**
+```
+*fixes the glasses*
+*fixes the vase*
+*fixes the wand*
+```
+
+One method. Three calls. Three different results — because three different arguments.
+
+---
+
+The duel from last lecture, now with targets:
+
+```java
+void expelliarmus(String target) {
+    IO.println("*disarms " + target + "*");
+}
+
+void main() {
+    expelliarmus("Voldemort");
+    expelliarmus("Malfoy");
+    expelliarmus("Bellatrix");
+}
+```
+
+```
+*disarms Voldemort*
+*disarms Malfoy*
+*disarms Bellatrix*
+```
+
+Same spell. Three different targets. The spell knows what to do — you just tell it what to do it to.
+
+<!-- FIGURE [draw.io or excalidraw]: The method definition `void reparo(String target)` at the top. Below it, three call arrows fanning down from `reparo("glasses")`, `reparo("vase")`, `reparo("wand")`. Each arrow is labeled with its argument value and points to the parameter `target` in the definition. The parameter lights up as each argument arrives. Below each call: the output line it produces. The visual should show the flow from argument (at the call) to parameter (in the definition) to output. -->
+
+## Tracing: How the Argument Flows
+
+::: notes
+This is the most important mechanical slide of the lecture. Students need to see exactly what Java does when it hits a method call with an argument: it takes the argument value, copies it into the parameter, and then runs the method body with the parameter holding that value. Walk through the numbered steps explicitly. The "as if Java wrote" framing is useful: calling greet("Alice") is as if Java wrote String name = "Alice"; at the top of the method body, then ran the body. Show the trace for two different calls to make the substitution concrete.
+:::
+
+When you call `greet("Alice")`, here is exactly what Java does:
+
+```java
+void greet(String name) {         // 2. "Alice" is copied into name
+    IO.println("Hello, " + name + "!");  // 3. name IS "Alice" here
+}
+
+void main() {
+    greet("Alice");   // 1. call — argument "Alice" is provided
+    greet("Bob");     // 4. call again — argument "Bob" is provided
+}
+```
+
+Step by step:
+
+1. `greet("Alice")` — Java sees a method call with argument `"Alice"`
+2. Java copies `"Alice"` into the parameter `name`
+3. The method body runs — everywhere `name` appears, it holds `"Alice"`
+4. The method finishes. Then `greet("Bob")` starts the same process with `"Bob"`
+
+It is as if Java wrote `String name = "Alice";` at the very top of the method body, ran everything, then came back and did it again with `String name = "Bob";`.
+
+**Output:**
+```
+Hello, Alice!
+Hello, Bob!
+```
+
+<!-- FIGURE [draw.io or excalidraw]: A two-step flow diagram for greet("Alice"). Step 1: a box labeled `greet("Alice")` in main, with "Alice" highlighted in a bubble. An arrow labeled "copied into" points to the parameter `name` in the method definition. Step 2: the method body, with `name` highlighted and a label "name holds Alice." The output "Hello, Alice!" appears at the bottom. Then repeat the same diagram for greet("Bob") — same structure, different value. The two traces side by side show that the same method runs twice with different values each time. -->
+
+## Multiple Parameters
+
+::: notes
+A method can take more than one parameter — just separate them with commas inside the parentheses. The critical rule: argument order matters. The first argument is copied into the first parameter, the second into the second. If you swap them and the types still match, Java will not complain — but the output will be wrong. The swap-bug is one of the most common mistakes with multiple parameters. Show both the correct call and the swapped call to make the risk concrete.
+:::
+
+A method can accept more than one input — just list the parameters separated by commas:
+
+```java
+void printScore(String player, int score) {
+    IO.println(player + ": " + score);
+}
+```
+
+Each parameter has its own type and name. When calling:
+
+```java
+void main() {
+    printScore("Alice", 95);
+    printScore("Bob", 87);
+    printScore("Charlie", 91);
+}
+```
+
+```
+Alice: 95
+Bob: 87
+Charlie: 91
+```
+
+---
+
+**Order matters.** The first argument goes to the first parameter, the second to the second — in order, left to right.
+
+```java
+void introduce(String first, String last) {
+    IO.println("My name is " + first + " " + last + ".");
+}
+
+introduce("James", "Bond");   // first="James", last="Bond"
+introduce("Bond", "James");   // first="Bond", last="James" ← wrong!
+```
+
+```
+My name is James Bond.
+My name is Bond James.
+```
+
+Java does not know which order you intended — it just fills positions left to right. If you swap the arguments, you get wrong output with no error message.
+
+<!-- FIGURE [draw.io or excalidraw]: The method definition `void introduce(String first, String last)` at the top. Below it, two numbered arrows from a call `introduce("James", "Bond")` — arrow 1 from "James" to `first`, arrow 2 from "Bond" to `last`. Labels: "1st argument → 1st parameter", "2nd argument → 2nd parameter." Below that, a second call `introduce("Bond", "James")` with the same arrows but swapped values. The output of each call is shown. A small red warning note: "No error — just wrong output." -->
+
+## Tracing with Multiple Parameters
+
+::: notes
+A step-by-step trace with two parameters, to make the left-to-right assignment concrete. Students need to see the mapping explicitly at least once. After this slide, the tracing skill transfers to any number of parameters. Use the printScore example — it has a String and an int, so the types are obviously different and the order matters for correctness AND type safety.
+:::
+
+Tracing `printScore("Alice", 95)`:
+
+```java
+void printScore(String player, int score) {
+    IO.println(player + ": " + score);
+}
+
+//  Call:  printScore("Alice", 95)
+//                       ↓        ↓
+//  1st argument "Alice" → player
+//  2nd argument 95      → score
+//
+//  Inside the body:
+//      player holds "Alice"
+//      score  holds 95
+//
+//  IO.println("Alice" + ": " + 95)
+//  Output:  Alice: 95
+```
+
+Then `printScore("Bob", 87)` runs the same process with different values:
+
+```
+//  player holds "Bob"
+//  score  holds 87
+//  Output:  Bob: 87
+```
+
+The method definition is identical both times. Only the values change.
+
+## Parameters Are Local
+
+::: notes
+A parameter only exists inside the method where it is defined. Outside that method, it does not exist at all. This is a preview of scope, which gets its full treatment in deck 10. For now, just plant the rule: parameters are local. Students who try to use a parameter after the method ends, or try to use one method's parameter inside a different method, will hit a compile error. This is a good thing — it means methods are self-contained and cannot accidentally interfere with each other.
+:::
+
+A parameter **only exists inside the method where it is defined**. It cannot be seen or used anywhere else.
+
+```java
+void greet(String name) {
+    IO.println("Hello, " + name + "!");   // ✓ — name exists here
+}
+
+void main() {
+    greet("Alice");
+    IO.println(name);    // ✗ — ERROR: name does not exist here
+}
+```
+
+This is intentional. Each method is a self-contained unit. Its parameters are its own private variables — they come into existence when the method is called and disappear when the method finishes.
+
+This is called **scope** — where a variable exists. Scope gets its full treatment in the next lecture.
+
+::: callout-note
+The same parameter name can appear in multiple different methods with no conflict, because each method's parameters are completely independent of every other method's.
+:::
+
+## Code Example — Personalized Greeting Program
+
+::: notes
+A complete program that uses multiple methods with parameters. The example builds naturally from the course context: print a formatted greeting for each student in a class. Each student gets the same structure (separator, greeting, score) but with their own values. Walk through the output and ask students to trace the calls before revealing the output. Then ask: what would you have to change to add a fourth student? (One line in main.) What if you wanted to change the greeting format? (One place in greet.) The benefits of methods with parameters are now concrete.
+:::
+
+**Problem:** Print a formatted report card entry for each of three students.
+
+```java
+void printSeparator() {
+    IO.println("----------------------------");
+}
+
+void greet(String name) {
+    IO.println("Student: " + name);
+}
+
+void printScore(String subject, int score) {
+    IO.println("  " + subject + ": " + score);
+}
+
+void main() {
+    printSeparator();
+    greet("Alice");
+    printScore("Math", 95);
+    printScore("English", 88);
+
+    printSeparator();
+    greet("Bob");
+    printScore("Math", 72);
+    printScore("English", 91);
+
+    printSeparator();
+    greet("Charlie");
+    printScore("Math", 84);
+    printScore("English", 79);
+
+    printSeparator();
+}
+```
+
+**Output:**
+```
+----------------------------
+Student: Alice
+  Math: 95
+  English: 88
+----------------------------
+Student: Bob
+  Math: 72
+  English: 91
+----------------------------
+Student: Charlie
+  Math: 84
+  English: 79
+----------------------------
+```
+
+`main` reads like a script. Each method call is one clear instruction. Adding a fourth student is one block of calls — the method definitions never change.
+
+## Common Mistakes
+
+::: notes
+Four mistakes, each tied to a specific concept in this lecture. Wrong argument count and wrong argument type are compile errors — caught early. Wrong argument order may compile (if types match or can be converted) but produces wrong output — the sneakiest kind of bug. Using a parameter outside its method is a compile error. Walk through each one and ask students to identify the problem before revealing it.
+:::
+
+**1. Wrong number of arguments**
+```java
+void greet(String name) { ... }
+
+greet();             // ✗ — missing argument; won't compile
+greet("Alice", "B"); // ✗ — too many; won't compile
+greet("Alice");      // ✓
+```
+
+---
+
+**2. Wrong argument type**
+```java
+void printScore(String player, int score) { ... }
+
+printScore(95, "Alice");   // ✗ — 95 is not a String; won't compile
+printScore("Alice", 95);   // ✓
+```
+
+---
+
+**3. Arguments in the wrong order — compiles, but wrong output**
+```java
+void introduce(String first, String last) { ... }
+
+introduce("Bond", "James");   // compiles — but prints "Bond James" not "James Bond"
+```
+
+Java fills positions left to right. It doesn't know which value is the first name.
+
+---
+
+**4. Trying to use a parameter outside its method**
+```java
+void greet(String name) {
+    IO.println("Hello, " + name + "!");
+}
+
+void main() {
+    greet("Alice");
+    IO.println(name);   // ✗ — name does not exist here; won't compile
+}
+```
+
+Parameters are local to their method. They do not exist anywhere else.
+
+## Worksheet
+
+::: notes
+Reserve 20–30 minutes. Problems 1–2 trace calls manually — critical for building the mental model of argument → parameter. Problems 3–5 are write-it. Problem 6 is synthesis. Watch for: missing arguments; swapped argument order; students trying to use parameters outside the method; students who confuse parameter names with variable names in main.
+:::
+
+**Problem 1 — Trace it.** What does this program print? Trace each call step by step.
+
+```java
+void describe(String animal, int legs) {
+    IO.println("A " + animal + " has " + legs + " legs.");
+}
+
+void main() {
+    describe("cat", 4);
+    describe("fish", 0);
+    describe("spider", 8);
+}
+```
+
+**Problem 2 — Trace it.** What does each call to `box` print?
+
+```java
+void box(String label, int width) {
+    IO.println("+" + "-".repeat(width) + "+");
+    IO.println("|" + label + "|");
+    IO.println("+" + "-".repeat(width) + "+");
+}
+
+void main() {
+    box("hello", 5);
+    box("hi", 2);
+}
+```
+
+*(Hint: `"-".repeat(n)` produces a String of `n` dashes.)*
+
+**Problem 3 — Spot the bugs.** Fix every mistake.
+
+```java
+void greetStudent(String name, int year) {
+    IO.println("Welcome, " + name + "! Year: " + year);
+}
+
+void main() {
+    greetStudent("Alice");
+    greetStudent(2, "Bob");
+    greetStudent("Charlie", 3);
+    IO.println("Name: " + name);
+}
+```
+
+**Problem 4 — Write it.** Write a method `printBanner(String title)` that prints a simple banner around the title:
+
+```
+**************
+*  My Title  *
+**************
+```
+
+Call it three times from `main` with three different titles.
+
+**Problem 5 — Write it.** Write a method `gradeMessage(String name, int score)` that prints a personalized message:
+- If the score is 90 or above: `"[name]: Excellent work!"`
+- If the score is 60 to 89: `"[name]: Good job."`
+- If the score is below 60: `"[name]: See me after class."`
+
+Call it from `main` with at least four different name/score combinations.
+
+**Problem 6 — Write it (synthesis).** Write a program that simulates a short wizard duel using methods with parameters. Write at least two spells as methods (each taking a `String target` parameter), and write a `main` that plays out a sequence of at least six spell calls back and forth between two characters.

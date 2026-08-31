@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Combinatorial Search</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Combinatorial Search</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="part-1-the-big-picture" class="title-slide slide level1 center">
+<h1>Part 1 — The Big Picture</h1>
+
+</section>
+<section id="maze" class="slide level2">
+<h2>Maze</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource txt number-lines code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a></a> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _</span>
+<span id="cb1-2"><a></a>|S   #       #                  |</span>
+<span id="cb1-3"><a></a>|#   #   #   #   # # # # # # #  |</span>
+<span id="cb1-4"><a></a>|        #       #              |</span>
+<span id="cb1-5"><a></a>|  # # # # # # # #   # # # # # #|</span>
+<span id="cb1-6"><a></a>|                    #          |</span>
+<span id="cb1-7"><a></a>|# # # #   # # # # # #   # # #  |</span>
+<span id="cb1-8"><a></a>|                        #      |</span>
+<span id="cb1-9"><a></a>|  # # # # # # # # # # # #   # #|</span>
+<span id="cb1-10"><a></a>|  #                            |</span>
+<span id="cb1-11"><a></a>|  #   # # # # # # # # # # # #  |</span>
+<span id="cb1-12"><a></a>|  #   #                     #  |</span>
+<span id="cb1-13"><a></a>|  #   #   # # # # # # # #   #  |</span>
+<span id="cb1-14"><a></a>|      #   #             #   #  |</span>
+<span id="cb1-15"><a></a>|# # # #   #   # # # #   #   #  |</span>
+<span id="cb1-16"><a></a>|          #         #       #  |</span>
+<span id="cb1-17"><a></a>|  # # # # # # # #   # # # # # E|</span>
+<span id="cb1-18"><a></a>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="what-is-combinatorial-search" class="slide level2">
+<h2>What Is Combinatorial Search?</h2>
+<p>Many problems ask: <strong>“Find a solution among a huge set of candidates.”</strong></p>
+<div class="columns">
+<div class="column" style="width:55%;">
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Arrange 8 queens on a chessboard so none attack each other</li>
+<li>Find a path through a maze</li>
+<li>Schedule meetings with no conflicts</li>
+<li>Solve a Sudoku puzzle</li>
+<li>Colour a map with 4 colours</li>
+</ul>
+</div><div class="column" style="width:45%;">
+<p><strong>The naive plan:</strong></p>
+<pre><code>for every possible candidate:
+    if it is a valid solution:
+        return it</code></pre>
+<p><strong>Problem:</strong> the candidate space is <em>astronomically</em> large.</p>
+</div></div>
+</section>
+<section id="why-brute-force-fails" class="slide level2">
+<h2>Why Brute Force Fails</h2>
+<p>For <strong>n-Queens</strong> (placing n non-attacking queens):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>n</th>
+<th>Arrangements to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>8</td>
+<td>4,426,165,368</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>~3.6 billion</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>~1.3 trillion</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>~6 × 10¹⁷</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Even at 10⁹ checks/second, n=20 would take <strong>~20 years</strong>.</p>
+</blockquote>
+<p>We need a smarter strategy.</p>
+</section>
+<section id="the-core-insight-build-incrementally" class="slide level2">
+<h2>The Core Insight: Build Incrementally</h2>
+<p>Instead of generating <em>complete</em> candidates, <strong>build solutions step by step</strong>.</p>
+<p>At every step:</p>
+<ol type="1">
+<li><strong>Extend</strong> the partial solution by one choice</li>
+<li><strong>Check</strong> immediately — is this partial solution still valid?</li>
+<li>If <strong>not valid</strong> → abandon it entirely (<strong><em>backtrack</em></strong>!)</li>
+<li>If <strong>valid</strong> → keep going</li>
+</ol>
+<p>This is <strong>backtracking</strong>: systematic exploration with early abandonment.</p>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-2-backtracking" class="title-slide slide level1 center">
+<h1>Part 2 — Backtracking</h1>
+
+</section>
+<section id="the-backtracking-template" class="slide level2">
+<h2>The Backtracking Template</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a><span class="kw">def</span> explore(partial_solution):</span>
+<span id="cb3-2"><a></a>    <span class="cf">if</span> is_complete(partial_solution):</span>
+<span id="cb3-3"><a></a>        record(partial_solution)          <span class="co"># found a solution!</span></span>
+<span id="cb3-4"><a></a>        <span class="cf">return</span></span>
+<span id="cb3-5"><a></a></span>
+<span id="cb3-6"><a></a>    <span class="cf">for</span> choice <span class="kw">in</span> get_choices(partial_solution):</span>
+<span id="cb3-7"><a></a>        <span class="cf">if</span> is_valid(partial_solution, choice):</span>
+<span id="cb3-8"><a></a>            partial_solution.add(choice)    <span class="co"># make the choice</span></span>
+<span id="cb3-9"><a></a>            explore(partial_solution)       <span class="co"># explore further</span></span>
+<span id="cb3-10"><a></a>            partial_solution.remove(choice) <span class="co"># undo (backtrack)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p>The “undo” step is what makes backtracking work. We explore, retreat, and try something else.</p>
+</blockquote>
+</section>
+<section id="example-1-the-maze" class="slide level2">
+<h2>Example 1: The Maze</h2>
+<p><strong>Problem:</strong> Find a path from Start (S) to End (E) in a grid.</p>
+<pre><code>S . . #
+# # . #
+. . . .
+# # # E</code></pre>
+<p><strong>Choices at each step:</strong> move Up, Down, Left, or Right<br>
+<strong>Constraint:</strong> stay in bounds, don’t hit <code>#</code>, don’t revisit cells</p>
+<p><strong>Backtrack when:</strong> we hit a dead end with no valid moves</p>
+</section>
+<section id="maze-step-by-step-trace" class="slide level2">
+<h2>Maze — Step-by-Step Trace</h2>
+<pre><code>S . . #
+# # . #
+. . . .
+# # # E</code></pre>
+<pre><code>Start: [(0,0)]
+
+→ Try Right: (0,1) ✓  →  Path: [(0,0),(0,1)]
+  → Try Right: (0,2) ✓  →  Path: [(0,0),(0,1),(0,2)]
+    → Try Right: (0,3) = '#'  ✗
+    → Try Down: (1,2) ✓  →  Path: [...,(1,2)]
+      → Try Down: (2,2) ✓  →  Path: [...,(2,2)]
+        → Try Right: (2,3) ✓  →  Path: [...,(2,3)]
+          → Try Down: (3,3) = 'E' ✓  DONE!</code></pre>
+<p>Simple idea, powerful result. The key is the <strong>undo</strong> on dead ends.</p>
+</section>
+<section id="python-maze" class="slide level2">
+<h2>Python Maze</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a>maze <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb7-2"><a></a>[[<span class="st">'S'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>],</span>
+<span id="cb7-3"><a></a> [<span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-4"><a></a> [<span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>],</span>
+<span id="cb7-5"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>],</span>
+<span id="cb7-6"><a></a> [<span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>],</span>
+<span id="cb7-7"><a></a> [<span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-8"><a></a> [<span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>],</span>
+<span id="cb7-9"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>],</span>
+<span id="cb7-10"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>],</span>
+<span id="cb7-11"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-12"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-13"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-14"><a></a> [<span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-15"><a></a> [<span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-16"><a></a> [<span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">' '</span>],</span>
+<span id="cb7-17"><a></a> [<span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">' '</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'X'</span>, <span class="st">'E'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="maze-python-code" class="slide level2">
+<h2>Maze — Python Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers="|2-4|6|8-10|12-15|17-19|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="kw">def</span> solve(r, c, path):</span>
+<span id="cb8-2"><a></a>  <span class="cf">if</span> <span class="kw">not</span> (<span class="dv">0</span> <span class="op">&lt;=</span> r <span class="op">&lt;</span> <span class="dv">16</span> <span class="kw">and</span> <span class="dv">0</span> <span class="op">&lt;=</span> c <span class="op">&lt;</span> <span class="dv">16</span>) </span>
+<span id="cb8-3"><a></a>    <span class="kw">or</span> maze[r][c] <span class="op">==</span> <span class="st">'X'</span> <span class="kw">or</span> (r, c) <span class="kw">in</span> path:</span>
+<span id="cb8-4"><a></a>   <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb8-5"><a></a></span>
+<span id="cb8-6"><a></a>  path.append((r, c))</span>
+<span id="cb8-7"><a></a></span>
+<span id="cb8-8"><a></a>  <span class="co"># Base Case: Found the Exit</span></span>
+<span id="cb8-9"><a></a>  <span class="cf">if</span> maze[r][c] <span class="op">==</span> <span class="st">'E'</span>:</span>
+<span id="cb8-10"><a></a>   <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb8-11"><a></a></span>
+<span id="cb8-12"><a></a>  <span class="co"># Explore: Up, Down, Left, Right</span></span>
+<span id="cb8-13"><a></a>  <span class="cf">for</span> dr, dc <span class="kw">in</span> [(<span class="dv">0</span>, <span class="dv">1</span>), (<span class="dv">1</span>, <span class="dv">0</span>), (<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>), (<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>)]:</span>
+<span id="cb8-14"><a></a>   <span class="cf">if</span> solve(r <span class="op">+</span> dr, c <span class="op">+</span> dc, path):</span>
+<span id="cb8-15"><a></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb8-16"><a></a></span>
+<span id="cb8-17"><a></a>  <span class="co"># Backtrack</span></span>
+<span id="cb8-18"><a></a>  path.pop()</span>
+<span id="cb8-19"><a></a>  <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb8-20"><a></a></span>
+<span id="cb8-21"><a></a>solution_path <span class="op">=</span> []</span>
+<span id="cb8-22"><a></a>rc <span class="op">=</span> solve(<span class="dv">0</span>, <span class="dv">0</span>, solution_path)</span>
+<span id="cb8-23"><a></a><span class="cf">if</span> rc: <span class="bu">print</span>(<span class="st">"Path to exit:"</span>, solution_path)</span>
+<span id="cb8-24"><a></a><span class="cf">else</span>: <span class="bu">print</span>(<span class="st">"No path found."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-2-subsets-that-sum-to-a-target" class="slide level2">
+<h2>Example 2: Subsets That Sum to a Target</h2>
+<p><strong>Problem:</strong> Given <code>[3, 1, 4, 2, 5]</code>, find <strong>all</strong> subsets that sum to <strong>6</strong>.</p>
+<p><strong>Approach:</strong> At each position, decide <strong>include</strong> or <strong>skip</strong> the element.</p>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource txt number-lines code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a></a>backtrack(index=0, current_sum=0, chosen=[])</span>
+<span id="cb9-2"><a></a>├── include 3  → sum=3</span>
+<span id="cb9-3"><a></a>│   ├── include 1  → sum=4</span>
+<span id="cb9-4"><a></a>│   │   ├── include 4  → sum=8  ✗ (over target)</span>
+<span id="cb9-5"><a></a>│   │   ├── skip    4</span>
+<span id="cb9-6"><a></a>│   │   │   ├── include 2  → sum=6  ✓ [3,1,2]</span>
+<span id="cb9-7"><a></a>│   │   │   └── skip 2</span>
+<span id="cb9-8"><a></a>│   │   │       └── include 5 → sum=9 ✗</span>
+<span id="cb9-9"><a></a>│   │   └── ...</span>
+<span id="cb9-10"><a></a>│   └── skip 1</span>
+<span id="cb9-11"><a></a>│       ├── include 4  → sum=7  ✗</span>
+<span id="cb9-12"><a></a>│       └── skip 4</span>
+<span id="cb9-13"><a></a>│           ├── include 2  → sum=5</span>
+<span id="cb9-14"><a></a>│           │   └── include 5 → sum=10 ✗</span>
+<span id="cb9-15"><a></a>│           └── skip 2</span>
+<span id="cb9-16"><a></a>│               └── include 5 → sum=8 ✗</span>
+<span id="cb9-17"><a></a>└── skip 3  → ...  (finds [1,5])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="subset-sum-code" class="slide level2">
+<h2>Subset Sum — Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers="|5-9|11-14|16-17|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="kw">def</span> subset_sum(nums, target):</span>
+<span id="cb10-2"><a></a>    results <span class="op">=</span> []</span>
+<span id="cb10-3"><a></a></span>
+<span id="cb10-4"><a></a>    <span class="kw">def</span> explore(index, current_sum, chosen):</span>
+<span id="cb10-5"><a></a>        <span class="cf">if</span> current_sum <span class="op">==</span> target:</span>
+<span id="cb10-6"><a></a>            results.append(chosen[:])  <span class="co"># found a valid subset!</span></span>
+<span id="cb10-7"><a></a>            <span class="cf">return</span></span>
+<span id="cb10-8"><a></a>        <span class="cf">if</span> index <span class="op">==</span> <span class="bu">len</span>(nums) <span class="kw">or</span> current_sum <span class="op">&gt;</span> target:</span>
+<span id="cb10-9"><a></a>            <span class="cf">return</span>                     <span class="co"># dead end</span></span>
+<span id="cb10-10"><a></a></span>
+<span id="cb10-11"><a></a>        <span class="co"># Choice 1: include nums[index]</span></span>
+<span id="cb10-12"><a></a>        chosen.append(nums[index])</span>
+<span id="cb10-13"><a></a>        explore(index <span class="op">+</span> <span class="dv">1</span>, current_sum <span class="op">+</span> nums[index], chosen)</span>
+<span id="cb10-14"><a></a>        chosen.pop()  <span class="co"># ← undo</span></span>
+<span id="cb10-15"><a></a></span>
+<span id="cb10-16"><a></a>        <span class="co"># Choice 2: skip nums[index]</span></span>
+<span id="cb10-17"><a></a>        explore(index <span class="op">+</span> <span class="dv">1</span>, current_sum, chosen)</span>
+<span id="cb10-18"><a></a>    explore(<span class="dv">0</span>, <span class="dv">0</span>, [])</span>
+<span id="cb10-19"><a></a>    <span class="cf">return</span> results</span>
+<span id="cb10-20"><a></a></span>
+<span id="cb10-21"><a></a><span class="bu">print</span>(subset_sum([<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">5</span>], <span class="dv">6</span>))</span>
+<span id="cb10-22"><a></a><span class="co"># → [[3, 1, 2], [1, 5], [4, 2]]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-3-n-queens" class="slide level2">
+<h2>Example 3: N-Queens</h2>
+<p><strong>Problem:</strong> Place n queens on an n×n board so no two queens share a row, column, or diagonal.</p>
+<p><strong>Key observations:</strong></p>
+<ul>
+<li>Place <strong>one queen per row</strong> (so row index = recursion depth)</li>
+<li>Track which <strong>columns</strong> and <strong>diagonals</strong> are taken</li>
+</ul>
+<pre><code>Row 0:  Q . . .    Q placed in col 0
+Row 1:  . . Q .    col 0 and diagonals blocked → col 2 is free
+Row 2:  . . . .    cols 0,2 and diagonals blocked → ...
+Row 3:  . Q . .    eventually col 1 works!</code></pre>
+</section>
+<section id="n-queens-code" class="slide level2">
+<h2>N-Queens — Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="kw">def</span> n_queens(n):</span>
+<span id="cb12-2"><a></a>    solutions <span class="op">=</span> []</span>
+<span id="cb12-3"><a></a>    cols <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb12-4"><a></a>    diag1 <span class="op">=</span> <span class="bu">set</span>()   <span class="co"># row - col (top-left to bottom-right)</span></span>
+<span id="cb12-5"><a></a>    diag2 <span class="op">=</span> <span class="bu">set</span>()   <span class="co"># row + col (top-right to bottom-left)</span></span>
+<span id="cb12-6"><a></a></span>
+<span id="cb12-7"><a></a>    <span class="kw">def</span> explore(row, placement):</span>
+<span id="cb12-8"><a></a>        <span class="cf">if</span> row <span class="op">==</span> n:</span>
+<span id="cb12-9"><a></a>            solutions.append(placement[:])</span>
+<span id="cb12-10"><a></a>            <span class="cf">return</span></span>
+<span id="cb12-11"><a></a></span>
+<span id="cb12-12"><a></a>        <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb12-13"><a></a>            <span class="cf">if</span> col <span class="kw">in</span> cols <span class="kw">or</span> (row<span class="op">-</span>col) <span class="kw">in</span> diag1 <span class="kw">or</span> (row<span class="op">+</span>col) <span class="kw">in</span> diag2:</span>
+<span id="cb12-14"><a></a>                <span class="cf">continue</span>   <span class="co"># ← this column/diagonal is attacked</span></span>
+<span id="cb12-15"><a></a></span>
+<span id="cb12-16"><a></a>            cols.add(col)<span class="op">;</span> diag1.add(row<span class="op">-</span>col)<span class="op">;</span> diag2.add(row<span class="op">+</span>col)</span>
+<span id="cb12-17"><a></a>            placement.append(col)</span>
+<span id="cb12-18"><a></a></span>
+<span id="cb12-19"><a></a>            explore(row <span class="op">+</span> <span class="dv">1</span>, placement)   <span class="co"># try next row</span></span>
+<span id="cb12-20"><a></a></span>
+<span id="cb12-21"><a></a>            placement.pop()                 <span class="co"># ← backtrack</span></span>
+<span id="cb12-22"><a></a>            cols.remove(col)<span class="op">;</span> diag1.remove(row<span class="op">-</span>col)<span class="op">;</span> diag2.remove(row<span class="op">+</span>col)</span>
+<span id="cb12-23"><a></a></span>
+<span id="cb12-24"><a></a>    explore(<span class="dv">0</span>, [])</span>
+<span id="cb12-25"><a></a>    <span class="cf">return</span> solutions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="n-queens-how-many-solutions" class="slide level2">
+<h2>N-Queens — How Many Solutions?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 15%">
+<col style="width: 34%">
+<col style="width: 44%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>n</th>
+<th>Solutions</th>
+<th>Nodes explored (brute)</th>
+<th>Nodes explored (backtracking)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>4</td>
+<td>2</td>
+<td>256</td>
+<td>~26</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>4</td>
+<td>46,656</td>
+<td>~152</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>92</td>
+<td>16,777,216</td>
+<td>~2,057</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>724</td>
+<td>~10 billion</td>
+<td>~15,720</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Backtracking reduces explored nodes by <strong>orders of magnitude</strong>. And we haven’t even pruned yet!</p>
+</blockquote>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-3-pruning" class="title-slide slide level1 center">
+<h1>Part 3 — Pruning</h1>
+
+</section>
+<section id="what-is-pruning" class="slide level2">
+<h2>What Is Pruning?</h2>
+<p><strong>Backtracking</strong> abandons paths that are already <em>invalid</em>.</p>
+<p><strong>Pruning</strong> goes further: abandon paths that <em>cannot possibly</em> lead to a valid solution — even if the partial solution is still technically valid.</p>
+<p><strong>Backtracking check:</strong></p>
+<blockquote>
+<p>“Is what I’ve done so far <em>broken</em>?”</p>
+</blockquote>
+<p><strong>Pruning check:</strong></p>
+<blockquote>
+<p>“Even if I keep going, <em>can I possibly succeed</em>?”</p>
+</blockquote>
+<p>Pruning is about <strong>look-ahead</strong>: reasoning about the future before you explore it.</p>
+</section>
+<section id="pruning-in-subset-sum" class="slide level2">
+<h2>Pruning in Subset Sum</h2>
+<p>Recall <code>subset_sum([3, 1, 4, 2, 5], target=6)</code>.</p>
+<p><strong>Sort the array first:</strong> <code>[1, 2, 3, 4, 5]</code></p>
+<p>Now we can prune aggressively:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="kw">def</span> explore(index, current_sum, chosen):</span>
+<span id="cb13-2"><a></a>    <span class="cf">if</span> current_sum <span class="op">==</span> target:</span>
+<span id="cb13-3"><a></a>        results.append(chosen[:])</span>
+<span id="cb13-4"><a></a>        <span class="cf">return</span></span>
+<span id="cb13-5"><a></a></span>
+<span id="cb13-6"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(index, <span class="bu">len</span>(nums)):</span>
+<span id="cb13-7"><a></a>        <span class="co"># PRUNING: if even the smallest remaining element</span></span>
+<span id="cb13-8"><a></a>        <span class="co"># pushes us over the target, stop immediately</span></span>
+<span id="cb13-9"><a></a>        <span class="cf">if</span> current_sum <span class="op">+</span> nums[i] <span class="op">&gt;</span> target:</span>
+<span id="cb13-10"><a></a>            <span class="cf">break</span>   <span class="co"># ← all subsequent are even larger (sorted!)</span></span>
+<span id="cb13-11"><a></a></span>
+<span id="cb13-12"><a></a>        chosen.append(nums[i])</span>
+<span id="cb13-13"><a></a>        explore(i <span class="op">+</span> <span class="dv">1</span>, current_sum <span class="op">+</span> nums[i], chosen)</span>
+<span id="cb13-14"><a></a>        chosen.pop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>One extra line. <strong>Huge</strong> reduction in explored nodes.</p>
+</section>
+<section id="pruning-the-promising-check" class="slide level2">
+<h2>Pruning: The “Promising” Check</h2>
+<p>A standard pattern is to add a <code>is_promising()</code> check before recursing:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="kw">def</span> explore(partial_solution):</span>
+<span id="cb14-2"><a></a>    <span class="cf">if</span> <span class="kw">not</span> is_promising(partial_solution):  <span class="co"># ← prune here</span></span>
+<span id="cb14-3"><a></a>        <span class="cf">return</span></span>
+<span id="cb14-4"><a></a></span>
+<span id="cb14-5"><a></a>    <span class="cf">if</span> is_complete(partial_solution):</span>
+<span id="cb14-6"><a></a>        record(partial_solution)</span>
+<span id="cb14-7"><a></a>        <span class="cf">return</span></span>
+<span id="cb14-8"><a></a></span>
+<span id="cb14-9"><a></a>    <span class="cf">for</span> choice <span class="kw">in</span> get_choices(partial_solution):</span>
+<span id="cb14-10"><a></a>        partial_solution.add(choice)</span>
+<span id="cb14-11"><a></a>        explore(partial_solution)</span>
+<span id="cb14-12"><a></a>        partial_solution.remove(choice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>is_promising()</code> encodes domain knowledge:<br>
+<em>“Given what I’ve committed to, is there any way to finish successfully?”</em></p>
+</section>
+<section id="example-sudoku-with-constraint-propagation" class="slide level2">
+<h2>Example: Sudoku with Constraint Propagation</h2>
+<p><strong>Problem:</strong> Fill a 9×9 grid so each row, column, and 3×3 box contains digits 1–9.</p>
+<pre><code>. 5 . | . . . | . 7 .
+. . 8 | . . . | 4 . .
+. . . | 9 . 3 | . . .
+------+-------+------
+...   (81 cells total)</code></pre>
+<p><strong>Backtracking alone:</strong> pick an empty cell, try digits 1–9.</p>
+<p><strong>Pruning idea:</strong> before placing a digit, compute the set of <em>still-possible</em> values for every empty cell.</p>
+<p>After placing one digit, you can immediately <em>eliminate</em> many candidates in the same row/column/box.</p>
+<p>If any cell’s <em>candidate set becomes empty</em> → prune immediately, no need to recurse.</p>
+</section>
+<section id="sudoku-simplified-code" class="slide level2">
+<h2>Sudoku — Simplified Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a><span class="kw">def</span> solve_sudoku(board):</span>
+<span id="cb16-2"><a></a>    empty <span class="op">=</span> find_empty(board)</span>
+<span id="cb16-3"><a></a>    <span class="cf">if</span> <span class="kw">not</span> empty:</span>
+<span id="cb16-4"><a></a>        <span class="cf">return</span> <span class="va">True</span>   <span class="co"># all cells filled → solution!</span></span>
+<span id="cb16-5"><a></a></span>
+<span id="cb16-6"><a></a>    row, col <span class="op">=</span> empty</span>
+<span id="cb16-7"><a></a></span>
+<span id="cb16-8"><a></a>    <span class="cf">for</span> digit <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10</span>):</span>
+<span id="cb16-9"><a></a>        <span class="cf">if</span> is_valid_placement(board, row, col, digit):</span>
+<span id="cb16-10"><a></a>            board[row][col] <span class="op">=</span> digit</span>
+<span id="cb16-11"><a></a></span>
+<span id="cb16-12"><a></a>            <span class="co"># PRUNING: check if any cell now has 0 options</span></span>
+<span id="cb16-13"><a></a>            <span class="cf">if</span> <span class="kw">not</span> any_cell_has_no_options(board):</span>
+<span id="cb16-14"><a></a>                <span class="cf">if</span> solve_sudoku(board):   <span class="co"># recurse</span></span>
+<span id="cb16-15"><a></a>                    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb16-16"><a></a></span>
+<span id="cb16-17"><a></a>            board[row][col] <span class="op">=</span> <span class="dv">0</span>   <span class="co"># ← backtrack</span></span>
+<span id="cb16-18"><a></a></span>
+<span id="cb16-19"><a></a>    <span class="cf">return</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p><code>any_cell_has_no_options</code> is the pruning check — it looks ahead without committing.</p>
+</blockquote>
+</section>
+
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-4-graph-colouring" class="title-slide slide level1 center">
+<h1>Part 4 — Graph Colouring</h1>
+
+</section>
+<section id="graph-colouring-a-classic-application" class="slide level2">
+<h2>Graph Colouring: A Classic Application</h2>
+<p><strong>Problem:</strong> Colour a graph’s vertices with at most k colours so no two adjacent vertices share a colour.</p>
+<p><strong>Application:</strong> map colouring, register allocation, scheduling.</p>
+<div class="r-stack">
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/graph1.excalidraw.png" style="width:45.0%"></p>
+<figcaption>Graph Example</figcaption>
+</figure>
+</div>
+<p>With k=3: can we colour nodes 0, 1, 2, 3, 4, 5 so neighbours differ?</p>
+</div>
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/graph2.excalidraw.png" style="width:45.0%"></p>
+<figcaption>Graph Example</figcaption>
+</figure>
+</div>
+<p>With k=3: can we colour nodes 0, 1, 2, 3, 4, 5 so neighbours differ?</p>
+</div>
+</div>
+</section>
+<section id="graph-colouring-code" class="slide level2">
+<h2>Graph Colouring — Code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a><span class="kw">def</span> is_safe(v, graph, c):</span>
+<span id="cb17-2"><a></a>    <span class="cf">for</span> neighbor <span class="kw">in</span> graph[v]:</span>
+<span id="cb17-3"><a></a>        <span class="cf">if</span> colors[neighbor] <span class="op">==</span> c:</span>
+<span id="cb17-4"><a></a>            <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb17-5"><a></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb17-6"><a></a></span>
+<span id="cb17-7"><a></a></span>
+<span id="cb17-8"><a></a><span class="kw">def</span> solve_graph_coloring(graph, k, v<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb17-9"><a></a>    <span class="co"># Base Case: All vertices are colored</span></span>
+<span id="cb17-10"><a></a>    <span class="cf">if</span> v <span class="op">==</span> <span class="bu">len</span>(graph):</span>
+<span id="cb17-11"><a></a>        <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb17-12"><a></a></span>
+<span id="cb17-13"><a></a>    <span class="co"># Try different colors for vertex v</span></span>
+<span id="cb17-14"><a></a>    <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, k <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb17-15"><a></a>        <span class="cf">if</span> is_safe(v, graph, c):</span>
+<span id="cb17-16"><a></a>            colors[v] <span class="op">=</span> c  <span class="co"># Choose</span></span>
+<span id="cb17-17"><a></a></span>
+<span id="cb17-18"><a></a>            <span class="cf">if</span> solve_graph_coloring(graph, k, v <span class="op">+</span> <span class="dv">1</span>):  <span class="co"># Explore</span></span>
+<span id="cb17-19"><a></a>                <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb17-20"><a></a></span>
+<span id="cb17-21"><a></a>            colors[v] <span class="op">=</span> <span class="dv">0</span>  <span class="co"># Backtrack (Un-choose)</span></span>
+<span id="cb17-22"><a></a></span>
+<span id="cb17-23"><a></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb17-24"><a></a></span>
+<span id="cb17-25"><a></a>graph <span class="op">=</span> [[<span class="dv">2</span>], [<span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">0</span>, <span class="dv">5</span>], [<span class="dv">1</span>, <span class="dv">4</span>], [<span class="dv">1</span>, <span class="dv">3</span>], [<span class="dv">2</span>]]</span>
+<span id="cb17-26"><a></a>colors <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(graph)</span>
+<span id="cb17-27"><a></a><span class="bu">print</span>(solve_graph_coloring(graph, <span class="dv">2</span>), colors)</span>
+<span id="cb17-28"><a></a>colors <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(graph)</span>
+<span id="cb17-29"><a></a><span class="bu">print</span>(solve_graph_coloring(graph, <span class="dv">3</span>), colors)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-5-comparing-analysing" class="title-slide slide level1 center">
+<h1>Part 5 — Comparing &amp; Analysing</h1>
+
+</section>
+
+<section id="complexity-analysis" class="slide level2">
+<h2>Complexity Analysis</h2>
+<p>Backtracking doesn’t change the <strong>worst case</strong> (still exponential), but it dramatically improves <strong>average case</strong>.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Algorithm</th>
+<th>Worst Case</th>
+<th>Typical Case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Brute force</td>
+<td>O(n!) or O(kⁿ)</td>
+<td>Same</td>
+</tr>
+<tr class="even">
+<td>Backtracking</td>
+<td>O(n!) or O(kⁿ)</td>
+<td>Much better</td>
+</tr>
+<tr class="odd">
+<td>Backtracking + pruning</td>
+<td>O(n!) or O(kⁿ)</td>
+<td>Far better</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The key metric is <strong>nodes explored</strong>, not theoretical complexity class. Good pruning can reduce explored nodes from billions to thousands.</p>
+</blockquote>
+</section>
+<section id="key-design-decisions" class="slide level2">
+<h2>Key Design Decisions</h2>
+<p>When implementing backtracking + pruning, ask yourself:</p>
+<ol type="1">
+<li><p><strong>What is a “partial solution”?</strong><br>
+→ What state do I need to track?</p></li>
+<li><p><strong>What are the choices at each step?</strong><br>
+→ What’s the branching factor?</p></li>
+<li><p><strong>What makes a partial solution invalid?</strong> (backtracking)<br>
+→ Implement this check cheaply</p></li>
+<li><p><strong>What makes a partial solution <em>hopeless</em>?</strong> (pruning)<br>
+→ This is where domain knowledge pays off</p></li>
+<li><p><strong>Can I order choices to fail fast?</strong><br>
+→ Try the most constrained variables first (MRV heuristic)</p></li>
+</ol>
+<!-- ---
+
+# Part 6 — Summary & Practice
+
+## What We Covered Today
+
+:::: {.columns}
+::: {.column width="50%"}
+**Backtracking**
+
+- Build solutions incrementally
+- Abandon invalid partial solutions immediately
+- Template: choose → recurse → undo
+- Examples: Maze, Subset Sum, N-Queens, Sudoku, Graph Colouring
+:::
+::: {.column width="50%"}
+**Pruning**
+
+- Look ahead before recursing
+- Abandon *hopeless* (not just invalid) branches
+- Strategies: feasibility, bounds, forward checking, symmetry
+- Can reduce explored nodes by orders of magnitude
+:::
+::::
+
+> **Rule of thumb:** backtracking is the engine, pruning is the fuel.
+
+---
+
+## Practice Problems
+
+Try these in order of difficulty:
+
+1. **Permutations** — generate all permutations of `[1,2,3]`
+2. **Phone keypad** — given `"23"`, list all letter combinations (`2→abc, 3→def`)
+3. **Combination sum** — find all subsets of `[2,3,6,7]` summing to `7` (elements reusable)
+4. **Word search** — find if word `"ABCCED"` exists in a letter grid
+5. **Sudoku solver** — solve an arbitrary 9×9 board
+6. **N-Queens count** — how many solutions for n=12? (add symmetry-breaking pruning)
+
+---
+
+## LeetCode Connections
+
+| Problem | Technique |
+|---------|-----------|
+| LC 46 — Permutations | Backtracking |
+| LC 78 — Subsets | Backtracking |
+| LC 39 — Combination Sum | Backtracking + bound pruning |
+| LC 79 — Word Search | Backtracking on grid |
+| LC 51 — N-Queens | Backtracking + feasibility pruning |
+| LC 37 — Sudoku Solver | Backtracking + forward checking |
+| LC 698 — Partition to K Equal Subsets | Backtracking + symmetry pruning |
+
+---
+
+## One-Slide Cheat Sheet
+
+```python
+def backtrack(state):
+    # 1. Prune: is there any hope?
+    if not is_promising(state):
+        return
+
+    # 2. Base case: is state a complete solution?
+    if is_complete(state):
+        record(state)
+        return
+
+    # 3. Recurse: try every valid next choice
+    for choice in get_choices(state):
+        make(state, choice)       # commit
+        backtrack(state)          # explore
+        undo(state, choice)       # retreat ← the heart of backtracking
+```
+
+> Memorise this template. Every problem in this class follows it.
+
+---
+
+## Summary
+
+:::: {.columns}
+::: {.column width="60%"}
+**Key takeaways:**
+
+- Backtracking = depth-first search + undo
+- Pruning = domain-aware early termination
+- The combination turns intractable problems practical
+- Same template applies across all examples
+:::
+::: {.column width="40%"}
+**Next class:**
+
+- Branch and Bound (optimisation variant)
+- Memoisation & Dynamic Programming
+- When backtracking meets memoisation
+:::
+::::
+
+> *"The art of backtracking is knowing when to give up."* -->
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

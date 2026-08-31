@@ -1,0 +1,289 @@
+---
+title: "What Is an Object?"
+subtitle: "COSC120: Introduction to Computer Science I"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-block-height: 400px
+---
+
+## Learning Outcomes
+
+- Distinguish a class (blueprint) from an object (instance) and use `new ClassName()` to create an object
+- Access and modify an object's state using dot notation (`obj.field = value`)
+- Invoke an object's behavior by calling its methods (`obj.method()`) and observe how method calls change state
+- Create multiple independent objects from the same class and predict each object's state after a sequence of operations
+- Explain why grouping related fields and methods into a class leads to clearer, more organized code
+
+## The Problem Without Objects
+
+Imagine tracking three students' names and grades:
+
+```java
+String name0 = "Alice";  int grade0 = 88;
+String name1 = "Bob";    int grade1 = 74;
+String name2 = "Carol";  int grade2 = 91;
+```
+
+These six variables are clearly related — but Java doesn't know that.
+You can't pass "a student" to a method. You can't say "print student 1."
+
+**The need:** a way to bundle related data (and the actions on it) into one named thing.
+
+::: notes
+This is the same motivation as arrays, but taken further. Arrays solved "many values of the same type." Objects solve "many related values of different types." A student isn't just a grade OR a name — they're both together. OOP lets you represent that.
+:::
+
+## Everything Around You Is an Object
+
+Look around the room. Every physical thing has:
+
+- **Properties** — things that describe it (color, size, model, charge)
+- **Behaviors** — things it can do (play, charge, ring, open)
+
+| Thing | Properties | Behaviors |
+|-------|-----------|-----------|
+| Phone | brand, battery%, color | call(), text(), takePicture() |
+| Dog | name, breed, age | bark(), eat(), fetch() |
+| Bank account | owner, balance | deposit(), withdraw() |
+
+Programming objects work the same way. A **class** defines the properties and behaviors. An **object** is one specific instance of that class.
+
+::: notes
+This is the core OOP intuition. Students should nod — they already think about the world in terms of things with properties and behaviors. The job of OOP is to let them bring that mental model directly into code. Don't rush past this slide; it's the entire foundation.
+:::
+
+## Class vs Object
+
+::: {.columns}
+::: {.column width="50%"}
+**Class = Blueprint**
+
+The *template* that defines what all dogs look like and can do.
+
+One blueprint exists.
+
+```
+Dog
+------
+name
+breed
+age
+------
+bark()
+birthday()
+```
+:::
+::: {.column width="50%"}
+**Object = Instance**
+
+A *specific* dog built from that blueprint.
+
+Many objects can exist.
+
+```
+rex
+------
+name = "Rex"
+breed = "Lab"
+age = 3
+```
+
+```
+luna
+------
+name = "Luna"
+breed = "Poodle"
+age = 1
+```
+:::
+:::
+
+<!-- FIGURE [draw.io or excalidraw]: Left side: a single rectangle labeled "Dog CLASS (blueprint)" containing "name, breed, age / bark(), birthday()". From it, three arrows point right to three separate object boxes, each labeled "Dog OBJECT (instance)" with different name/breed/age values filled in. -->
+
+::: notes
+The blueprint/house or cookie-cutter/cookie analogies both work here. The class is defined once. Objects (instances) are created from it as many times as needed — each one gets its own independent copy of the fields. Changing rex's name has zero effect on luna's name.
+:::
+
+## Cookie Cutter and Cookies
+
+<!-- FIGURE [draw.io or excalidraw]: On the left, a dog-shaped cookie cutter labeled "Dog class". Three arrows point right to three individual dog-shaped cookies, each decorated differently (one with "name: Rex / age: 3", one with "name: Luna / age: 1", one with "name: Biscuit / age: 7"). The cutter is one; the cookies are many. -->
+
+The **cookie cutter** (class) is made once.
+
+Each **cookie** (object) is stamped out from it — same shape, but you can decorate each one differently.
+
+Changing the decoration on one cookie does not affect the others.
+
+::: notes
+Let students sit with this image. Some will say "but I could change all the cookies by changing the cutter!" — yes, that's what changing the class definition does. But after they're stamped out, the cookies are independent. Runtime state changes on one object don't bleed into others.
+:::
+
+## A Simple Class
+
+```java
+class Dog {
+    String name;     // fields — the object's state
+    String breed;
+    int age;
+
+    void bark() {    // methods — the object's behavior
+        IO.println(name + " says: Woof!");
+    }
+
+    void birthday() {
+        age = age + 1;
+        IO.println(name + " is now " + age + "!");
+    }
+}
+```
+
+- **Fields** (`name`, `breed`, `age`) — variables that live inside every `Dog` object
+- **Methods** (`bark`, `birthday`) — actions every `Dog` object can perform
+
+::: notes
+This is the first class students see written in full. Keep it concrete: every Dog object will have its own name, breed, and age. The bark() method reads the object's own name field — it "knows" who it is. You don't pass the name in; the method finds it in the same object. This is state + behavior bundled together.
+:::
+
+## Creating an Object
+
+```java
+Dog rex = new Dog();
+```
+
+| Part | Meaning |
+|------|---------|
+| `Dog` | The type — this variable holds a `Dog` |
+| `rex` | The variable name |
+| `new Dog()` | Create a brand-new `Dog` object in memory |
+
+After this line, `rex` exists but has no name, breed, or age yet — those fields hold default values (`null`, `null`, `0`).
+
+::: {.callout-note}
+`new` is the keyword that creates an object. Every time you write `new ClassName()`, Java builds a fresh independent object.
+:::
+
+::: notes
+Compare new Dog() to new int[5] — students have already seen new, just not with classes. The parallel is helpful: new creates something fresh in memory. The variable (rex) holds a reference (link) to that new object — just like arrays. This is why arrays behave like objects: they ARE objects.
+:::
+
+## Setting an Object's State
+
+Use **dot notation** to access and change fields:
+
+```java
+Dog rex = new Dog();
+rex.name  = "Rex";
+rex.breed = "Labrador";
+rex.age   = 3;
+
+IO.println(rex.name);    // Rex
+IO.println(rex.age);     // 3
+```
+
+The dot (`.`) means: "go into this object and find \_\_\_."
+
+`rex.name` — "the `name` field of the object that `rex` refers to."
+
+::: notes
+Dot notation is the fundamental syntax of OOP. Students already know obj.length() for arrays and str.length() for Strings — this is the same pattern. The dot is a selector: go into the object, find the thing named after the dot. Walk through each line and confirm what each IO.println produces.
+:::
+
+## Calling an Object's Methods
+
+Use dot notation to invoke behavior:
+
+```java
+rex.bark();       // Rex says: Woof!
+rex.birthday();   // Rex is now 4!
+IO.println(rex.age);   // 4 — the field actually changed!
+```
+
+Methods can **read and change the object's own fields** — that's what makes them powerful.
+
+`birthday()` didn't need `age` passed as a parameter. It found `age` inside the same object.
+
+<!-- FIGURE [draw.io or excalidraw]: A box labeled "rex (Dog object)" containing "name='Rex', breed='Lab', age=3". An arrow labeled "rex.birthday()" points into the box. Inside the box, age changes from 3 to 4. An arrow comes back out labeled "age is now 4". -->
+
+::: notes
+This is the "behavior changes state" idea. birthday() modifies age — not a local copy, the actual field inside rex. That's different from what primitive parameters do (deck 09). An object's method has direct access to the object's own state. This is what it means to bundle data and behavior together.
+:::
+
+## Multiple Independent Objects
+
+Each object has its own **separate copy** of every field:
+
+```java
+Dog rex  = new Dog();
+rex.name = "Rex";
+rex.age  = 3;
+
+Dog luna = new Dog();
+luna.name = "Luna";
+luna.age  = 1;
+
+rex.birthday();              // rex's age becomes 4
+IO.println(luna.age);        // still 1 — luna is unaffected
+```
+
+`rex` and `luna` are built from the same `Dog` class but are completely independent.
+
+<!-- FIGURE [draw.io or excalidraw]: Two separate box diagrams side by side. Left: "rex" box with name='Rex', age=3→4. Right: "luna" box with name='Luna', age=1 (unchanged). A label above: "Same class, different objects, independent state." -->
+
+::: notes
+This is the cookie image in code form. Changing rex's age does not affect luna's age because they are two separate objects in memory — two separate "cookies." Walk through the exact sequence: rex.birthday() changes rex.age from 3 to 4; luna.age remains 1. Predict the output before running it.
+:::
+
+## Why OOP?
+
+**Without OOP:**
+```java
+String name0 = "Alice";  int grade0 = 88;
+String name1 = "Bob";    int grade1 = 74;
+// ... 28 more pairs for a class of 30
+```
+
+**With OOP:**
+```java
+Student alice = new Student();
+alice.name = "Alice";
+alice.grade = 88;
+// alice.letterGrade() — behavior comes with the data
+```
+
+OOP benefits: **organization** (related data and behavior live together), **reuse** (create as many students as you need), **readability** (the code mirrors the real world).
+
+::: notes
+Bring it back to the opening motivation slide. OOP isn't a trick — it's a way to make programs that mirror how we already think about the world. "Give me a student" is something humans understand. Writing six variables for one student is not how humans think. OOP bridges that gap.
+:::
+
+## Worksheet
+
+1. In your own words: what is the difference between a **class** and an **object**? Give a real-world example (not Dog).
+
+2. Given this class:
+   ```java
+   class Point {
+       int x;
+       int y;
+   }
+   ```
+   Write code in `main` that creates two `Point` objects, sets their `x` and `y` fields to different values, and prints each point's coordinates.
+
+3. Add a method `void move(int dx, int dy)` to `Point` that adds `dx` to `x` and `dy` to `y`. Call it from `main` and print the result.
+
+4. Predict the output:
+   ```java
+   Dog a = new Dog();
+   Dog b = new Dog();
+   a.name = "Ace";
+   b.name = "Boo";
+   a.age = 5;
+   b.age = 2;
+   a.birthday();
+   IO.println(a.age);
+   IO.println(b.age);
+   ```
+
+5. **Discuss:** Why is it better to write `alice.greet()` than to write a standalone method `greet(String name, int grade)`? What changes when a new field is added to `Student`?
