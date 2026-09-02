@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/quarto-contrib/codemirror6-1.0.0/codemirror.bundle.js"></script><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – What Is a Program?</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <style id="java-runner-styles">
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* ── Colour tokens ───────────────────────────────────────────────────────── */
+  /* Light mode: hardcoded — RevealJS Night theme keeps --r-background-color   */
+  /* dark even when theme-toggle switches to light, so we can't rely on it.    */
+  .jr-block {
+    --jr-bg:        #ffffff;
+    --jr-chrome:    #e2e8f0;
+    --jr-border:    rgba(30, 41, 59, 0.25);
+    --jr-text:      #1e293b;
+    --jr-accent:    #2563eb;
+    --jr-editor:    #f8fafc;
+    --jr-code-text: #1e293b;
+  }
+  /* Dark mode: follow the RevealJS Night theme variables */
+  body.jr-dark .jr-block {
+    --jr-bg:        var(--r-background-color, #191919);
+    --jr-chrome:    color-mix(in srgb, var(--r-background-color, #191919) 88%, white 12%);
+    --jr-border:    rgba(255, 255, 255, 0.15);
+    --jr-text:      var(--r-main-color, #eeeeee);
+    --jr-accent:    var(--r-link-color, #42affa);
+    --jr-editor:    #1e1e2e;
+    --jr-code-text: #cdd6f4;
+  }
+
+  /* ── Block container ─────────────────────────────────────────────────────── */
+  .jr-block {
+    display: flex !important; flex-direction: column !important; gap: 0 !important;
+    margin: 0.5rem 0 !important; border: 2px solid var(--jr-border) !important;
+    border-radius: 6px !important; overflow: hidden !important;
+    background: var(--jr-bg) !important;
+    font-size: 0.85rem !important; text-align: left !important; box-sizing: border-box !important;
+  }
+
+  /* ── Toolbar ─────────────────────────────────────────────────────────────── */
+  .jr-block .jr-toolbar {
+    display: flex !important; align-items: center !important;
+    justify-content: space-between !important; padding: 0.3rem 0.6rem !important;
+    background: var(--jr-chrome) !important; border-bottom: 1px solid var(--jr-border) !important;
+    flex-shrink: 0 !important;
+  }
+  .jr-block .jr-lang-badge {
+    font-size: 0.7rem !important; font-weight: 700 !important;
+    letter-spacing: 0.05em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.6 !important; background: none !important;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+  .jr-block .jr-run-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #2d6a4f !important;
+    color: #d8f3dc !important; border: 2px solid #52b788 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-run-btn:hover        { background: #40916c !important; }
+  .jr-block .jr-run-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-run-btn:disabled     { opacity: 0.6 !important; cursor: not-allowed !important; }
+
+  .jr-block .jr-stop-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #7f1d1d !important;
+    color: #fecaca !important; border: 2px solid #dc2626 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-stop-btn:hover        { background: #991b1b !important; }
+  .jr-block .jr-stop-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-stop-btn:disabled     { opacity: 0.4 !important; cursor: not-allowed !important; }
+
+  .jr-block .jr-pause-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #4a4e69 !important;
+    color: #c9cde0 !important; border: 2px solid #9a8ec4 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-pause-btn:hover       { background: #5c5f85 !important; }
+  .jr-block .jr-pause-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-pause-btn:disabled    { opacity: 0.4 !important; cursor: not-allowed !important; }
+
+  /* ── CodeMirror 6 editor container ──────────────────────────────────────── */
+  /* CM6 owns its own height; we constrain via the inner .cm-editor element.  */
+  .jr-block .jr-ace-editor .cm-editor {
+    min-height: 7.5rem !important;   /* ≈ 5 lines  */
+    max-height: 30rem  !important;   /* ≈ 20 lines */
+    font-size: 1.2em !important;
+  }
+  .jr-block .jr-ace-editor .cm-scroller {
+    overflow: auto !important;
+    font-family: 'JetBrains Mono','Fira Code','Cascadia Code','Consolas',monospace !important;
+    line-height: 1.5 !important;
+  }
+
+
+  /* ── Terminal — single scrolling area, input inline with output ──────────── */
+  .jr-block .jr-terminal {
+    background: var(--jr-editor) !important;
+    border-top: 2px solid var(--jr-border) !important;
+    flex-shrink: 0 !important; display: flex !important; flex-direction: column !important;
+  }
+  /* Title bar with traffic-light dots */
+  .jr-block .jr-terminal-bar {
+    background: var(--jr-chrome) !important;
+    border-bottom: 1px solid var(--jr-border) !important;
+    display: flex !important; align-items: center !important;
+    gap: 5px !important; padding: 0.3rem 0.6rem !important; flex-shrink: 0 !important;
+  }
+  .jr-block .jr-dot { width: 11px !important; height: 11px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+  .jr-block .jr-dot-r { background: #ff5f57 !important; }
+  .jr-block .jr-dot-y { background: #ffbd2e !important; }
+  .jr-block .jr-dot-g { background: #28c840 !important; }
+  .jr-block .jr-terminal-title {
+    font-size: 0.68rem !important; font-weight: 600 !important;
+    letter-spacing: 0.06em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.5 !important; margin-left: 4px !important;
+  }
+  /* The single unified output+input scrolling area */
+  .jr-block .jr-terminal-out {
+    margin: 0 !important; padding: 0.55rem 0.75rem !important;
+    min-height: 3rem !important; max-height: 16rem !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    color: var(--jr-code-text) !important; white-space: pre-wrap !important;
+    word-break: break-word !important; overflow-y: auto !important;
+    scrollbar-width: thin !important; scrollbar-color: var(--jr-border) transparent !important;
+  }
+  .jr-block .jr-terminal-out::-webkit-scrollbar { width: 6px !important; }
+  .jr-block .jr-terminal-out::-webkit-scrollbar-thumb { background: var(--jr-border) !important; border-radius: 3px !important; }
+  .jr-block .jr-terminal-out::-webkit-scrollbar-track { background: transparent !important; }
+  .jr-block .jr-terminal-out:focus-visible { outline: 2px solid var(--jr-accent) !important; outline-offset: -2px !important; }
+  /* Idle hint */
+  .jr-block .jr-terminal-out:empty::before {
+    content: attr(data-hint) !important;
+    color: var(--jr-text) !important; opacity: 0.35 !important; font-style: italic !important;
+  }
+  /* Stderr text */
+  .jr-block .jr-stderr { color: #dc2626 !important; }
+  /* Live input line — appended inside jr-terminal-out while program runs */
+  .jr-block .jr-input-line {
+    display: flex !important; align-items: baseline !important;
+    white-space: pre !important;
+  }
+  .jr-block .jr-terminal-ps {
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    color: var(--jr-accent) !important; margin-right: 0.3rem !important;
+    flex-shrink: 0 !important; user-select: none !important;
+  }
+  /* The live <input> inside the input line */
+  .jr-block .jr-stdin-live {
+    flex: 1 !important; min-width: 2ch !important;
+    background: transparent !important; border: none !important;
+    color: var(--jr-code-text) !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    padding: 0 !important; outline: none !important;
+    caret-color: var(--jr-accent) !important;
+  }
+  /* Echoed input line — shown after user presses Enter */
+  .jr-block .jr-echo-line { color: var(--jr-accent) !important; white-space: pre-wrap !important; }
+
+  /* ── Processing canvas ───────────────────────────────────────────────────── */
+  .jr-block .jr-canvas-wrap {
+    border-top: 1px solid var(--jr-border) !important; display: flex !important;
+    align-items: center !important; justify-content: center !important;
+    padding: 0.5rem !important; background: var(--jr-bg) !important;
+    flex-shrink: 0 !important;
+  }
+  .jr-block .jr-canvas-wrap canvas { display: block !important; }
+
+  /* ── Processing output area ──────────────────────────────────────────────── */
+  .jr-block .jr-output-wrap { border-top: 1px solid var(--jr-border) !important; flex-shrink: 0 !important; }
+  .jr-block .jr-output-label {
+    padding: 0.2rem 0.6rem !important; font-size: 0.7rem !important; font-weight: 700 !important;
+    letter-spacing: 0.05em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.7 !important;
+    background: var(--jr-chrome) !important; margin: 0 !important;
+  }
+  .jr-block .jr-output {
+    margin: 0 !important; padding: 0.5rem 0.6rem !important;
+    min-height: 2rem !important; max-height: 12rem !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.5 !important;
+    color: #1e293b !important; background: #f8fafc !important;
+    white-space: pre-wrap !important; word-break: break-word !important;
+    border: none !important; overflow-y: auto !important;
+  }
+  .jr-block .jr-output[data-status="error"]   { color: #fc8181 !important; }
+  .jr-block .jr-output[data-status="running"] { font-style: italic !important; opacity: 0.7 !important; }
+
+  /* ── Suppress Quarto's native <pre class="sourceCode"> ──────────────────── */
+  .jr-block + div.sourceCode, .jr-block + pre.sourceCode { display: none !important; }
+  div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
+
+  </style>
+</head>
+<body class="quarto-light">
+<script type="module">
+const SERVER = "https://java-runner.sayangoswami.dev";
+
+// ── Initialise all blocks ─────────────────────────────────────────────────
+function initAll() {
+  document.querySelectorAll('.jr-block').forEach(initBlock);
+
+  // CM6 handles its own sizing — no resize() needed on slide change.
+  const wireReveal = () => { /* no-op — kept for future hooks */ };
+  if (document.readyState === 'complete') wireReveal();
+  else window.addEventListener('load', wireReveal);
+}
+
+function initBlock(block) {
+  if (block.dataset.jrInit) return;
+  block.dataset.jrInit = '1';
+
+  const type     = block.dataset.type;
+  const runBtn   = block.querySelector('.jr-run-btn');
+  const stopBtn  = block.querySelector('.jr-stop-btn');
+  const pauseBtn = block.querySelector('.jr-pause-btn');
+
+  // ── CodeMirror 6 editor (all blocks) ─────────────────────────────────────
+  let editor = null;   // CM6 EditorView
+  const aceDiv = block.querySelector('.jr-ace-editor');
+
+  if (aceDiv && window.CM) {
+    const {
+      EditorView, EditorState, Compartment,
+      keymap, lineNumbers, highlightActiveLine, drawSelection,
+      history, historyKeymap, defaultKeymap, indentWithTab,
+      syntaxHighlighting, defaultHighlightStyle, indentOnInput, bracketMatching, indentUnit,
+      closeBrackets, closeBracketsKeymap,
+      java,
+      oneDark,
+    } = window.CM;
+
+    const isDark    = () => document.body.classList.contains('jr-dark');
+    const themeComp = new Compartment();
+
+    // Light theme: hardcoded values matching the light-mode CSS tokens above
+    const lightTheme = EditorView.theme({
+      '&':                         { background: '#f8fafc', color: '#1e293b' },
+      '.cm-content':               { caretColor: '#2563eb' },
+      '.cm-cursor,.cm-dropCursor': { borderLeftColor: '#2563eb' },
+      '.cm-gutters':               { background: '#e2e8f0', color: '#64748b',
+                                     borderRight: '1px solid rgba(30,41,59,0.25)' },
+      '.cm-activeLineGutter':      { background: '#cbd5e1' },
+      '.cm-activeLine':            { background: 'rgba(30,41,59,0.04)' },
+      '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection':
+                                   { background: 'rgba(37,99,235,0.15)' },
+    });
+
+    // Per-block draft persistence. Survives slide navigation, but is keyed to
+    // BOTH the page path and the block id (ids alone — jr-1, jr-2… — collide
+    // across decks on one origin) and tagged with a hash of the original
+    // snippet, so a re-rendered/edited snippet invalidates any stale draft.
+    const origCode = aceDiv.textContent.trim();
+    const hashStr = (s) => {
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+      return h.toString(36);
+    };
+    const origHash = hashStr(origCode);
+    const draftKey = 'jr:' + location.pathname + '#' + block.id;
+
+    let initialCode = origCode;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
+      if (saved && saved.o === origHash && typeof saved.c === 'string') initialCode = saved.c;
+    } catch (_) { /* storage unavailable or corrupt — fall back to original */ }
+    aceDiv.textContent = '';   // CM6 owns this div from here on
+
+    editor = new EditorView({
+      parent: aceDiv,
+      state: EditorState.create({
+        doc: initialCode,
+        extensions: [
+          lineNumbers(),
+          highlightActiveLine(),
+          drawSelection(),
+          bracketMatching(),
+          closeBrackets(),
+          indentUnit.of("    "),    // 4-space indentation
+          EditorState.tabSize.of(4), // tab character display width
+          indentOnInput(),
+          history(),
+          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+          java(),           // Java syntax for both Java and Processing (Processing is Java-like)
+          themeComp.of(isDark() ? oneDark : lightTheme),
+          keymap.of([
+            indentWithTab,          // Tab → indent; press Escape first to release Tab
+            ...closeBracketsKeymap,
+            ...defaultKeymap,
+            ...historyKeymap,
+          ]),
+          EditorView.updateListener.of(u => {
+            if (!u.docChanged) return;
+            try {
+              sessionStorage.setItem(draftKey,
+                JSON.stringify({ o: origHash, c: u.state.doc.toString() }));
+            } catch (_) { /* storage full or unavailable — ignore */ }
+          }),
+          // stopPropagation keeps slide navigation keys from reaching RevealJS
+          // without calling Reveal.configure() which triggers a theme re-sync
+          EditorView.domEventHandlers({
+            keydown: (e) => { e.stopPropagation(); },
+          }),
+        ],
+      }),
+    });
+
+    // Enter on the outer div activates editing
+    editor.dom.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement === editor.dom) {
+        e.preventDefault();
+        editor.focus();   // moves focus into the contentDOM
+      }
+    });
+
+    // Escape on contentDOM: stop propagation HERE before it bubbles to RevealJS.
+    // We can't rely on domEventHandlers (CM6 skips it after blur) so we catch it
+    // directly on the innermost element, where the editor still has focus.
+    editor.contentDOM.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();   // prevents bubble to document where RevealJS listens
+        editor.contentDOM.blur();
+      }
+    });
+
+    aceDiv.setAttribute('aria-description',
+      'Code editor. Press Enter to start editing. Tab indents. Press Escape to stop editing and restore Tab navigation.');
+
+    // Switch theme when dark-mode toggle fires
+    new MutationObserver(() => {
+      editor.dispatch({ effects: themeComp.reconfigure(isDark() ? oneDark : lightTheme) });
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Output element — terminal-out for Java, jr-output pre for Processing
+  const out = block.querySelector('.jr-terminal-out') || block.querySelector('.jr-output');
+
+  // ── Run button ────────────────────────────────────────────────────────────
+  let processingInstance = null;
+  let looping = true;
+
+  runBtn.addEventListener('click', async () => {
+    const code = editor ? editor.state.doc.toString().trim() : '';
+    if (!code) return;
+
+    if (type === 'java') {
+      runBtn.disabled = true;
+      runBtn.setAttribute('aria-busy', 'true');
+      if (stopBtn) stopBtn.disabled = false;
+      out.innerHTML = '';
+      delete out.dataset.status;
+      await runJava(code, out, stopBtn);
+      if (stopBtn) stopBtn.disabled = true;
+      runBtn.disabled = false;
+      runBtn.setAttribute('aria-busy', 'false');
+    } else {
+      runBtn.disabled = true;
+      runBtn.setAttribute('aria-busy', 'true');
+      if (processingInstance) { try { processingInstance.exit(); } catch(_) {} }
+      if (pauseBtn) { pauseBtn.disabled = true; pauseBtn.textContent = '⏸ Pause'; pauseBtn.setAttribute('aria-pressed','false'); }
+
+      const canvas     = block.querySelector('canvas');
+      const canvasWrap = block.querySelector('.jr-canvas-wrap');
+      try {
+        processingInstance = new Processing(canvas, code);
+        canvasWrap.style.display = 'flex';
+
+        // After Processing runs size(), fit canvas width to the container
+        // (preserving aspect ratio) so there is no horizontal overflow.
+        // Height is left at the sketch's native size — the {.scrollable} slide
+        // handles vertical scrolling if the canvas is taller than the viewport.
+        requestAnimationFrame(() => {
+          const sw = canvas.width, sh = canvas.height;
+          if (sw <= 1 || sh <= 1) return;
+          const pad    = 16; // 2×0.5rem padding inside canvas-wrap
+          const availW = canvasWrap.clientWidth - pad;
+          if (availW > 0 && sw > availW) {
+            canvas.style.width  = availW + 'px';
+            canvas.style.height = Math.round(sh * availW / sw) + 'px';
+          } else {
+            canvas.style.width  = sw + 'px';
+            canvas.style.height = sh + 'px';
+          }
+        });
+
+        looping = true;
+        if (pauseBtn) pauseBtn.disabled = false;
+      } catch (err) {
+        out.innerHTML = '';
+        out.textContent = 'Processing error: ' + err.message;
+      }
+      runBtn.disabled = false;
+      runBtn.setAttribute('aria-busy', 'false');
+    }
+  });
+
+  // ── Pause / Resume (Processing) ───────────────────────────────────────────
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', () => {
+      if (!processingInstance) return;
+      if (looping) {
+        processingInstance.noLoop(); looping = false;
+        pauseBtn.setAttribute('aria-pressed','true'); pauseBtn.textContent = '▶ Resume';
+      } else {
+        processingInstance.loop(); looping = true;
+        pauseBtn.setAttribute('aria-pressed','false'); pauseBtn.textContent = '⏸ Pause';
+      }
+    });
+  }
+}
+
+// ── Java execution — real-time WebSocket terminal ─────────────────────────
+// The terminal area (out) is a single scrolling div.  As the program runs:
+//   • stdout text is appended as plain text nodes
+//   • stderr is appended as red <span> nodes
+//   • an input line (› ...) is kept at the bottom; Enter sends to server
+//   • when the user presses Enter the typed line is echoed in accent colour
+//   • when the program exits the input line is removed
+async function runJava(code, out, stopBtn) {
+  const wsUrl = SERVER.replace(/^http/, 'ws') + '/run/java/ws';
+
+  // Reference to the live input line element (only one at a time)
+  let inputLine = null;
+
+  // Append text BEFORE the live input line so it stays at the bottom
+  function appendText(text) {
+    out.insertBefore(document.createTextNode(text),  inputLine);
+    out.scrollTop = out.scrollHeight;
+  }
+  function appendError(text) {
+    const s = document.createElement('span');
+    s.className = 'jr-stderr';
+    s.textContent = text;
+    out.insertBefore(s, inputLine);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function showInput(ws) {
+    if (inputLine) return;            // already showing one
+
+    const line   = document.createElement('div');
+    line.className = 'jr-input-line';
+
+    const ps = document.createElement('span');
+    ps.className = 'jr-terminal-ps';
+    ps.setAttribute('aria-hidden', 'true');
+    ps.textContent = '›';
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'jr-stdin-live';
+    inp.setAttribute('aria-label', 'Program input — press Enter to send');
+    inp.autocomplete = 'off';
+    inp.autocorrect  = 'off';
+    inp.autocapitalize = 'off';
+    inp.spellcheck   = false;
+
+    inp.addEventListener('keydown', (e) => {
+      e.stopPropagation(); // prevent slide navigation while typing
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const value = inp.value;
+
+      // Replace live input line with an immutable echo line
+      const echo = document.createElement('div');
+      echo.className = 'jr-echo-line';
+      echo.textContent = '› ' + value;
+      line.replaceWith(echo);
+      inputLine = null;
+
+      // Send to server
+      if (ws.readyState === WebSocket.OPEN)
+        ws.send(JSON.stringify({ type: 'stdin', text: value + '\n' }));
+
+      out.scrollTop = out.scrollHeight;
+    });
+
+    line.appendChild(ps);
+    line.appendChild(inp);
+    out.appendChild(line);
+    inputLine = line;
+    inp.focus();
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function removeInput() {
+    if (inputLine) { inputLine.remove(); inputLine = null; }
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    let watchdog = null;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(watchdog);
+      removeInput();
+      if (stopBtn) stopBtn.onclick = null;
+      resolve();
+    };
+
+    let ws;
+    try {
+      ws = new WebSocket(wsUrl);
+    } catch (err) {
+      out.textContent = 'Could not connect: ' + err.message;
+      settle(); return;
+    }
+
+    // Client-side safety net: if the socket neither closes nor delivers a
+    // 'done' (dropped connection, server wedged past its own kill timer),
+    // stop waiting so the Run button doesn't stay disabled forever.
+    watchdog = setTimeout(() => {
+      appendError('\n[no response from server after 130s — connection closed]\n');
+      try { ws.close(); } catch (_) {}
+      settle();
+    }, 130000);
+
+    if (stopBtn) stopBtn.onclick = () => {
+      appendError('\n[stopped]\n');
+      try { ws.close(); } catch (_) {}   // server kills the child on socket close
+    };
+
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ type: 'run', code }));
+    });
+
+    ws.addEventListener('message', (event) => {
+      let msg;
+      try { msg = JSON.parse(event.data); } catch (_) { return; }  // ignore non-JSON frames
+      if (msg.type === 'status') {
+        // Show compile/run status as faint italic text (replaced by real output)
+        if (!inputLine) {
+          // Use a temporary placeholder that gets replaced by first stdout
+          out._statusNode = document.createTextNode(
+            msg.text === 'compiling' ? 'Compiling…\n' : ''
+          );
+          out.appendChild(out._statusNode);
+        }
+      } else if (msg.type === 'stdout') {
+        // Remove the status placeholder on first real output
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        appendText(msg.text);
+        // Show the input line (if not already visible) so the student can type
+        if (!inputLine) showInput(ws);
+      } else if (msg.type === 'stderr') {
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        appendError(msg.text);
+      } else if (msg.type === 'done') {
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        settle();
+      }
+    });
+
+    ws.addEventListener('error', () => {
+      appendError(
+        'Connection error — is the server running?\n' +
+        'Server: ' + SERVER + '\n' +
+        'Check the browser console (F12) for details.'
+      );
+      settle();
+    });
+
+    ws.addEventListener('close', settle);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
+}
+
+</script>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">What Is a Program?</h1>
+  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="hello-world" class="slide level2">
+<h2>Hello World</h2>
+
+<img data-src="images/pollev.png" alt="A QR code for Poll Everywhere" class="r-stretch"></section>
+<section id="learning-outcomes" class="slide level2">
+<h2>Learning Outcomes</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Concepts</strong></p>
+<ul>
+<li class="fragment"><em>Using</em> vs.&nbsp;<em>programming</em> a computer</li>
+<li class="fragment">Precision, ambiguity, and programming languages</li>
+<li class="fragment">Hardware basics (CPU, RAM, Storage)</li>
+<li class="fragment">Sequential top-to-bottom execution</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Skills</strong></p>
+<ul>
+<li class="fragment">Write a Java program using <code>void main()</code></li>
+<li class="fragment">Print exact console output via <code>IO.println</code></li>
+<li class="fragment">Trace and predict program output</li>
+<li class="fragment">Document code with single-line comments (<code>//</code>)</li>
+</ul>
+</div></div>
+</section>
+<section id="what-is-a-computer" class="slide level2">
+<h2>What Is a Computer?</h2>
+<aside class="notes">
+<p>Brief and grounded — just enough to set up the “everything is a computer” point later. Hit the three parts: CPU executes instructions, RAM is fast scratch-pad memory that vanishes when power goes off, storage is where things persist. The goal is not a hardware lecture — it’s to plant the idea that a computer is a machine that executes instructions, and that a phone is also a machine that executes instructions.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A computer is a machine built around three things:</p>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><img data-src="diags/01-cpu-ram-storage.svg" data-fit-alt="Three labeled boxes arranged left-to-right: CPU (with a small lightning bolt), RAM (labeled 'fast / temporary'), Storage (labeled 'slow / permanent'). Arrows: bidirectional between CPU and RAM (labeled 'working data'), bidirectional between RAM and Storage (labeled 'load / save')." width="1000"></p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 68%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>CPU</strong></td>
+<td>The brain — fetches and executes instructions, billions per second</td>
+</tr>
+<tr class="even">
+<td><strong>Memory (RAM)</strong></td>
+<td>The scratch pad — fast, but gone when the power goes off</td>
+</tr>
+<tr class="odd">
+<td><strong>Storage</strong></td>
+<td>The filing cabinet — slow, but permanent</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Everything else — keyboard, screen, WiFi — is just input and output.</p>
+</div>
+</div>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: Three labeled boxes arranged left-to-right: CPU (with a small lightning bolt), RAM (labeled 'fast / temporary'), Storage (labeled 'slow / permanent'). Arrows: bidirectional between CPU and RAM (labeled 'working data'), bidirectional between RAM and Storage (labeled 'load / save'). Clean, minimal, no color needed. -->
+</section>
+<section id="your-phone-is-also-a-computer" class="slide level2">
+<h2>Your Phone Is Also a Computer</h2>
+<aside class="notes">
+<p>Students relate to phones far more than to desktop PCs. The key insight: a phone has a CPU, RAM, and storage — it IS a computer. The difference is that phone manufacturers have wrapped everything in a layer of apps and made it very hard to program the device directly. But every single app was written by a programmer. This sets up the “using vs.&nbsp;programming” distinction on the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Under the hood, your phone has a CPU, RAM, and storage.</p>
+<p>It <strong>is</strong> a computer — manufacturers just hide the machinery behind apps.</p>
+<div class="fragment">
+<p>Think about every app on your phone:</p>
+<ul>
+<li>The <em>alarm</em> app</li>
+<li>The <em>maps</em> app</li>
+<li>The <em>game</em> you play on the bus</li>
+<li>The on-screen <em>keyboard</em></li>
+</ul>
+</div>
+</section>
+<section id="your-phone-is-also-a-computer-1" class="slide level2">
+<h2>Your Phone Is Also a Computer</h2>
+<p><strong>Every one of these was written by a programmer who sat down and wrote instructions, one line at a time.</strong></p>
+<p>That is what you are learning to do.</p>
+
+<!-- FIGURE [draw.io or excalidraw]: A phone shown face-up with 6-8 app icons. Dashed line down the middle. Right side: "under the hood" — same phone as a plain box labeled CPU / RAM / Storage. A tiny stick-figure programmer sits at a desk with an arrow labeled 'wrote this' pointing to the app icons. Slightly humorous tone. -->
+<img data-src="images/phone-under-the-hood.png" data-fit-alt="A phone shown face-up with 6-8 app icons. Dashed line down the middle. Right side: 'under the hood' — same phone as a plain box labeled CPU / RAM / Storage. A tiny stick-figure programmer sits at a desk with an arrow labeled 'wrote this' pointing to the app icons." class="r-stretch"></section>
+<section id="two-ways-to-use-a-computer" class="slide level2">
+<h2>Two Ways to Use a Computer</h2>
+<aside class="notes">
+<p>This is the conceptual heart of the first lecture. Spend time here. When you “use” a computer you’re running someone else’s program. When you “program” a computer you are the one writing the instructions the machine will follow. The second path is harder but it’s also what gives you real power over the machine.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+<img data-src="images/user-vs-programmer.png" data-fit-alt="Two-panel comic. Left panel: relaxed person tapping phone icons, thought bubble 'easy!'. Right panel: person at keyboard with focused expression, code appearing on screen, computer doing exactly what code says. Slightly humorous — user is chill, programmer is engaged but in control." class="r-stretch"></section>
+<section id="two-ways-to-use-a-computer-1" class="slide level2">
+<h2>Two Ways to Use a Computer</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<h3 id="using-a-computer">Using a Computer</h3>
+<ul>
+<li>Open an app → it runs</li>
+<li>Click a button → something happens</li>
+<li><em>Someone else</em> wrote those instructions</li>
+<li>You follow the rules someone else set</li>
+</ul>
+</div><div class="column" style="width:48%;">
+<h3 id="programming-a-computer">Programming a Computer</h3>
+<ul>
+<li><strong>You</strong> write the instructions</li>
+<li>The computer does exactly what <em>you</em> say</li>
+<li>You set the rules</li>
+<li>(Whether or not that’s what you meant is another story)</li>
+</ul>
+</div></div>
+<div class="fragment">
+<blockquote>
+<p><em>Most people use computers. This course teaches you to program them.</em></p>
+</blockquote>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: Two-panel comic. Left panel: relaxed person tapping phone icons, thought bubble "easy!". Right panel: person at keyboard with focused expression, code appearing on screen, computer doing exactly what code says. Slightly humorous — user is chill, programmer is engaged but in control. -->
+</section>
+<section id="what-is-a-program" class="slide level2">
+<h2>What Is a Program?</h2>
+<aside class="notes">
+<p>Introduce the recipe analogy here — it’s intuitive and you’ll return to it. A recipe is a list of precise, ordered steps that a cook follows. A program is exactly that, but for a CPU instead of a cook. Key word: PRECISE. “Add salt to taste” would be a bug.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A <strong>program</strong> is a precise, ordered sequence of instructions for a computer.</p>
+<p>The best analogy: a <strong>recipe</strong>.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Recipe</th>
+<th>Program</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ingredients</td>
+<td>Data — numbers, text, …</td>
+</tr>
+<tr class="even">
+<td>Steps</td>
+<td>Instructions</td>
+</tr>
+<tr class="odd">
+<td>Cook</td>
+<td>CPU</td>
+</tr>
+<tr class="even">
+<td>Finished dish</td>
+<td>Output</td>
+</tr>
+</tbody>
+</table>
+<p>A recipe tells a cook exactly what to do. A program tells a CPU exactly what to do.</p>
+</section>
+<section id="what-is-a-program-1" class="slide level2">
+<h2>What Is a Program?</h2>
+
+<!-- FIGURE [draw.io or excalidraw]: Recipe card on the left (handwritten style, "Chocolate Cake — Step 1: Preheat oven to 350°F. Step 2: Mix 2 cups flour with 1 cup sugar. Step 3: ..."). Arrow in the middle labeled "same idea". Java program on the right with a few IO.println statements. Both are lists of steps — the visual parallel should be obvious and clean. -->
+<img data-src="diags/01-recipe-vs-java.svg" data-fit-alt="Two-panel diagram. Left panel: a recipe card with handwritten steps for making chocolate cake. Right panel: a Java program with IO.println statements. An arrow labeled 'same idea' connects the two panels. The visual parallel between the recipe and the program is clear." class="r-stretch"></section>
+<section id="programming-is-like-mailing-a-recipe" class="slide level2">
+<h2>Programming Is Like Mailing a Recipe</h2>
+<aside class="notes">
+<p>This is the key insight about completeness and unambiguity. When you cook yourself you can improvise. When you mail the recipe to a stranger, every step must be spelled out — they can’t call you mid-bake. A program is a mailed recipe: the computer follows it exactly with no improvisation and no common sense. If a step is missing or ambiguous, it either fails or does something wrong.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Imagine you’re cooking something <em>following a recipe</em>:</p>
+<ul>
+<li>Something unclear? Improvise. Ask a friend. Use judgment.</li>
+</ul>
+<div class="fragment">
+<p>Now imagine <em>giving that recipe to a friend</em> who is going camping for a few days and <em>has no internet or phone</em>:</p>
+<ul>
+<li>They follow only what is written</li>
+<li>They cannot call you mid-cook</li>
+<li><em>“Add salt to taste”</em> → useless. How much?</li>
+<li>Every step must be <strong>complete</strong> and <strong>unambiguous</strong></li>
+</ul>
+</div>
+</section>
+<section id="programs-as-recipes" class="slide level2">
+<h2>Programs as recipes</h2>
+<p>A program is a recipe - the computer opens the envelope and follows the instructions exactly.</p>
+<p>No improvising, no common sense, no filling in gaps.</p>
+<p><img data-src="images/confused-robot.png"> {fig-alt=“robot/computer holding an open envelope with a recipe inside that says”add a pinch of salt” — robot has a large “?” above its head and cannot proceed.”}</p>
+<!-- FIGURE [draw.io or excalidraw]: Two scenes. Left: chef in kitchen with question mark above head, smiling, improvising (bowl, ingredients scattered). Right: robot/computer holding an open envelope with a recipe inside that says "add a pinch of salt" — robot has a large "?" above its head and cannot proceed. Caption below right scene: "The computer cannot ask you anything." -->
+</section>
+<section id="why-cant-computers-just-understand-english" class="slide level2">
+<h2>Why Can’t Computers Just Understand English?</h2>
+<aside class="notes">
+<p>Natural language is wonderfully ambiguous — that’s a feature for poetry and conversation, and a serious bug for programming. We invented programming languages precisely to eliminate ambiguity. This is why programs look the way they do: strange syntax, strict rules, no shortcuts. Every quirk of a programming language exists to make sure there is exactly one valid reading of every statement.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>English is beautifully ambiguous:</p>
+<blockquote>
+<p><em>“I saw a man on a hill with a telescope.”</em></p>
+</blockquote>
+
+<img data-src="images/man-hill.png" class="r-stretch"></section>
+<section id="why-cant-computers-just-understand-english-1" class="slide level2">
+<h2>Why Can’t Computers Just Understand English?</h2>
+<p>Humans resolve ambiguity with context, tone, and common sense.</p>
+<p><strong>Computers have none of these.</strong></p>
+<p>Programming languages are designed so every statement has <strong>exactly one meaning.</strong></p>
+<p>That is why they look the way they do — no shortcuts, no “you know what I mean.”</p>
+<!-- Who has the telescope? Who is on the hill? There are at least four valid readings. -->
+<!-- FIGURE [draw.io or excalidraw]: The sentence "I saw a man on a hill with a telescope." in a speech bubble at the center. Four stick-figure interpretations branch out from it (man with telescope on hill; me with telescope seeing man; man standing on a giant telescope; etc.). Below, a line of code (IO.println("Hello");) with a single downward arrow labeled "one meaning only". The contrast between chaos above and clarity below should be visual and slightly funny. -->
+</section>
+<section id="learning-a-new-language" class="slide level2">
+<h2>Learning a New Language</h2>
+<aside class="notes">
+<p>Programming IS like learning a new language — make this connection explicit. The vocabulary is small compared to French or Spanish, but the grammar is absolute: no partial credit, no “close enough”, no context to save you from a typo. The good news is the vocabulary is tiny. The bad news is every rule is enforced by a machine that has no sympathy. Emphasize that this takes practice, not just reading.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Programming is genuinely like learning a new language:</p>
+<ul>
+<li><strong>Vocabulary:</strong> small — a few dozen keywords in Java</li>
+<li><strong>Grammar:</strong> absolute — one wrong character breaks everything</li>
+<li><strong>Accent:</strong> none allowed — spelling, capitalization, and punctuation are all exact</li>
+</ul>
+<p>But like any language, you don’t learn it by <em>reading about it.</em></p>
+<p>You learn it by <em>using it</em> — making mistakes, getting confused, and practicing until it clicks.</p>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>The in-class worksheets and homework are not optional extras. They are the practice reps. You cannot get fluent by watching someone else do it.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-about-ai" class="slide level2">
+<h2>What About AI?</h2>
+<aside class="notes">
+<p>Students are thinking about this already — address it directly and honestly. AI tools like ChatGPT and GitHub Copilot can write Java code, often impressively well. Don’t dismiss this. Be honest. Then give the real reason it’s not allowed: you’re here to build understanding and skill. If AI does the reps for you, you don’t build anything — and in an exam, on a job, when something breaks at 2am, you’re on your own. The calculator analogy is strong: you learned arithmetic before you were allowed to use a calculator, not because arithmetic is more important than calculators, but because you needed to understand what the calculator was doing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Yes — AI tools can write code. Sometimes very well.</p>
+<p><strong>So why aren’t you allowed to use them in this course?</strong></p>
+<p>The same reason you learned long division before using a calculator:</p>
+<blockquote>
+<p>Understanding <em>why</em> the code works is what makes you a programmer.</p>
+</blockquote>
+<p>AI can hand you a correct answer without you understanding a thing. That works great — until:</p>
+<ul>
+<li>You need to modify the code</li>
+<li>Something breaks and you have to debug it</li>
+<li>You sit down for an exam</li>
+</ul>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>AI use on assignments and tests is not allowed.</strong> This is not because AI is bad — it is a powerful tool you will likely use in your career. But right now, <em>you</em> need to build the skills. The reps matter.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="your-first-java-program" class="slide level2">
+<h2>Your First Java Program</h2>
+<aside class="notes">
+<p>Use the modern Java 25 flexible-main syntax: void main() with no public static. IO.println is the course’s simplified output wrapper — no System.out.println boilerplate. Walk through each piece of the program carefully: void main() means “start here”, curly braces wrap a block of code, IO.println prints a line, the string is in double quotes, and the semicolon ends the statement like a period ends a sentence. Do NOT spend time on the compile/run cycle — students use an online IDE where that is invisible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers="1|1,3|2|1-3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, World!"</span><span class="op">);</span></span>
+<span id="cb1-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every piece has a job:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Piece</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>void main()</code></td>
+<td>“Start here when the program runs”</td>
+</tr>
+<tr class="even">
+<td><code>{ }</code></td>
+<td>Curly braces wrap a <strong>block</strong> of code</td>
+</tr>
+<tr class="odd">
+<td><code>IO.println(...)</code></td>
+<td>Print a line to the screen</td>
+</tr>
+<tr class="even">
+<td><code>"Hello, World!"</code></td>
+<td>The text to print — always in double quotes</td>
+</tr>
+<tr class="odd">
+<td><code>;</code></td>
+<td>End of statement (like a period at the end of a sentence)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-the-computer-hears" class="slide level2">
+<h2>What the Computer “Hears”</h2>
+<aside class="notes">
+<p>Lighten the mood — this is intentionally humorous. The underlying point is serious: the computer is completely literal. It has no intuition about what you “meant.” This slide sets up the importance of exact syntax, matched braces, and semicolons. Use it to open a conversation: what happens if the semicolon is missing? What if you write Println instead of println?</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="co">// What you type:                   // What the computer hears:</span></span>
+<span id="cb2-2"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span>                       <span class="co">// "Dear Computer,"</span></span>
+<span id="cb2-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>            <span class="co">// "Please print 'Hello' on the screen."</span></span>
+<span id="cb2-4"><a></a><span class="op">}</span>                                   <span class="co">// "Thanks and regards, Programmer"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The computer is <strong>completely literal.</strong> It does precisely what you wrote.</p>
+<p>Miss a semicolon — error. Write <code>Println</code> instead of <code>println</code> — error. Forget a closing brace — error.</p>
+<blockquote>
+<p><em>Programming feels hard at first because you are learning to think like someone with no common sense whatsoever.</em></p>
+</blockquote>
+<p>That gets easier with practice. Promise.</p>
+</section>
+<section id="whitespace-and-readability" class="slide level2">
+<h2>Whitespace and Readability</h2>
+<aside class="notes">
+<p>Students often wonder if indentation “counts.” Honest answer: the compiler ignores whitespace almost entirely. But humans don’t — and your code will be read by humans (you, a classmate, your professor, a TA, eventually an employer). Readable code is professional code. Also: when your program has a bug, readable code is much easier to debug. Establish the expectation early: indentation is required in this course.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>These two programs are <strong>identical</strong> to the computer:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span></span>
+<span id="cb3-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"World"</span><span class="op">);</span></span>
+<span id="cb3-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Readable</em></p>
+</div><div class="column" style="width:50%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">(){</span>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"World"</span><span class="op">);}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Valid, but painful</em></p>
+</div></div>
+<p><strong>The computer does not care. You should.</strong></p>
+<ul>
+<li>Indentation reveals structure at a glance</li>
+<li>Blank lines separate ideas</li>
+<li>Consistent style makes bugs easier to find</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>In this course, indentation is required. Write readable code from day one — your future self will thank you.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="comments-notes-for-humans" class="slide level2">
+<h2>Comments — Notes for Humans</h2>
+<aside class="notes">
+<p>Comments are text inside code that the computer ignores completely. They exist purely for the human reader — yourself, a classmate, your professor. Introduce both the concept and the syntax: // makes everything after it on that line a comment. Then talk specifically about how comments will be used in this course: homework assignments will ask students to explain their thinking in comments, and the grader reads them. This is also a good time to distinguish a useful comment from a useless one — “prints hello” adds nothing; “converts the raw score to a letter grade” actually helps.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A <strong>comment</strong> is a note you write inside your code.</p>
+<p>The computer <strong>ignores it completely.</strong> It is there for the human reading the code.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-2"><a></a>    <span class="co">// This program greets the user.</span></span>
+<span id="cb5-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, World!"</span><span class="op">);</span>   <span class="co">// prints a greeting to the screen</span></span>
+<span id="cb5-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Everything after <code>//</code> on a line is a comment — it has no effect on what the program does.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>Why write comments?</strong></p>
+<ul>
+<li>To explain <em>what</em> a piece of code is doing</li>
+<li>To explain <em>why</em> you made a particular choice</li>
+<li>To leave a note for yourself when you come back to the code later</li>
+<li>To communicate with your professor and grader</li>
+</ul>
+<p><strong>In this course</strong>, many assignments will ask you to explain your reasoning in comments. The grader reads them. A correct program with no comments is less valuable than one that shows you understood what you were doing.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>A good comment explains intent — not just what the code says:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="co">// BAD — just repeats what the code already says</span></span>
+<span id="cb6-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>   <span class="co">// prints Hello</span></span>
+<span id="cb6-3"><a></a></span>
+<span id="cb6-4"><a></a><span class="co">// GOOD — explains why this line is here</span></span>
+<span id="cb6-5"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>   <span class="co">// greeting displayed before asking for the user's name</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Java also has multi-line comments: <code>/* anything here */</code>. We will mostly use <code>//</code> — one line at a time is clearer and easier to maintain.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="io.println-printing-to-the-screen" class="slide level2">
+<h2><code>IO.println</code> — Printing to the Screen</h2>
+<aside class="notes">
+<p>IO.println is the course wrapper for output. Each call prints one line of text and moves the cursor to the next line. You can print strings (in double quotes) or numbers (no quotes). Crucially: the ORDER of calls determines the order of output. This sets up the top-to-bottom execution slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><code>IO.println</code> prints one line and moves to the next.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-code-line-numbers="1-5|2|3|4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Apples"</span><span class="op">);</span></span>
+<span id="cb7-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Bananas"</span><span class="op">);</span></span>
+<span id="cb7-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Cherries"</span><span class="op">);</span></span>
+<span id="cb7-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>Output:</p>
+<pre><code>Apples
+Bananas
+Cherries</code></pre>
+</div>
+</section>
+<section id="io.println-printing-to-the-screen-1" class="slide level2">
+<h2><code>IO.println</code> — Printing to the Screen</h2>
+<p>You can also print numbers directly — no quotes needed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="dv">42</span><span class="op">);</span></span>
+<span id="cb9-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="fl">3.14</span><span class="op">);</span></span>
+<span id="cb9-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Output:</p>
+<pre><code>42
+3.14</code></pre>
+</section>
+<section id="programs-execute-top-to-bottom" class="slide level2">
+<h2>Programs Execute Top to Bottom</h2>
+<aside class="notes">
+<p>Sequential execution is the default model. The computer runs statements in order, one at a time, from top to bottom — exactly like reading a recipe. Nothing runs out of order; nothing is skipped unless you tell it to (conditionals, loops — coming later). Trace this program together as a class before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Java executes statements <strong>in order</strong> — one at a time, top to bottom.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"First"</span><span class="op">);</span></span>
+<span id="cb11-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Second"</span><span class="op">);</span></span>
+<span id="cb11-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Third"</span><span class="op">);</span></span>
+<span id="cb11-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The computer runs line 2, then line 3, then line 4. Always, in that order.</p>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Later in this course, we will learn to make programs jump (conditionals), repeat (loops), and call other code (methods). But the default is always: <strong>one step at a time, top to bottom</strong>, just like following a recipe.</p>
+</div>
+</div>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: A vertical flowchart with three boxes labeled "IO.println("First")", "IO.println("Second")", "IO.println("Third")" connected by downward arrows. On the right, the output panel shows the three lines appearing in the same order. A small arrow on the left side labeled "execution flows down" with a downward direction. Clean and simple. -->
+</div>
+</section>
+<section id="worksheet" class="slide level2">
+<h2>Worksheet</h2>
+<aside class="notes">
+<p>Reserve the last 20 minutes of class for in-class practice. Students work individually or in pairs on the online IDE. Walk around and check progress — common mistakes to watch for: missing semicolons, mismatched quotes, forgetting the closing brace.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 1 — Trace it.</strong> What does this program print? Work through it line by line before running it.</p>
+<div class="jr-block" id="jr-1" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    IO.println("Banana");
+    IO.println("Apple");
+    IO.println("Cherry");
+}</div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 2 — Write it.</strong> Write a program that prints your name, your year in school, and your favorite food — each on its own line.</p>
+<div class="jr-block" id="jr-2" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Java source code editor">// Your program here</div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 3 — Spot the bug.</strong> What is wrong with this program? Fix it.</p>
+<div class="jr-block" id="jr-3" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    IO.println("Line A")
+    IO.println("Line B");
+}</div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 4 — Pattern.</strong> Write a program that prints this pattern exactly:</p>
+<pre><code>*
+**
+***
+****</code></pre>
+<div class="jr-block" id="jr-4" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Java source code editor">// Your program here</div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 5 — Predict, then verify.</strong> Without running it, predict the output. Then run it and check.</p>
+<div class="jr-block" id="jr-5" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    IO.println("3");
+    IO.println("1");
+    IO.println("4");
+    IO.println("1");
+    IO.println("5");
+}</div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
