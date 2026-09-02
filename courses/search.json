@@ -2009,6 +2009,13 @@
     "text": "IO.readln — The Simplest Form\n\nIntroduce the mechanics first, without a prompt string — so students can focus entirely on what readln DOES. When Java hits IO.readln(), execution stops. A cursor blinks. The program waits. The user types something and presses Enter. Whatever they typed is produced as a String. That’s it. Walk through the sample run line by line. Emphasize: the program is paused — it is not broken, it is not slow, it is waiting for the user.\n\nIO.readln() pauses the program and waits for the user to type a line of text.\nvoid main() {\n    String name = IO.readln();\n    IO.println(name);\n}\nWhen Java reaches IO.readln():\n\nThe program stops\nA cursor appears — the program is waiting\nThe user types something and presses Enter\nIO.readln produces the typed text as a String\nThat String is stored in name\nThe program continues\n\nSample run:\nAlice\nAlice\n\n\n\n\n\n\nWarning\n\n\nIf you do not store the result in a variable, it is gone the instant the line finishes — the program read the input and immediately forgot it."
   },
   {
+    "objectID": "cosc120/notes/02-variables.html#try-it-out-yourself",
+    "href": "cosc120/notes/02-variables.html#try-it-out-yourself",
+    "title": "Variables and Data Types",
+    "section": "Try it out yourself",
+    "text": "Try it out yourself\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    void main() {\n    String name = IO.readln();\n    IO.println(name);\n}\n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
     "objectID": "cosc120/notes/02-variables.html#adding-a-prompt",
     "href": "cosc120/notes/02-variables.html#adding-a-prompt",
     "title": "Variables and Data Types",
@@ -2016,11 +2023,25 @@
     "text": "Adding a Prompt\n\nThe no-prompt form works but is confusing in practice — users see a blank screen and have no idea what to type. The prompt string solves this. It is printed before the program pauses, giving the user a cue. Key point: the prompt does not change what gets produced — it is purely for the human’s benefit. Show a side-by-side comparison of sample runs so the difference is vivid. This is the form students will use in all their programs.\n\nWithout a prompt, the user just sees a blinking cursor — and has no idea what to type.\nIO.readln accepts an optional prompt: a message to display before waiting.\nvoid main() {\n    String name = IO.readln(\"What is your name? \");\n    IO.println(name);\n}\nSample run:\nWhat is your name? Alice\nAlice\nThe prompt is printed first — then the program pauses for input.\n\n\nWithout prompt:\n▌\n(User sees a blank cursor — confused)\n\nWith prompt:\nWhat is your name? ▌\n(User knows exactly what to type)\n\n\n\n\n\n\n\nNote\n\n\nThe prompt does not affect what the program receives. It is a message for the user, not part of the input.\n\n\n\n\n\n\n\n\n\nNote\n\n\nIO.readln always produces a String — even if the user types 42, the program receives the text \"42\", not the number. Converting it to a number is coming in the next lecture."
   },
   {
+    "objectID": "cosc120/notes/02-variables.html#try-it-out-yourself-1",
+    "href": "cosc120/notes/02-variables.html#try-it-out-yourself-1",
+    "title": "Variables and Data Types",
+    "section": "Try it out yourself",
+    "text": "Try it out yourself\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    void main() {\n    String name = IO.readln(\"What is your name? \");\n    IO.println(name);\n}\n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
     "objectID": "cosc120/notes/02-variables.html#putting-it-together",
     "href": "cosc120/notes/02-variables.html#putting-it-together",
     "title": "Variables and Data Types",
     "section": "Putting It Together",
     "text": "Putting It Together\n\nA complete example using multiple variables, IO.readln, and IO.println. No combining of strings yet — just store and print. Trace through it with the class. Reinforce: execution is top to bottom; each variable holds the most recently assigned value; printing a variable prints its current value.\n\nvoid main() {\n    String name = IO.readln(\"Enter your name: \");\n    String city = IO.readln(\"What city are you from? \");\n\n    IO.println(\"Name:\");\n    IO.println(name);\n    IO.println(\"City:\");\n    IO.println(city);\n}\nSample run:\nEnter your name: Jordan\nWhat city are you from? Baltimore\nName:\nJordan\nCity:\nBaltimore\nEach piece of information prints on its own line. Soon we will learn how to combine values onto a single line — that is the next lecture."
+  },
+  {
+    "objectID": "cosc120/notes/02-variables.html#try-it-out-yourself-2",
+    "href": "cosc120/notes/02-variables.html#try-it-out-yourself-2",
+    "title": "Variables and Data Types",
+    "section": "Try it out yourself",
+    "text": "Try it out yourself\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    void main() {\n    String name = IO.readln(\"Enter your name: \");\n    String city = IO.readln(\"What city are you from? \");\n\n    IO.println(\"Name:\");\n    IO.println(name);\n    IO.println(\"City:\");\n    IO.println(city);\n}\n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
     "objectID": "cosc120/notes/02-variables.html#why-does-the-type-matter",
@@ -2048,7 +2069,7 @@
     "href": "cosc120/notes/02-variables.html#worksheet",
     "title": "Variables and Data Types",
     "section": "Worksheet",
-    "text": "Worksheet\n\nReserve the last 20-30 minutes. Students work in the online IDE. Common things to check on: are they remembering the type keyword? Are they using = correctly? Are they storing the result of IO.readln? Are they printing the variable name without quotes?\n\nProblem 1 — Declare and print. Declare variables for your age (int), your GPA (double), and your name (String). Assign them values and print each one on its own line.\nProblem 2 — Trace it. What does this program print? Work through it on paper before running it.\nvoid main() {\n    int x = 10;\n    IO.println(x);\n    x = x + 3;\n    IO.println(x);\n    x = x * 2;\n    IO.println(x);\n}\nProblem 3 — Spot the bugs. Fix all the errors in this program:\nvoid main() {\n    int name = \"Alice\";\n    double score\n    score = 95.5;\n    String passing = true;\n    IO.println(Name);\n    IO.println(Score);\n}\nProblem 4 — Interactive. Write a program that asks the user for their first name and their favorite color. Print the name on one line and the color on the next.\nProblem 5 — Count up. What does this print? Trace each line.\nvoid main() {\n    int count = 1;\n    IO.println(count);\n    count = count + 1;\n    IO.println(count);\n    count = count + 1;\n    IO.println(count);\n}\nProblem 6 — Choose the type. For each of the following, write the appropriate Java type (int, double, boolean, String):\n\nThe number of students in a class\nA student’s GPA\nWhether it is currently raining\nA student’s full name\nThe price of a coffee\nThe number of espresso shots in a drink"
+    "text": "Worksheet\n\nReserve the last 20-30 minutes. Students work in the online IDE. Common things to check on: are they remembering the type keyword? Are they using = correctly? Are they storing the result of IO.readln? Are they printing the variable name without quotes?"
   },
   {
     "objectID": "cosc120/notes/index.html",
