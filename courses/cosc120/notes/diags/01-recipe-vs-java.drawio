@@ -1,0 +1,40 @@
+<mxfile host="65bd71144e">
+    <diagram id="I1YwbEaOZKvqG3ox89ru" name="Page-1">
+        <mxGraphModel dx="901" dy="729" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="480" math="0" shadow="0" adaptiveColors="auto">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="leftCard" value="" style="rounded=1;absoluteArcSize=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="40" width="320" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="leftTitle" value="Chocolate Cake" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=5;fontColor=#000000;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="52" width="320" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="leftUnderline" style="html=1;endArrow=none;startArrow=none;strokeColor=#000000;sketch=1;curveFitting=1;jiggle=2;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="60" y="90" as="sourcePoint"/>
+                        <mxPoint x="320" y="90" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="leftSteps" value="Step 1: Preheat oven to 350°F.&#xa;&#xa;Step 2: Mix 2 cups flour with&#xa;1 cup sugar.&#xa;&#xa;Step 3: Add 3 eggs and&#xa;1 cup milk.&#xa;&#xa;Step 4: Bake for 30 minutes.&#xa;&#xa;Step 5: Let cool, then frost." style="text;html=1;align=left;verticalAlign=top;fontSize=15;fontColor=#000000;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" vertex="1">
+                    <mxGeometry x="55" y="102" width="270" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow" value="same idea" style="endArrow=block;html=1;fontSize=15;fontStyle=2;strokeColor=#000000;fontColor=#000000;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" source="leftCard" target="rightCard" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="350" y="240" as="sourcePoint"/>
+                        <mxPoint x="500" y="240" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="rightCard" value="" style="rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="40" width="370" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="rightTab" value="Cake.java" style="rounded=1;absoluteArcSize=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;sketch=1;curveFitting=1;jiggle=2;fontFamily=Kalam;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DKalam;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="40" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rightCode" value="public class Cake {&lt;br&gt;&amp;nbsp; void main() {&lt;br&gt;&amp;nbsp; &amp;nbsp; IO.println(&quot;Preheat oven to 350&quot;);&lt;br&gt;&amp;nbsp; &amp;nbsp; IO.println(&quot;Mix flour and sugar&quot;);&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;IO.println(&quot;Add eggs and milk&quot;);&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;IO.println(&quot;Bake for 30 minutes&quot;);&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;IO.println(&quot;Let cool, then frost&quot;);&lt;br&gt;&amp;nbsp; }&lt;br&gt;}" style="text;html=1;align=left;verticalAlign=top;fontSize=15;fontColor=#000000;fontFamily=Courier New;" parent="1" vertex="1">
+                    <mxGeometry x="513" y="87" width="280" height="350" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
