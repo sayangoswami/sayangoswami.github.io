@@ -12,21 +12,26 @@
     ]
   },
   {
-    "listing": "/cosc420/slides/index.html",
+    "listing": "/cosc435/notes/index.html",
     "items": [
-      "/cosc420/slides/01-intro.html"
+      "/cosc435/notes/01-intro.html",
+      "/cosc435/notes/02-python.html"
     ]
   },
   {
-    "listing": "/cosc120/slides/index.html",
+    "listing": "/cosc420/notes/index.html",
     "items": [
-      "/cosc120/slides/01-intro.html"
+      "/cosc420/notes/01-intro.html",
+      "/cosc420/notes/02-processes-threads.html",
+      "/cosc420/notes/03-lab1.html"
     ]
   },
   {
-    "listing": "/cosc435/slides/index.html",
+    "listing": "/cosc120/notes/index.html",
     "items": [
-      "/cosc435/slides/01-intro.html"
+      "/cosc120/notes/01-intro.html",
+      "/cosc120/notes/02-variables.html",
+      "/cosc120/notes/03-arithmetic.html"
     ]
   },
   {
