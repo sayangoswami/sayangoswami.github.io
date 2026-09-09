@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Race Conditions In Depth</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Race Conditions In Depth</h1>
+  <p class="subtitle">Module 1: Concurrency</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="session-3-wed-sep-9" class="title-slide slide level1 section center">
+<h1>Session 3 · Wed Sep 9</h1>
+
+</section>
+<section id="race-conditions-in-depth" class="slide level2">
+<h2>Race Conditions In Depth</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: What You Saw in Lab 1</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td><code>counter++</code> Isn’t One Step</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Down to the Registers</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td>Visualizing a Race Condition: The Wrong Interleaving</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>The Same Code, the Right Interleaving</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Why This Is a “Heisenbug”</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>Real-World Stakes: The Bank Account</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Real-World Stakes: The Last Item in Stock</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Bridge: We Need “One Cook at a Time”</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Lab 2 Preview</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>Students have already <em>applied</em> <code>synchronized</code> in Lab 1 Part 2 — but only mechanically (“add this keyword, the number comes out right”). This session is the other half: <strong>why the race happens</strong>, down to the register level. Session 4 (Sep 14) then explains <strong>why that one keyword was enough, and what it costs</strong> (tradeoffs, deadlock/livelock/starvation). So when a student asks “isn’t this the thing we fixed in Lab 1?” — yes, and today plus Sep 14 are about understanding the fix you already used, not discovering it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-what-you-saw-in-lab-1" class="slide level2">
+<h2>Recap: What You Saw in Lab 1</h2>
+<ul>
+<li class="fragment">In Lab 1, two threads each incremented a shared counter 10,000 times. Expected total: 20,000.</li>
+<li class="fragment">Most of you got something <strong>less than 20,000</strong> — and if you ran it again, you probably got a <em>different</em> wrong number, not the same one.</li>
+<li class="fragment">That’s not a bug in the sense of “code with a typo.” The code is doing exactly what it says. The problem is something subtler: <strong>what “one line of code” actually means to the computer underneath your program.</strong></li>
+<li class="fragment">In Part 2 you also <em>fixed</em> it by adding <code>synchronized</code> — and it worked, every run. Today and Sep 14 are about the part Lab 1 skipped: <strong>why</strong> it happens, why the wrong number changes between runs, why that one keyword was enough, and where it bites back.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> Ask a few students what number they actually got in Lab 1 — different students will report different wrong numbers, which is itself the demonstration you want before you’ve even started teaching.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="counter-isnt-one-step" class="slide level2">
+<h2><code>counter++</code> Isn’t One Step</h2>
+<p><code>counter++</code> reads like a single, indivisible action. It is not. It is <strong>three separate steps</strong>:</p>
+<ol type="1">
+<li class="fragment"><strong>Read</strong> the current value of <code>counter</code> from memory.</li>
+<li class="fragment"><strong>Increment</strong> that value by one.</li>
+<li class="fragment"><strong>Write</strong> the new value back to <code>counter</code> in memory.</li>
+</ol>
+<div class="fragment">
+<p>Any of those three steps can be interrupted by another thread doing the exact same three steps, on the exact same shared variable, at the exact same time.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this slide purely conceptual — the register-level version is next, don’t merge them or it gets dense too fast.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="down-to-the-registers" class="slide level2">
+<h2>Down to the Registers</h2>
+<p>You already know from computer organization that a CPU can’t operate on a value sitting in RAM directly — it has to move it into a <strong>register</strong> first.</p>
+<div class="fragment">
+<p><code>counter++</code> compiles to something like:</p>
+<pre><code>LOAD  counter → R1      // read step: copy counter into a register
+ADD   R1, 1             // increment step: add 1, inside the CPU
+STORE R1 → counter      // write step: copy the register back to memory</code></pre>
+<ul>
+<li class="fragment">Two threads running this on the same shared <code>counter</code> are each using their <em>own</em> register (registers are per-core / per-thread, not shared) — but they’re both reading from and writing to the <strong>same memory location</strong>.</li>
+<li class="fragment">The danger window is exactly the gap between <code>LOAD</code> and <code>STORE</code>: if Thread B’s <code>LOAD</code> happens before Thread A’s <code>STORE</code>, Thread B reads the <em>stale</em> value, and one increment is silently lost.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is the payoff of Session 2’s “shared heap, private stack” slide — <code>counter</code> lives on the shared heap, but the register doing the arithmetic is private to each thread’s execution. Make that connection explicit out loud.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="visualizing-a-race-condition-the-wrong-interleaving" class="slide level2">
+<h2>Visualizing a Race Condition: The Wrong Interleaving</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td>read → 5</td>
+<td></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td></td>
+<td>read → 5</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td>write 6</td>
+<td></td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td></td>
+<td>write 6</td>
+<td>6 ← <strong>wrong!</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Both threads read <code>5</code> before either one writes. Both compute <code>6</code>. Both write <code>6</code>. <strong>One increment vanished</strong> — the counter should be <code>7</code>, since two increments happened, but it only reflects one. This exact interleaving can happen millions of times per second on a real CPU.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Walk the table top to bottom, pausing on t2: “Thread B just read a value that’s about to become outdated — it doesn’t know that.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-same-code-the-right-interleaving" class="slide level2">
+<h2>The Same Code, the Right Interleaving</h2>
+<p>The critical, unsettling part: <strong>the exact same code, the exact same two threads</strong>, can also produce the correct answer — if the timing happens to work out differently.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td>read → 5</td>
+<td></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td>write 6</td>
+<td></td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td></td>
+<td>read → 6</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td></td>
+<td>write 7</td>
+<td>7 ← <strong>correct!</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Nothing in the code changed between these two tables. Only the <strong>timing</strong> of which thread reached which step first changed — and that timing is decided by something outside your program’s control (Session 2’s closing point).</p>
+<div class="fragment">
+<p>This is why race conditions are called <em>races</em>: the outcome depends on who reaches the shared variable first, and that can go either way from one run to the next.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is the single most important slide in the session — sometimes-right is what makes race conditions dangerous in practice, because testing your code and having it “work” proves nothing. Let that land before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-this-is-a-heisenbug" class="slide level2">
+<h2>Why This Is a “Heisenbug”</h2>
+<ul>
+<li class="fragment">A bug that changes behavior — or disappears entirely — depending on timing is nicknamed a <strong>Heisenbug</strong>, after the uncertainty principle: observing the system (running it under a debugger, adding a print statement) can itself change the timing enough to make the bug vanish.</li>
+<li class="fragment">This is why race conditions are notoriously hard to catch in testing: your test suite runs the code a handful of times, gets the lucky interleaving, and passes — while the unlucky interleaving is still sitting there, waiting for production traffic to trigger it.</li>
+<li class="fragment">The same variability you already know from computer organization — cache hits vs.&nbsp;misses, branch prediction guessing right or wrong — means even <em>identical</em> code run twice rarely takes the exact same number of CPU cycles. Multiply that natural per-run variability across multiple threads, and the interleaving order becomes essentially unpredictable without an explicit mechanism forcing it.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> If time allows, ask: “Why might adding a <code>print</code> statement while debugging make a race condition seem to disappear?” — the answer (it changes timing enough to shift which interleaving occurs) is a nice concrete payoff of the Heisenbug idea.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="real-world-stakes-the-bank-account" class="slide level2">
+<h2>Real-World Stakes: The Bank Account</h2>
+<p>Picture a joint bank account with a $1,000 balance, and two people withdraw $700 each, at two different ATMs, at nearly the same instant.</p>
+<ul>
+<li class="fragment">Each ATM checks the balance (<code>read</code> step): both see $1,000, both see “sufficient funds,” both proceed.</li>
+<li class="fragment">Each ATM subtracts $700 and writes the new balance back — if this happens the same way as the counter example, the <em>second write simply overwrites the first</em>, and the balance ends up at $300, not the correct $-400 (i.e., overdrawn) — but the bank just let $1,400 leave a $1,000 account.</li>
+<li class="fragment">This is not hypothetical — it is precisely the class of bug real financial and e-commerce systems must guard against, using the same synchronization ideas you’ll see starting next session.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Note this is structurally identical to the counter race — same read/modify/write shape, just dollars instead of an integer. Point that out explicitly: once students see the shape, they can recognize it anywhere.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="real-world-stakes-the-last-item-in-stock" class="slide level2">
+<h2>Real-World Stakes: The Last Item in Stock</h2>
+<p>Recall the Amazon example from Session 1: thousands of orders per second, all touching the same inventory data.</p>
+<ul>
+<li class="fragment">One unit of an item left in stock. Two customers click “Buy” within milliseconds of each other.</li>
+<li class="fragment">Both requests <strong>read</strong> “1 in stock” before either one <strong>writes</strong> the updated count. Both proceed to charge the customer and confirm the order. The store just sold one physical item to two different people.</li>
+<li class="fragment">Same shape, again: <strong>read, decide, write</strong> — with a gap in between where another thread can sneak in and act on the stale value you already read.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> By now students should be able to predict the “read-modify-write” shape themselves before you show it — ask “what three steps do you think happen here?” before revealing the bullet.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-we-need-one-cook-at-a-time" class="slide level2">
+<h2>Bridge: We Need “One Cook at a Time”</h2>
+<p>Every example today has the same shape: multiple threads <strong>read</strong> a shared value, <strong>decide</strong> something based on it, then <strong>write</strong> a new value back — and if another thread sneaks its own read-decide-write in the middle, the result is wrong.</p>
+<p>What we need is a way to say: <em>while one cook is in the middle of this read-decide-write sequence at the shared counter, no other cook may touch it until they’re done.</em> That’s not something Java gives you for free — you have to ask for it explicitly.</p>
+<p>You already know the name of the tool that does this: <strong><code>synchronized</code></strong>, the keyword you added in Lab 1 Part 2. <strong>Next session (Sep 14): exactly how it works, and what it costs you.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Students have used <code>synchronized</code> once, mechanically — so the hook here is “you already know it works; do you know <em>why</em>, or what it breaks?” rather than a blind cliffhanger. Still don’t get into the monitor-lock mechanics today; that’s Session 4’s clean start.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="lab-2-preview" class="slide level2">
+<h2>Lab 2 Preview</h2>
+<ul>
+<li class="fragment">Lab 2 (this Friday, Sep 11): write your own <code>Runnable</code>, then submit tasks to an <code>ExecutorService</code> thread pool.</li>
+<li class="fragment">Tasks: a <code>PrintTask</code> run across 3 threads, a thread pool with varying sizes, and a shared counter you make safe with <code>synchronized</code> again (as in Lab 1).</li>
+<li class="fragment">Same pattern as <code>synchronized</code> in Lab 1: <strong>you get hands-on with thread pools first, then Session 5 (Sep 16) covers how they work in depth.</strong> Session 4 ends with a short intro so it’s not cold.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This course front-loads the hands-on: Lab 1 used <code>synchronized</code> before Session 4 explains it, Lab 2 uses a thread pool before Session 5 explains it. Tell students that’s deliberate — the lab gives them a concrete thing the lecture then makes sense of, not the other way around.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>COSC420 · Module 1 · Concurrency</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

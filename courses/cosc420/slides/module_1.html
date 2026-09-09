@@ -1,0 +1,3284 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Module 1: Concurrency</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Module 1: Concurrency</h1>
+  <p class="subtitle">COSC420 — Distributed/Parallel Computing</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="session-1-mon-aug-31" class="title-slide slide level1 section center">
+<h1>Session 1 · Mon Aug 31</h1>
+
+</section>
+<section id="course-intro-why-this-matters" class="slide level2">
+<h2>Course Intro &amp; Why This Matters</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total) — one line per upcoming slide, use this as your pacing checkpoint:</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before We Start</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>The Ask</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Why This Should Sound Like Nonsense</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Why Can’t We Just Use Excel?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Why Now? Clock Speeds &amp; the Multicore Turn</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Netflix</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Google</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Amazon</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>The Pipeline</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Roadmap Table</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Parallel vs.&nbsp;Distributed</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Keep This Picture</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>Each slide below is written to stand on its own as a study page — students have no textbook for this course, the slides are it. If you’re running behind, skip the Google <em>or</em> Amazon vignette rather than rushing through either one incompletely.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="before-we-start" class="slide level2">
+<h2>Before We Start</h2>
+<ul>
+<li><strong>COSC420: Distributed/Parallel Computing</strong> — Mon/Wed/Fri, 50 min each. <strong>Monday = Lecture A, Wednesday = Lecture B, Friday = Lab.</strong></li>
+<li>Grading has seven components: Checkpoints, Labs, Quizzes, Midterm, Final, Capstone, Engaged Learning — see the syllabus for exact weights.</li>
+<li><strong>What this course assumes you know:</strong> computer organization — memory, registers, the CPU. <strong>What it does not assume:</strong> any operating systems or networking course. Every explanation this semester is built from computer-organization concepts up, never from OS/networking vocabulary down.</li>
+<li><strong>The promise:</strong> by the last week of the semester, you and a partner will build and demo a real distributed data pipeline — files stored across machines, code that runs on a cluster, a live dashboard backed by a database. Today, every one of those phrases should sound unfamiliar. That’s the correct starting point.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Don’t read the syllabus line by line — point at it, move on fast. The one sentence worth pausing on is “what this course does not assume” — say it out loud, it visibly lowers anxiety in the room before the cold open.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="day-one" class="title-slide slide level1 section center">
+<h1>Day One</h1>
+
+</section>
+<section id="your-first-week-at-streambase" class="slide level2">
+<h2>Your First Week at StreamBase</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Imagine you just started a data engineering internship at <strong>StreamBase</strong>, a fast-growing streaming startup.</p>
+</div>
+</div>
+</div>
+<p>Your manager pulls you aside Monday morning:</p>
+<blockquote>
+<p><em>“StreamBase has 200 million subscribers. Every stream, pause, skip, and rating gets logged — we’re sitting on 80 billion events in our data lake. The content licensing team meets in December and they need to know: <strong>which genres and films should we prioritize next quarter?</strong> That question requires distributed processing — one machine can’t touch 80 billion rows. We use HDFS and Spark for exactly this. Your job: build and validate the pipeline on a 100K-row sample first. If the aggregations are right and the dashboard answers the question, we scale it up. The code doesn’t change. Only the data does. Demo is December 11.”</em></p>
+</blockquote>
+<p>You’d probably say: <em>“Sure — what’s HDFS? What’s Spark?”</em></p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Pause after the quote. Let it land. Ask: “How many of you know what HDFS is? Spark? MongoDB? A REST API?” Nobody should raise their hand.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-this-should-sound-like-nonsense" class="slide level2">
+<h2>Why This Should Sound Like Nonsense</h2>
+<p>That’s the correct reaction — and the whole point of this course.</p>
+<ul>
+<li><strong>HDFS</strong>, <strong>Spark</strong>, and <strong>MongoDB</strong> are all tools for working with data that doesn’t fit on one machine. You’ll meet each one by name later this semester: HDFS in Module 3, Spark in Module 4, MongoDB in Module 5.</li>
+<li>The manager’s ask sounds intimidating because of the number — <strong>80 billion events</strong>. But notice the actual instruction: <em>build and validate on a 100K-row sample first.</em></li>
+<li><strong>The key idea for the entire course:</strong> the code you write for 100,000 rows is the <em>same code</em> that runs on 80 billion rows. Distributed tools are built so the program doesn’t change size with the data — only the number of machines running it does.</li>
+<li>You are not learning toy versions of these tools. You are learning the real tools, on data small enough to fit in your head.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This slide used to live only in speaker notes — it’s promoted to a real slide because “the code doesn’t change, only the scale does” is the single idea that makes the rest of the semester make sense, and students need it to study from, not just hear once.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-cant-we-just-use-excel" class="slide level2">
+<h2>Why Can’t We Just Use Excel?</h2>
+<p>80 billion rows. One machine. One core. Let’s do the arithmetic.</p>
+<ul>
+<li>A laptop with 16 GB of RAM can hold roughly <strong>200 million integers</strong> in memory at once.</li>
+<li>80 billion rows is <strong>400× that</strong> — you would need on the order of <strong>400 machines</strong> just to <em>store</em> the data, before any processing starts.</li>
+<li>Even if it fit, processing 80 billion rows sequentially at a generous 1 million rows/second would take <strong>over 22 hours</strong> — for one pass over the data, one time.</li>
+</ul>
+<p><strong>Distributed computing</strong> is the answer: split the data across many machines, process each machine’s chunk in parallel, then combine the results. That’s literally what HDFS (storage) and Spark (processing) exist to do — and it’s why this course spends three modules on them.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this to the arithmetic — it’s meant to be a quick, visceral “oh, that’s why” moment. The deeper “why parallel hardware exists at all” question is the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-now-clock-speeds-the-multicore-turn" class="slide level2">
+<h2>Why Now? Clock Speeds &amp; the Multicore Turn</h2>
+<p>This isn’t a new problem tools just recently got good at solving — it’s a hardware story you can trace from what you already know.</p>
+<ul>
+<li>From the 1970s to roughly <strong>2005</strong>, CPUs got faster mainly by raising clock speed — more cycles per second, every year, like clockwork (literally).</li>
+<li>Around 2005 that stopped. Faster clock speeds mean more heat, and chips had hit a <strong>thermal wall</strong>: you cannot dissipate the heat a much-faster single core would generate at a size that fits in a laptop.</li>
+<li>The industry’s answer wasn’t “wait for a breakthrough” — it was <strong>stop making one core faster, and put more cores on the chip instead.</strong> Your laptop’s 8 or 16 cores are a direct consequence of that 2005 pivot.</li>
+<li>Consequence for you as a programmer: <strong>the hardware is already parallel.</strong> A program that only ever uses one core is leaving most of the machine idle. Learning to write code that uses multiple cores isn’t optional specialization anymore — it’s how you use the hardware you already own.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Ask first, before giving the answer: “Does anyone know why your laptop has multiple cores instead of one really fast core?” Let a guess or two land, then confirm with the thermal-wall explanation. This is the one moment all semester that connects directly to computer organization — transistors, clock cycles, heat — spend the full 5 minutes, don’t compress it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="netflix-one-answer-200-million-times" class="slide level2">
+<h2>Netflix: One Answer, 200 Million Times</h2>
+<ul>
+<li>Every subscriber’s homepage is <strong>personalized</strong> — Netflix computes a <em>different</em> ranked list of titles for each of its 200 million subscribers, and recomputes it continuously as viewing behavior changes.</li>
+<li>Those rankings are trained on <strong>billions</strong> of individual signals: ratings, watches, pauses, skips, even how long you hovered over a title before clicking.</li>
+<li>Put those together: <strong>200 million personalized answers</strong>, each depending on a model trained on billions of events, updated continuously. No single machine reads billions of events and produces 200 million distinct outputs fast enough to matter — this is an aggregation-and-machine-learning problem that <em>requires</em> many machines working at once.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The number that matters is 200 million <em>distinct</em> answers, not one shared answer computed once. Don’t get pulled into explaining how recommendation algorithms work — the point is scale, not ML technique.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="google-the-problem-that-started-it-all" class="slide level2">
+<h2>Google: The Problem That Started It All</h2>
+<ul>
+<li>In 2004, Google faced a concrete problem: <strong>index and rank the entire web</strong> — billions of pages, far more text than any one machine could even read through, let alone process into a searchable index.</li>
+<li>Their solution was to split the job across <strong>thousands of ordinary machines</strong>, each handling a slice of the web, with a common pattern for combining partial results into one answer. They published this pattern as a paper: <strong>“MapReduce: Simplified Data Processing on Large Clusters.”</strong></li>
+<li>That single paper is the reason <strong>Module 3</strong> of this course exists. In a few weeks you will write a MapReduce job yourself, using the exact pattern Google described in 2004 — it’s not a historical curiosity, it’s the design underneath Hadoop and, indirectly, Spark.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Say “Module 3” out loud — a direct forward-reference, not a vague “later in the course.” Worth noting explicitly that this is 20-year-old, still-load-bearing computer science, not a dated example.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="amazon-black-friday" class="slide level2">
+<h2>Amazon: Black Friday</h2>
+<ul>
+<li>On Black Friday, Amazon processes <strong>thousands of orders per second</strong> — and many of those orders are competing to read and write the <em>same</em> piece of data: how many units of a given item are left in stock.</li>
+<li>A single database server handling that load has two bad options: fall behind and get too slow to be usable, or let two operations touch the same data at once and <strong>corrupt it</strong> — for example, two customers both “successfully” buying the last unit of an item that only had one left.</li>
+<li>The fix is to <strong>spread both the data and the load across many machines</strong> — techniques called replication and sharding, which you’ll see in detail in <strong>Module 5</strong>. For now, just notice the shape of the problem: <em>multiple things touching the same data at the same instant, with no one in charge of ordering them.</em> Hold onto that shape — it is exactly the problem this entire module is about, just at the scale of two threads instead of two machines.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min, the longest of the three vignettes.</strong> The last sentence is a deliberate, explicit plant for Session 3’s race conditions — say it clearly rather than leaving it implicit, since this slide is what students will re-read when race conditions are introduced and should recognize the connection themselves.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-pipeline" class="slide level2">
+<h2>The Pipeline</h2>
+<pre><code>ratings.csv + movies.csv   ← 100K sample of an 80-billion-event data lake
+        ↓  hdfs dfs -put
+      HDFS                  ← distributed file system: stores the data across many machines
+        ↓  %%spark (sparkmagic)
+    Apache Spark            ← distributed processing: computes aggregations across many machines
+        ↓
+     MongoDB                ← distributed database: stores the computed results
+        ↓
+    Flask API               ← REST API: serves the results over the network
+        ↓
+  Plotly Dashboard          ← the live answer to the licensing team's question</code></pre>
+<p>Every concept taught in this course is one piece of this pipeline. Nothing you learn this semester is disconnected from it — that’s deliberate.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Bookmark this slide mentally — come back to it at the start of every module. Read each arrow’s right-hand label out loud; by Module 6 students will understand every word on this diagram, and that recognition is the payoff worth setting up now.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="roadmap-where-each-module-fits" class="slide level2">
+<h2>Roadmap: Where Each Module Fits</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pipeline stage</th>
+<th>Module</th>
+<th>Weeks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Threads &amp; synchronization (the building blocks this module teaches)</td>
+<td>Module 1 — Concurrency</td>
+<td>1–3</td>
+</tr>
+<tr class="even">
+<td>Client-server, REST, CAP theorem</td>
+<td>Module 2 — Distributed Systems Concepts</td>
+<td>4–5</td>
+</tr>
+<tr class="odd">
+<td>HDFS + MapReduce</td>
+<td>Module 3 — Big Data &amp; MapReduce</td>
+<td>6–7</td>
+</tr>
+<tr class="even">
+<td>Apache Spark</td>
+<td>Module 4 — Spark / PySpark</td>
+<td>9–10</td>
+</tr>
+<tr class="odd">
+<td>MongoDB</td>
+<td>Module 5 — Distributed Storage &amp; NoSQL</td>
+<td>11–12</td>
+</tr>
+<tr class="even">
+<td>Flask API + Dashboard, cloud deployment</td>
+<td>Module 6 — Cloud &amp; Microservices</td>
+<td>13–14</td>
+</tr>
+</tbody>
+</table>
+<p>Notice Module 1 doesn’t appear anywhere in the pipeline diagram itself — concurrency is the <em>foundation</em> the other five modules are built on, not a pipeline stage of its own. Every distributed system is, underneath, many machines each running threads.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Point at each row as you name the module — this table is the syllabus overview, so there’s no need for a separate bullet-list syllabus slide elsewhere in the deck. The “Module 1 isn’t in the diagram” observation is worth making explicit; it answers the unspoken “why are we starting with threads instead of the pipeline itself” question.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="parallel-vs.-distributed-two-kitchens" class="slide level2">
+<h2>Parallel vs.&nbsp;Distributed: Two Kitchens</h2>
+<p>You’ll hear both words all semester. They are not the same thing, and the difference sets the shape of this whole course.</p>
+<ul>
+<li><strong>Parallel</strong> = <strong>one kitchen, many cooks.</strong> Everyone shares the same counters, the same stove, the same ingredients — reaching into the same space at the same time. This is <strong>Module 1</strong>: multiple threads inside a single running program, sharing the same memory.</li>
+<li><strong>Distributed</strong> = <strong>many separate kitchens, coordinating over the phone.</strong> Each kitchen has its own space and equipment; nothing is shared directly, everything that crosses between them is sent as an explicit message. This is <strong>Modules 2 through 6</strong>: separate machines, each with their own memory, coordinating over a network.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> State both definitions plainly and let them sit — the payoff slide is next.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="keep-this-picture-in-mind" class="slide level2">
+<h2>Keep This Picture in Mind</h2>
+
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two panels side by side.
+**Left, labeled "Parallel — One Kitchen, Many Cooks":** a single kitchen outline containing 3–4 cook icons clustered around one shared counter and one shared stove — emphasize the shared surface they're all reaching into.
+**Right, labeled "Distributed — Many Kitchens, One Network":** three separate kitchen buildings, each with its own cook and stove, connected to each other by dashed arrows labeled "message" (a delivery truck or phone-line icon works). No shared surface between them — the only connection is the arrows.
+::: -->
+<img data-src="images/parallel-vs-distributed.png" alt="Two panels side by side. Left, labeled 'Parallel — One Kitchen, Many Cooks': a single kitchen outline containing 3–4 cook icons clustered around one shared counter and one shared stove — emphasizing the shared surface they're all reaching into. Right, labeled 'Distributed — Many Kitchens, One Network': three separate kitchen buildings, each with its own cook and stove, connected to each other by dashed arrows labeled 'message' (a delivery truck or phone-line icon works). No shared surface between them — the only connection is the arrows." class="r-stretch"><p>For the next three weeks, every time this deck says “thread,” picture a cook in a shared kitchen — reaching for the same counter, the same stove, sometimes at the exact same moment as another cook. That collision is where every bug in this module comes from.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min, closing the session.</strong> This is the standing analogy for the whole module — end class on this line so it’s the thing students carry into Session 2, where “process = kitchen, thread = cook” becomes the literal framing of the next lecture.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-2-wed-sep-2" class="title-slide slide level1 section center">
+<h1>Session 2 · Wed Sep 2</h1>
+
+</section>
+<section id="processes-vs.-threads" class="slide level2">
+<h2>Processes vs.&nbsp;Threads</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: One Kitchen, Many Cooks</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Processes vs.&nbsp;Threads</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Connecting to Computer Organization</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Why Bother With Threads?</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Threads in Java</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Tracing It: What Actually Happens</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>The <code>run()</code> vs.&nbsp;<code>start()</code> Bug</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>The Thread Lifecycle</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Who Decides When a Thread Runs?</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Lab 1 Preview</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>10 slides, ~50 min. If you’re behind after the Java trace slide, compress “Who Decides” into a single sentence read off “The Thread Lifecycle” slide rather than presenting it separately — it’s recapped again in Session 3’s opener either way.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-one-kitchen-many-cooks" class="slide level2">
+<h2>Recap: One Kitchen, Many Cooks</h2>
+<p>Last session: <strong>parallel = one kitchen, many cooks</strong>, sharing the same counters and stove.</p>
+<p>Today we make that literal:</p>
+<ul>
+<li><strong>Process</strong> = a kitchen — its own space, its own equipment, its own ingredients</li>
+<li><strong>Thread</strong> = a cook working inside that kitchen</li>
+</ul>
+<p>Everything for the next three weeks is about what happens when multiple cooks share one kitchen.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Don’t re-derive the analogy from scratch — restate it and move straight to today’s vocabulary.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="processes-vs.-threads-1" class="slide level2">
+<h2>Processes vs.&nbsp;Threads</h2>
+<ul>
+<li>A <strong>process</strong> = a running program with its own memory space — the kitchen building.</li>
+<li>A <strong>thread</strong> = a lightweight unit of execution <em>within</em> a process — a cook inside it. A process can contain many threads, just like a kitchen can employ many cooks.</li>
+<li>Threads in the same process <strong>share memory</strong> — this is both powerful (cooks can hand ingredients to each other instantly) and dangerous (two cooks can grab the same thing at once).</li>
+</ul>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Process</th>
+<th>Thread</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Memory</td>
+<td>Own, private space</td>
+<td>Shared with sibling threads</td>
+</tr>
+<tr class="even">
+<td>Creation cost</td>
+<td>High — a whole new kitchen</td>
+<td>Low — hire another cook for the existing kitchen</td>
+</tr>
+<tr class="odd">
+<td>Communication</td>
+<td>Complex (must send messages between kitchens)</td>
+<td>Easy but risky (just reach for the shared counter)</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The table’s last row is worth reading aloud in full sentences, not just as column labels — “complex” and “easy but risky” are the two words that matter, and the risk half of that cell is exactly what Session 3 is about.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="connecting-to-computer-organization" class="slide level2">
+<h2>Connecting to Computer Organization</h2>
+<p>You already know this part. A running program is loaded into RAM with its own <strong>code</strong>, <strong>heap</strong>, and <strong>stack</strong>.</p>
+<ul>
+<li>A <strong>process</strong> is exactly that instance — one program, loaded once, with one code segment, one heap, one set of open resources.</li>
+<li>A <strong>thread</strong> inside that process <strong>reuses the same heap</strong> — that’s the shared kitchen counter, the same memory every thread in the process can read and write.</li>
+<li>But each thread gets <strong>its own stack</strong> — its own private scratch space for local variables and function-call frames. This is the same stack you already know from comp org; the only change is there’s now one stack <em>per cook</em>, not one per kitchen.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>This is why two threads can run the <em>same method</em> at the same time without their local variables colliding — each has its own stack frame for that call — while still being able to corrupt a variable declared outside any method (a shared/global variable, living on the heap). <strong>Local variables are safe by default. Shared variables are not.</strong> That one sentence is the entire reason race conditions exist, and you’ll see it proven directly in Session 3.</p>
+</div>
+</div>
+</div>
+<p><img data-src="diags/shared-heap-private-stack.svg"> {fig-alt=“A single process boundary box, labeled ‘Process.’ Inside it: a single shared region at the bottom labeled ‘Heap (shared)’ containing a few generic boxes representing shared/global variables. Above it, 2–3 vertical thin rectangles side by side, each labeled ‘Stack (Thread 1),’ ‘Stack (Thread 2),’ etc., each privately owned — no lines connecting the stacks to each other, but every stack has an arrow down into the same shared heap region.”}</p>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+One process boundary box, labeled "Process." Inside it: a single shared region at the bottom labeled "Heap (shared)" containing a few generic boxes representing shared/global variables. Above it, 2–3 vertical thin rectangles side by side, each labeled "Stack (Thread 1)," "Stack (Thread 2)," etc., each privately owned — no lines connecting the stacks to each other, but every stack has an arrow down into the same shared heap region. This is the single most-referenced diagram of the module — it's the visual proof of "shared heap, private stack" that every later race-condition explanation leans on.
+::: -->
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is the single most useful slide in the session — it’s the one idea that transfers directly from what students already know, and it demystifies the local-safe/shared-risky distinction before they’ve even seen a race condition. Don’t rush it to get to the code slides.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-bother-with-threads" class="slide level2">
+<h2>Why Bother With Threads?</h2>
+<p>Two cooks in the kitchen: one chops vegetables while the other stirs the pot. Same wall-clock time, more gets done. There are two distinct reasons real programs reach for threads:</p>
+<ul>
+<li><strong>Waiting on something.</strong> A cook standing at the oven doing nothing while a timer counts down is wasted time — they could be chopping vegetables instead. Likewise, a thread waiting on a network reply or a disk read can step aside and let another thread use the CPU instead of it sitting idle.</li>
+<li><strong>More hands, more work.</strong> Four cooks each grilling one dish finish four dishes in the time it takes one cook to finish one — genuine parallel speed-up. A CPU with multiple cores can run multiple threads at the <em>literal same instant</em>, not just take turns quickly.</li>
+</ul>
+<p>Both reasons show up constantly in real software: a web server handling thousands of simultaneous requests is mostly “waiting on something” (each request waits on a database); a program crunching a large computation across all your CPU’s cores is “more hands, more work.”</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Deliberately no “I/O-bound” / “CPU-bound” vocabulary yet — that formal pairing returns in Session 6 (Fri Sep 18, the practice/quiz session). Today it’s plain language only.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="threads-in-java" class="slide level2">
+<h2>Threads in Java</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="co">// Option 1: extend Thread</span></span>
+<span id="cb2-2"><a></a><span class="kw">class</span> MyThread <span class="kw">extends</span> <span class="bu">Thread</span> <span class="op">{</span></span>
+<span id="cb2-3"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">run</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-4"><a></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello from "</span> <span class="op">+</span> <span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb2-5"><a></a>    <span class="op">}</span></span>
+<span id="cb2-6"><a></a><span class="op">}</span></span>
+<span id="cb2-7"><a></a></span>
+<span id="cb2-8"><a></a><span class="co">// Option 2: implement Runnable (preferred)</span></span>
+<span id="cb2-9"><a></a><span class="bu">Thread</span> t <span class="op">=</span> <span class="kw">new</span> <span class="bu">Thread</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb2-10"><a></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello from lambda"</span><span class="op">);</span></span>
+<span id="cb2-11"><a></a><span class="op">});</span></span>
+<span id="cb2-12"><a></a>t<span class="op">.</span><span class="fu">start</span><span class="op">();</span></span>
+<span id="cb2-13"><a></a>t<span class="op">.</span><span class="fu">join</span><span class="op">();</span> <span class="co">// wait for t to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>() -&gt; { ... }</code> is a <strong>lambda</strong> — shorthand for “here is a block of code, treat it as a value.” Read it as: “a nameless block of code that, when run, prints the message.” Handing this to <code>new Thread(...)</code> says “run this block on a new thread.”</li>
+<li><code>start()</code> — actually launches the new thread. This is the only line that creates concurrency.</li>
+<li><code>join()</code> — makes the <em>calling</em> thread wait until this one finishes, before continuing.</li>
+<li><code>run()</code> — the code the thread executes. <strong>Never call <code>run()</code> directly</strong> — the next slide shows exactly why.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Read the code aloud line by line — don’t assume the syntax is self-explanatory. The lambda gloss on the slide now carries the explanation that used to live only in notes; still worth restating verbally in your own words.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="tracing-it-what-actually-happens" class="slide level2">
+<h2>Tracing It: What Actually Happens</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="bu">Thread</span> t <span class="op">=</span> <span class="kw">new</span> <span class="bu">Thread</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb3-2"><a></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello from lambda"</span><span class="op">);</span></span>
+<span id="cb3-3"><a></a><span class="op">});</span></span>
+<span id="cb3-4"><a></a>t<span class="op">.</span><span class="fu">start</span><span class="op">();</span></span>
+<span id="cb3-5"><a></a>t<span class="op">.</span><span class="fu">join</span><span class="op">();</span></span>
+<span id="cb3-6"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Main thread continues"</span><span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Main thread</th>
+<th>New thread <code>t</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>new Thread(...)</code> creates <code>t</code>, not yet running</td>
+<td>doesn’t exist yet</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>t.start()</code> launches <code>t</code>, <strong>returns immediately</strong></td>
+<td>starts running, prints “Hello from lambda”</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>t.join()</code> — <strong>main pauses here</strong> and waits</td>
+<td>keeps running to completion</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>t</code> finishes → main resumes</td>
+<td>terminated</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>prints “Main thread continues”</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Notice step 2: <code>start()</code> doesn’t wait for the new thread to do anything — it hands off the work and returns control to <code>main</code> immediately. The two threads are now running <em>at the same time</em>, until <code>join()</code> in step 3 forces <code>main</code> to pause and wait.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Walk this table row by row rather than presenting it all at once — reveal incrementally if your slide tool supports it, or just point and narrate row by row on the static table.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-run-vs.-start-bug" class="slide level2">
+<h2>The <code>run()</code> vs.&nbsp;<code>start()</code> Bug</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>The most common bug in this whole module</strong></p>
+</div>
+<div class="callout-content">
+<p><code>t.run()</code> does <strong>not</strong> create a new thread. It calls the method exactly like any normal function call — on the <em>current</em> thread, in program order, right where you called it. You’ll see printed output and it may even look correct, but <strong>no concurrency happened at all.</strong></p>
+</div>
+</div>
+</div>
+<ul>
+<li><code>t.start()</code> → a genuinely new cook enters the kitchen and starts working <em>alongside</em> everyone else.</li>
+<li><code>t.run()</code> → you did the cooking yourself, in your own normal sequence, then moved on. No new cook, no overlap, no concurrency.</li>
+<li>Rule to memorize: <strong>you call <code>start()</code>, Java calls <code>run()</code> for you, on the new thread.</strong> You should almost never write <code>.run()</code> in your own code.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Ask directly: “If line 3 in the previous trace table said <code>t.run()</code> instead of <code>t.start()</code>, what would the table look like?” Let students work out that every row would collapse into the Main-thread column, executed strictly in order — that contrast is what makes this stick.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-thread-lifecycle" class="slide level2">
+<h2>The Thread Lifecycle</h2>
+<pre><code>NEW → RUNNABLE → (RUNNING) → TERMINATED
+                    ↕
+                 BLOCKED/WAITING</code></pre>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>State</th>
+<th>Kitchen equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>New</strong></td>
+<td>Recipe written, cook hasn’t arrived yet</td>
+</tr>
+<tr class="even">
+<td><strong>Runnable</strong></td>
+<td>Cook clocked in, ready to work, waiting for a free stove</td>
+</tr>
+<tr class="odd">
+<td><strong>Running</strong></td>
+<td>Cook actively cooking</td>
+</tr>
+<tr class="even">
+<td><strong>Blocked/Waiting</strong></td>
+<td>Cook paused — waiting on the oven timer, a lock, or <code>sleep()</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Terminated</strong></td>
+<td>Dish plated, cook leaves</td>
+</tr>
+</tbody>
+</table>
+<p>Every thread you create moves through these states. <code>new Thread(...)</code> puts it in <strong>New</strong>; <code>start()</code> moves it to <strong>Runnable</strong>; it becomes <strong>Running</strong> only when it actually gets to execute; and it can bounce between <strong>Running</strong> and <strong>Blocked/Waiting</strong> many times before reaching <strong>Terminated</strong>.</p>
+<p><img data-src="images/runnable-states.png"> {fig-alt=“A left-to-right state diagram with 5 nodes, each a labeled box paired with a small kitchen icon: New (a recipe card icon) to Runnable (a cook standing, clocked-in badge) to Running (a cook actively at the stove, motion lines) to Terminated (a cook walking out, plated dish icon). A Blocked/Waiting node (a cook standing still with a clock icon) is positioned below Running, with a two-way arrow connecting Running ⇄ Blocked/Waiting to show threads bouncing between those two repeatedly before reaching Terminated.”} <!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+A left-to-right state diagram with 5 nodes, each a labeled box paired with a small kitchen icon: **New** (a recipe card icon) → **Runnable** (a cook standing, clocked-in badge) → **Running** (a cook actively at the stove, motion lines) → **Terminated** (a cook walking out, plated dish icon). Add a **Blocked/Waiting** node (a cook standing still with a clock icon) positioned below Running, with a two-way arrow connecting Running ⇄ Blocked/Waiting to show threads bouncing between those two repeatedly before reaching Terminated. This replaces the current plain-text ASCII arrows with the same kitchen icons used in the Session 2 recap and the Session 1 kitchen diagram, so the visual language stays consistent across the module.
+::: --></p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Trace the diagram left to right against the table, state by state, rather than presenting the two separately.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="who-decides-when-a-thread-runs" class="slide level2">
+<h2>Who Decides When a Thread Runs?</h2>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Who decides when a <strong>Runnable</strong> cook actually gets the stove and becomes <strong>Running</strong>? Not you, not your code — <strong>something outside your control.</strong> That single fact is the root cause of almost every bug in this module.</p>
+</div>
+</div>
+</div>
+<ul>
+<li>You can ask a thread to start. You cannot control exactly <em>when</em> it gets CPU time, or how its execution interleaves with other threads.</li>
+<li>This means the same program can produce <strong>different results on different runs</strong> — not because the code is wrong, but because the timing of “whose turn it is” isn’t something your code decides.</li>
+<li>Hold onto this. Session 3 is entirely about what goes wrong when two threads touch the same shared data and you have no control over whose turn comes first.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Deliberately avoid the term “OS scheduler” — no OS course assumed, and the word invites a derailing “wait, what’s a scheduler” tangent. “Something outside your control decides whose turn it is” carries the idea without the vocabulary, and Session 3 opens by cashing in this exact sentence.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="lab-1-preview-the-race-condition-game" class="slide level2">
+<h2>Lab 1 Preview: The Race Condition Game</h2>
+<ul>
+<li>Today’s lab: observe a race condition happen in real code.</li>
+<li>Two threads both increment a shared counter 10,000 times each.</li>
+<li>Expected result: 20,000. Actual result: often less — and it changes between runs.</li>
+<li>You’ll observe it happen, then fix it, and be able to explain <em>why</em> the fix works.</li>
+</ul>
+<p><em>Lab 1 is this Friday (Sep 4).</em></p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Close on the open question — “why would the count come out wrong?” — without answering it. Session 3 answers it in the first five minutes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-3-wed-sep-9" class="title-slide slide level1 section center">
+<h1>Session 3 · Wed Sep 9</h1>
+
+</section>
+<section id="race-conditions-in-depth" class="slide level2">
+<h2>Race Conditions In Depth</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: What You Saw in Lab 1</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td><code>counter++</code> Isn’t One Step</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Down to the Registers</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td>Visualizing a Race Condition: The Wrong Interleaving</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>The Same Code, the Right Interleaving</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Why This Is a “Heisenbug”</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Why the Timing Is Unpredictable</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Real-World Stakes: The Bank Account</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Real-World Stakes: The Last Item in Stock</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Bridge: We Need “One Cook at a Time”</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Lab 2 Preview</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>Slides use reveal.js fragments (<code>. . .</code> pauses and incremental lists) so each point lands before the next appears — advance with the arrow/space key. Nothing is hidden from the study export; fragments just control pacing in the live deck.</p>
+<p>Students have already <em>applied</em> <code>synchronized</code> in Lab 1 Part 2 — but only mechanically (“add this keyword, the number comes out right”). This session is the other half: <strong>why the race happens</strong>, down to the register level. Session 4 (Sep 14) then explains <strong>why that one keyword was enough, and what it costs</strong> (tradeoffs, deadlock/livelock/starvation). So when a student asks “isn’t this the thing we fixed in Lab 1?” — yes, and today plus Sep 14 are about understanding the fix you already used, not discovering it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-what-you-saw-in-lab-1" class="slide level2">
+<h2>Recap: What You Saw in Lab 1</h2>
+<p>In Lab 1, two threads each incremented a shared counter 10,000 times. Expected total: 20,000.</p>
+<ul>
+<li class="fragment">Most of you got something <strong>less than 20,000</strong> — and if you ran it again, you probably got a <em>different</em> wrong number, not the same one.</li>
+<li class="fragment">That’s not a bug in the sense of “code with a typo.” The code is doing exactly what it says. The problem is something subtler: <strong>what “one line of code” actually means to the computer underneath your program.</strong></li>
+<li class="fragment">In Part 2 you also <em>fixed</em> it by adding <code>synchronized</code> — and it worked, every run. Today and Sep 14 are about the part Lab 1 skipped: <strong>why</strong> it happens, why the wrong number changes between runs, why that one keyword was enough, and where it bites back.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> Ask a few students what number they actually got in Lab 1 — different students will report different wrong numbers, which is itself the demonstration you want before you’ve even started teaching.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="counter-isnt-one-step" class="slide level2">
+<h2><code>counter++</code> Isn’t One Step</h2>
+<p><code>counter++</code> reads like a single, indivisible action. It is not. It is <strong>three separate steps</strong>:</p>
+<ol type="1">
+<li class="fragment"><strong>Read</strong> the current value of <code>counter</code> from memory.</li>
+<li class="fragment"><strong>Increment</strong> that value by one.</li>
+<li class="fragment"><strong>Write</strong> the new value back to <code>counter</code> in memory.</li>
+</ol>
+<div class="fragment">
+<p>Any of those three steps can be interrupted by another thread doing the exact same three steps, on the exact same shared variable, at the exact same time.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this slide purely conceptual — the register-level version is next, don’t merge them or it gets dense too fast.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="down-to-the-registers" class="slide level2">
+<h2>Down to the Registers</h2>
+<p>You already know from computer organization that a CPU can’t operate on a value sitting in RAM directly — it has to move it into a <strong>register</strong> first. <code>counter++</code> compiles to something like:</p>
+<pre><code>LOAD  counter → R1      // read step: copy counter into a register
+ADD   R1, 1             // increment step: add 1, inside the CPU
+STORE R1 → counter      // write step: copy the register back to memory</code></pre>
+<ul>
+<li class="fragment">Two threads running this on the same shared <code>counter</code> are each using their <em>own</em> register (registers are per-core / per-thread, not shared) — but they’re both reading from and writing to the <strong>same memory location</strong>.</li>
+<li class="fragment">The danger window is exactly the gap between <code>LOAD</code> and <code>STORE</code>: if Thread B’s <code>LOAD</code> happens before Thread A’s <code>STORE</code>, Thread B reads the <em>stale</em> value, and one increment is silently lost.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is the payoff of Session 2’s “shared heap, private stack” slide — <code>counter</code> lives on the shared heap, but the register doing the arithmetic is private to each thread’s execution. Make that connection explicit out loud.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="visualizing-a-race-condition-the-wrong-interleaving" class="slide level2">
+<h2>Visualizing a Race Condition: The Wrong Interleaving</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td>read → 5</td>
+<td></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td></td>
+<td>read → 5</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td>write 6</td>
+<td></td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td></td>
+<td>write 6</td>
+<td>6 ← <strong>wrong!</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Both threads read <code>5</code> before either one writes. Both compute <code>6</code>. Both write <code>6</code>. <strong>One increment vanished</strong> — the counter should be <code>7</code>, since two increments happened, but it only reflects one. This exact interleaving can happen millions of times per second on a real CPU.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Walk the table top to bottom, pausing on t2: “Thread B just read a value that’s about to become outdated — it doesn’t know that.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-same-code-the-right-interleaving" class="slide level2">
+<h2>The Same Code, the Right Interleaving</h2>
+<p>The critical, unsettling part: <strong>the exact same code, the exact same two threads</strong>, can also produce the correct answer — if the timing happens to work out differently.</p>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td>read → 5</td>
+<td></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td>write 6</td>
+<td></td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td></td>
+<td>read → 6</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td></td>
+<td>write 7</td>
+<td>7 ← <strong>correct!</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Nothing in the code changed between these two tables. Only the <strong>timing</strong> of which thread reached which step first changed — and that timing is decided by something outside your program’s control (Session 2’s closing point). This is why race conditions are called <em>races</em>: the outcome depends on who reaches the shared variable first, and that can go either way from one run to the next.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is the single most important slide in the session — sometimes-right is what makes race conditions dangerous in practice, because testing your code and having it “work” proves nothing. Let that land before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-this-is-a-heisenbug" class="slide level2">
+<h2>Why This Is a “Heisenbug”</h2>
+<ul>
+<li class="fragment">A bug that changes behavior — or disappears entirely — depending on timing is nicknamed a <strong>Heisenbug</strong>, after the uncertainty principle: observing the system (running it under a debugger, adding a print statement) can itself change the timing enough to make the bug vanish.</li>
+<li class="fragment">This is why race conditions are notoriously hard to catch in testing: your test suite runs the code a handful of times, gets the lucky interleaving, and passes — while the unlucky interleaving is still sitting there, waiting for production traffic to trigger it.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Ask: “Why might adding a <code>print</code> statement while debugging make a race condition seem to disappear?” — the answer (it changes timing enough to shift which interleaving occurs) is a nice concrete payoff of the Heisenbug idea. The <em>why timing shifts at all</em> mechanism is the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-the-timing-is-unpredictable" class="slide level2">
+<h2>Why the Timing Is Unpredictable</h2>
+<p>The same variability you already know from computer organization — cache hits vs.&nbsp;misses, branch prediction guessing right or wrong — means even <em>identical</em> code run twice rarely takes the exact same number of CPU cycles.</p>
+<div class="fragment">
+<p>Multiply that natural per-run variability across multiple threads, and the interleaving order becomes essentially unpredictable without an explicit mechanism forcing it.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This is the “why” under the Heisenbug slide — students have seen cache/branch-prediction variability in computer organization; the new point is that it compounds across threads into unpredictable interleaving. Keep it tight; it sets up the need for <code>synchronized</code>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="real-world-stakes-the-bank-account" class="slide level2">
+<h2>Real-World Stakes: The Bank Account</h2>
+<p>Picture a joint bank account with a $1,000 balance, and two people withdraw $700 each, at two different ATMs, at nearly the same instant.</p>
+<ul>
+<li class="fragment">Each ATM checks the balance (<code>read</code> step): both see $1,000, both see “sufficient funds,” both proceed.</li>
+<li class="fragment">Each ATM subtracts $700 and writes the new balance back — if this happens the same way as the counter example, the <em>second write simply overwrites the first</em>, and the balance ends up at $300, not the correct $-400 (i.e., overdrawn) — but the bank just let $1,400 leave a $1,000 account.</li>
+<li class="fragment">This is not hypothetical — it is precisely the class of bug real financial and e-commerce systems must guard against, using the same synchronization ideas you’ll see starting next session.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Note this is structurally identical to the counter race — same read/modify/write shape, just dollars instead of an integer. Point that out explicitly: once students see the shape, they can recognize it anywhere.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="real-world-stakes-the-last-item-in-stock" class="slide level2">
+<h2>Real-World Stakes: The Last Item in Stock</h2>
+<p>Recall the Amazon vignette from Session 1: thousands of orders per second, all touching the same inventory data.</p>
+<ul>
+<li class="fragment">One unit of an item left in stock. Two customers click “Buy” within milliseconds of each other.</li>
+<li class="fragment">Both requests <strong>read</strong> “1 in stock” before either one <strong>writes</strong> the updated count. Both proceed to charge the customer and confirm the order. The store just sold one physical item to two different people.</li>
+<li class="fragment">Same shape, again: <strong>read, decide, write</strong> — with a gap in between where another thread can sneak in and act on the stale value you already read.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> By now students should be able to predict the “read-modify-write” shape themselves before you show it — ask “what three steps do you think happen here?” before revealing the bullet.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-we-need-one-cook-at-a-time" class="slide level2">
+<h2>Bridge: We Need “One Cook at a Time”</h2>
+<p>Every example today has the same shape: multiple threads <strong>read</strong> a shared value, <strong>decide</strong> something based on it, then <strong>write</strong> a new value back — and if another thread sneaks its own read-decide-write in the middle, the result is wrong.</p>
+<div class="fragment">
+<p>What we need is a way to say: <em>while one cook is in the middle of this read-decide-write sequence at the shared counter, no other cook may touch it until they’re done.</em> That’s not something Java gives you for free — you have to ask for it explicitly.</p>
+</div>
+<div class="fragment">
+<p>You already know the name of the tool that does this: <strong><code>synchronized</code></strong>, the keyword you added in Lab 1 Part 2. <strong>Next session (Sep 14): exactly how it works, and what it costs you.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Students have used <code>synchronized</code> once, mechanically — so the hook here is “you already know it works; do you know <em>why</em>, or what it breaks?” rather than a blind cliffhanger. Still don’t get into the monitor-lock mechanics today; that’s Session 4’s clean start.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="lab-2-preview" class="slide level2">
+<h2>Lab 2 Preview</h2>
+<ul>
+<li class="fragment">Lab 2 (this Friday, Sep 11): write your own <code>Runnable</code>, then submit tasks to an <code>ExecutorService</code> thread pool.</li>
+<li class="fragment">Tasks: a <code>PrintTask</code> run across 3 threads, a thread pool with varying sizes, and a shared counter you make safe with <code>synchronized</code> again (as in Lab 1).</li>
+<li class="fragment">Same pattern as <code>synchronized</code> in Lab 1: <strong>you get hands-on with thread pools first, then Session 5 (Sep 16) covers how they work in depth.</strong> Session 4 ends with a short intro so it’s not cold.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This course front-loads the hands-on: Lab 1 used <code>synchronized</code> before Session 4 explains it, Lab 2 uses a thread pool before Session 5 explains it. Tell students that’s deliberate — the lab gives them a concrete thing the lecture then makes sense of, not the other way around.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-4-mon-sep-14" class="title-slide slide level1 section center">
+<h1>Session 4 · Mon Sep 14</h1>
+
+</section>
+<section id="synchronization-locks-and-their-failure-modes" class="slide level2">
+<h2>Synchronization, Locks, and Their Failure Modes</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: The <code>synchronized</code> You’ve Already Used</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>The <code>synchronized</code> Keyword: The Lock</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td><code>synchronized</code>: Acquiring and Releasing</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Method-Level vs.&nbsp;Block-Level Locking</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Worked Fix: Closing the Loop on Session 3</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td><code>synchronized</code> — Tradeoffs</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Deadlock: The Circular Wait</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Deadlock: The Picture and How to Prevent It</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Livelock</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Starvation</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>The Three Failure Modes, Side by Side</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Threads Cost Something to Create</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>A First Look at Pools (from Lab 2)</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>Slides use reveal.js fragments (<code>. . .</code> pauses, incremental lists) for pacing — advance with arrow/space. The full text is retained for the study export.</p>
+<p>Students have used <code>synchronized</code> in Lab 1 and a thread pool in Lab 2 — both mechanically, without the underlying explanation. This session explains the first one fully and closes with a real (not just teaser) intro to the second, so Session 5’s deep dive isn’t cold. Open by reading back Session 3’s last line (“you already know the tool — do you know why it works, or what it breaks?”).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-the-synchronized-youve-already-used" class="slide level2">
+<h2>Recap: The <code>synchronized</code> You’ve Already Used</h2>
+<ul>
+<li class="fragment">You’ve written <code>synchronized</code> twice now: Lab 1 Part 2 (the shared counter) and Lab 2 Task 3. Both times it worked — the count came out right on every run.</li>
+<li class="fragment">What you <em>haven’t</em> seen: why one keyword is enough, what it’s actually locking, and what it costs. That’s today.</li>
+<li class="fragment">By the end of this session you’ll be able to explain, precisely, why the keyword you already used solves the exact problem from Session 3 — and name three ways locking can go wrong.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Ask a student to describe what <code>synchronized</code> did for them in Lab 1/2 in their own words before you give the formal mechanics — you’ll likely get an intuitive-but-imprecise answer (“it stops them from messing it up”), which is a good springboard into the precise version. Keep this short: they know it works, so don’t over-sell the motivation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-synchronized-keyword-the-lock" class="slide level2">
+<h2>The <code>synchronized</code> Keyword: The Lock</h2>
+<p>Every object in Java has an invisible <strong>lock</strong> attached to it (called a <strong>monitor lock</strong>, or <strong>intrinsic lock</strong>). <code>synchronized</code> is how you use it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-2"><a></a>    counter<span class="op">++;</span>  <span class="co">// only one thread at a time can be inside here</span></span>
+<span id="cb6-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>Marking a method <code>synchronized</code> means: <strong>before any thread can run this method, it must first acquire the lock on the object the method belongs to</strong> (<code>this</code>, for an instance method).</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> The “attached to every object” framing is worth stating explicitly and slowly — it’s not obvious to students that locking is a property of <em>objects</em>, not of methods or variables in the abstract. Stop here; acquire/release and the kitchen picture are the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="synchronized-acquiring-and-releasing" class="slide level2">
+<h2><code>synchronized</code>: Acquiring and Releasing</h2>
+<ul>
+<li class="fragment">Only one thread can hold a given object’s lock at a time. Any other thread that calls a <code>synchronized</code> method on that same object must <strong>wait</strong> until the lock is released.</li>
+<li class="fragment">The lock is automatically released when the method returns — you never unlock it by hand.</li>
+</ul>
+<div class="fragment">
+<p><strong>Kitchen picture:</strong> the lock is a single claim ticket for the stove. A cook must hold the ticket to use the stove; every other cook who wants it simply waits in line until it’s returned.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Emphasize “automatically released” — students coming from other languages sometimes expect an explicit unlock and worry about forgetting it. The kitchen picture (single claim ticket) is the one to carry forward; it’s reused on the Tradeoffs slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="method-level-vs.-block-level-locking" class="slide level2">
+<h2>Method-Level vs.&nbsp;Block-Level Locking</h2>
+<p><code>synchronized</code> can mark a whole method, or wrap just part of one:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="co">// Method-level: the entire method body is protected</span></span>
+<span id="cb7-2"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-3"><a></a>    counter<span class="op">++;</span></span>
+<span id="cb7-4"><a></a><span class="op">}</span></span>
+<span id="cb7-5"><a></a></span>
+<span id="cb7-6"><a></a><span class="co">// Block-level: only the marked block is protected, on a chosen lock object</span></span>
+<span id="cb7-7"><a></a><span class="dt">static</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-8"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockObject<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-9"><a></a>        counter<span class="op">++;</span></span>
+<span id="cb7-10"><a></a>    <span class="op">}</span></span>
+<span id="cb7-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><strong>Method-level</strong> is shorthand for “lock on <code>this</code> (or the class, for <code>static</code> methods), for the whole method body.”</li>
+<li class="fragment"><strong>Block-level</strong> lets you (a) lock on a <em>specific</em> object rather than always <code>this</code>, and (b) protect only the few lines that actually touch shared data, leaving the rest of the method free to run unsynchronized.</li>
+<li class="fragment">Block-level is usually the better default once your methods do more than one thing — locking is a cost (next slide), and you only want to pay it for the part that’s actually shared.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This slide is new depth beyond what was previously taught — students need to see block-level syntax since it’s the more common real-world pattern, not just the toy method-level example.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-fix-closing-the-loop-on-session-3" class="slide level2">
+<h2>Worked Fix: Closing the Loop on Session 3</h2>
+<p>Recall Session 3’s “wrong interleaving” — two threads both read <code>5</code>, both write <code>6</code>, one increment lost. With <code>synchronized</code> protecting the increment:</p>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td><strong>acquires lock</strong>, read → 5</td>
+<td><em>(calls <code>increment()</code>, blocks — waits for lock)</em></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td>write 6, <strong>releases lock</strong></td>
+<td><em>(still waiting)</em></td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td></td>
+<td><strong>acquires lock</strong>, read → 6</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td></td>
+<td>write 7, releases lock</td>
+<td>7 ← <strong>correct, every time</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Thread B cannot even <em>begin</em> its read until Thread A has finished its entire read-modify-write sequence and released the lock. The interleaving that produced the wrong answer in Session 3 is now <strong>impossible</strong> — not unlikely, impossible, by construction.</p>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is the payoff slide of the whole session — literally reuse the Session 3 slide’s wrong-interleaving table as a mental side-by-side if you have it up on a second screen or printed. The word “impossible, not unlikely” is worth emphasizing — synchronized doesn’t reduce the odds of a race, it removes the possibility entirely.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="synchronized-tradeoffs" class="slide level2">
+<h2><code>synchronized</code> — Tradeoffs</h2>
+<ul>
+<li class="fragment">✅ <strong>Correctness:</strong> eliminates this entire class of race condition.</li>
+<li class="fragment">❌ <strong>Performance:</strong> threads that would have run simultaneously now wait in line — the protected section runs one-at-a-time no matter how many CPU cores you have. This is called <strong>serializing</strong> execution.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> one claim ticket for the stove means every cook who needs the stove queues up, even if only one of them is actually using it at any instant. If ten cooks all need the stove for one second each, the kitchen just spent ten seconds on stove work that <em>could</em> have taken one second with ten stoves.</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Rule of thumb: lock the <strong>minimum amount of code</strong> needed for correctness. Every line inside a <code>synchronized</code> block is a line no other thread can run concurrently with it — block-level locking (previous slide) exists specifically so you can keep that minimum small.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Tie directly back to the block-level slide — “this is <em>why</em> you’d choose block-level over method-level,” not just a syntax option.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="deadlock-the-circular-wait" class="slide level2">
+<h2>Deadlock: The Circular Wait</h2>
+<p>Locking introduces a new failure mode that didn’t exist before: two threads can each be waiting for a lock the <em>other</em> one holds, forever.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="co">// Thread A                      // Thread B</span></span>
+<span id="cb8-2"><a></a><span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span>           <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-3"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>         <span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>  <span class="co">// ← DEADLOCK</span></span>
+<span id="cb8-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">Thread A grabs <code>lockA</code>, then tries to grab <code>lockB</code> — but Thread B already holds <code>lockB</code> and is trying to grab <code>lockA</code>.</li>
+<li class="fragment">Neither thread will ever release the lock it holds, because both are stuck waiting for the <em>other</em> lock first. Both threads freeze permanently.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Walk the code example line by line — trace the circular wait out loud (or on the board): A holds lockA wants lockB, B holds lockB wants lockA. The picture and the prevention rule are the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="deadlock-the-picture-and-how-to-prevent-it" class="slide level2">
+<h2>Deadlock: The Picture and How to Prevent It</h2>
+<ul>
+<li class="fragment"><strong>Kitchen picture:</strong> Cook A is holding the only knife and waiting for the only cutting board; Cook B is holding the only cutting board and waiting for the only knife. Neither will let go of what they’re holding. Nobody cooks again.</li>
+<li class="fragment"><strong>Prevention:</strong> always acquire multiple locks <strong>in the same order</strong>, everywhere in your code. If both threads had grabbed <code>lockA</code> before <code>lockB</code>, this deadlock could not happen.</li>
+</ul>
+<div class="fragment">
+<p><img data-src="images/deadlock.png"> {fig-alt=“Two cook icons, ‘Thread A’ and ‘Thread B,’ facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled ‘holds,’ and a dashed arrow pointing from Thread A to a cutting-board icon labeled ‘wants.’ Thread B has the cutting-board icon in hand (‘holds’), with a dashed arrow pointing from Thread B to the knife icon (‘wants’). The two dashed ‘wants’ arrows visually form a closed loop/cycle between the two cooks — that closed loop is the deadlock.”}</p>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled "holds," and a dashed arrow pointing from Thread A to a cutting-board icon labeled "wants." Thread B has the cutting-board icon in hand ("holds"), with a dashed arrow pointing from Thread B to the knife icon ("wants"). The two dashed "wants" arrows should visually form a closed loop/cycle between the two cooks — that closed loop *is* the deadlock, and is the single most important visual to get right in the whole module, since "circular wait" is easiest to grasp as a picture rather than as prose.
+::: -->
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> The closed-loop picture is the payoff — “circular wait” clicks as a shape, not as prose. State the same-order prevention rule as the one thing to memorize.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="livelock" class="slide level2">
+<h2>Livelock</h2>
+<p>A subtler failure: both threads <em>are</em> actively doing something, repeatedly — they’re just never making actual progress.</p>
+<ul>
+<li class="fragment">Two threads each detect they might be about to conflict, and both politely back off and retry — but they back off in a way that causes them to collide again immediately, forever.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> two cooks meet in a narrow doorway, both step to the same side to let the other pass, still blocked, both step to the other side, still blocked — repeating indefinitely. Both are constantly moving. Neither ever gets through.</li>
+<li class="fragment">Unlike deadlock (frozen, doing nothing), livelock burns CPU time on threads that are busy but unproductive — which can make it <em>harder</em> to notice, since the program doesn’t look stuck.</li>
+</ul>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>A narrow doorway/corridor, two cook icons on either side. Show two or three faded/ghosted repeats of each cook stepping left, then right, then left again (motion-trail style, like a simple 3-frame flipbook within one image) — both always moving, neither ever passing through the doorway. Caption underneath: “Always moving. Never through.” Deliberately draw this to look busy/animated in contrast to the frozen, static deadlock diagram above — the visual contrast between the two is the point.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Contrast directly with deadlock on this slide: “deadlock looks frozen, livelock looks busy but goes nowhere” — that contrast is the exam-relevant distinction.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="starvation" class="slide level2">
+<h2>Starvation</h2>
+<p>A third failure mode: a thread is technically able to run, but never actually gets the chance.</p>
+<ul>
+<li class="fragment">If some threads are consistently prioritized over others (explicitly, via thread priorities, or implicitly, through unlucky scheduling), a lower-priority thread can wait indefinitely while higher-priority threads keep cutting in front of it.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> a junior cook keeps stepping up to use the stove, but senior cooks keep arriving and taking their turn first, over and over. The junior cook is never explicitly blocked — they’re just never actually first.</li>
+<li class="fragment">Starvation is different from deadlock and livelock: the <em>system</em> is making progress overall, it’s just one specific thread that never gets its share.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this the shortest of the three failure-mode slides — starvation is the least likely to show up in checkpoint/quiz questions compared to deadlock, but it completes the set and is worth naming.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-three-failure-modes-side-by-side" class="slide level2">
+<h2>The Three Failure Modes, Side by Side</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Failure</th>
+<th>What it looks like</th>
+<th>Threads doing work?</th>
+<th>Kitchen picture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Deadlock</strong></td>
+<td>Both threads frozen, forever</td>
+<td>No — completely stuck</td>
+<td>Two cooks each holding what the other needs, neither lets go</td>
+</tr>
+<tr class="even">
+<td><strong>Livelock</strong></td>
+<td>Both threads active, but no progress</td>
+<td>Yes — but wasted</td>
+<td>Two cooks stepping aside for each other in a doorway, endlessly</td>
+</tr>
+<tr class="odd">
+<td><strong>Starvation</strong></td>
+<td>One thread never gets its turn</td>
+<td>Yes — everyone <em>else</em> makes progress</td>
+<td>A junior cook is always pre-empted by senior cooks at the stove</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>All three are consequences of introducing locks to fix race conditions — you traded “sometimes wrong” for “sometimes stuck,” and avoiding all three is a real design skill, not just a syntax rule.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This table is worth putting up as the one thing students photograph for exam review — it’s the single highest-density slide in the session.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="threads-cost-something-to-create" class="slide level2">
+<h2>Threads Cost Something to Create</h2>
+<p>Locking solves correctness. But there’s a cost we haven’t addressed: <strong>creating a thread itself is not free.</strong></p>
+<ul>
+<li class="fragment">Every <code>new Thread(...)</code> creates a brand-new cook from scratch — real overhead, every time. Thousands of short tasks × one new-then-discarded thread each = wasteful.</li>
+<li class="fragment">The fix is a <strong>thread pool</strong>: a fixed set of reusable worker threads pulling tasks off a shared queue. Hire a fixed kitchen staff on payroll instead of a new cook per order.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Set up the cost problem and name the fix (a pool). The concrete Lab 2 API and the “extra tasks wait” behavior are the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-first-look-at-pools-from-lab-2" class="slide level2">
+<h2>A First Look at Pools (from Lab 2)</h2>
+<p>You already used a thread pool in <strong>Lab 2</strong>. The three pieces you touched there:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span>  <span class="co">// fixed staff of 2</span></span>
+<span id="cb9-2"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"A"</span><span class="op">));</span>                          <span class="co">// hand a task to the queue</span></span>
+<span id="cb9-3"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>                                          <span class="co">// no new tasks; finish what's queued</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">With 3 tasks and a pool of 2, the third waits until a thread is free — the behavior you observed in Lab 2 Task 2.</li>
+<li class="fragment"><strong>Next session (Sep 16):</strong> how the queue actually works, getting results back with <code>Future</code>, <code>Callable</code> vs <code>Runnable</code>, and where industry uses pools — then Checkpoint 1.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This is a real intro, not just a teaser, because Lab 2 (Sep 11) already had students use <code>ExecutorService</code>. Keep it to the three methods on the slide and the “extra tasks wait” behavior. Do <strong>not</strong> get into <code>Future.get()</code>, <code>awaitTermination</code> semantics, or pool-sizing strategy — those are Session 5. The goal is that Session 5 opens on something students have both done (Lab 2) and seen named (here), not something cold.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-5-wed-sep-16" class="title-slide slide level1 section center">
+<h1>Session 5 · Wed Sep 16</h1>
+
+</section>
+<section id="thread-pools-executorservice-checkpoint-1" class="slide level2">
+<h2>Thread Pools, ExecutorService &amp; Checkpoint 1</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total, then the actual 15-min Checkpoint 1 runs separately after these slides — see syllabus: “last 15 min” of this session):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: Why Pools?</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>The Cost of Creating a Thread</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>A Thread Pool: Fixed Staff, Shared Queue</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td><code>ExecutorService</code> — Submitting Tasks</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td><code>ExecutorService</code> — Key Methods</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Tracing the Queue: The Setup</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Tracing the Queue: Step by Step</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td><code>Future</code> — Getting Results Back</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td><code>Callable</code> vs.&nbsp;<code>Runnable</code></td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Industry Patterns: Pools Everywhere</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Checkpoint 1 Preview &amp; Review</td>
+<td>4 min</td>
+</tr>
+</tbody>
+</table>
+<p>These slides are the ~35-minute lecture portion; the graded 15-minute Checkpoint 1 exercise happens live afterward and isn’t slide content. Slides use reveal.js fragments (<code>. . .</code>, incremental lists) for pacing — advance with arrow/space; the full text is kept for the study export.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-why-pools" class="slide level2">
+<h2>Recap: Why Pools?</h2>
+<p>Session 4 closed with a first look at pools: locking fixed <em>correctness</em>, but creating a thread still has a <em>cost</em>. You’ve already used a pool in Lab 2 (<code>newFixedThreadPool</code>, <code>submit</code>, <code>shutdown</code>) — today is how it actually works.</p>
+<ul>
+<li class="fragment">Every <code>new Thread(...)</code> you’ve written is a brand-new cook, hired from scratch, every single time — real overhead, paid again and again.</li>
+<li class="fragment">If a program needs to handle thousands of short-lived tasks, hiring a new cook per task and letting them go the moment the task is done is wasteful — most of the “cost” goes to hiring and firing, not cooking.</li>
+<li class="fragment">Today’s fix: keep a <strong>fixed staff of cooks on payroll</strong>, and hand them tasks from a shared queue instead of hiring anew each time.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Brief — students have used a pool in Lab 2 and seen the three methods named in Session 4’s closing slide, so this should feel like continuing a topic, not starting one. Move quickly to the mechanics they haven’t seen.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-cost-of-creating-a-thread" class="slide level2">
+<h2>The Cost of Creating a Thread</h2>
+<p>Creating a real thread isn’t just “declare a variable” — it involves real machinery underneath:</p>
+<ul>
+<li class="fragment">Space must be set up for that thread’s own stack (recall Session 2: every thread gets its own private stack).</li>
+<li class="fragment">The thread must be registered with whatever is deciding who runs when — remember, “something outside your control decides whose turn it is.”</li>
+<li class="fragment">All of this happens <strong>again</strong>, from scratch, every time you write <code>new Thread(...)</code> — and gets thrown away the moment that thread finishes.</li>
+</ul>
+<div class="fragment">
+<p>For a handful of long-running threads, this cost is trivial. For <strong>thousands of short tasks</strong>, creating and discarding a thread per task can cost more time than the tasks themselves take to run.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> No OS/scheduler vocabulary needed — “space for a stack” and “registered with whatever decides who runs when” both reuse language already established in Session 2, deliberately avoiding new jargon.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="a-thread-pool-fixed-staff-shared-queue" class="slide level2">
+<h2>A Thread Pool: Fixed Staff, Shared Queue</h2>
+<ul>
+<li class="fragment">A <strong>thread pool</strong> is a fixed set of worker threads, created once up front, that stays alive and reused for many tasks.</li>
+<li class="fragment">Tasks don’t get their own thread — they’re dropped into a <strong>shared queue</strong>. Each worker thread, whenever it’s free, pulls the next task off the queue and runs it.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> instead of hiring a new cook for every single order, the kitchen keeps a fixed staff of, say, 4 cooks. Orders pile up on a ticket rail; whenever a cook finishes a dish, they grab the next ticket. No hiring, no firing — just a fixed staff working through a queue.</li>
+</ul>
+<div class="fragment">
+<p>This is the idea; the next few slides show Java’s tool for it.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This slide is purely conceptual, no code yet — make sure the queue-and-fixed-staff picture is solid before introducing <code>ExecutorService</code>, since the API only makes sense once this mental model is in place.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="executorservice-submitting-tasks" class="slide level2">
+<h2><code>ExecutorService</code> — Submitting Tasks</h2>
+<p>Java’s <code>ExecutorService</code> is the built-in thread pool manager.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">4</span><span class="op">);</span>  <span class="co">// 4 cooks, fixed staff</span></span>
+<span id="cb10-2"><a></a></span>
+<span id="cb10-3"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 1"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
+<span id="cb10-4"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 2"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
+<span id="cb10-5"><a></a></span>
+<span id="cb10-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>               <span class="co">// stop accepting new tasks</span></span>
+<span id="cb10-7"><a></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span>   <span class="co">// wait for queued/running tasks to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><code>Executors.newFixedThreadPool(4)</code> creates the pool with exactly 4 worker threads — they’re created once, here, not per task.</li>
+<li class="fragment"><code>submit(...)</code> adds a task to the shared queue; it does <strong>not</strong> create a new thread. One of the 4 existing workers will pick it up when free.</li>
+<li class="fragment"><code>shutdown()</code> stops the pool from accepting <em>new</em> tasks but lets already-queued and already-running tasks finish — it is not an immediate stop.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> Emphasize “created once, here” for the pool size — a common misread is assuming <code>submit()</code> creates threads, when the whole point is that it reuses the 4 already created.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="executorservice-key-methods" class="slide level2">
+<h2><code>ExecutorService</code> — Key Methods</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>submit(Runnable)</code></td>
+<td>Add a task to the queue; doesn’t return a usable result</td>
+</tr>
+<tr class="even">
+<td><code>submit(Callable&lt;T&gt;)</code></td>
+<td>Add a task that returns a value (paired with <code>Future</code>, two slides ahead)</td>
+</tr>
+<tr class="odd">
+<td><code>shutdown()</code></td>
+<td>Stop accepting new tasks; let already-queued/running ones finish</td>
+</tr>
+<tr class="even">
+<td><code>shutdownNow()</code></td>
+<td>Attempt to stop everything immediately, including running tasks</td>
+</tr>
+<tr class="odd">
+<td><code>awaitTermination(t, unit)</code></td>
+<td>Block the calling thread until the pool finishes, or the timeout expires</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Always call <code>shutdown()</code> when you’re done submitting work — an <code>ExecutorService</code> that’s never shut down keeps its worker threads alive indefinitely, even after your program logically has nothing left to do.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The last line is worth stating explicitly — “forgetting shutdown()” is a common real bug (a program that never exits because idle pool threads are still alive), not just a syntax footnote.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="tracing-the-queue-the-setup" class="slide level2">
+<h2>Tracing the Queue: The Setup</h2>
+<p>Pool of 2 worker threads, 5 tasks submitted at once:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb11-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb11-3"><a></a>    <span class="dt">int</span> taskId <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb11-4"><a></a>    pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Running task "</span> <span class="op">+</span> taskId<span class="op">));</span></span>
+<span id="cb11-5"><a></a><span class="op">}</span></span>
+<span id="cb11-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>Five tasks, two workers. Before we trace it: how many of the five do you expect to run at the <em>literal same instant</em>?</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Ask the “how many at once” question and take a couple of guesses before advancing — the trace on the next slide is the answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="tracing-the-queue-step-by-step" class="slide level2">
+<h2>Tracing the Queue: Step by Step</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Worker 1</th>
+<th>Worker 2</th>
+<th>Queue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t0</td>
+<td>idle</td>
+<td>idle</td>
+<td>[1, 2, 3, 4, 5]</td>
+</tr>
+<tr class="even">
+<td>t1</td>
+<td>running Task 1</td>
+<td>running Task 2</td>
+<td>[3, 4, 5]</td>
+</tr>
+<tr class="odd">
+<td>t2</td>
+<td>running Task 3 (finished 1)</td>
+<td>still on Task 2</td>
+<td>[4, 5]</td>
+</tr>
+<tr class="even">
+<td>t3</td>
+<td>still on Task 3</td>
+<td>running Task 4 (finished 2)</td>
+<td>[5]</td>
+</tr>
+<tr class="odd">
+<td>t4</td>
+<td>running Task 5 (finished 3)</td>
+<td>idle (waiting, queue empty)</td>
+<td>[]</td>
+</tr>
+<tr class="even">
+<td>t5</td>
+<td>idle (finished 5)</td>
+<td>idle</td>
+<td>[]</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Only 2 tasks ever run at the literal same instant — the other 3 wait their turn in the queue, picked up by whichever worker finishes first. This is exactly the “fixed staff, shared queue” picture from three slides ago, now traced step by step.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>A horizontal queue of 5 numbered ticket icons ([1][2][3][4][5]) feeding into two cook icons labeled “Worker 1” and “Worker 2,” each cook shown next to a small stove. Show it as a 2-frame progression: frame 1 has Workers 1 and 2 holding tickets 1 and 2, queue shows [3][4][5]; frame 2 (after either finishes) shows one worker now holding ticket 3, queue shrunk to [4][5]. Caption: “Tasks don’t get their own cook — they wait for whichever cook is free next.” This is the visual companion to the trace table above; the table gives the precise timing, the diagram gives the at-a-glance shape.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Walk this row by row on the board — the point students need to take away is that task-to-worker assignment isn’t fixed in advance (Task 3 could just as easily have gone to Worker 2, depending on which finishes first); it’s whichever worker becomes free first.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="future-getting-results-back" class="slide level2">
+<h2><code>Future</code> — Getting Results Back</h2>
+<p>So far, tasks just print something and finish. What if a task needs to <strong>return a value</strong>?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb12-2"><a></a></span>
+<span id="cb12-3"><a></a><span class="bu">Future</span><span class="op">&lt;</span><span class="bu">Integer</span><span class="op">&gt;</span> future <span class="op">=</span> pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb12-4"><a></a>    <span class="bu">Thread</span><span class="op">.</span><span class="fu">sleep</span><span class="op">(</span><span class="dv">1000</span><span class="op">);</span>   <span class="co">// simulate work that takes time</span></span>
+<span id="cb12-5"><a></a>    <span class="cf">return</span> <span class="dv">42</span><span class="op">;</span></span>
+<span id="cb12-6"><a></a><span class="op">});</span></span>
+<span id="cb12-7"><a></a></span>
+<span id="cb12-8"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Waiting..."</span><span class="op">);</span></span>
+<span id="cb12-9"><a></a><span class="dt">int</span> result <span class="op">=</span> future<span class="op">.</span><span class="fu">get</span><span class="op">();</span>  <span class="co">// blocks here until the task finishes</span></span>
+<span id="cb12-10"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Result: "</span> <span class="op">+</span> result<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><code>submit(...)</code> returns immediately with a <strong><code>Future</code></strong> — think of it as an order ticket or a buzzer: you’re handed it right away, but the actual result isn’t ready yet.</li>
+<li class="fragment"><code>future.get()</code> is “go back to the counter and wait for your buzzer to light up” — it <strong>blocks</strong> the calling thread until the task’s result is ready, then returns it.</li>
+<li class="fragment"><code>future.isDone()</code> checks whether the result is ready <strong>without</strong> blocking — like glancing at your buzzer instead of standing at the counter.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> The buzzer analogy is worth restating twice — once for <code>submit()</code> (handed the buzzer immediately), once for <code>get()</code> (waiting at the counter for it to light up) — students often conflate submitting and blocking as the same moment.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="callable-vs.-runnable" class="slide level2">
+<h2><code>Callable</code> vs.&nbsp;<code>Runnable</code></h2>
+<p>Two slides back you saw <code>submit(Runnable)</code> and <code>submit(Callable&lt;T&gt;)</code> — here’s the actual difference:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><code>Runnable</code></th>
+<th><code>Callable&lt;T&gt;</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Returns a value?</td>
+<td>No</td>
+<td>Yes — a <code>T</code>, retrieved via <code>Future&lt;T&gt;.get()</code></td>
+</tr>
+<tr class="even">
+<td>Can throw a checked exception?</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>Typical use</td>
+<td>Fire-and-forget tasks (e.g., printing, logging)</td>
+<td>Tasks whose result you need back (e.g., a computed number)</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Every <code>Future</code>-returning example on the previous slide used a <code>Callable</code> under the hood — the lambda <code>() -&gt; { ...; return 42; }</code> is a <code>Callable&lt;Integer&gt;</code> because it returns a value.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Short and purely definitional — this used to live only in speaker notes; it’s promoted to a visible slide because the <code>Runnable</code>/<code>Callable</code> distinction is a natural checkpoint/quiz question shape.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="industry-patterns-pools-everywhere" class="slide level2">
+<h2>Industry Patterns: Pools Everywhere</h2>
+<p>Thread pools aren’t a Java classroom exercise — this exact “fixed staff, shared queue” pattern is everywhere in real systems:</p>
+<ul>
+<li class="fragment"><strong>Web servers</strong> keep a fixed pool of worker threads to handle incoming requests, instead of spawning a new thread per request — exactly the cost problem from three slides ago, at internet scale.</li>
+<li class="fragment"><strong>Database connection pools</strong> keep a fixed set of already-open database connections ready to reuse, since opening a new connection is expensive, the same way creating a new thread is.</li>
+<li class="fragment"><strong>Foreshadowing Module 4:</strong> Apache Spark itself runs a fixed set of worker processes across a cluster and hands them tasks from a queue — the same idea you just traced with 2 threads and 5 tasks, just spread across many machines instead of many threads on one machine.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The Spark foreshadow is worth saying explicitly by name — “fixed workers, shared task queue” is literally the mental model they’ll reuse in Module 4, so planting it now pays off later.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-1-preview-review" class="slide level2">
+<h2>Checkpoint 1 Preview &amp; Review</h2>
+<p><strong>Checkpoint 1 runs now, in the last 15 minutes of this session:</strong> given a <code>BankAccount</code> Java class with a race condition, fix it using <code>synchronized</code> — 15 minutes, individual work.</p>
+<p>Quick review before you start:</p>
+<ul>
+<li class="fragment"><strong>What <code>synchronized</code> does:</strong> only one thread can be inside a <code>synchronized</code> method (or block) on a given object at a time — everyone else waits (Session 4).</li>
+<li class="fragment"><strong>How to spot the unsafe variable:</strong> look for a field that multiple methods read <em>and</em> write — especially a read-modify-write shape like <code>balance = balance - amount</code> (Session 3’s exact pattern, just with a different variable name).</li>
+<li class="fragment"><strong>How to test your fix:</strong> run the scenario with multiple threads calling the risky method simultaneously; before the fix, the final balance should sometimes be wrong; after the fix, it should be correct on every run, not just usually.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min for this review slide — the 15-min checkpoint itself follows separately and isn’t slide content.</strong> Resist over-explaining the checkpoint’s exact scenario; the point is to remind them of the <em>method</em> for finding and fixing the bug, not to preview the specific answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-6-fri-sep-18" class="title-slide slide level1 section center">
+<h1>Session 6 · Fri Sep 18</h1>
+
+</section>
+<section id="practice-quiz-1" class="slide level2">
+<h2>Practice + Quiz 1</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Welcome to Review Day</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
+<td>When Do You Need Concurrency?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Module 1 Summary Table</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td>Practice 1 Prompt: Spot the Race Condition</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Practice 1 Solution</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Practice 2 Prompt: Trace the Interleaving</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Practice 2 Solution</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Practice 3 Prompt: Will This Fix Work?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Practice 3 Solution</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Quiz 1 transition</td>
+<td>2 min</td>
+</tr>
+</tbody>
+</table>
+<p>That’s ~38 min of slide content; the remaining ~12 min is Quiz 1 itself on Blackboard (last 10–15 min of the session per the syllabus), not slide-driven. For each practice problem, give students 2–3 min to work in pairs before revealing the solution slide — don’t reveal immediately. Prompt slides pause (<code>. . .</code>) right before the “with a partner” question, and solution slides step through their reasoning as fragments — advance with arrow/space; the full text is kept for the study export.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="welcome-to-review-day" class="slide level2">
+<h2>Welcome to Review Day</h2>
+<p>No new concepts today — three things happen this session:</p>
+<ol type="1">
+<li class="fragment">A fast recap of everything Module 1 covered (Sessions 1–5)</li>
+<li class="fragment">Three practice problems, worked in pairs, in the same style as Checkpoint 1 and Quiz 1</li>
+<li class="fragment">Quiz 1 itself, on Blackboard, in the last part of class</li>
+</ol>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Keep this genuinely brief — it’s a transition slide, not content.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="when-do-you-need-concurrency" class="slide level2">
+<h2>When Do You Need Concurrency?</h2>
+<p>Back in Session 2 you saw two plain-language reasons to use threads: “waiting on something” and “more hands, more work.” Those have formal names, worth knowing precisely:</p>
+<ul>
+<li class="fragment"><strong>I/O-bound tasks</strong> — the program spends most of its time <em>waiting</em>: for a network reply, a disk read, a database query. Threads let other work happen during that wait instead of the CPU sitting idle. (“Waiting on something,” Session 2.)</li>
+<li class="fragment"><strong>CPU-bound tasks</strong> — the program spends most of its time <em>computing</em>. Splitting the computation across multiple cores gives genuine speed-up. (“More hands, more work,” Session 2.)</li>
+<li class="fragment"><strong>Event handling</strong> — a web server fielding many simultaneous requests is a common real-world mix of both: mostly waiting on each individual request, but needing to handle many at once.</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Concurrency is not free — it’s the entire subject of Sessions 3 and 4 that sharing state across threads introduces race conditions, deadlock, livelock, and starvation. Only reach for it when the performance benefit is clear and measurable, and only protect the shared state that actually needs it.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This is the payoff of a deliberate choice made back in Session 2: the informal “waiting vs.&nbsp;more hands” framing was taught first, precisely so this slide could attach the formal vocabulary to an idea students already have, instead of introducing both at once.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="module-1-summary-table" class="slide level2">
+<h2>Module 1 Summary Table</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Key idea</th>
+<th>From</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Process / Thread</td>
+<td>A process is its own memory space; threads inside it share the heap but each get a private stack</td>
+<td>Session 2</td>
+</tr>
+<tr class="even">
+<td>Race condition</td>
+<td>Result depends on unpredictable thread timing — same code, different outcomes across runs</td>
+<td>Session 3</td>
+</tr>
+<tr class="odd">
+<td>Heisenbug</td>
+<td>A timing-dependent bug that can change or vanish when you try to observe it</td>
+<td>Session 3</td>
+</tr>
+<tr class="even">
+<td><code>synchronized</code></td>
+<td>Mutual exclusion — only one thread may hold a given object’s lock at a time</td>
+<td>Session 4</td>
+</tr>
+<tr class="odd">
+<td>Deadlock</td>
+<td>Circular lock dependency — every thread involved waits forever</td>
+<td>Session 4</td>
+</tr>
+<tr class="even">
+<td>Livelock</td>
+<td>Threads stay active but repeatedly block each other — busy, no progress</td>
+<td>Session 4</td>
+</tr>
+<tr class="odd">
+<td>Starvation</td>
+<td>A thread is technically runnable but never actually gets its turn</td>
+<td>Session 4</td>
+</tr>
+<tr class="even">
+<td>Thread pool / <code>ExecutorService</code></td>
+<td>A fixed set of reusable worker threads pulling tasks from a shared queue</td>
+<td>Session 5</td>
+</tr>
+<tr class="odd">
+<td><code>Future</code></td>
+<td>A placeholder for a result, returned immediately, redeemed later via <code>.get()</code></td>
+<td>Session 5</td>
+</tr>
+<tr class="even">
+<td>I/O-bound vs.&nbsp;CPU-bound</td>
+<td>Waiting-dominated vs.&nbsp;computation-dominated — the two reasons to use threads</td>
+<td>This slide</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is the single highest-value slide of the module for exam review — walk it row by row, and explicitly say “this table is a good thing to have memorized before the quiz and before the midterm.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="practice-1-spot-the-race-condition" class="slide level2">
+<h2>Practice 1: Spot the Race Condition</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
+<span id="cb13-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span>   <span class="co">// is this line safe?</span></span>
+<span id="cb13-6"><a></a>    <span class="op">}</span></span>
+<span id="cb13-7"><a></a></span>
+<span id="cb13-8"><a></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getTotal</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-9"><a></a>        <span class="cf">return</span> total<span class="op">;</span></span>
+<span id="cb13-10"><a></a>    <span class="op">}</span></span>
+<span id="cb13-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two threads both call <code>add(5)</code> on the <strong>same</strong> <code>Counter</code> object, 1,000 times each, at the same time.</p>
+<div class="fragment">
+<p><strong>With a partner (2–3 min):</strong> is <code>add()</code> safe to call from multiple threads at once? If not, name the exact three-step breakdown (Session 3) that causes the problem here.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min including pair discussion.</strong> Don’t reveal the answer yet — let pairs actually argue about it first.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="practice-1-solution" class="slide level2">
+<h2>Practice 1: Solution</h2>
+<p><strong>No — <code>add()</code> is not thread-safe.</strong> <code>total = total + amount</code> is a read-modify-write, exactly like <code>counter++</code> in Session 3:</p>
+<ol type="1">
+<li class="fragment"><strong>Read</strong> the current value of <code>total</code>.</li>
+<li class="fragment"><strong>Modify</strong> it — compute <code>total + amount</code>.</li>
+<li class="fragment"><strong>Write</strong> the new value back to <code>total</code>.</li>
+</ol>
+<div class="fragment">
+<p>If Thread A and Thread B both read <code>total</code> before either writes back, one of their additions is lost — identical shape to the lost-update table from Session 3, just with <code>+= amount</code> instead of <code>++</code>.</p>
+</div>
+<div class="fragment">
+<p><strong>The fix:</strong> mark <code>add()</code> (and, for consistency, <code>getTotal()</code>) <code>synchronized</code>, so the whole read-modify-write sequence completes on one thread before another can begin it.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Worth noting <code>getTotal()</code> in the fix — students often synchronize only the method that <em>writes</em> and forget that an unsynchronized read can still observe a half-updated or stale value.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="practice-2-trace-the-interleaving" class="slide level2">
+<h2>Practice 2: Trace the Interleaving</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="dt">static</span> <span class="dt">int</span> balance <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a><span class="co">// Thread A: withdraw(30)     // Thread B: withdraw(50)</span></span>
+<span id="cb14-4"><a></a><span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span>               <span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span></span>
+<span id="cb14-5"><a></a>b <span class="op">=</span> b <span class="op">-</span> <span class="dv">30</span><span class="op">;</span>                    b <span class="op">=</span> b <span class="op">-</span> <span class="dv">50</span><span class="op">;</span></span>
+<span id="cb14-6"><a></a>balance <span class="op">=</span> b<span class="op">;</span>                   balance <span class="op">=</span> b<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both threads run <code>withdraw</code> on the same <code>balance</code>, unsynchronized, starting at <code>balance = 100</code>.</p>
+<div class="fragment">
+<p><strong>With a partner (2–3 min):</strong> find an interleaving of these six lines that leaves <code>balance</code> at an incorrect value. Write out the timeline, the way Session 3 did for the counter example.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min including pair discussion.</strong> If pairs finish early, ask them to also find an interleaving that happens to produce the <em>correct</em> result — reinforcing Session 3’s “same code, different outcomes” point.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="practice-2-solution" class="slide level2">
+<h2>Practice 2: Solution</h2>
+<p>One possible wrong interleaving:</p>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th><code>balance</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t1</td>
+<td><code>b = balance</code> → 100</td>
+<td></td>
+<td>100</td>
+</tr>
+<tr class="even">
+<td>t2</td>
+<td></td>
+<td><code>b = balance</code> → 100</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td>t3</td>
+<td><code>b = b - 30</code> → 70</td>
+<td></td>
+<td>100</td>
+</tr>
+<tr class="even">
+<td>t4</td>
+<td><code>balance = b</code> → 70</td>
+<td></td>
+<td>70</td>
+</tr>
+<tr class="odd">
+<td>t5</td>
+<td></td>
+<td><code>b = b - 50</code> → 50</td>
+<td>70</td>
+</tr>
+<tr class="even">
+<td>t6</td>
+<td></td>
+<td><code>balance = b</code> → 50</td>
+<td>50 ← <strong>wrong!</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Two withdrawals totaling $80 should leave <code>balance = 20</code>. Instead it’s <code>50</code> — Thread B’s withdrawal overwrote Thread A’s, because Thread B read the stale <code>balance = 100</code> before Thread A’s write ever happened. This is the exact bank-account failure mode from Session 3, traced line by line.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> If a pair found a <em>correct</em>-outcome interleaving too, have them share it briefly — it’s a good live reminder that the bug is non-deterministic, not guaranteed to trigger.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="practice-3-will-this-fix-work" class="slide level2">
+<h2>Practice 3: Will This Fix Work?</h2>
+<p>A student “fixes” the <code>Counter</code> from Practice 1 like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
+<span id="cb15-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-3"><a></a></span>
+<span id="cb15-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-5"><a></a>        <span class="kw">synchronized</span> <span class="op">(</span><span class="kw">new</span> <span class="bu">Object</span><span class="op">())</span> <span class="op">{</span>   <span class="co">// ← added this</span></span>
+<span id="cb15-6"><a></a>            total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span></span>
+<span id="cb15-7"><a></a>        <span class="op">}</span></span>
+<span id="cb15-8"><a></a>    <span class="op">}</span></span>
+<span id="cb15-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>With a partner (2–3 min):</strong> does wrapping the line in <code>synchronized (new Object())</code> actually fix the race condition? Why or why not?</p>
+<aside class="notes">
+<p><strong>Timing: 4 min including pair discussion.</strong> This is the trickiest of the three problems — expect some pairs to say “yes, it’s synchronized now” without noticing the <code>new</code> keyword. That’s exactly the misconception this problem is designed to surface.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="practice-3-solution" class="slide level2">
+<h2>Practice 3: Solution</h2>
+<p><strong>No — this does not fix anything.</strong> Recall from Session 4: the lock is attached to a specific <strong>object</strong>, and only protects threads that are trying to acquire the lock on <strong>that same object</strong>.</p>
+<ul>
+<li class="fragment"><code>new Object()</code> creates a <strong>brand-new object every single time <code>add()</code> is called.</strong></li>
+<li class="fragment">Thread A and Thread B each get their <em>own</em> new lock object — they’re never competing for the same lock, so <code>synchronized</code> here provides <strong>no mutual exclusion at all</strong>. The race condition is completely unaffected.</li>
+<li class="fragment"><strong>The real fix:</strong> lock on an object that’s shared and stable across all calls — e.g., <code>this</code> (method-level <code>synchronized</code>, Practice 1’s solution), or a single lock field created once, like <code>private final Object lock = new Object();</code>, referenced by every call.</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Rule to carry into the exam: <code>synchronized (X)</code> only protects against other threads also trying to synchronize on that <strong>same</strong> <code>X</code>. If every thread gets a different <code>X</code>, you have the <em>syntax</em> of locking with none of the <em>effect</em>.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This is worth calling out as checkpoint/exam-relevant — “synchronized but on the wrong object” is a realistic, subtle bug, distinct from “forgot to synchronize at all.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="quiz-1" class="slide level2">
+<h2>Quiz 1</h2>
+<p><strong>Quiz 1 — Module 1: Concurrency</strong> is now open on Blackboard.</p>
+<ul>
+<li>Multiple choice / true-false, covering Sessions 1–5</li>
+<li>You have the remainder of class time</li>
+<li>Everything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready</li>
+</ul>
+<p><strong>Connects to:</strong> Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12</p>
+<aside class="notes">
+<p><strong>Timing: 2 min transition, then hand off to Blackboard for the remaining ~12 min.</strong> Don’t linger — direct them to Blackboard and let the quiz run.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>COSC420 · Module 1 · Concurrency</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

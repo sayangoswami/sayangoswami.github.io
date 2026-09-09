@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Module 5: Parallel Patterns</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Module 5: Parallel Patterns</h1>
+  <p class="subtitle">Reduction, Prefix Scan &amp; Atomics — COSC 435</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section class="slide level2">
+
+<!--
+INSTRUCTOR NOTES
+================
+PROMOTED this session (full rewrite). Restructured into three dated sessions
+matching schedule.md exactly (Nov 2 reduction, Nov 9 prefix scan, Nov 11
+histograms/atomics), with explanatory content moved from speaker notes onto
+visible slides and time budgets added, following the course-wide promotion
+standard.
+
+Nov 11 (Histograms & Atomic Operations) is ENTIRELY NEW — this lecture topic
+previously had zero slide content anywhere in the repo. It's also a genuine,
+pre-existing course-wide gap beyond just slides: no competency ID, lab, or
+checkpoint covers atomics anywhere in this course (confirmed via syllabus.md
+and checkpoint-competency-map.md — the only prior trace is a note in
+quizzes/quiz-competency-map.md recording that an earlier audit REMOVED a
+Quiz 06 atomic-add question specifically because it had "no matching lecture
+content anywhere in the course"). That lecture content now exists below,
+which resolves the *reason* that question was removed — whether to add
+atomics coverage back to a quiz/checkpoint is a separate, future call for
+whoever next audits quizzes/checkpoints; not made here. Nov 11's content is
+written at the same depth as every other session, but flagged in its own
+notes as conceptual/non-checkpointed, consistent with how this course treats
+other schedule.md-committed topics that have no dedicated competency ID
+(e.g. Module 1's C2.1-adjacent content, Module 4's bank conflicts).
+
+Also fixed while promoting: the Nov 2 session previously didn't mention
+"warp-level tricks" (a topic schedule.md explicitly commits to) or the "max,
+dot product" applications beyond CK-10's min combiner — both added. The
+"This Week" section's Lab 10 description was stale (only mentioned
+`my_block_sum`, missing Lab 10's actual Exercise 2 block-size sweep and
+Exercise 3 max-reduction) — corrected.
+-->
+</section>
+<section>
+<section id="session-1-nov-2-parallel-reduction" class="title-slide slide level1 center">
+<h1>Session 1 · Nov 2 · Parallel Reduction</h1>
+
+</section>
+<section id="todays-plan" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>Why some problems can’t use the “every thread independent” pattern from Modules 2-4</li>
+<li>Tree reduction: combining N values down to one, in log(N) parallel rounds instead of N sequential steps</li>
+<li>The reduction kernel, applied to sum, max, and (conceptually) dot product</li>
+<li>A warp-level optimization for the final few rounds</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Full 50-min session — no quiz today (Quiz 5 opens at the start of Lab 10, Nov 6, not this lecture). This session is the conceptual pivot of the module: everything since Module 2 has been “one thread, one independent output” — today breaks that assumption for the first time.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="beyond-embarrassingly-parallel" class="slide level2">
+<h2>Beyond Embarrassingly Parallel</h2>
+<ul>
+<li>So far, every kernel has followed the same shape: thread <code>i</code> computes output <code>i</code>, using only input <code>i</code> (or a small fixed neighborhood, for stencils) — no thread needs any other thread’s <em>result</em></li>
+<li>Some problems don’t fit that shape at all:
+<ul>
+<li><strong>Sum all elements</strong> → the answer requires combining every input; no single thread can know the total on its own</li>
+<li><strong>Find the maximum</strong> → same problem, different combining operation</li>
+<li><strong>Running total (prefix sum)</strong> → each output depends on <em>all</em> prior inputs (Nov 9)</li>
+</ul></li>
+<li>These problems need threads to <strong>communicate</strong> and <strong>combine</strong> partial results — a genuinely different kind of parallel pattern from anything so far this semester</li>
+</ul>
+<aside class="notes">
+<p>~3 min. These two patterns (reduction, and Nov 9’s prefix scan) appear constantly outside this course too — databases, compression, sorting, and nearly every non-trivial GPU algorithm use one or both. The capstone’s <code>cp.argpartition</code> internally relies on a reduction-like operation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-serial-approach-for-contrast" class="slide level2">
+<h2>The Serial Approach, for Contrast</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="kw">def</span> serial_sum(arr):</span>
+<span id="cb1-2"><a></a>    total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-3"><a></a>    <span class="cf">for</span> x <span class="kw">in</span> arr:       <span class="co"># N steps, strictly sequential</span></span>
+<span id="cb1-4"><a></a>        total <span class="op">+=</span> x</span>
+<span id="cb1-5"><a></a>    <span class="cf">return</span> total</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>O(N) time, O(1) memory — simple, and completely sequential: step 2 can’t start until step 1’s result is known</li>
+<li>Naively porting this to the GPU doesn’t help: one thread would do all N additions while thousands of others sit idle</li>
+<li>The question this session answers: can we restructure the computation itself — not just throw more threads at the same sequential recipe — so that work happens in parallel rounds?</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Emphasize “restructure,” not “parallelize as-is” — a common early misconception is that any serial loop can just run on more threads. This one specifically can’t, without changing the algorithm’s shape.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="tree-reduction-the-idea" class="slide level2">
+<h2>Tree Reduction: The Idea</h2>
+<p>[DIAGRAM] — 8 elements in a row: <code>[3, 1, 4, 1, 5, 9, 2, 6]</code>. Three rounds drawn as successive rows beneath, each with arrows connecting pairs from the row above into a single combined value below. Round 1 (stride 4): arrows connect position 0↔︎4, 1↔︎5, 2↔︎6, 3↔︎7, producing <code>[8, 10, 6, 7]</code>. Round 2 (stride 2): arrows connect position 0↔︎2, 1↔︎3 of that new row, producing <code>[14, 17]</code>. Round 3 (stride 1): one arrow connects the remaining pair, producing <code>[31]</code>. Caption: “3 rounds for 8 elements = log₂(8).”</p>
+<ul>
+<li>Instead of adding elements one at a time, pair them up and add all pairs <em>simultaneously</em> — one round of parallel work replaces many sequential additions</li>
+<li>Each round halves the number of “active” values remaining, so N elements reduce to one in <strong>log₂(N)</strong> rounds, not N</li>
+<li>For N = 1,000,000: a serial sum takes 1,000,000 sequential steps; tree reduction takes about 20 parallel rounds</li>
+</ul>
+<aside class="notes">
+<p>~4 min. Walk the diagram’s three rounds out loud, stride value by stride value — students trace this exact 8-element example by hand in Lab 10 before writing any code.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-stride-halving-kernel" class="slide level2">
+<h2>The Stride-Halving Kernel</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb2-2"><a></a><span class="kw">def</span> block_sum(arr, out):</span>
+<span id="cb2-3"><a></a>    s <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span><span class="dv">256</span>, dtype<span class="op">=</span>numba.float32)</span>
+<span id="cb2-4"><a></a>    ti <span class="op">=</span> cuda.threadIdx.x</span>
+<span id="cb2-5"><a></a>    i  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb2-6"><a></a></span>
+<span id="cb2-7"><a></a>    s[ti] <span class="op">=</span> arr[i] <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>] <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb2-8"><a></a>    cuda.syncthreads()</span>
+<span id="cb2-9"><a></a></span>
+<span id="cb2-10"><a></a>    stride <span class="op">=</span> <span class="dv">128</span>         <span class="co"># blockDim.x // 2</span></span>
+<span id="cb2-11"><a></a>    <span class="cf">while</span> stride <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-12"><a></a>        <span class="cf">if</span> ti <span class="op">&lt;</span> stride:</span>
+<span id="cb2-13"><a></a>            s[ti] <span class="op">+=</span> s[ti <span class="op">+</span> stride]</span>
+<span id="cb2-14"><a></a>        cuda.syncthreads()</span>
+<span id="cb2-15"><a></a>        stride <span class="op">//=</span> <span class="dv">2</span>      <span class="co"># halve each round</span></span>
+<span id="cb2-16"><a></a>    <span class="cf">if</span> ti <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-17"><a></a>        out[cuda.blockIdx.x] <span class="op">=</span> s[<span class="dv">0</span>]   <span class="co"># this block's sum, in one element</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Each thread loads one element into shared memory (Module 4), padding out-of-range threads with the additive identity (<code>0.0</code>) so they don’t corrupt the sum</li>
+<li>Every round, only the threads with <code>ti &lt; stride</code> do work — that’s exactly half as many active threads as the previous round, matching the diagram above</li>
+<li><code>syncthreads()</code> after every round is required: a thread reading <code>s[ti + stride]</code> must wait until whichever thread wrote it in the <em>previous</em> round has finished (Module 4’s shared-memory rules apply here directly)</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This is the exact kernel Lab 10 has students build up piece by piece. Walk through it in the same order as the code: load-to-shared, the stride loop, the single-thread final write. Emphasize only thread 0 writes the result — every other thread in the block does useful work during the loop but writes nothing at the end.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="multi-level-reduction" class="slide level2">
+<h2>Multi-Level Reduction</h2>
+<ul>
+<li>One kernel launch gives you one sum <strong>per block</strong>, not one sum for the whole array — <code>out[blockIdx.x]</code> holds that block’s partial result</li>
+<li>For N = 1,000,000 with 256-thread blocks: <code>(1,000,000 + 255) // 256 = 3,907</code> blocks, so 3,907 partial sums remain after one kernel launch, not the single total you actually want</li>
+<li>Getting the final answer needs a <strong>second pass</strong>: either launch the same reduction kernel again on the array of partial sums (repeating until one value remains), or — since 3,907 values is small — just copy them to the host and let NumPy finish the job</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>block_sums_gpu <span class="op">=</span> cuda.device_array(n_blocks, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb3-2"><a></a>block_sum[n_blocks, BLOCK](arr_gpu, block_sums_gpu)</span>
+<span id="cb3-3"><a></a>cuda.synchronize()</span>
+<span id="cb3-4"><a></a></span>
+<span id="cb3-5"><a></a>block_sums_cpu <span class="op">=</span> block_sums_gpu.copy_to_host()</span>
+<span id="cb3-6"><a></a>total <span class="op">=</span> block_sums_cpu.<span class="bu">sum</span>()   <span class="co"># finish the last, small reduction on the CPU</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>~3 min. This two-pass (or GPU-then-CPU) pattern is ubiquitous in real GPU reduction code — it’s exactly what <code>cp.sum()</code> (Module 6) does internally, optimized further than a hand-written version. That’s <em>why</em> the capstone uses CuPy’s built-in reductions rather than a hand-rolled kernel: this pattern, done well, is genuinely fiddly to get optimal.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="work-and-step-complexity" class="slide level2">
+<h2>Work and Step Complexity</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Algorithm</th>
+<th>Total work (operations)</th>
+<th>Steps (sequential rounds)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Serial sum</td>
+<td>O(N)</td>
+<td>O(N)</td>
+</tr>
+<tr class="even">
+<td>Tree reduction</td>
+<td>O(N)</td>
+<td>O(log N)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Both algorithms do the <strong>same total amount of work</strong> — tree reduction doesn’t do fewer additions overall, it does the <em>same</em> additions arranged so many happen simultaneously</li>
+<li>The speedup comes entirely from parallelism (many operations at once), not from an algorithmically “smarter” computation</li>
+<li>This is a recurring theme in parallel algorithms: sometimes the <em>total</em> work even goes up compared to the serial version, and that’s still a win if it converts into far fewer sequential steps — wall-clock time is what matters, not operation count</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Worth stating explicitly since it cuts against a common intuition: “parallel” doesn’t automatically mean “does less work” — it means “does the same (or more) work in fewer sequential rounds, using more processors at once.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="different-combiners-max-and-dot-product" class="slide level2">
+<h2>Different Combiners: Max and Dot Product</h2>
+<ul>
+<li>The tree-reduction <em>shape</em> doesn’t care what operation combines two values — swap <code>+=</code> for a different <strong>associative</strong> operation and the exact same stride-halving pattern still works</li>
+<li><strong>Maximum:</strong> replace <code>s[ti] += s[ti + stride]</code> with <code>s[ti] = max(s[ti], s[ti + stride])</code>, and pad out-of-range threads with a very negative identity value (<code>-1e9</code>) instead of <code>0.0</code> — this is Lab 10 Exercise 3</li>
+<li><strong>Dot product:</strong> compute <code>a[i] * b[i]</code> per thread first, then reduce those products with <code>+=</code> exactly as in <code>block_sum</code> — this is the same “multiply then reduce” shape as the capstone’s similarity computation, just done with a hand-written kernel instead of CuPy’s <code>Q @ D.T</code></li>
+<li>The requirement is <strong>associativity</strong>: <code>(a ⊕ b) ⊕ c == a ⊕ (b ⊕ c)</code>, so it doesn’t matter <em>which order</em> pairs get combined in — addition, max, and min all qualify; subtraction does not</li>
+</ul>
+<aside class="notes">
+<p>~3 min. The associativity requirement is worth naming explicitly and briefly testing student intuition on — ask “would this trick work for subtraction?” and let them reason out why not (order-dependence breaks the tree’s freedom to combine pairs in any order).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="warp-level-tricks" class="slide level2">
+<h2>Warp-Level Tricks</h2>
+<ul>
+<li>Once a reduction’s stride drops to 32 or below, every remaining active thread belongs to a <strong>single warp</strong> (Sep 30) — and a warp already executes in lock-step, one instruction at a time, across all its lanes</li>
+<li>Modern CUDA offers <strong>warp shuffle</strong> instructions (<code>cuda.shfl_down_sync</code> in Numba) that let threads within one warp exchange values directly, register-to-register, without ever touching shared memory at all</li>
+<li>Using shuffle for a reduction’s final few rounds skips the shared-memory read/write and the <code>syncthreads()</code> call entirely for that portion — a real, measurable speedup on the “small stride” tail of the reduction</li>
+<li><strong>A word of caution:</strong> an older, informal trick claims you can also just skip <code>syncthreads()</code> once stride ≤ 32 while still using shared memory, reasoning that “the warp is lock-step anyway.” This is no longer reliably safe on modern GPU architectures (Volta and later independently schedule threads within a warp) — the shuffle-instruction approach above is the correct, current way to get this optimization</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This slide is intentionally awareness-level, not a skill this course’s labs or checkpoints require — Lab 10’s <code>block_sum</code> uses <code>syncthreads()</code> for every round, which is always correct, just not maximally fast. Flag explicitly that this is here so students recognize the pattern in production CUDA code, not because it’s required for CK-10.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-week" class="slide level2">
+<h2>This Week</h2>
+<ul>
+<li><strong>Lab 10 (Fri, Nov 6 — note: Nov 4’s lecture is cancelled, Wellness Day):</strong> Trace the reduction tree by hand, sweep block sizes (64/128/256/512) and time each, then implement <code>block_max</code> independently — <strong>Quiz 5</strong> (covers Module 4) opens the start of this session, and <strong>CK-10</strong> closes it</li>
+<li><strong>Nov 9 (next lecture):</strong> Prefix scan — a different cooperative pattern, where every output depends on <em>all</em> prior inputs, not just a combined total</li>
+</ul>
+<aside class="notes">
+<p>~1 min. The Nov 4 holiday and the resulting Quiz 5 placement (inside Lab 10, not opening a lecture) are both genuinely unusual — worth stating plainly so nobody is caught off guard.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-preview" class="slide level2">
+<h2>Checkpoint Preview</h2>
+<p>Checkpoint CK-10 will ask you to:</p>
+<ul>
+<li>Adapt a block-level tree reduction to a <strong>minimum</strong> combiner (not sum — you’ll need the correct identity value for the padding case)</li>
+<li>Combine the resulting per-block partial results into a single final answer on the host</li>
+</ul>
+<aside class="notes">
+<p>~1 min. 20-minute timed, paired with Lab 10 (Nov 6). Deliberately uses a different combiner (min) than either the lab’s sum or its max exercise, so the checkpoint tests whether the <em>pattern</em> generalized, not memorized code.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-2-nov-9-prefix-scan" class="title-slide slide level1 center">
+<h1>Session 2 · Nov 9 · Prefix Scan</h1>
+
+</section>
+<section id="todays-plan-1" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>A second cooperative pattern: every output depends on <em>all</em> prior inputs, not just a combined total</li>
+<li>Inclusive vs.&nbsp;exclusive scan, and why the exclusive version is usually more useful</li>
+<li>The Blelloch algorithm: up-sweep and down-sweep, traced by hand before any code</li>
+<li>Real applications: stream compaction, histograms, sorting</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Full 50-min session, no quiz. This is a genuinely harder algorithm than reduction — budget extra time for the two hand-traced diagrams, don’t rush them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-is-a-prefix-sum" class="slide level2">
+<h2>What Is a Prefix Sum?</h2>
+<pre><code>Input:              [2, 5, 1, 8, 3, 7, 4, 6]
+Exclusive scan out: [0, 2, 7, 8, 16, 19, 26, 30]</code></pre>
+<ul>
+<li><code>output[i]</code> = the sum of every input <strong>strictly before</strong> index <code>i</code> — <code>output[0]</code> is always <code>0</code> (nothing comes before the first element)</li>
+<li>Contrast with <strong>inclusive</strong> scan, where <code>output[i]</code> = sum of <code>input[0..i]</code> (index <code>i</code> included): <code>[2, 7, 8, 16, 19, 26, 30, 36]</code> for the same input</li>
+<li>The exclusive version is usually the more directly useful one in parallel algorithms — it gives each element a ready-made “slot” or “offset” to write into, which is exactly what stream compaction (below) needs</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Have students verify the first few outputs by hand from the input list before revealing the diagram — this cements “strictly before” (exclusive) vs.&nbsp;“up to and including” (inclusive) far better than the definition alone.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-prefix-scan-matters" class="slide level2">
+<h2>Why Prefix Scan Matters</h2>
+<ul>
+<li><strong>Stream compaction</strong>: given a boolean mask of which elements survive, exclusive scan of the mask gives each surviving element its exact output position — you built and used exactly this in Lab 11’s bonus exercise</li>
+<li><strong>Histogram computation</strong>: converting per-bin counts into cumulative offsets (where does each bin’s data start, in a combined output array) is a prefix scan</li>
+<li><strong>Sorting</strong>: radix sort — a fast, non-comparison-based sorting algorithm — uses prefix scan internally at every digit pass</li>
+<li><strong>Dynamic allocation</strong>: when many threads each need a variable-size chunk of a shared output buffer, exclusive scan of the requested sizes gives every thread its own non-overlapping starting offset</li>
+<li>You are not expected to implement all of these applications — the point is that prefix scan is a <strong>primitive</strong>: one algorithm that shows up, often invisibly, inside many others</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Stream compaction is the one application students actually build (Lab 11’s bonus) — the others are here so the pattern is recognizable by name later, not because they’re separately assessed.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-serial-algorithm" class="slide level2">
+<h2>The Serial Algorithm</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="kw">def</span> exclusive_scan_seq(arr):</span>
+<span id="cb5-2"><a></a>    out <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(arr)</span>
+<span id="cb5-3"><a></a>    running <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-4"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(arr)):</span>
+<span id="cb5-5"><a></a>        out[i] <span class="op">=</span> running</span>
+<span id="cb5-6"><a></a>        running <span class="op">+=</span> arr[i]</span>
+<span id="cb5-7"><a></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Straightforward and O(N) sequential — each output depends on the running total built up from everything before it, which is exactly what makes this look hard to parallelize at first glance</li>
+<li>Lab 11 Exercise 1 has you write this exact function — understanding this version thoroughly is what makes the parallel version (next) legible, rather than a magic trick</li>
+<li>The whole rest of this session is answering one question: how do you compute something that looks inherently sequential using O(log N) <em>parallel</em> rounds instead?</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Deliberately start here rather than jumping straight to Blelloch — the serial version being trivial is what makes the parallel version’s cleverness visible by contrast.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="blelloch-scan-two-phases" class="slide level2">
+<h2>Blelloch Scan: Two Phases</h2>
+<p>The Blelloch exclusive scan solves this in two phases, both O(log N) rounds:</p>
+<ol type="1">
+<li><strong>Up-sweep (reduce)</strong>: build partial sums bottom-up — the <em>exact same tree shape</em> as Nov 2’s reduction</li>
+<li><strong>Down-sweep</strong>: propagate those partial sums back down top-to-bottom, converting them into prefix values</li>
+</ol>
+<p>Total: O(N) work, O(log N) steps — same complexity class as tree reduction, for a harder problem.</p>
+<aside class="notes">
+<p>~2 min. Point out explicitly: up-sweep is literally the reduction algorithm from Nov 2, run for its side effects (the partial sums left behind at each level) rather than just its final total. Students who understood Nov 2 already understand half of this algorithm.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="up-sweep-on-2-5-1-8" class="slide level2">
+<h2>Up-Sweep on <code>[2, 5, 1, 8]</code></h2>
+<p>[DIAGRAM] — Four boxes in a row holding <code>2, 5, 1, 8</code>, with two rounds drawn beneath as tree-reduction-style arrows. Round 1 (stride 1): an arrow from box 0 into box 1 (box 1 becomes <code>2+5=7</code>), and an arrow from box 2 into box 3 (box 3 becomes <code>1+8=9</code>) — boxes now read <code>2, 7, 1, 9</code>. Round 2 (stride 2): an arrow from box 1 into box 3 (box 3 becomes <code>7+9=16</code>) — boxes now read <code>2, 7, 1, 16</code>. Caption: “s[3] = 16 = the total sum of all four elements — same result the Nov 2 reduction tree would produce, but the intermediate partial sums (7, 9) are kept, not discarded.”</p>
+<pre><code>Initial:  [2, 5, 1, 8]
+stride=1: s[1] += s[0] → [2, 7, 1, 8]
+          s[3] += s[2] → [2, 7, 1, 9]
+stride=2: s[3] += s[1] → [2, 7, 1, 16]
+Result:   [2, 7, 1, 16]   ← s[3] = total sum</code></pre>
+<aside class="notes">
+<p>~4 min. Lab 11 Exercise 2 has students trace this on the full 8-element array from the “What Is a Prefix Sum” slide. Walk through this simpler 4-element version here first to establish the index pattern before scaling up.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="down-sweep" class="slide level2">
+<h2>Down-Sweep</h2>
+<p>[DIAGRAM] — The same four boxes, starting from the up-sweep’s final state <code>[2, 7, 1, 16]</code>, with the last box first reset to <code>0</code>: <code>[2, 7, 1, 0]</code>. Round 1 (stride 2): an arrow shows box 1’s value (7) moving into box 3, while box 1 simultaneously receives box 3’s <em>old</em> value (0) — resulting in box 3 = <code>7 + 0 = 7</code>, box 1 = <code>0</code>: state becomes <code>[2, 0, 1, 7]</code>. Round 2 (stride 1): two simultaneous swap-and-add operations, box 0↔︎1 and box 2↔︎3, following the same swap pattern — final state <code>[0, 2, 1, 7]</code> then combined to <code>[0, 2, 7, 8]</code>. Caption: “Each step: the left partner’s old value moves right and gets added; the left partner receives the right partner’s old value.”</p>
+<pre><code>Set s[3] = 0:              [2, 7, 1, 0]
+
+stride=2:
+  tmp = s[1] = 7
+  s[1] = s[3] = 0
+  s[3] = tmp + s[3] = 7+0 = 7    → [2, 0, 1, 7]
+
+stride=1:
+  tmp=s[0]=2; s[0]=s[1]=0; s[1]=0+2=2   → [0, 2, 1, 7]
+  tmp=s[2]=1; s[2]=s[3]=7; s[3]=7+1=8   → [0, 2, 7, 8]
+
+Final: [0, 2, 7, 8]  ✓ matches the exclusive scan definition</code></pre>
+<aside class="notes">
+<p>~5 min. This is the module’s hardest diagram — budget the full five minutes, don’t compress it. The pattern to emphasize: at each swap-and-add step, the <em>left</em> position’s old value is what moves to the right (and gets added there); the left position then receives whatever the right position used to hold. Students who trace both phases by hand in Lab 11 report this is what finally makes the GPU kernel (next slide) legible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-gpu-version" class="slide level2">
+<h2>The GPU Version</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>BLOCK <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb8-4"><a></a><span class="kw">def</span> exclusive_scan_gpu(arr, out):</span>
+<span id="cb8-5"><a></a>    s   <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span>BLOCK, dtype<span class="op">=</span>numba.float32)</span>
+<span id="cb8-6"><a></a>    ti  <span class="op">=</span> cuda.threadIdx.x</span>
+<span id="cb8-7"><a></a>    i   <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb8-8"><a></a></span>
+<span id="cb8-9"><a></a>    s[ti] <span class="op">=</span> arr[i] <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>] <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb8-10"><a></a>    cuda.syncthreads()</span>
+<span id="cb8-11"><a></a></span>
+<span id="cb8-12"><a></a>    <span class="co"># Up-sweep</span></span>
+<span id="cb8-13"><a></a>    stride <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb8-14"><a></a>    <span class="cf">while</span> stride <span class="op">&lt;</span> BLOCK:</span>
+<span id="cb8-15"><a></a>        <span class="cf">if</span> (ti <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> (stride <span class="op">*</span> <span class="dv">2</span>) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-16"><a></a>            s[ti] <span class="op">+=</span> s[ti <span class="op">-</span> stride]</span>
+<span id="cb8-17"><a></a>        cuda.syncthreads()</span>
+<span id="cb8-18"><a></a>        stride <span class="op">*=</span> <span class="dv">2</span></span>
+<span id="cb8-19"><a></a></span>
+<span id="cb8-20"><a></a>    <span class="co"># Clear root — this is the single most-forgotten step</span></span>
+<span id="cb8-21"><a></a>    <span class="cf">if</span> ti <span class="op">==</span> BLOCK <span class="op">-</span> <span class="dv">1</span>:</span>
+<span id="cb8-22"><a></a>        s[ti] <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb8-23"><a></a>    cuda.syncthreads()</span>
+<span id="cb8-24"><a></a></span>
+<span id="cb8-25"><a></a>    <span class="co"># Down-sweep</span></span>
+<span id="cb8-26"><a></a>    stride <span class="op">=</span> BLOCK <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb8-27"><a></a>    <span class="cf">while</span> stride <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb8-28"><a></a>        <span class="cf">if</span> (ti <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> (stride <span class="op">*</span> <span class="dv">2</span>) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-29"><a></a>            tmp            <span class="op">=</span> s[ti <span class="op">-</span> stride]</span>
+<span id="cb8-30"><a></a>            s[ti <span class="op">-</span> stride] <span class="op">=</span> s[ti]</span>
+<span id="cb8-31"><a></a>            s[ti]          <span class="op">=</span> tmp <span class="op">+</span> s[ti]</span>
+<span id="cb8-32"><a></a>        cuda.syncthreads()</span>
+<span id="cb8-33"><a></a>        stride <span class="op">//=</span> <span class="dv">2</span></span>
+<span id="cb8-34"><a></a></span>
+<span id="cb8-35"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> out.shape[<span class="dv">0</span>]:</span>
+<span id="cb8-36"><a></a>        out[i] <span class="op">=</span> s[ti]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Every line here is one of the two hand-traced diagrams above, translated directly into indexing arithmetic — the <code>(ti + 1) % (stride * 2) == 0</code> condition is just “which positions are active at this stride,” the same positions the diagrams marked with arrows</li>
+<li>Lab 11 Part 4 gives you this kernel pre-written and asks you to <em>verify</em> it against your own hand trace — the goal is confirming understanding, not re-deriving the indexing from scratch under time pressure</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Point at the “clear root” line specifically — Lab 11’s own instructor notes flag this as the single most-forgotten step by students attempting this from memory. It’s the one line that has no analogue in the up-sweep and is easy to skip if you’re pattern-matching rather than reasoning through the algorithm.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-week-1" class="slide level2">
+<h2>This Week</h2>
+<ul>
+<li><strong>Lab 11 (Fri, Nov 13):</strong> Write the serial scan, trace up-sweep and full Blelloch by hand on your own array, then verify the pre-written GPU kernel against your trace — bonus: use your scan for stream compaction — <strong>CK-11</strong> same day</li>
+<li><strong>Nov 11 (next lecture):</strong> Histograms and atomic operations — a third way for threads to cooperate, for when the <em>pattern</em> of who-writes-where isn’t known in advance</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Quick pointer slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-preview-1" class="slide level2">
+<h2>Checkpoint Preview</h2>
+<p>Checkpoint CK-11 will ask you to:</p>
+<ul>
+<li>Implement the Blelloch algorithm’s up-sweep and down-sweep phases from scratch, given the lab’s structure as a starting point</li>
+<li>Produce an inclusive scan result (a small shift from the lab’s exclusive-scan kernel — the checkpoint’s verification converts appropriately)</li>
+</ul>
+<aside class="notes">
+<p>~1 min. 20-minute timed, paired with Lab 11 (Nov 13). This is the heaviest checkpoint so far in the course — both algorithm phases, written from a structural starting point rather than filled into a handful of <code># YOUR CODE HERE</code> gaps.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-3-nov-11-histograms-atomic-operations" class="title-slide slide level1 center">
+<h1>Session 3 · Nov 11 · Histograms &amp; Atomic Operations</h1>
+
+</section>
+<section id="todays-plan-2" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>A third cooperative pattern: many threads that might all want to update the <em>same</em> memory location, at a location not known until runtime</li>
+<li>Why the naive version of this is a race condition — reduction and scan don’t have this problem, and this pattern shows why they were special cases</li>
+<li>Atomic operations: the hardware-guaranteed fix</li>
+<li>A worked example: computing a histogram</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Full 50-min session, no quiz. This closes out Module 5’s three cooperative patterns: combine-to-one (reduction), propagate-outward (scan), and now many-to-one-of-several (atomics/histograms).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-new-kind-of-conflict" class="slide level2">
+<h2>A New Kind of Conflict</h2>
+<ul>
+<li>Reduction and scan both have a property that made them tractable: at every step, the <em>set</em> of memory locations being written is known in advance and non-overlapping — no two threads in the same round ever write the same address</li>
+<li>A <strong>histogram</strong> breaks that property: given a stream of values, each thread looks at one value, decides which “bin” it belongs to, and increments that bin’s counter — but <em>which</em> bin depends on the data itself, not on the thread’s index</li>
+<li>Two different threads can easily land on the <em>same</em> bin at the <em>same</em> time — say, two threads both processing a value that falls in bin 5 — and both need to increment <code>counts[5]</code></li>
+<li>This is a fundamentally different problem: unpredictable, data-dependent collisions, not the clean tree structure of reduction or scan</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Frame this explicitly as “the third pattern” completing the module — students should leave recognizing reduction (combine to one), scan (propagate to all), and atomics (handle unpredictable collisions) as three distinct answers to “how do threads cooperate,” not one topic that happens to have three examples.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-race-condition-concretely" class="slide level2">
+<h2>The Race Condition, Concretely</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb9-2"><a></a><span class="kw">def</span> histogram_broken(values, counts):</span>
+<span id="cb9-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb9-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> values.shape[<span class="dv">0</span>]:</span>
+<span id="cb9-5"><a></a>        bin_idx <span class="op">=</span> values[i]           <span class="co"># which bin does this value belong to?</span></span>
+<span id="cb9-6"><a></a>        counts[bin_idx] <span class="op">+=</span> <span class="dv">1</span>          <span class="co"># BROKEN — see below</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>counts[bin_idx] += 1</code> looks like one operation, but the hardware executes it as <strong>three</strong>: read <code>counts[bin_idx]</code>, add 1 to that value, write the result back</li>
+<li>If two threads both target the same <code>bin_idx</code> at nearly the same time, both can <strong>read</strong> the same starting value <em>before</em> either has <strong>written</strong> their update back — both then write back <code>old_value + 1</code>, and one of the two increments is silently lost</li>
+<li>With enough threads and enough collisions, a histogram built this way undercounts — every run potentially giving a slightly different (wrong) answer, since the exact interleaving of threads is not deterministic</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This is the same read-modify-write race condition idea introduced very briefly for shared memory in Module 4 — here it’s global memory, and the collision is data-dependent rather than a missing <code>syncthreads()</code>. Worth drawing the two-thread interleaving out explicitly: Thread A reads 5, Thread B reads 5 (before A writes), A writes 6, B writes 6 — the count should be 7, but ends at 6.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="atomic-operations-the-fix" class="slide level2">
+<h2>Atomic Operations: The Fix</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
+<span id="cb10-2"><a></a></span>
+<span id="cb10-3"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb10-4"><a></a><span class="kw">def</span> histogram_correct(values, counts):</span>
+<span id="cb10-5"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb10-6"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> values.shape[<span class="dv">0</span>]:</span>
+<span id="cb10-7"><a></a>        bin_idx <span class="op">=</span> values[i]</span>
+<span id="cb10-8"><a></a>        cuda.atomic.add(counts, bin_idx, <span class="dv">1</span>)   <span class="co"># read-modify-write, guaranteed indivisible</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>cuda.atomic.add(array, index, value)</code> performs the entire read-modify-write as one <strong>indivisible</strong> hardware operation — no other thread can observe or interfere with it partway through</li>
+<li>If two threads call <code>atomic.add</code> on the same address at the same moment, the hardware <strong>serializes</strong> them: one fully completes, then the other — never an interleaved, lost update</li>
+<li>This is the general fix for exactly the race condition on the previous slide — replace the naive <code>+=</code> with the atomic version whenever multiple threads might write the same address</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Emphasize “indivisible,” not “fast” — atomics fix correctness, they don’t inherently make the operation cheap (next-to-last slide covers the cost). The syntax itself is simple; the concept (why it’s needed, what “indivisible” guarantees) is the real content here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-complete-histogram-kernel" class="slide level2">
+<h2>A Complete Histogram Kernel</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a>NUM_BINS <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb11-2"><a></a></span>
+<span id="cb11-3"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb11-4"><a></a><span class="kw">def</span> histogram(values, counts):</span>
+<span id="cb11-5"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb11-6"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> values.shape[<span class="dv">0</span>]:</span>
+<span id="cb11-7"><a></a>        bin_idx <span class="op">=</span> <span class="bu">min</span>(<span class="bu">int</span>(values[i] <span class="op">*</span> NUM_BINS), NUM_BINS <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp to valid range</span></span>
+<span id="cb11-8"><a></a>        cuda.atomic.add(counts, bin_idx, <span class="dv">1</span>)</span>
+<span id="cb11-9"><a></a></span>
+<span id="cb11-10"><a></a><span class="co"># Launch</span></span>
+<span id="cb11-11"><a></a>counts_gpu <span class="op">=</span> cuda.to_device(np.zeros(NUM_BINS, dtype<span class="op">=</span>np.int32))</span>
+<span id="cb11-12"><a></a>histogram[blocks, threads](values_gpu, counts_gpu)</span>
+<span id="cb11-13"><a></a>cuda.synchronize()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Each of potentially millions of threads independently computes which bin its value belongs to, then atomically increments that bin — no coordination between threads needed beyond the atomic operation itself</li>
+<li><code>counts_gpu</code> must be zero-initialized before the kernel runs — atomics increment whatever is already there, they don’t reset it</li>
+<li>Notice the bin-index computation clamps into <code>[0, NUM_BINS-1]</code> — same “handle the edge case explicitly” habit as Module 3’s stencil boundary conditions, just for a different kind of edge case</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is a complete, runnable pattern — worth a live demo if time allows, generating random data and confirming the GPU histogram matches <code>np.histogram</code> on the same data.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="atomics-beyond-addition" class="slide level2">
+<h2>Atomics Beyond Addition</h2>
+<ul>
+<li><code>cuda.atomic.add</code> is the most common atomic, but Numba provides others for the same indivisible-read-modify-write guarantee with different combining operations:
+<ul>
+<li><code>cuda.atomic.max(array, index, value)</code> / <code>cuda.atomic.min(...)</code> — atomic maximum/minimum, useful whenever many threads might all want to update a shared “best so far” value</li>
+<li><code>cuda.atomic.compare_and_swap(array, old, new)</code> — the building block many other atomics (and lock-free algorithms generally) are built from: “update this value only if it still equals what I expect”</li>
+</ul></li>
+<li>Anywhere multiple threads might write to the <em>same, data-dependent</em> location — not a fixed, thread-indexed location like every kernel before this session — an atomic operation (or a redesign to avoid the collision entirely) is required for correctness</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Keep this at the level of “these exist and follow the same pattern as atomic.add” — no worked example needed for each; the histogram example already carries the core idea.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-cost-of-atomics" class="slide level2">
+<h2>The Cost of Atomics</h2>
+<ul>
+<li>Atomics guarantee correctness by <strong>serializing</strong> conflicting operations — which means heavy contention (many threads atomically writing the <em>same</em> address at the <em>same</em> time) can become a real bottleneck, similar in spirit to Module 4’s bank conflicts</li>
+<li>A histogram with very few bins and a huge number of threads (e.g.&nbsp;10 bins, a million threads) will see enormous contention — most threads end up waiting in line for the same handful of addresses</li>
+<li>A histogram with many bins relative to thread count sees far less contention, since collisions become statistically rare</li>
+<li>This is a genuine performance/correctness tradeoff: atomics are always <em>correct</em>, but not always <em>fast</em> — the naive version from two slides ago was fast (no serialization) and wrong; the atomic version is always right, and its speed depends on how much actual contention your specific data causes</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Good closing thought for the module: this is the last of three techniques (bounds guards, syncthreads, atomics) that all trade a small amount of overhead for correctness — worth naming that pattern explicitly as something students have now seen three times.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="module-5-wrap-up" class="slide level2">
+<h2>Module 5 Wrap-Up</h2>
+<ul>
+<li><strong>Nov 2 — Reduction:</strong> combine N values into 1, in O(log N) rounds, via a binary tree of associative operations (sum, max, dot product all fit)</li>
+<li><strong>Nov 9 — Prefix scan:</strong> compute a running total <em>at every position</em>, also in O(log N) rounds, via the two-phase Blelloch up-sweep/down-sweep</li>
+<li><strong>Nov 11 — Atomics:</strong> handle unpredictable, data-dependent collisions between threads with hardware-guaranteed indivisible operations, at the cost of serializing genuine contention</li>
+<li>Three different answers to the same underlying question this whole module asked: what do threads do when they can’t stay fully independent?</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Good slide to revisit before Quiz 6 (Nov 16), which covers this whole module.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="looking-ahead" class="slide level2">
+<h2>Looking Ahead</h2>
+<ul>
+<li><strong>Quiz 6 (Mon, Nov 16):</strong> covers all of Module 5 — reduction, prefix scan, and (conceptually) atomics</li>
+<li><strong>Module 6 starts Nov 16:</strong> CuPy — NumPy-style syntax that runs on the GPU, and when to reach for a library instead of writing a kernel by hand</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Closing pointer slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

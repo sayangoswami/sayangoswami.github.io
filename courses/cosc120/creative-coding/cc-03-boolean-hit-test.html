@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/quarto-contrib/codemirror6-1.0.0/codemirror.bundle.js"></script><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Creative Coding 3 — Boolean Hit-Testing</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <style id="java-runner-styles">
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* ── Colour tokens ───────────────────────────────────────────────────────── */
+  /* Light mode: hardcoded — RevealJS Night theme keeps --r-background-color   */
+  /* dark even when theme-toggle switches to light, so we can't rely on it.    */
+  .jr-block {
+    --jr-bg:        #ffffff;
+    --jr-chrome:    #e2e8f0;
+    --jr-border:    rgba(30, 41, 59, 0.25);
+    --jr-text:      #1e293b;
+    --jr-accent:    #2563eb;
+    --jr-editor:    #f8fafc;
+    --jr-code-text: #1e293b;
+  }
+  /* Dark mode: follow the RevealJS Night theme variables */
+  body.jr-dark .jr-block {
+    --jr-bg:        var(--r-background-color, #191919);
+    --jr-chrome:    color-mix(in srgb, var(--r-background-color, #191919) 88%, white 12%);
+    --jr-border:    rgba(255, 255, 255, 0.15);
+    --jr-text:      var(--r-main-color, #eeeeee);
+    --jr-accent:    var(--r-link-color, #42affa);
+    --jr-editor:    #1e1e2e;
+    --jr-code-text: #cdd6f4;
+  }
+
+  /* ── Block container ─────────────────────────────────────────────────────── */
+  .jr-block {
+    display: flex !important; flex-direction: column !important; gap: 0 !important;
+    margin: 0.5rem 0 !important; border: 2px solid var(--jr-border) !important;
+    border-radius: 6px !important; overflow: hidden !important;
+    background: var(--jr-bg) !important;
+    font-size: 0.85rem !important; text-align: left !important; box-sizing: border-box !important;
+  }
+
+  /* ── Toolbar ─────────────────────────────────────────────────────────────── */
+  .jr-block .jr-toolbar {
+    display: flex !important; align-items: center !important;
+    justify-content: space-between !important; padding: 0.3rem 0.6rem !important;
+    background: var(--jr-chrome) !important; border-bottom: 1px solid var(--jr-border) !important;
+    flex-shrink: 0 !important;
+  }
+  .jr-block .jr-lang-badge {
+    font-size: 0.7rem !important; font-weight: 700 !important;
+    letter-spacing: 0.05em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.6 !important; background: none !important;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+  .jr-block .jr-run-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #2d6a4f !important;
+    color: #d8f3dc !important; border: 2px solid #52b788 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-run-btn:hover        { background: #40916c !important; }
+  .jr-block .jr-run-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-run-btn:disabled     { opacity: 0.6 !important; cursor: not-allowed !important; }
+
+  .jr-block .jr-stop-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #7f1d1d !important;
+    color: #fecaca !important; border: 2px solid #dc2626 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-stop-btn:hover        { background: #991b1b !important; }
+  .jr-block .jr-stop-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-stop-btn:disabled     { opacity: 0.4 !important; cursor: not-allowed !important; }
+
+  .jr-block .jr-pause-btn {
+    display: inline-flex !important; align-items: center !important; gap: 0.3rem !important;
+    padding: 0.25rem 0.75rem !important; background: #4a4e69 !important;
+    color: #c9cde0 !important; border: 2px solid #9a8ec4 !important;
+    border-radius: 4px !important; font-size: 0.8rem !important;
+    font-weight: 600 !important; cursor: pointer !important; line-height: 1.4 !important;
+  }
+  .jr-block .jr-pause-btn:hover       { background: #5c5f85 !important; }
+  .jr-block .jr-pause-btn:focus-visible { outline: 3px solid var(--jr-accent) !important; outline-offset: 2px !important; }
+  .jr-block .jr-pause-btn:disabled    { opacity: 0.4 !important; cursor: not-allowed !important; }
+
+  /* ── CodeMirror 6 editor container ──────────────────────────────────────── */
+  /* CM6 owns its own height; we constrain via the inner .cm-editor element.  */
+  .jr-block .jr-ace-editor .cm-editor {
+    min-height: 7.5rem !important;   /* ≈ 5 lines  */
+    max-height: 30rem  !important;   /* ≈ 20 lines */
+    font-size: 1.2em !important;
+  }
+  .jr-block .jr-ace-editor .cm-scroller {
+    overflow: auto !important;
+    font-family: 'JetBrains Mono','Fira Code','Cascadia Code','Consolas',monospace !important;
+    line-height: 1.5 !important;
+  }
+
+
+  /* ── Terminal — single scrolling area, input inline with output ──────────── */
+  .jr-block .jr-terminal {
+    background: var(--jr-editor) !important;
+    border-top: 2px solid var(--jr-border) !important;
+    flex-shrink: 0 !important; display: flex !important; flex-direction: column !important;
+  }
+  /* Title bar with traffic-light dots */
+  .jr-block .jr-terminal-bar {
+    background: var(--jr-chrome) !important;
+    border-bottom: 1px solid var(--jr-border) !important;
+    display: flex !important; align-items: center !important;
+    gap: 5px !important; padding: 0.3rem 0.6rem !important; flex-shrink: 0 !important;
+  }
+  .jr-block .jr-dot { width: 11px !important; height: 11px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+  .jr-block .jr-dot-r { background: #ff5f57 !important; }
+  .jr-block .jr-dot-y { background: #ffbd2e !important; }
+  .jr-block .jr-dot-g { background: #28c840 !important; }
+  .jr-block .jr-terminal-title {
+    font-size: 0.68rem !important; font-weight: 600 !important;
+    letter-spacing: 0.06em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.5 !important; margin-left: 4px !important;
+  }
+  /* The single unified output+input scrolling area */
+  .jr-block .jr-terminal-out {
+    margin: 0 !important; padding: 0.55rem 0.75rem !important;
+    min-height: 3rem !important; max-height: 16rem !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    color: var(--jr-code-text) !important; white-space: pre-wrap !important;
+    word-break: break-word !important; overflow-y: auto !important;
+    scrollbar-width: thin !important; scrollbar-color: var(--jr-border) transparent !important;
+  }
+  .jr-block .jr-terminal-out::-webkit-scrollbar { width: 6px !important; }
+  .jr-block .jr-terminal-out::-webkit-scrollbar-thumb { background: var(--jr-border) !important; border-radius: 3px !important; }
+  .jr-block .jr-terminal-out::-webkit-scrollbar-track { background: transparent !important; }
+  .jr-block .jr-terminal-out:focus-visible { outline: 2px solid var(--jr-accent) !important; outline-offset: -2px !important; }
+  /* Idle hint */
+  .jr-block .jr-terminal-out:empty::before {
+    content: attr(data-hint) !important;
+    color: var(--jr-text) !important; opacity: 0.35 !important; font-style: italic !important;
+  }
+  /* Stderr text */
+  .jr-block .jr-stderr { color: #dc2626 !important; }
+  /* Live input line — appended inside jr-terminal-out while program runs */
+  .jr-block .jr-input-line {
+    display: flex !important; align-items: baseline !important;
+    white-space: pre !important;
+  }
+  .jr-block .jr-terminal-ps {
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    color: var(--jr-accent) !important; margin-right: 0.3rem !important;
+    flex-shrink: 0 !important; user-select: none !important;
+  }
+  /* The live <input> inside the input line */
+  .jr-block .jr-stdin-live {
+    flex: 1 !important; min-width: 2ch !important;
+    background: transparent !important; border: none !important;
+    color: var(--jr-code-text) !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.6 !important;
+    padding: 0 !important; outline: none !important;
+    caret-color: var(--jr-accent) !important;
+  }
+  /* Echoed input line — shown after user presses Enter */
+  .jr-block .jr-echo-line { color: var(--jr-accent) !important; white-space: pre-wrap !important; }
+
+  /* ── Processing canvas ───────────────────────────────────────────────────── */
+  .jr-block .jr-canvas-wrap {
+    border-top: 1px solid var(--jr-border) !important; display: flex !important;
+    align-items: center !important; justify-content: center !important;
+    padding: 0.5rem !important; background: var(--jr-bg) !important;
+    flex-shrink: 0 !important;
+  }
+  .jr-block .jr-canvas-wrap canvas { display: block !important; }
+
+  /* ── Processing output area ──────────────────────────────────────────────── */
+  .jr-block .jr-output-wrap { border-top: 1px solid var(--jr-border) !important; flex-shrink: 0 !important; }
+  .jr-block .jr-output-label {
+    padding: 0.2rem 0.6rem !important; font-size: 0.7rem !important; font-weight: 700 !important;
+    letter-spacing: 0.05em !important; text-transform: uppercase !important;
+    color: var(--jr-text) !important; opacity: 0.7 !important;
+    background: var(--jr-chrome) !important; margin: 0 !important;
+  }
+  .jr-block .jr-output {
+    margin: 0 !important; padding: 0.5rem 0.6rem !important;
+    min-height: 2rem !important; max-height: 12rem !important;
+    font-family: 'Fira Code','Cascadia Code','Consolas',monospace !important;
+    font-size: 0.82rem !important; line-height: 1.5 !important;
+    color: #1e293b !important; background: #f8fafc !important;
+    white-space: pre-wrap !important; word-break: break-word !important;
+    border: none !important; overflow-y: auto !important;
+  }
+  .jr-block .jr-output[data-status="error"]   { color: #fc8181 !important; }
+  .jr-block .jr-output[data-status="running"] { font-style: italic !important; opacity: 0.7 !important; }
+
+  /* ── Suppress Quarto's native <pre class="sourceCode"> ──────────────────── */
+  .jr-block + div.sourceCode, .jr-block + pre.sourceCode { display: none !important; }
+  div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="quarto-light">
+<script type="module">
+const SERVER = "https://java-runner.sayangoswami.dev";
+
+// ── Initialise all blocks ─────────────────────────────────────────────────
+function initAll() {
+  document.querySelectorAll('.jr-block').forEach(initBlock);
+
+  // CM6 handles its own sizing — no resize() needed on slide change.
+  const wireReveal = () => { /* no-op — kept for future hooks */ };
+  if (document.readyState === 'complete') wireReveal();
+  else window.addEventListener('load', wireReveal);
+}
+
+function initBlock(block) {
+  if (block.dataset.jrInit) return;
+  block.dataset.jrInit = '1';
+
+  const type     = block.dataset.type;
+  const runBtn   = block.querySelector('.jr-run-btn');
+  const stopBtn  = block.querySelector('.jr-stop-btn');
+  const pauseBtn = block.querySelector('.jr-pause-btn');
+
+  // ── CodeMirror 6 editor (all blocks) ─────────────────────────────────────
+  let editor = null;   // CM6 EditorView
+  const aceDiv = block.querySelector('.jr-ace-editor');
+
+  if (aceDiv && window.CM) {
+    const {
+      EditorView, EditorState, Compartment,
+      keymap, lineNumbers, highlightActiveLine, drawSelection,
+      history, historyKeymap, defaultKeymap, indentWithTab,
+      syntaxHighlighting, defaultHighlightStyle, indentOnInput, bracketMatching, indentUnit,
+      closeBrackets, closeBracketsKeymap,
+      java,
+      oneDark,
+    } = window.CM;
+
+    const isDark    = () => document.body.classList.contains('jr-dark');
+    const themeComp = new Compartment();
+
+    // Light theme: hardcoded values matching the light-mode CSS tokens above
+    const lightTheme = EditorView.theme({
+      '&':                         { background: '#f8fafc', color: '#1e293b' },
+      '.cm-content':               { caretColor: '#2563eb' },
+      '.cm-cursor,.cm-dropCursor': { borderLeftColor: '#2563eb' },
+      '.cm-gutters':               { background: '#e2e8f0', color: '#64748b',
+                                     borderRight: '1px solid rgba(30,41,59,0.25)' },
+      '.cm-activeLineGutter':      { background: '#cbd5e1' },
+      '.cm-activeLine':            { background: 'rgba(30,41,59,0.04)' },
+      '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection':
+                                   { background: 'rgba(37,99,235,0.15)' },
+    });
+
+    // Per-block draft persistence. Survives slide navigation, but is keyed to
+    // BOTH the page path and the block id (ids alone — jr-1, jr-2… — collide
+    // across decks on one origin) and tagged with a hash of the original
+    // snippet, so a re-rendered/edited snippet invalidates any stale draft.
+    const origCode = aceDiv.textContent.trim();
+    const hashStr = (s) => {
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+      return h.toString(36);
+    };
+    const origHash = hashStr(origCode);
+    const draftKey = 'jr:' + location.pathname + '#' + block.id;
+
+    let initialCode = origCode;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
+      if (saved && saved.o === origHash && typeof saved.c === 'string') initialCode = saved.c;
+    } catch (_) { /* storage unavailable or corrupt — fall back to original */ }
+    aceDiv.textContent = '';   // CM6 owns this div from here on
+
+    editor = new EditorView({
+      parent: aceDiv,
+      state: EditorState.create({
+        doc: initialCode,
+        extensions: [
+          lineNumbers(),
+          highlightActiveLine(),
+          drawSelection(),
+          bracketMatching(),
+          closeBrackets(),
+          indentUnit.of("    "),    // 4-space indentation
+          EditorState.tabSize.of(4), // tab character display width
+          indentOnInput(),
+          history(),
+          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+          java(),           // Java syntax for both Java and Processing (Processing is Java-like)
+          themeComp.of(isDark() ? oneDark : lightTheme),
+          keymap.of([
+            indentWithTab,          // Tab → indent; press Escape first to release Tab
+            ...closeBracketsKeymap,
+            ...defaultKeymap,
+            ...historyKeymap,
+          ]),
+          EditorView.updateListener.of(u => {
+            if (!u.docChanged) return;
+            try {
+              sessionStorage.setItem(draftKey,
+                JSON.stringify({ o: origHash, c: u.state.doc.toString() }));
+            } catch (_) { /* storage full or unavailable — ignore */ }
+          }),
+          // stopPropagation keeps slide navigation keys from reaching RevealJS
+          // without calling Reveal.configure() which triggers a theme re-sync
+          EditorView.domEventHandlers({
+            keydown: (e) => { e.stopPropagation(); },
+          }),
+        ],
+      }),
+    });
+
+    // Enter on the outer div activates editing
+    editor.dom.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement === editor.dom) {
+        e.preventDefault();
+        editor.focus();   // moves focus into the contentDOM
+      }
+    });
+
+    // Escape on contentDOM: stop propagation HERE before it bubbles to RevealJS.
+    // We can't rely on domEventHandlers (CM6 skips it after blur) so we catch it
+    // directly on the innermost element, where the editor still has focus.
+    editor.contentDOM.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();   // prevents bubble to document where RevealJS listens
+        editor.contentDOM.blur();
+      }
+    });
+
+    aceDiv.setAttribute('aria-description',
+      'Code editor. Press Enter to start editing. Tab indents. Press Escape to stop editing and restore Tab navigation.');
+
+    // Switch theme when dark-mode toggle fires
+    new MutationObserver(() => {
+      editor.dispatch({ effects: themeComp.reconfigure(isDark() ? oneDark : lightTheme) });
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Output element — terminal-out for Java, jr-output pre for Processing
+  const out = block.querySelector('.jr-terminal-out') || block.querySelector('.jr-output');
+
+  // ── Run button ────────────────────────────────────────────────────────────
+  let processingInstance = null;
+  let looping = true;
+
+  runBtn.addEventListener('click', async () => {
+    const code = editor ? editor.state.doc.toString().trim() : '';
+    if (!code) return;
+
+    if (type === 'java') {
+      runBtn.disabled = true;
+      runBtn.setAttribute('aria-busy', 'true');
+      if (stopBtn) stopBtn.disabled = false;
+      out.innerHTML = '';
+      delete out.dataset.status;
+      await runJava(code, out, stopBtn);
+      if (stopBtn) stopBtn.disabled = true;
+      runBtn.disabled = false;
+      runBtn.setAttribute('aria-busy', 'false');
+    } else {
+      runBtn.disabled = true;
+      runBtn.setAttribute('aria-busy', 'true');
+      if (processingInstance) { try { processingInstance.exit(); } catch(_) {} }
+      if (pauseBtn) { pauseBtn.disabled = true; pauseBtn.textContent = '⏸ Pause'; pauseBtn.setAttribute('aria-pressed','false'); }
+
+      const canvas     = block.querySelector('canvas');
+      const canvasWrap = block.querySelector('.jr-canvas-wrap');
+      try {
+        processingInstance = new Processing(canvas, code);
+        canvasWrap.style.display = 'flex';
+
+        // After Processing runs size(), fit canvas width to the container
+        // (preserving aspect ratio) so there is no horizontal overflow.
+        // Height is left at the sketch's native size — the {.scrollable} slide
+        // handles vertical scrolling if the canvas is taller than the viewport.
+        requestAnimationFrame(() => {
+          const sw = canvas.width, sh = canvas.height;
+          if (sw <= 1 || sh <= 1) return;
+          const pad    = 16; // 2×0.5rem padding inside canvas-wrap
+          const availW = canvasWrap.clientWidth - pad;
+          if (availW > 0 && sw > availW) {
+            canvas.style.width  = availW + 'px';
+            canvas.style.height = Math.round(sh * availW / sw) + 'px';
+          } else {
+            canvas.style.width  = sw + 'px';
+            canvas.style.height = sh + 'px';
+          }
+        });
+
+        looping = true;
+        if (pauseBtn) pauseBtn.disabled = false;
+      } catch (err) {
+        out.innerHTML = '';
+        out.textContent = 'Processing error: ' + err.message;
+      }
+      runBtn.disabled = false;
+      runBtn.setAttribute('aria-busy', 'false');
+    }
+  });
+
+  // ── Pause / Resume (Processing) ───────────────────────────────────────────
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', () => {
+      if (!processingInstance) return;
+      if (looping) {
+        processingInstance.noLoop(); looping = false;
+        pauseBtn.setAttribute('aria-pressed','true'); pauseBtn.textContent = '▶ Resume';
+      } else {
+        processingInstance.loop(); looping = true;
+        pauseBtn.setAttribute('aria-pressed','false'); pauseBtn.textContent = '⏸ Pause';
+      }
+    });
+  }
+}
+
+// ── Java execution — real-time WebSocket terminal ─────────────────────────
+// The terminal area (out) is a single scrolling div.  As the program runs:
+//   • stdout text is appended as plain text nodes
+//   • stderr is appended as red <span> nodes
+//   • an input line (› ...) is kept at the bottom; Enter sends to server
+//   • when the user presses Enter the typed line is echoed in accent colour
+//   • when the program exits the input line is removed
+async function runJava(code, out, stopBtn) {
+  const wsUrl = SERVER.replace(/^http/, 'ws') + '/run/java/ws';
+
+  // Reference to the live input line element (only one at a time)
+  let inputLine = null;
+
+  // Append text BEFORE the live input line so it stays at the bottom
+  function appendText(text) {
+    out.insertBefore(document.createTextNode(text),  inputLine);
+    out.scrollTop = out.scrollHeight;
+  }
+  function appendError(text) {
+    const s = document.createElement('span');
+    s.className = 'jr-stderr';
+    s.textContent = text;
+    out.insertBefore(s, inputLine);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function showInput(ws) {
+    if (inputLine) return;            // already showing one
+
+    const line   = document.createElement('div');
+    line.className = 'jr-input-line';
+
+    const ps = document.createElement('span');
+    ps.className = 'jr-terminal-ps';
+    ps.setAttribute('aria-hidden', 'true');
+    ps.textContent = '›';
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'jr-stdin-live';
+    inp.setAttribute('aria-label', 'Program input — press Enter to send');
+    inp.autocomplete = 'off';
+    inp.autocorrect  = 'off';
+    inp.autocapitalize = 'off';
+    inp.spellcheck   = false;
+
+    inp.addEventListener('keydown', (e) => {
+      e.stopPropagation(); // prevent slide navigation while typing
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const value = inp.value;
+
+      // Replace live input line with an immutable echo line
+      const echo = document.createElement('div');
+      echo.className = 'jr-echo-line';
+      echo.textContent = '› ' + value;
+      line.replaceWith(echo);
+      inputLine = null;
+
+      // Send to server
+      if (ws.readyState === WebSocket.OPEN)
+        ws.send(JSON.stringify({ type: 'stdin', text: value + '\n' }));
+
+      out.scrollTop = out.scrollHeight;
+    });
+
+    line.appendChild(ps);
+    line.appendChild(inp);
+    out.appendChild(line);
+    inputLine = line;
+    inp.focus();
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function removeInput() {
+    if (inputLine) { inputLine.remove(); inputLine = null; }
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    let watchdog = null;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(watchdog);
+      removeInput();
+      if (stopBtn) stopBtn.onclick = null;
+      resolve();
+    };
+
+    let ws;
+    try {
+      ws = new WebSocket(wsUrl);
+    } catch (err) {
+      out.textContent = 'Could not connect: ' + err.message;
+      settle(); return;
+    }
+
+    // Client-side safety net: if the socket neither closes nor delivers a
+    // 'done' (dropped connection, server wedged past its own kill timer),
+    // stop waiting so the Run button doesn't stay disabled forever.
+    watchdog = setTimeout(() => {
+      appendError('\n[no response from server after 130s — connection closed]\n');
+      try { ws.close(); } catch (_) {}
+      settle();
+    }, 130000);
+
+    if (stopBtn) stopBtn.onclick = () => {
+      appendError('\n[stopped]\n');
+      try { ws.close(); } catch (_) {}   // server kills the child on socket close
+    };
+
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ type: 'run', code }));
+    });
+
+    ws.addEventListener('message', (event) => {
+      let msg;
+      try { msg = JSON.parse(event.data); } catch (_) { return; }  // ignore non-JSON frames
+      if (msg.type === 'status') {
+        // Show compile/run status as faint italic text (replaced by real output)
+        if (!inputLine) {
+          // Use a temporary placeholder that gets replaced by first stdout
+          out._statusNode = document.createTextNode(
+            msg.text === 'compiling' ? 'Compiling…\n' : ''
+          );
+          out.appendChild(out._statusNode);
+        }
+      } else if (msg.type === 'stdout') {
+        // Remove the status placeholder on first real output
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        appendText(msg.text);
+        // Show the input line (if not already visible) so the student can type
+        if (!inputLine) showInput(ws);
+      } else if (msg.type === 'stderr') {
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        appendError(msg.text);
+      } else if (msg.type === 'done') {
+        if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+        settle();
+      }
+    });
+
+    ws.addEventListener('error', () => {
+      appendError(
+        'Connection error — is the server running?\n' +
+        'Server: ' + SERVER + '\n' +
+        'Check the browser console (F12) for details.'
+      );
+      settle();
+    });
+
+    ws.addEventListener('close', settle);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
+}
+
+</script>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Creative Coding 3 — Boolean Hit-Testing</h1>
+  <p class="subtitle">COSC120 — ungraded warm-up</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="before-class" class="slide level2">
+<h2>Before class</h2>
+<p>Read through this deck and run each sketch on your own. Companion Java material: your boolean logic lecture (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>, <code>else if</code> chains). We’ll finish the exercises together in class.</p>
+</section>
+<section id="learning-outcomes" class="slide level2">
+<h2>Learning Outcomes</h2>
+<ul>
+<li>Combine multiple comparisons with <code>&amp;&amp;</code> to test whether the mouse is inside a rectangular region</li>
+<li>Use <code>else if</code> chains to pick one of several outcomes, same as in plain Java, just driving color instead of text</li>
+<li>Combine two independent tests with <code>||</code> so either one triggers the same result</li>
+<li>Recognize this “is the point inside this box” pattern as the foundation of every clickable thing you’ll ever build</li>
+</ul>
+</section>
+<section id="the-problem-is-the-mouse-inside-a-box" class="slide level2">
+<h2>The problem: is the mouse inside a box?</h2>
+<p>A single comparison can’t answer that — you need <strong>four</strong>, all true at once:</p>
+<ul>
+<li>is the point right of the box’s left edge?</li>
+<li>is it left of the box’s right edge?</li>
+<li>is it below the box’s top edge?</li>
+<li>is it above the box’s bottom edge?</li>
+</ul>
+<p>Miss any one and the point isn’t actually inside.</p>
+</section>
+<section id="step-1-draw-the-box" class="slide level2">
+<h2>Step 1 — draw the box</h2>
+<div class="jr-block" id="jr-1" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(240);
+
+  int bx = 120, by = 90, bw = 160, bh = 120;
+
+  fill(200, 200, 200);
+  noStroke();
+  rect(bx, by, bw, bh);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>bx, by</code> is the box’s top-left corner; <code>bw, bh</code> its width and height — the same corner-based <code>rect(...)</code> from last time.</p>
+</section>
+<section id="step-2-test-one-edge" class="slide level2">
+<h2>Step 2 — test one edge</h2>
+<div class="jr-block" id="jr-2" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(240);
+
+  int bx = 120, by = 90, bw = 160, bh = 120;
+
+  boolean pastLeftEdge = mouseX &gt; bx;
+
+  fill(pastLeftEdge ? 90 : 200, 200, 200);
+  noStroke();
+  rect(bx, by, bw, bh);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>One boolean, one edge. Move the mouse left and right across <code>bx</code> and watch the fill’s red component change — this is <em>one quarter</em> of the full test.</p>
+</section>
+<section id="step-3-combine-all-four-edges-with" class="slide level2">
+<h2>Step 3 — combine all four edges with <code>&amp;&amp;</code></h2>
+<div class="jr-block" id="jr-3" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(240);
+
+  int bx = 120, by = 90, bw = 160, bh = 120;
+
+  boolean inside = mouseX &gt; bx &amp;&amp; mouseX &lt; bx + bw
+                 &amp;&amp; mouseY &gt; by &amp;&amp; mouseY &lt; by + bh;
+
+  if (inside) {
+    fill(90, 200, 120);
+  } else {
+    fill(200, 90, 90);
+  }
+
+  noStroke();
+  rect(bx, by, bw, bh);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>&amp;&amp;</code> is only <code>true</code> when every operand is <code>true</code> — so <code>inside</code> is only <code>true</code> when all four edge tests pass at once. Move your mouse in and out of the rectangle and watch it flip. This exact pattern is how every button, every draggable object, and any later collision-checking code you write will work.</p>
+</section>
+<section id="else-if-chain-one-zone" class="slide level2">
+<h2><code>else if</code> chain — one zone</h2>
+<div class="jr-block" id="jr-4" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(450, 200);
+}
+
+void draw() {
+  int zoneWidth = width / 3;
+
+  if (mouseX &lt; zoneWidth) {
+    background(80, 140, 220);
+  } else {
+    background(230, 200, 60);
+  }
+
+  fill(255);
+  noStroke();
+  ellipse(mouseX, height / 2, 40, 40);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Two colors, one boundary. You have learned <code>else if</code> chains to pick exactly one branch out of several — let’s add a third zone next.</p>
+</section>
+<section id="else-if-chain-three-zones" class="slide level2">
+<h2><code>else if</code> chain — three zones</h2>
+<div class="jr-block" id="jr-5" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(450, 200);
+}
+
+void draw() {
+  int zoneWidth = width / 3;
+
+  if (mouseX &lt; zoneWidth) {
+    background(80, 140, 220);
+  } else if (mouseX &lt; zoneWidth * 2) {
+    background(230, 200, 60);
+  } else {
+    background(220, 90, 90);
+  }
+
+  fill(255);
+  noStroke();
+  ellipse(mouseX, height / 2, 40, 40);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Notice the second condition is just <code>mouseX &lt; zoneWidth * 2</code> — it doesn’t need to also say “<code>... &amp;&amp; mouseX &gt;= zoneWidth</code>,” because <code>else if</code> already guarantees you only reach this check when the first condition was false.</p>
+</section>
+<section id="inside-either-of-two-boxes" class="slide level2">
+<h2><code>||</code> — inside <em>either</em> of two boxes</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(240);
+
+  boolean inLeft  = mouseX &gt; 40  &amp;&amp; mouseX &lt; 160 &amp;&amp; mouseY &gt; 100 &amp;&amp; mouseY &lt; 200;
+  boolean inRight = mouseX &gt; 240 &amp;&amp; mouseX &lt; 360 &amp;&amp; mouseY &gt; 100 &amp;&amp; mouseY &lt; 200;
+
+  if (inLeft || inRight) {
+    fill(90, 200, 120);
+  } else {
+    fill(200, 200, 200);
+  }
+
+  noStroke();
+  rect(40, 100, 120, 100);
+  rect(240, 100, 120, 100);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>inLeft</code> and <code>inRight</code> are each the same four-comparison hit test as before, just for two different boxes. <code>inLeft || inRight</code> is <code>true</code> the instant the mouse enters <em>either</em> one — the same short-circuit <code>||</code> you already know, just gating a color instead of a printed message.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2">
+<h2>Your turn (before class)</h2>
+<p>Add a <strong>third</strong> box to the sketch above and extend the <code>||</code> chain so the shape turns green when the mouse is in <em>any</em> of the three.</p>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

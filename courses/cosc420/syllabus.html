@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>COSC420 - Distributed/Parallel Computing – Class Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Class Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-courses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Courses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
+        <li class="dropdown-header">Fall 2026</li>
+        <li>
+    <a class="dropdown-item" href="../cosc120/index.html">
+ <span class="dropdown-text">COSC120 — Introduction to Computer Science I</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc420/index.html">
+ <span class="dropdown-text">COSC420 — Distributed / Parallel Computing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc435/index.html">
+ <span class="dropdown-text">COSC435 — Acceleration</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">Spring 2026</li>
+        <li>
+    <a class="dropdown-item" href="../cosc130/index.html">
+ <span class="dropdown-text">COSC130 — Introduction to Computer Science II</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc445/index.html">
+ <span class="dropdown-text">COSC445 — Design and Analysis of Algorithms</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#lms-information" id="toc-lms-information" class="nav-link active" data-scroll-target="#lms-information">LMS Information</a></li>
+  <li><a href="#course-description" id="toc-course-description" class="nav-link" data-scroll-target="#course-description">Course Description</a></li>
+  <li><a href="#course-learning-outcomes" id="toc-course-learning-outcomes" class="nav-link" data-scroll-target="#course-learning-outcomes">Course Learning Outcomes</a></li>
+  <li><a href="#engaged-learning" id="toc-engaged-learning" class="nav-link" data-scroll-target="#engaged-learning">Engaged Learning</a></li>
+  <li><a href="#smcm-code-of-student-conduct" id="toc-smcm-code-of-student-conduct" class="nav-link" data-scroll-target="#smcm-code-of-student-conduct">SMCM Code of Student Conduct</a></li>
+  <li><a href="#digital-accessibility-of-course-materials" id="toc-digital-accessibility-of-course-materials" class="nav-link" data-scroll-target="#digital-accessibility-of-course-materials">Digital Accessibility of Course Materials</a></li>
+  <li><a href="#academic-accommodations" id="toc-academic-accommodations" class="nav-link" data-scroll-target="#academic-accommodations">Academic Accommodations</a></li>
+  <li><a href="#office-of-student-success-services" id="toc-office-of-student-success-services" class="nav-link" data-scroll-target="#office-of-student-success-services">Office of Student Success Services</a></li>
+  <li><a href="#office-of-civil-rights-and-compliance" id="toc-office-of-civil-rights-and-compliance" class="nav-link" data-scroll-target="#office-of-civil-rights-and-compliance">Office of Civil Rights and Compliance</a></li>
+  <li><a href="#office-of-counseling-services" id="toc-office-of-counseling-services" class="nav-link" data-scroll-target="#office-of-counseling-services">Office of Counseling Services</a></li>
+  <li><a href="#health-services" id="toc-health-services" class="nav-link" data-scroll-target="#health-services">Health Services</a></li>
+  <li><a href="#writing-and-speaking-center" id="toc-writing-and-speaking-center" class="nav-link" data-scroll-target="#writing-and-speaking-center">Writing and Speaking Center</a></li>
+  <li><a href="#course-requirements" id="toc-course-requirements" class="nav-link" data-scroll-target="#course-requirements">Course Requirements</a></li>
+  <li><a href="#methods-of-evaluation" id="toc-methods-of-evaluation" class="nav-link" data-scroll-target="#methods-of-evaluation">Methods of Evaluation</a></li>
+  <li><a href="#grading-grade-scale" id="toc-grading-grade-scale" class="nav-link" data-scroll-target="#grading-grade-scale">Grading &amp; Grade Scale</a></li>
+  <li><a href="#course-attendance-policy" id="toc-course-attendance-policy" class="nav-link" data-scroll-target="#course-attendance-policy">Course Attendance Policy</a></li>
+  <li><a href="#late-work-and-missed-assignment-policy" id="toc-late-work-and-missed-assignment-policy" class="nav-link" data-scroll-target="#late-work-and-missed-assignment-policy">Late Work and Missed Assignment Policy</a></li>
+  <li><a href="#use-of-generative-artificial-intelligence-in-the-classroom" id="toc-use-of-generative-artificial-intelligence-in-the-classroom" class="nav-link" data-scroll-target="#use-of-generative-artificial-intelligence-in-the-classroom">Use of Generative Artificial Intelligence in the Classroom&nbsp;</a></li>
+  <li><a href="#course-calendaroutline" id="toc-course-calendaroutline" class="nav-link" data-scroll-target="#course-calendaroutline">Course Calendar/Outline</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">COSC420 - Distributed/Parallel Computing</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<ul>
+<li><strong>Section:</strong> 01</li>
+<li><strong>Credit hours:</strong> 4</li>
+<li><strong>Term and year:</strong> Fall 2026</li>
+<li><strong>Delivery Mode</strong> Classroom (Schaefer Hall 160), Mon, Wed, Fri: 10:30AM - 11:20AM</li>
+<li><strong>Instructor:</strong> <a href="https://inside.smcm.edu/directory/sayan-goswami">Sayan Goswami</a></li>
+<li><strong>Office:</strong> Schaefer Hall, Room 152</li>
+<li><strong>Student Visiting Hours:</strong> Monday, Wednesday, Friday from 1:00 PM to 2:00 PM or <a href="https://calendar.app.google/eEm9QXSrKNHk63Wc7">by appointment.</a></li>
+<li><strong>Phone:</strong> 240-895-2153</li>
+<li><strong>Email:</strong> <a href="mailto:sgoswami@smcm.edu">sgoswami@smcm.edu</a></li>
+<li><strong>Textbook:</strong> None required</li>
+<li><strong>Prerequisites:</strong> ALGORITHMS/DATA STRUCTURES (COSC201) must be completed with minimum GPA of 1.70</li>
+</ul>
+<section id="lms-information" class="level2">
+<h2 class="anchored" data-anchor-id="lms-information">LMS Information</h2>
+<p>All course materials and grades are posted on <a href="https://blackboard.smcm.edu/">Blackboard</a>.</p>
+</section>
+<section id="course-description" class="level2">
+<h2 class="anchored" data-anchor-id="course-description">Course Description</h2>
+<p><em>Official catalog description:</em></p>
+<blockquote class="blockquote">
+<p>This course studies the methods for using several computers connected by a network to solve a single problem. Topics include networking services, middleware (CORBA, DCOM, SOAP, RMI and RPC), two- and three-tier client-server systems, algorithms for parallel computing, performance evaluation and hardware architectures (clusters, grids, surfaces).</p>
+</blockquote>
+<p><em>Course focus, Fall 2026:</em></p>
+<p>COSC420 is a hands-on introduction to the ideas and tools behind modern distributed and parallel computing. The course moves through six modules: (1) concurrency and thread safety in Java; (2) distributed systems concepts, including partial failure and the CAP theorem; (3) big data and the MapReduce model on Apache Hadoop/HDFS; (4) large-scale data analysis with Apache Spark and PySpark; (5) distributed storage and NoSQL databases with MongoDB; and (6) cloud computing service models and microservices, including building a REST API with Python Flask. The term culminates in a capstone in which pairs of students build an end-to-end data pipeline that moves a real dataset through HDFS, Spark, MongoDB, and a Flask dashboard. Work is done on the student’s own laptop against an instructor-hosted Hadoop/Spark cluster; no paid services are required.</p>
+</section>
+<section id="course-learning-outcomes" class="level2">
+<h2 class="anchored" data-anchor-id="course-learning-outcomes">Course Learning Outcomes</h2>
+<p><em>Official catalog outcomes:</em></p>
+<p>Upon completion of the course, students will be able to:</p>
+<ul>
+<li>Explain networking for distributed computing as demonstrated by short answers during examination.</li>
+<li>Execute performance evaluation of a parallel and distributed system.</li>
+<li>Explain middleware for distributed and parallel computing as demonstrated by short answers during examination.</li>
+<li>Model hardware architectures for distributed and parallel computing as demonstrated by short answers during examination.</li>
+<li>Implement common parallel and distributed computing algorithms as demonstrated by development of programs.</li>
+<li>Construct parallel and or distributed computing solution as demonstrated by development of a significant project.</li>
+</ul>
+<p><em>Course-Level Learning Outcomes, Fall 2026.</em></p>
+<p>Upon completion of the course, students will be able to:</p>
+<ol type="1">
+<li><strong>Write</strong> thread-safe Java programs using synchronization primitives and thread-pool mechanisms.</li>
+<li><strong>Analyze</strong> distributed system design decisions by applying the CAP theorem to evaluate consistency and availability trade-offs.</li>
+<li><strong>Explain</strong> the MapReduce execution model and <strong>use</strong> Apache Hadoop to run distributed data-processing jobs on HDFS.</li>
+<li><strong>Use</strong> PySpark to load, transform, and analyze large datasets with the DataFrame API.</li>
+<li><strong>Compare</strong> relational and NoSQL storage approaches and <strong>select</strong> an appropriate database design for a given scenario.</li>
+<li><strong>Describe</strong> cloud computing service models and the microservices architectural pattern, and <strong>build</strong> a simple REST API using Python Flask.</li>
+<li><strong>Design and implement</strong> an end-to-end distributed data pipeline integrating HDFS, Apache Spark, a NoSQL database, and a REST API.</li>
+</ol>
+</section>
+<section id="engaged-learning" class="level2">
+<h2 class="anchored" data-anchor-id="engaged-learning">Engaged Learning</h2>
+<p>Students can expect the Engaged Learning element of this course to connect the technical material to how distributed systems are actually built and operated in industry, and to build the prerequisite Python skills needed for the Spark modules. Engaged Learning is delivered as six completion-graded activities (5% of the course grade) done outside class: reading and reflecting on an industry case study, two self-paced Python self-learning modules, watching a Spark tech talk, reading a real cloud outage post-mortem and explaining the failure in distributed-systems terms, and a pencil-and-paper MapReduce tracing exercise verified with a short Python script.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Activity</th>
+<th>Assigned</th>
+<th>Due</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EL1</td>
+<td>Read an industry case study (e.g., how Netflix uses distributed systems) + post a short reflection on the discussion board</td>
+<td>Sep 4</td>
+<td>Sep 11</td>
+</tr>
+<tr class="even">
+<td>EL2</td>
+<td>Python self-learning module 1: syntax, variables, control flow (provided materials + short exercise)</td>
+<td>Sep 30</td>
+<td>Oct 14</td>
+</tr>
+<tr class="odd">
+<td>EL3</td>
+<td>Python self-learning module 2: functions, lists, dictionaries (provided materials + short exercise)</td>
+<td>Oct 5</td>
+<td>Oct 23</td>
+</tr>
+<tr class="even">
+<td>EL4</td>
+<td>Watch a beginner Spark tech talk (provided link) + answer 3 guided questions</td>
+<td>Oct 26</td>
+<td>Nov 6</td>
+</tr>
+<tr class="odd">
+<td>EL5</td>
+<td>Read a real cloud outage post-mortem (e.g., AWS us-east-1 2021) + post reflection: which distributed concepts explain the failure?</td>
+<td>Nov 23</td>
+<td>Nov 30</td>
+</tr>
+<tr class="even">
+<td>EL6</td>
+<td>MapReduce tracing — pencil-and-paper trace of a word count job through map/shuffle/reduce, verified with a short Python script (formerly graded as Lab 4)</td>
+<td>Oct 7</td>
+<td>Oct 16</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="smcm-code-of-student-conduct" class="level2">
+<h2 class="anchored" data-anchor-id="smcm-code-of-student-conduct">SMCM Code of Student Conduct</h2>
+<p>As shared in Article III of the SMCM Student Handbook, <a href="https://www.smcm.edu/tothepoint/">To the Point</a>, : “St.&nbsp;Mary’s College of Maryland is committed to the ideals of honesty, personal integrity, and mutual trust.&nbsp; Academic integrity is a responsibility of all students, members of the faculty, and administrative officers.&nbsp; All students are expected to uphold the highest ideals of academic integrity throughout their career at St.&nbsp;Mary’s.”</p>
+<p>Students who do not uphold these ideals and engage in&nbsp; academic misconduct will be reported to Academic Affairs. In addition to possible penalties within this course, a student may be required to appear before the Academic Judicial Board (AJB)&nbsp; with possibilities of additional penalties.&nbsp;</p>
+<p>You are also responsible for understanding and complying with the expectations set forth in the <a href="https://www.smcm.edu/tothepoint/">SMCM Code of Student Conduct</a> about&nbsp; upholding a productive learning environment.</p>
+</section>
+<section id="digital-accessibility-of-course-materials" class="level2">
+<h2 class="anchored" data-anchor-id="digital-accessibility-of-course-materials">Digital Accessibility of Course Materials</h2>
+<p>Digital accessibility requirements under Title II of the Americans with Disabilities Act go into effect as of April 26, 2027. The instructor is making every reasonable effort to ensure that the digital materials distributed to students and/or required to engage in the course are reviewed for compliance with the federal regulations. As of April 26, 2027, if you discover that a course material has an accessibility issue, please report it to the instructor immediately after discovery.&nbsp; If the issue has not been resolved within one week, please report this accessibility issue by way of the College’s standing <a href="https://cm.maxient.com/reportingform.php?StMarysMD&amp;layout_id=61">Campus Accessibility Issue reporting form</a> for review by our ADA Coordinator.&nbsp;</p>
+</section>
+<section id="academic-accommodations" class="level2">
+<h2 class="anchored" data-anchor-id="academic-accommodations">Academic Accommodations</h2>
+<p>SMCM is committed to providing access to the learning and living experience to students with disabilities or disabling health conditions. If you have received a letter from the Office of Accessibility Services (OAS), which outlines the academic accommodations to which you are entitled to and you want those accommodations to apply to this course, you MUST share your letter with me. After that, I will request that you meet with me to review that letter and determine how these accommodations will look in my course. If you suspect that you have a learning or living need related to a disability or disabling health condition and would like information on potential accommodations, you should contact the Office of Accessibility Services, who can help you learn more about how to proceed. Email: <a href="mailto:adasupport@smcm.edu">adasupport@smcm.edu</a></p>
+</section>
+<section id="office-of-student-success-services" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-student-success-services">Office of Student Success Services</h2>
+<p>The Office of Student Success Services (OS3) empowers SMCM students to thrive in and out of the classroom, persist, and graduate on time by connecting them to people, resources, and activities. OS3 strives to cultivate the potential of all students through excellent advising, coaching, and support services designed to help them be increasingly autonomous and successful. Our work includes:</p>
+<ul>
+<li>Supplemental advising in every major</li>
+<li>Registration support (not registered, under registered, or registration issues)</li>
+<li>Academic Coaching (note taking, study strategies, goal setting, textbook reading strategies, etc.)</li>
+<li>Time management and organization</li>
+<li>Peer Support (Peer Academic Success Strategies Specialists)</li>
+<li>College policy explanation</li>
+<li>Academic Notice support</li>
+<li>Tutoring (students may <a href="https://docs.google.com/forms/d/e/1FAIpQLScwidqr6UsWfsqz-2RFmd9V_H2QP672t8Q0U1z0eepajPTCvQ/viewform?usp=sharing&amp;ouid=109618543723986836381">request a tutor</a> in any course)</li>
+<li>Holistic Support</li>
+</ul>
+<p>For support call 240-895-4388, stop by Glendening 230, or email <a href="mailto:os3@smcm.edu">os3@smcm.edu</a>.</p>
+</section>
+<section id="office-of-civil-rights-and-compliance" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-civil-rights-and-compliance">Office of Civil Rights and Compliance</h2>
+<p>St.&nbsp;Mary’s College of Maryland is committed to helping create a safe and open learning environment for all students. If you (or someone you know) have experienced any form of sexual misconduct, including sexual assault, dating or domestic violence, or stalking, or discrimination based on protected characteristics, know that help and support are available.</p>
+<p>&nbsp;The College strongly encourages all community members to take action, seek support, and report incidents of sexual misconduct or discrimination to the Office of Civil Rights and Compliance.&nbsp; Under Title IX of the Education Amendments of 1972, I am required to disclose information about such misconduct to the SMCM Office of Civil Rights and Compliance.</p>
+<p>If you would like to talk to a confidential employee who does not have this reporting responsibility, you can contact SMCM Counseling Services (240) 895-2159 or SMCM Health Services (240) 895-4289.&nbsp;</p>
+<p>For more information about reporting options and resources at St.&nbsp;Mary’s College of Maryland and the community, please visit the <a href="https://www.smcm.edu/title-ix/">Office of Civil Rights and Compliance</a>.</p>
+</section>
+<section id="office-of-counseling-services" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-counseling-services">Office of Counseling Services</h2>
+<p>There are many people at SMCM who care about you and your welfare. The <a href="https://www.smcm.edu/counseling">Office of Counseling Services</a> provides numerous confidential health and counseling services including same day/next day connections to counseling by calling 240-895-2159 or emailing <a href="mailto:counseling@smcm.edu">counseling@smcm.edu</a>.</p>
+</section>
+<section id="health-services" class="level2">
+<h2 class="anchored" data-anchor-id="health-services">Health Services</h2>
+<p><a href="https://www.smcm.edu/wellness">Health Services</a> provides medical care and wellness resources for enrolled students. Students are responsible for scheduling their own medical appointments by calling Health Services directly. Most students are seen the same day or within 24 hours. The medical provider can evaluate, diagnose, and treat a wide range of common illnesses and injuries. Laboratory testing is available through LabCorp and requires medical insurance; all other Health Services visits are provided at no additional cost to enrolled students.&nbsp;</p>
+<p>Health Services does not provide excuse notes for missed classes.</p>
+</section>
+<section id="writing-and-speaking-center" class="level2">
+<h2 class="anchored" data-anchor-id="writing-and-speaking-center">Writing and Speaking Center</h2>
+<p>Located on the first floor of the main Library, the Writing &amp; Speaking Center offers free peer tutoring in writing and speaking. The peer tutors are students themselves, but they have completed extensive hands-on training to learn how to assist their peers at any step of the process (planning, drafting, or revising) for any writing or speaking assignment. The peer tutors will not make decisions about revision for you and will instead work collaboratively with you to discuss ideas and consider options so that you can choose how best to revise on your own. This collaborative approach is one of the best ways to help students develop their abilities because all writers and speakers need audiences—just ask the peer tutors, who often schedule tutorials with each other. To make an appointment, please visit the <a href="https://www.smcm.edu/writingcenter">Writing Center website</a> and click the “Schedule an Appointment” button on the left side of the page. If you have questions or need assistance, please contact Interim Director Amanda Taylor at <a href="mailto:apheatwole@smcm.edu">apheatwole@smcm.edu</a>.</p>
+</section>
+<section id="course-requirements" class="level2">
+<h2 class="anchored" data-anchor-id="course-requirements">Course Requirements</h2>
+<p>A laptop/desktop with an internet connection is required for this course because the labs and capstone project depend on it. You will run Java locally, use Google Colab in the browser for Python, and install <code>sparkmagic</code> (<code>pip install</code>) to submit PySpark jobs to the instructor-hosted classroom cluster; MongoDB Atlas and Blackboard are used through the browser. Tablets generally don’t work with these tools. <strong>No credit card is required for any tool</strong> — MongoDB Atlas and Google Colab need only a free account. If you don’t have a laptop/desktop, you can borrow a <em>Chromebook</em> from the Library (first-come, first-served; semester-long loan due May 1 or December 1), or work on <em>library desktop computers</em> (Windows) available on the first and second floors. See the <a href="https://library.smcm.edu/services/computers/">SMCM library computing page</a> for details.</p>
+</section>
+<section id="methods-of-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="methods-of-evaluation">Methods of Evaluation</h2>
+<p>Your course grade is based on checkpoints, labs, quizzes, a midterm exam, a final exam, a capstone project, and engaged-learning activities. Most components emphasize hands-on work with real tools.</p>
+<ul>
+<li><strong>Checkpoints (8)</strong> - Short, timed, individual exercises in the last 15–20 min of a lecture session, testing understanding of what was just taught that day. Graded on output: correct = full credit, genuine attempt = partial credit, not attempted = 0.</li>
+<li><strong>Labs (10)</strong> - Full 50-minute hands-on Friday sessions in which you build and run something end-to-end using real tools (Java threading, REST APIs, Hadoop/HDFS, PySpark, MongoDB Atlas, Flask). Graded on completion and correct output.</li>
+<li><strong>Quizzes (8)</strong> - Blackboard multiple-choice and true/false, auto-graded, taken during the last 10–15 min of a Friday lab session. They cover the building-block concepts of each module.</li>
+<li><strong>Midterm Exam</strong> - In-class Blackboard exam (MC + short answer) covering Modules 1–3.</li>
+<li><strong>Final Exam</strong> - Blackboard exam (MC + short answer) during finals week. Comprehensive, but weighted toward Modules 4–6, which are not on the midterm.</li>
+<li><strong>Capstone</strong> - A pair project with a live demo: an end-to-end data pipeline (HDFS → PySpark → MongoDB → Flask dashboard). Graded against a checklist rubric.</li>
+<li><strong>Engaged Learning (6)</strong> - Completion-graded reflection and self-study activities done outside class (see the Engaged Learning section above).</li>
+</ul>
+</section>
+<section id="grading-grade-scale" class="level2">
+<h2 class="anchored" data-anchor-id="grading-grade-scale">Grading &amp; Grade Scale</h2>
+<p>Your final grade will be based on the following components:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Weight</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Checkpoints</td>
+<td>15%</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td>Labs</td>
+<td>10%</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>Quizzes</td>
+<td>15%</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td>Midterm exam</td>
+<td>20%</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>Final exam</td>
+<td>20%</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>Capstone</td>
+<td>15%</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>Engaged Learning</td>
+<td>5%</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>I will determine the exact letter-grade cutoffs at the end of the course. To ensure fairness, I guarantee the <em>minimum</em> grade you will receive based on your overall percentage:</p>
+<p>If adjustments are made to the grading scale, they will only <em>raise</em> your final letter grade, never lower it.</p>
+<p>The table below represents the lowest possible letter grade you can earn for a given percentage.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Points</th>
+<th>Letter Grade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>93 - 100</td>
+<td>A or higher</td>
+</tr>
+<tr class="even">
+<td>86 - 92.9</td>
+<td>A- or higher</td>
+</tr>
+<tr class="odd">
+<td>79 - 85.9</td>
+<td>B+ or higher</td>
+</tr>
+<tr class="even">
+<td>72 - 78.9</td>
+<td>B or higher</td>
+</tr>
+<tr class="odd">
+<td>65 - 71.9</td>
+<td>B- or higher</td>
+</tr>
+<tr class="even">
+<td>58 - 64.9</td>
+<td>C+ or higher</td>
+</tr>
+<tr class="odd">
+<td>51 - 57.9</td>
+<td>C or higher</td>
+</tr>
+<tr class="even">
+<td>44 - 50.9</td>
+<td>C- or higher</td>
+</tr>
+<tr class="odd">
+<td>37 - 43.9</td>
+<td>D+ or higher</td>
+</tr>
+<tr class="even">
+<td>30 - 36.9</td>
+<td>D or higher</td>
+</tr>
+<tr class="odd">
+<td>0 - 29.9</td>
+<td>F or higher</td>
+</tr>
+</tbody>
+</table>
+<p><em>I will publish the grades on Blackboard.</em></p>
+</section>
+<section id="course-attendance-policy" class="level2">
+<h2 class="anchored" data-anchor-id="course-attendance-policy">Course Attendance Policy</h2>
+<p>Attendance is not mandatory, and thus absence from class is not penalized directly, but you will lose out in other ways. Class attendance is the #1 indicator of academic success. OS3 emphatically encourages all students to Go To Class! Class attendance is important for numerous reasons:</p>
+<ul>
+<li>Students tend to remember info more when they attend class.</li>
+<li>Your presence in class shows your instructor that you care about the course and it is important to you. If your grade is borderline at the end of the semester, the instructor may give you the benefit of the doubt because you regularly attended class.</li>
+<li>You/your families are paying to be in class. In-state residents who miss a class are wasting over $56 per class. Out-of-state students who miss a class are throwing away $110 per class!</li>
+<li>Your instructor will likely explain material differently/better than you can learn it yourself, and can answer questions more directly.</li>
+<li>Going to class helps you build community and relationships with peers and your instructors.</li>
+<li>By not going to class, you may miss a pop quiz, participation points, extra credit opportunities, important info, or in-class assignments that can impact your grade.</li>
+</ul>
+<p><a href="https://www.smcm.edu/tothepoint/attendance/">To the Point establishes the baseline attendance policy for SMCM courses</a>.&nbsp;</p>
+<p>Please note: Per the SMCM policy, there is no distinction between “excused” or “unexcused” absences; an absence is an absence.</p>
+</section>
+<section id="late-work-and-missed-assignment-policy" class="level2">
+<h2 class="anchored" data-anchor-id="late-work-and-missed-assignment-policy">Late Work and Missed Assignment Policy</h2>
+<p>Assignments are due at <em>11:59 PM Eastern Time (UTC – 4)</em> on the posted due date, with a one-hour grace period. Submissions received after that time will be subject to a late penalty of <em>10% of the maximum possible points per additional day</em> past the deadline. The minimum grade on any assignment is zero; late penalties will not reduce a score below this.</p>
+<p>Because the penalty accumulates continuously, assignments submitted several days late will earn little or no credit. Please plan accordingly and submit on time.</p>
+<p>This policy is designed to ensure fairness and to allow me to return graded work to the class within 10 days of the due date. General requests for deadline extension requests will not be entertained after the scores for the assessment item has been posted.</p>
+</section>
+<section id="use-of-generative-artificial-intelligence-in-the-classroom" class="level2">
+<h2 class="anchored" data-anchor-id="use-of-generative-artificial-intelligence-in-the-classroom">Use of Generative Artificial Intelligence in the Classroom&nbsp;</h2>
+<p>Generative artificial intelligence (AI) (tools such as ChatGPT, Gemini, Copilot) is a fast-developing tool that greatly impacts the learning process. As with many things, there are times when using these tools is appropriate and when it is not.&nbsp; For this course, <em>I encourage you to use the generative AI tools</em> at your disposal <em>for learning and practice</em>, but <em>not for checkpoints and quizzes</em>. However it is your responsibility to properly evaluate the information created through generative AI. We will discuss how to do this in class, and you should contact me with any questions that you may have if you encounter a situation where it is unclear how to do use AI. Failure to disclose the use generative AI tools in assignments and quizzes may be considered plagiarism and will be handled via the SMCM Academic Misconduct policies.</p>
+</section>
+<section id="course-calendaroutline" class="level2">
+<h2 class="anchored" data-anchor-id="course-calendaroutline">Course Calendar/Outline</h2>
+<p>Session roles: <strong>Monday = Lecture A, Wednesday = Lecture B, Friday = Lab</strong>, except where noted due to holidays.</p>
+<section id="module-1-concurrency-weeks-13-aug-31-sep-18" class="level4">
+<h4 class="anchored" data-anchor-id="module-1-concurrency-weeks-13-aug-31-sep-18">Module 1: Concurrency — Weeks 1–3 (Aug 31 – Sep 18)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Aug 31</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Course intro; why distributed/parallel computing matters; industry cases (Netflix, Google, Amazon)</td>
+</tr>
+<tr class="even">
+<td>Sep 2</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Processes vs.&nbsp;threads; what concurrency means and why it is hard</td>
+</tr>
+<tr class="odd">
+<td>Sep 4</td>
+<td>Fri</td>
+<td><strong>Lab 1</strong></td>
+<td>Thread game — students physically act as threads; simulate a race condition; discuss what went wrong (EL1 assigned)</td>
+</tr>
+<tr class="even">
+<td>Sep 7</td>
+<td>Mon</td>
+<td><em>No class</em></td>
+<td>Labor Day</td>
+</tr>
+<tr class="odd">
+<td>Sep 9</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Race conditions in depth; why they are hard to reproduce; the need for synchronization</td>
+</tr>
+<tr class="even">
+<td>Sep 11</td>
+<td>Fri</td>
+<td><strong>Lab 2</strong></td>
+<td>Java threading — <code>Thread</code>, <code>Runnable</code>, <code>start()</code>, <code>join()</code>; observe non-deterministic output (EL1 due)</td>
+</tr>
+<tr class="odd">
+<td>Sep 14</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Synchronization in Java — <code>synchronized</code> keyword, locks</td>
+</tr>
+<tr class="even">
+<td>Sep 16</td>
+<td>Wed</td>
+<td>Lecture + <strong>Checkpoint 1</strong></td>
+<td>Thread pools and <code>ExecutorService</code>; industry patterns → <em>Checkpoint: fix a synchronization bug in a given Java snippet</em></td>
+</tr>
+<tr class="odd">
+<td>Sep 18</td>
+<td>Fri</td>
+<td>In-class exercises + <strong>Quiz 1</strong></td>
+<td>Sync practice exercises; Quiz 1: Module 1 — Concurrency</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-2-distributed-systems-concepts-weeks-45-sep-21-oct-2" class="level4">
+<h4 class="anchored" data-anchor-id="module-2-distributed-systems-concepts-weeks-45-sep-21-oct-2">Module 2: Distributed Systems Concepts — Weeks 4–5 (Sep 21 – Oct 2)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sep 21</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>What makes distributed systems hard: network failures, partial failures, no shared clock</td>
+</tr>
+<tr class="even">
+<td>Sep 23</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>CAP theorem — consistency, availability, partition tolerance (intuition + examples; no proofs)</td>
+</tr>
+<tr class="odd">
+<td>Sep 25</td>
+<td>Fri</td>
+<td>Case study discussion</td>
+<td>Analyze a real distributed failure (guided worksheet; ungraded in-class activity)</td>
+</tr>
+<tr class="even">
+<td>Sep 28</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Client-server model; HTTP basics; what happens when you type a URL</td>
+</tr>
+<tr class="odd">
+<td>Sep 30</td>
+<td>Wed</td>
+<td>Lecture + <strong>Checkpoint 2</strong></td>
+<td>REST APIs — anatomy of a request/response → <em>Checkpoint: given a REST API response, identify the status code, data format, and one thing that could go wrong</em> (EL2 assigned)</td>
+</tr>
+<tr class="even">
+<td>Oct 2</td>
+<td>Fri</td>
+<td><strong>Lab 3</strong> + <strong>Quiz 2</strong></td>
+<td>Call a public REST API in Java (e.g., Open Library, OpenWeather); parse and display response → Quiz 2: Module 2 — Distributed Concepts</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-3-big-data-mapreduce-weeks-67-oct-5-oct-16" class="level4">
+<h4 class="anchored" data-anchor-id="module-3-big-data-mapreduce-weeks-67-oct-5-oct-16">Module 3: Big Data &amp; MapReduce — Weeks 6–7 (Oct 5 – Oct 16)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 5</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>What is big data? The 3 Vs; industry examples (social media, IoT, genomics, e-commerce logs) (EL3 assigned)</td>
+</tr>
+<tr class="even">
+<td>Oct 7</td>
+<td>Wed</td>
+<td>Lecture + <strong>Checkpoint 3</strong></td>
+<td>MapReduce paradigm — map, shuffle, reduce; word count walkthrough → <em>Checkpoint: given a map() function and input data, write the map-phase output</em> (EL6 assigned)</td>
+</tr>
+<tr class="odd">
+<td>Oct 9</td>
+<td>Fri</td>
+<td><strong>Lab 4</strong></td>
+<td>Write your own MapReduce job — Java Mapper/Reducer for an email-domain counter, run in Hadoop local mode via the classroom terminal</td>
+</tr>
+<tr class="even">
+<td>Oct 12</td>
+<td>Mon</td>
+<td><em>No class</em></td>
+<td>Fall Reading Days</td>
+</tr>
+<tr class="odd">
+<td>Oct 14</td>
+<td>Wed</td>
+<td>Lecture + Midterm review</td>
+<td>Hadoop ecosystem — HDFS, YARN, MapReduce architecture; HDFS commands demo; midterm review</td>
+</tr>
+<tr class="even">
+<td>Oct 16</td>
+<td>Fri</td>
+<td><strong>Lab 5</strong> + <strong>Quiz 3</strong></td>
+<td>Instructor-hosted Hadoop — <code>hdfs dfs -put</code>, run word count, <code>hdfs dfs -cat</code> output → Quiz 3: Module 3 — Big Data &amp; MapReduce (EL6 due)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="midterm-module-4-start-week-8-oct-19-oct-23" class="level4">
+<h4 class="anchored" data-anchor-id="midterm-module-4-start-week-8-oct-19-oct-23">Midterm + Module 4 Start — Week 8 (Oct 19 – Oct 23)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 19</td>
+<td>Mon</td>
+<td><strong>Midterm Exam</strong></td>
+<td>Covers Modules 1–3 (Blackboard — MC + short answer, in-class)</td>
+</tr>
+<tr class="even">
+<td>Oct 21</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Python crash course — syntax, variables, control flow, functions (builds on EL2 and EL3 self-study)</td>
+</tr>
+<tr class="odd">
+<td>Oct 23</td>
+<td>Fri</td>
+<td><strong>Lab 6</strong> + <strong>Quiz 4</strong></td>
+<td>Python exercises in Colab; <code>sparkmagic</code> setup against the classroom cluster → Quiz 4: Python basics (EL2 due)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-4-apache-spark-with-pyspark-weeks-910-oct-26-nov-6" class="level4">
+<h4 class="anchored" data-anchor-id="module-4-apache-spark-with-pyspark-weeks-910-oct-26-nov-6">Module 4: Apache Spark with PySpark — Weeks 9–10 (Oct 26 – Nov 6)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 26</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>What is Spark? Why it improves on MapReduce; RDDs vs.&nbsp;DataFrames (EL4 assigned)</td>
+</tr>
+<tr class="even">
+<td>Oct 28</td>
+<td>Wed</td>
+<td>Lecture + <strong>Checkpoint 4</strong></td>
+<td>PySpark basics — <code>SparkSession</code>, reading CSV, first transformations → <em>Checkpoint: write PySpark code to load a CSV and apply two transformations</em></td>
+</tr>
+<tr class="odd">
+<td>Oct 30</td>
+<td>Fri</td>
+<td><strong>Lab 7</strong> + <strong>Quiz 5</strong></td>
+<td>First PySpark job on the classroom cluster via <code>sparkmagic</code> — create and inspect a DataFrame, chain transformations, and see lazy evaluation / transformations vs.&nbsp;actions with <code>.explain()</code> → Quiz 5: Spark intro</td>
+</tr>
+<tr class="even">
+<td>Nov 2</td>
+<td>Mon</td>
+<td>Lecture + <strong>Checkpoint 5</strong></td>
+<td>PySpark DataFrames — <code>groupBy</code>, <code>orderBy</code>, <code>agg</code>; working with real datasets → <em>Checkpoint: write PySpark code to filter a DataFrame and return the top 3 rows by a given column</em></td>
+</tr>
+<tr class="odd">
+<td>Nov 4</td>
+<td>Wed</td>
+<td><em>No class</em></td>
+<td>Wellness Day</td>
+</tr>
+<tr class="even">
+<td>Nov 6</td>
+<td>Fri</td>
+<td><strong>Lab 8</strong> + <strong>Quiz 6</strong></td>
+<td>PySpark analysis of a real dataset (e.g., movie ratings or NYC taxi data) — answer guided questions → Quiz 6: Spark operations (EL4 due)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-5-distributed-storage-nosql-weeks-1112-nov-9-nov-20" class="level4">
+<h4 class="anchored" data-anchor-id="module-5-distributed-storage-nosql-weeks-1112-nov-9-nov-20">Module 5: Distributed Storage &amp; NoSQL — Weeks 11–12 (Nov 9 – Nov 20)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nov 9</td>
+<td>Mon</td>
+<td>Lecture + <strong>Checkpoint 6</strong></td>
+<td>Why distribute data? Replication, sharding, single points of failure → <em>Checkpoint: given a scenario, identify whether replication or sharding better solves the described problem and why</em></td>
+</tr>
+<tr class="even">
+<td>Nov 11</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>CAP theorem revisited for storage; consistency trade-offs in databases</td>
+</tr>
+<tr class="odd">
+<td>Nov 13</td>
+<td>Fri</td>
+<td>In-class activity</td>
+<td>Storage design worksheet — given 3 scenarios, sketch a storage strategy; class discussion (ungraded)</td>
+</tr>
+<tr class="even">
+<td>Nov 16</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>NoSQL database types — document, key-value, column-family, graph; when to use each</td>
+</tr>
+<tr class="odd">
+<td>Nov 18</td>
+<td>Wed</td>
+<td>Lecture + <strong>Checkpoint 7</strong></td>
+<td>MongoDB — collections, documents, CRUD queries; live demo → <em>Checkpoint: write a MongoDB query to find all documents matching a given condition</em></td>
+</tr>
+<tr class="even">
+<td>Nov 20</td>
+<td>Fri</td>
+<td><strong>Lab 9</strong> + <strong>Quiz 7</strong></td>
+<td>MongoDB Atlas — create a collection, insert documents, run queries, view results → Quiz 7: Distributed Storage &amp; NoSQL</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-6-cloud-computing-microservices-weeks-1314-nov-23-dec-4" class="level4">
+<h4 class="anchored" data-anchor-id="module-6-cloud-computing-microservices-weeks-1314-nov-23-dec-4">Module 6: Cloud Computing &amp; Microservices — Weeks 13–14 (Nov 23 – Dec 4)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Topic / Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nov 23</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Cloud computing — IaaS, PaaS, SaaS; what “deploying to the cloud” actually means; managed services overview (EL5 assigned)</td>
+</tr>
+<tr class="even">
+<td>Nov 25</td>
+<td>Wed</td>
+<td><em>No class</em></td>
+<td>Fall Break</td>
+</tr>
+<tr class="odd">
+<td>Nov 27</td>
+<td>Fri</td>
+<td><em>No class</em></td>
+<td>Fall Break</td>
+</tr>
+<tr class="even">
+<td>Nov 30</td>
+<td>Mon</td>
+<td>Lecture + <strong>Checkpoint 8</strong></td>
+<td>Industry cloud patterns — autoscaling, serverless; microservices vs.&nbsp;monolith → <em>Checkpoint: given a system description, identify whether it is a monolith or microservices architecture and state one trade-off</em> (EL5 due)</td>
+</tr>
+<tr class="odd">
+<td>Dec 2</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Building a REST API with Python Flask — live demo; students follow along</td>
+</tr>
+<tr class="even">
+<td>Dec 4</td>
+<td>Fri</td>
+<td><strong>Lab 10</strong> + <strong>Quiz 8</strong></td>
+<td>Guided Capstone Lab — upload the dataset to HDFS and get <code>spark_job.py</code>’s first aggregation writing to MongoDB Atlas → Quiz 8: Cloud &amp; Microservices</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="capstone-week-15-dec-7-dec-11" class="level4">
+<h4 class="anchored" data-anchor-id="capstone-week-15-dec-7-dec-11">Capstone — Week 15 (Dec 7 – Dec 11)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 4%">
+<col style="width: 25%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Session</th>
+<th>Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dec 7</td>
+<td>Mon</td>
+<td>Capstone work</td>
+<td>Pairs work on pipeline; instructor circulates</td>
+</tr>
+<tr class="even">
+<td>Dec 9</td>
+<td>Wed</td>
+<td>Capstone work</td>
+<td>Open work session / help desk</td>
+</tr>
+<tr class="odd">
+<td>Dec 11</td>
+<td>Fri</td>
+<td>Demos + submission</td>
+<td>2–3 min demo per pair; final submission</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finals-week-week-16" class="level4">
+<h4 class="anchored" data-anchor-id="finals-week-week-16">Finals Week — Week 16</h4>
+<p><strong>Final Exam</strong> on Blackboard during finals week. Comprehensive, MC + short answer, auto-graded.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

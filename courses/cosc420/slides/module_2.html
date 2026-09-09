@@ -1,0 +1,2754 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <meta name="author" content="SI">
+  <title>Class Notes – Module 2: Distributed Systems Concepts</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Module 2: Distributed Systems Concepts</h1>
+  <p class="subtitle">COSC420 — Distributed/Parallel Computing</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+SI 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="session-1-mon-sep-21" class="title-slide slide level1 section center">
+<h1>Session 1 · Mon Sep 21</h1>
+
+</section>
+<section id="what-makes-distributed-systems-hard" class="slide level2">
+<h2>What Makes Distributed Systems Hard</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: One Kitchen, Many Kitchens</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>What Is a Distributed System?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Why Distribute?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>The Catch</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Messages Get Lost, Delayed, or Reordered</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Partial Failures</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>The Timeout Problem: Dead or Just Slow?</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>No Global Clock</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Ordering Without a Shared Clock</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Four Ways a Node Can Fail</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>The Fallacies of Distributed Computing</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Bridge: These Problems Don’t Go Away</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>12 slides, ~50 min. This session is the foundation the entire module rests on — every later session (CAP, REST, the case study) is really “here’s one specific way people manage these exact problems.” Say that explicitly at the start.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-one-kitchen-many-kitchens" class="slide level2">
+<h2>Recap: One Kitchen, Many Kitchens</h2>
+<p>Module 1 ended on this picture: <strong>parallel</strong> = one kitchen, many cooks sharing the same counters. <strong>Distributed</strong> = many separate kitchens, coordinating over the phone, sharing nothing directly.</p>
+<p>Module 2 is entirely about that second picture — and about one hard truth: <strong>the phone line between kitchens is not reliable.</strong></p>
+<ul>
+<li>Each kitchen (a <strong>node</strong>) has its own memory, its own state, its own clock on the wall.</li>
+<li>The only way one kitchen learns anything about another is by <strong>sending a message</strong> — a phone call, a courier — across a network that can be slow, or drop the call, or deliver things out of order.</li>
+<li>Everything in this session is a consequence of that one fact.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Just re-anchor the picture from Module 1’s last slide — don’t re-derive it. This slide’s whole job is continuity.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-is-a-distributed-system" class="slide level2">
+<h2>What Is a Distributed System?</h2>
+<p>A <strong>distributed system</strong> is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.</p>
+<ul>
+<li><strong>Google Search</strong> — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.</li>
+<li><strong>Netflix</strong> — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.</li>
+<li><strong>Your bank’s ATM network</strong> — every ATM is a separate machine, but they all need to agree on your account balance.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Name one app or service you used <em>this morning</em> that you’d guess is a distributed system. What tipped you off — was it the scale, or something about how it behaved?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Let 2–3 students answer the callout question out loud before moving on — email, maps, any app with a login are all fair answers, and hearing several examples cements the definition better than the definition alone.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-distribute" class="slide level2">
+<h2>Why Distribute?</h2>
+<p>Three genuine reasons, not just “because it’s trendy”:</p>
+<ul>
+<li><strong>Scale</strong> — one machine has a ceiling (recall Module 1, Session 1: one machine can’t hold 80 billion rows). A distributed system grows by adding more machines, not by buying an impossibly bigger one.</li>
+<li><strong>Availability</strong> — if one server goes down, others can keep serving requests. A single machine has no backup; if it fails, the whole service fails with it.</li>
+<li><strong>Geography</strong> — serving a user in Tokyo from a datacenter in Tokyo is faster than serving them from Virginia. Distributing lets you put copies of your system physically close to your users.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this brisk and positive — it’s the sales pitch. The very next slide is the catch, and the contrast lands better if this slide doesn’t undercut itself early.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-catch" class="slide level2">
+<h2>The Catch</h2>
+<p>Every benefit on the last slide comes at a cost: <strong>you now have more than one machine that has to agree with itself.</strong></p>
+<ul>
+<li>Networks are unreliable — messages get lost, delayed, or corrupted.</li>
+<li>Machines fail independently — one kitchen can go dark while the others keep cooking.</li>
+<li>Clocks drift — there is no single, shared notion of “now” across separate machines.</li>
+</ul>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>None of this is a bug you can fix once. It’s a permanent property of having more than one computer. The rest of this module — CAP, replication, consistency — is the industry’s answer to “given that these problems never fully go away, how do we build systems that are still useful?”</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This is a framing slide — its only job is to set up the next four slides as elaborations of these three bullets, in order.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="messages-get-lost-delayed-or-reordered" class="slide level2">
+<h2>Messages Get Lost, Delayed, or Reordered</h2>
+<p>Picture one kitchen calling another to relay three orders, one after another. On a single machine, “one after another” is guaranteed. Across a network, it is not.</p>
+<ul>
+<li>A message can be <strong>lost entirely</strong> — the call drops, nobody at either end knows for sure it happened.</li>
+<li>A message can be <strong>delayed</strong> — it arrives seconds, or minutes, later than sent, for reasons neither side controls.</li>
+<li>Messages can <strong>arrive out of order</strong> — the second order can reach the kitchen before the first one, even though they were sent in sequence.</li>
+</ul>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>Two vertical timelines side by side, “Kitchen A” (sender) on the left and “Kitchen B” (receiver) on the right, time flowing downward. Draw three arrows from A to B labeled “Order 1,” “Order 2,” “Order 3” leaving A top-to-bottom in that order, but arriving at B in a scrambled order (e.g., Order 2 arrives first, then Order 1, then Order 3 — draw the arrows crossing each other). Caption: “Sent in order. Arrived out of order.”</p>
+</div>
+</div>
+</div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>If Kitchen A sends “start Order 1” and then “cancel Order 1” a second later, and Kitchen B receives them in the <em>wrong</em> order, what goes wrong? What would you need to add to the messages themselves to prevent it?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Let students actually attempt an answer to the callout before revealing that the usual fix is attaching a sequence number or timestamp to each message — don’t give it away immediately, the point is to let them discover why ordering info has to travel <em>with</em> the message.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="partial-failures" class="slide level2">
+<h2>Partial Failures</h2>
+<ul>
+<li>On a <strong>single machine</strong>, if the CPU fails, everything fails together — one clean, total failure.</li>
+<li>In a <strong>distributed system</strong>, some machines can fail while others keep running perfectly. The system is never simply “up” or “down” — it can be up for some users and down for others, at the same instant.</li>
+<li>This asymmetry is what makes distributed systems fundamentally harder to reason about than single-machine programs: you can no longer assume “the program” is in one consistent state.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Three of a bank’s ten ATMs go offline for an hour. Is the ATM network “working” or “broken”? Who gets to decide — the bank, or each individual customer trying to use it?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> There’s no clean right answer to the callout — that’s the point. “Working for some, broken for others” is a genuinely uncomfortable middle ground that single-machine thinking doesn’t prepare you for.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-timeout-problem-dead-or-just-slow" class="slide level2">
+<h2>The Timeout Problem: Dead or Just Slow?</h2>
+<p>Here is the single hardest consequence of network unreliability: <strong>from the outside, a crashed node and a slow node look identical.</strong></p>
+<ul>
+<li>Kitchen A calls Kitchen B and gets no answer. Is Kitchen B’s phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?</li>
+<li>Kitchen A cannot tell the difference. All it knows is: <em>no response yet.</em></li>
+<li>The only tool available is a <strong>timeout</strong> — waiting some fixed amount of time, then assuming failure. But there’s no “correct” amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that’s truly gone.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>You’re designing the timeout for a payment system. What happens if you set it too short? What happens if you set it too long? Which mistake would you rather make, and why?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is a genuinely famous, unsolved-in-general problem in distributed systems — resist the urge to present a “correct” timeout value, because there isn’t one; the tradeoff itself is the content.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="no-global-clock" class="slide level2">
+<h2>No Global Clock</h2>
+<p>Every kitchen has a wall clock. None of them are perfectly synchronized — each one drifts a little, faster or slower, for entirely mundane reasons (temperature, manufacturing tolerance, when it was last set).</p>
+<ul>
+<li>On a single machine, “what time is it” has one unambiguous answer, from one clock.</li>
+<li>Across machines, <strong>each one has its own clock, and they disagree</strong> — usually by milliseconds, but disagree nonetheless. This is called <strong>clock drift</strong>.</li>
+<li>Worse: even the <em>rate</em> at which each clock runs is slightly different, so the disagreement keeps changing over time, not staying fixed.</li>
+</ul>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>This means you cannot simply timestamp two events on two different machines and trust the timestamps to tell you which one happened first. A “later” timestamp might actually describe an earlier event, if that machine’s clock is running fast.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is likely the most surprising idea in the session for students — most have never had reason to doubt that “5:00:03pm” means the same instant everywhere. Give it room; don’t rush past the callout.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ordering-without-a-shared-clock" class="slide level2">
+<h2>Ordering Without a Shared Clock</h2>
+<p>If you can’t trust timestamps to order events, how do you know which of two things happened first?</p>
+<ul>
+<li><strong>The puzzle:</strong> Kitchen A and Kitchen B both claim they received the same customer’s order “first.” Neither trusts the other’s wall clock. How do you settle it?</li>
+<li><strong>A partial answer:</strong> instead of asking “what time did this happen,” ask “what did this event depend on knowing about?” If Kitchen B’s order explicitly referenced information from Kitchen A’s order (e.g., “adding to the order Kitchen A just confirmed”), then A’s event must have happened first — <em>regardless</em> of what either clock says.</li>
+<li>This idea — ordering by cause-and-effect instead of by clock — is called a <strong>logical clock</strong>, and it’s a real, used solution to exactly this problem. We won’t build one in this course, but the puzzle itself is worth sitting with.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Two students submit an assignment through two different servers, one second apart by each server’s own clock — but the servers’ clocks are known to disagree by up to five seconds. Can you say for certain who submitted first? What evidence <em>would</em> settle it?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Keep the logical-clocks mention brief and conceptual — the goal is “this is a real, solvable problem with real solutions,” not to teach vector clocks in a 50-minute session. The callout question is the actual payload of this slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="four-ways-a-node-can-fail" class="slide level2">
+<h2>Four Ways a Node Can Fail</h2>
+<p>Not all failures look the same. It’s worth naming the shapes:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Failure type</th>
+<th>What it looks like</th>
+<th>Kitchen picture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Crash</strong></td>
+<td>The node stops entirely — cleanest and easiest to detect (eventually)</td>
+<td>The kitchen goes completely dark, no lights, no phone</td>
+</tr>
+<tr class="even">
+<td><strong>Omission</strong></td>
+<td>The node is alive but drops some messages — receives but doesn’t respond, or vice versa</td>
+<td>The phone rings but nobody picks up some of the time</td>
+</tr>
+<tr class="odd">
+<td><strong>Timing</strong></td>
+<td>The node responds, but too slowly to be useful</td>
+<td>The kitchen answers the order an hour after it was needed</td>
+</tr>
+<tr class="even">
+<td><strong>Byzantine</strong></td>
+<td>The node responds with <em>incorrect</em> data — hardware fault, corruption, or a malicious actor</td>
+<td>The kitchen confirms an order it never actually received</td>
+</tr>
+</tbody>
+</table>
+<p>Most real systems are designed to tolerate crash and omission failures. Byzantine failures — where a node actively lies — are far harder to defend against, and are mostly a concern in specialized settings (e.g., systems that must tolerate malicious participants).</p>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Byzantine failures are the one row worth pausing on — ask “why would this be so much harder to detect than a crash?” A crashed node is silent; a Byzantine node looks completely normal while being wrong, which is what makes it dangerous.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-fallacies-of-distributed-computing" class="slide level2">
+<h2>The Fallacies of Distributed Computing</h2>
+<p>In the 1990s, engineers at Sun Microsystems (Peter Deutsch and colleagues) wrote down eight assumptions that programmers new to distributed systems make — and every one of them is false:</p>
+<ol type="1">
+<li>The network is reliable</li>
+<li>Latency is zero</li>
+<li>Bandwidth is infinite</li>
+<li>The network is secure</li>
+<li>Topology doesn’t change</li>
+<li>There is one administrator</li>
+<li>Transport cost is zero</li>
+<li>The network is homogeneous</li>
+</ol>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Pick one of the eight. Describe a concrete way a program would break if a developer believed it was true. (Fallacy 2 — zero latency — is a good one to start with: what breaks if your code assumes a network call returns instantly?)</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> You don’t need to cover all eight in equal depth — 1 (reliability) and 2 (zero latency) are the two most directly relevant to everything else in this session, so weight discussion toward those if time is short.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-these-problems-dont-go-away" class="slide level2">
+<h2>Bridge: These Problems Don’t Go Away</h2>
+<p>Everything in this session — lost messages, partial failures, the timeout problem, clock drift — is permanent. No clever engineering makes any of it disappear.</p>
+<p>What engineering <em>can</em> do is make explicit, principled choices about which problems to tolerate and how. <strong>Next session: the most famous framework for making exactly that choice — the CAP theorem.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> End on this forward-reference. Don’t preview CAP’s content, just the fact that it’s coming and why it matters given everything just covered.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-2-wed-sep-23" class="title-slide slide level1 section center">
+<h1>Session 2 · Wed Sep 23</h1>
+
+</section>
+<section id="the-cap-theorem" class="slide level2">
+<h2>The CAP Theorem</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: Last Time We Broke Everything</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Three Things You’d Want From Any System</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Consistency, Defined Precisely</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Availability, Defined Precisely</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Partition Tolerance, Defined Precisely</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>The Theorem: Pick Two, Not Three</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Why “CA” Isn’t Really an Option</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Worked Scenario: A Partition Happens</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>Consistency-Favoring Systems: When in Doubt, Refuse</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Availability-Favoring Systems: When in Doubt, Answer Anyway</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Choosing Consistency vs.&nbsp;Availability</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Wrap: Bridge to the Case Study</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>12 slides, ~50 min. The definitions slides (Consistency/Availability/Partition Tolerance) need to match Quiz 2’s precise wording — don’t let the informal “pick two” framing on the next slide replace the careful definitions given first.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-last-time-we-broke-everything" class="slide level2">
+<h2>Recap: Last Time We Broke Everything</h2>
+<p>Session 1’s punchline: networks are unreliable, nodes fail independently, and there’s no shared clock. None of that is fixable.</p>
+<p>Given all of that is permanently true, a real system still has to make <em>some</em> promise to its users. The CAP theorem is a precise statement about exactly which promises you can make <strong>at the same time</strong> — and which you can’t.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Brief bridge — the whole session is really “here’s the formal shape of the tradeoff Session 1 kept gesturing at.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="three-things-youd-want-from-any-system" class="slide level2">
+<h2>Three Things You’d Want From Any System</h2>
+<p>Before the acronym, the plain-language wants:</p>
+<ul>
+<li><strong>“Give me correct, up-to-date data.”</strong> — you don’t want a system that tells you your bank balance is $500 when it’s actually $0.</li>
+<li><strong>“Always give me <em>an</em> answer.”</strong> — you don’t want a system that just hangs, refusing to respond at all.</li>
+<li><strong>“Keep working even when part of the network breaks.”</strong> — you don’t want the whole system to go down just because two datacenters temporarily can’t talk to each other.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Before you see the formal theorem: do you think a system could realistically promise all three of these, all the time? What would have to be true for that to work?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Let students guess. Most will say “why not?” — that’s exactly the intuition the theorem is going to correct.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="consistency-defined-precisely" class="slide level2">
+<h2>Consistency, Defined Precisely</h2>
+<p><strong>Consistency</strong> (in CAP): every read returns the most recent successfully written value — or an error. No client ever sees stale or conflicting data.</p>
+<ul>
+<li>Picture every kitchen branch sharing one single, authoritative order book. The instant one branch writes an update, every other branch reading that book sees the update too — instantly, with no lag.</li>
+<li>This is a <strong>strong</strong> guarantee. It is not “eventually correct” — it is “correct right now, every single time you look.”</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Emphasize “or an error” — a consistent system is allowed to refuse to answer rather than answer with stale data; that detail is exactly what makes consistency-favoring systems (two slides ahead) make sense.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="availability-defined-precisely" class="slide level2">
+<h2>Availability, Defined Precisely</h2>
+<p><strong>Availability</strong> (in CAP): every request to a working node receives a response — the system never simply times out or refuses. That response is <strong>not guaranteed</strong> to reflect the most recent write.</p>
+<ul>
+<li>Picture every kitchen branch always answering the phone and giving <em>some</em> answer to “what’s in my order” — even if that branch hasn’t heard about a change another branch just made.</li>
+<li>This is a weaker promise than it sounds: <strong>“always answers” is not the same as “always answers correctly.”</strong> An available system can be wrong and still be available, as long as it responds.</li>
+</ul>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>This precise wording matters for the quiz: Availability means <em>a response happens</em>, not that the response is <em>up to date</em>. Confusing “available” with “correct” is the single most common mistake with this definition.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The callout is worth reading verbatim — this exact confusion (available = correct) is the wrong answer on the quiz’s Availability question.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="partition-tolerance-defined-precisely" class="slide level2">
+<h2>Partition Tolerance, Defined Precisely</h2>
+<p><strong>Partition tolerance:</strong> the system continues to operate even when the network splits it into groups that cannot communicate with each other.</p>
+<ul>
+<li>A <strong>network partition</strong> is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.</li>
+<li>“Tolerating” a partition doesn’t mean the partition doesn’t happen — it means the system keeps doing <em>something</em> useful on both sides of the split, rather than simply freezing entirely.</li>
+</ul>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt break drawn across a dashed line separating the two clusters, labeled “Network Partition.” Within each cluster, branches are still connected to each other by solid lines (they can talk internally); no lines cross the break. Caption: “Both sides are still alive. Neither side can hear the other.”</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Get the diagram description across verbally even without the drawn version yet — “two groups, each internally fine, cut off from each other” is the exact picture the CAP theorem’s “P” is about.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-theorem-pick-two-not-three" class="slide level2">
+<h2>The Theorem: Pick Two, Not Three</h2>
+<p><strong>The CAP theorem:</strong> when a network partition occurs, a distributed system must choose between Consistency and Availability. It cannot have both, at the same time, during the partition.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>C</strong>onsistency</td>
+<td>Every read gets the latest write, or an error</td>
+</tr>
+<tr class="even">
+<td><strong>A</strong>vailability</td>
+<td>Every request gets <em>a</em> response</td>
+</tr>
+<tr class="odd">
+<td><strong>P</strong>artition tolerance</td>
+<td>The system keeps working despite a network split</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Why can’t you have all three? During a partition, one side of the split cannot reach the other. If it wants to stay <strong>available</strong> (answer requests), it must answer using only what it locally knows — which might be <strong>stale</strong>, violating consistency. If it wants to stay <strong>consistent</strong>, it must refuse to answer until it can confirm it has the latest data — violating availability. There is no third option once the partition has actually happened.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Walk the callout’s logic slowly, out loud — this is the actual proof sketch of the theorem in plain language, and it’s worth more time than the table itself.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-ca-isnt-really-an-option" class="slide level2">
+<h2>Why “CA” Isn’t Really an Option</h2>
+<p>The theorem is often summarized as “pick two of three” — implying CA (Consistency + Availability, no Partition tolerance) is a valid third choice. In practice, it mostly isn’t.</p>
+<ul>
+<li>Choosing “no partition tolerance” means promising the network will never split. At internet scale — many machines, many datacenters, the public internet in between — that promise <strong>will</strong> be broken eventually.</li>
+<li>When it is, a CA system has no principled answer: it wasn’t designed to handle the partition at all.</li>
+<li><strong>In practice, you choose to favor consistency or favor availability</strong> — the real design decision is what happens <em>during</em> a partition, not whether you can avoid partitions altogether.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Can you think of any real system, at any scale, where you’d be confident a network partition will <em>never</em> happen? What would have to be true about it?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This directly matches Quiz 2’s true/false question on CA systems — make sure “networks partition eventually, at scale” is stated as plainly as it is here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-scenario-a-partition-happens" class="slide level2">
+<h2>Worked Scenario: A Partition Happens</h2>
+<p>A distributed order-tracking system has two datacenters, East and West, normally kept in sync. The network between them just went down — a partition.</p>
+<p>A customer in the East datacenter’s region asks: <strong>“What’s the status of my order?”</strong></p>
+<ul>
+<li><strong>Option 1 (favor Consistency):</strong> East checks whether it can confirm its data matches West’s latest state. It can’t — West is unreachable. East returns an error: “Unable to confirm latest status, try again later.”</li>
+<li><strong>Option 2 (favor Availability):</strong> East answers immediately with whatever it has locally — which might be a minute out of date if West processed an update East hasn’t heard about yet.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Which option would you choose if this were a <strong>hospital’s</strong> patient-monitoring system? Which would you choose for a <strong>social media</strong> “like” counter? What’s actually different about these two cases?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is the session’s centerpiece — let students actually argue both sides before revealing that “it depends on the cost of being wrong,” which is exactly what the next three slides formalize.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="consistency-favoring-systems-when-in-doubt-refuse-to-answer" class="slide level2">
+<h2>Consistency-Favoring Systems: When in Doubt, Refuse to Answer</h2>
+<p><strong>Consistency-favoring systems</strong> sacrifice availability during a partition — they’d rather give no answer than a possibly-wrong one.</p>
+<ul>
+<li>Traditional relational databases (PostgreSQL, MySQL, in their typical single-primary configurations)</li>
+<li>HBase, ZooKeeper</li>
+<li>Anywhere being <em>wrong</em> is worse than being <em>unavailable</em> — financial transactions, inventory counts that must never oversell, coordination systems other services depend on for correctness</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Tie directly back to the hospital half of the previous slide’s callout — “refuse to answer” is the right instinct exactly when a wrong answer could cause real harm.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="availability-favoring-systems-when-in-doubt-answer-anyway" class="slide level2">
+<h2>Availability-Favoring Systems: When in Doubt, Answer Anyway</h2>
+<p><strong>Availability-favoring systems</strong> sacrifice strict consistency during a partition — they’d rather give a possibly-stale answer than no answer at all.</p>
+<ul>
+<li>Cassandra, DynamoDB, CouchDB</li>
+<li>DNS — described further in Session 4</li>
+<li>Anywhere being <em>unavailable</em> is worse than being briefly <em>out of date</em> — a shopping cart, a social media feed, a “likes” counter</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Tie back to the social-media half of the previous slide’s callout — nobody is harmed if a like count is off by a few for a minute, but a shopping cart that refuses to load loses the sale outright.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="choosing-consistency-vs.-availability" class="slide level2">
+<h2>Choosing Consistency vs.&nbsp;Availability</h2>
+<p>There is no universally “correct” choice — it depends entirely on <strong>which failure mode costs you more.</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th>Cost of stale data</th>
+<th>Cost of no answer</th>
+<th>Likely choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bank balance</td>
+<td>High — could overdraw an account</td>
+<td>Moderate — customer waits</td>
+<td><strong>Consistency-favoring</strong></td>
+</tr>
+<tr class="even">
+<td>Shopping cart</td>
+<td>Low — item count off by one, briefly</td>
+<td>High — lost sale</td>
+<td><strong>Availability-favoring</strong></td>
+</tr>
+<tr class="odd">
+<td>Airline seat booking</td>
+<td>High — double-booked seat</td>
+<td>Moderate — customer retries</td>
+<td><strong>Consistency-favoring</strong></td>
+</tr>
+<tr class="even">
+<td>Social media like count</td>
+<td>Very low — nobody notices</td>
+<td>Low-moderate — feels broken</td>
+<td><strong>Availability-favoring</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Pick a system you use often. Would you guess it favors consistency or availability — and what evidence from how it <em>behaves</em> when things go wrong would tell you which one it actually is?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Encourage genuinely varied answers to the callout — the point isn’t a single correct system to name, it’s the reasoning process of inferring a design choice from observed behavior.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="wrap-bridge-to-the-case-study" class="slide level2">
+<h2>Wrap: Bridge to the Case Study</h2>
+<p>You now have the vocabulary to analyze a real distributed system failure precisely: was it a Consistency problem, an Availability problem, or the moment a partition forced a choice between them?</p>
+<p><strong>Friday: we apply exactly this to a real, documented outage.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Close with the forward-reference. No new content — just make sure the consistency-favoring/availability-favoring vocabulary feels ready to use before Friday.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-3-fri-sep-25" class="title-slide slide level1 section center">
+<h1>Session 3 · Fri Sep 25</h1>
+
+</section>
+<section id="case-study-discussion-a-real-network-partition" class="slide level2">
+<h2>Case Study Discussion: A Real Network Partition</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total) — this is an ungraded, discussion-driven in-class activity, not a lecture. Slides here are prompts, not content to present at students.</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Framing: No New Concepts Today</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
+<td>The Incident: Setting the Scene</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>The Trigger: A Brief Network Partition</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Discussion: Predict What Should Happen</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>What Actually Happened: Split-Brain</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Discussion: Consistency Problem, Availability Problem, or Both?</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>The Recovery: Choosing Consistency</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Discussion: Was That the Right Call?</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>Connecting to the Fallacies</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Small-Group Exercise: Diagnose Your Own Scenario</td>
+<td>7 min</td>
+</tr>
+<tr class="odd">
+<td>Wrap-Up</td>
+<td>2 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Instructor note:</strong> the case study below is a real, publicly documented incident (GitHub’s database infrastructure, October 2018), summarized here for teaching purposes with approximate figures. Before presenting, pull up GitHub’s own public incident-analysis blog post to confirm exact numbers and, ideally, project it live during the “setting the scene” slide — reading from the primary source adds credibility that a paraphrase can’t.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="framing-no-new-concepts-today" class="slide level2">
+<h2>Framing: No New Concepts Today</h2>
+<p>Today, no new theory — we take everything from Sessions 1 and 2 (partial failure, network partitions, CAP, the timeout problem) and apply it to something that actually happened to a real company, on real infrastructure.</p>
+<p>Your job for the next 45 minutes: <strong>think like the engineers who had to make these decisions in real time</strong>, without knowing the ending in advance.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Set the tone: this is discussion, not lecture. Resist the urge to over-explain before the class has had a chance to guess.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-incident-setting-the-scene" class="slide level2">
+<h2>The Incident: Setting the Scene</h2>
+<p>In October 2018, GitHub — a service used by millions of developers daily — experienced a major outage affecting the accuracy and availability of data for roughly 24 hours.</p>
+<ul>
+<li>GitHub’s database infrastructure spans multiple physical datacenters on the US East and West coasts, kept in sync so that any datacenter can serve requests with up-to-date data.</li>
+<li>The trigger was small: a routine piece of network maintenance caused a <strong>brief network partition</strong> — on the order of tens of seconds — between two of their East Coast facilities.</li>
+<li>A partition lasting under a minute ended up causing a day-long incident. That gap between cause and consequence is exactly what today is about.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Don’t reveal the split-brain mechanism yet — the whole point of the next few slides is to have students reason toward it themselves.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-trigger-a-brief-network-partition" class="slide level2">
+<h2>The Trigger: A Brief Network Partition</h2>
+<p>For those tens of seconds, part of GitHub’s database cluster on the East Coast could not communicate with the rest of the cluster.</p>
+<ul>
+<li>GitHub’s database system is designed with automatic failover: if the primary database (the one accepting writes) becomes unreachable, the system can automatically promote a different copy to become the new primary.</li>
+<li>That’s a reasonable design — it’s meant to preserve availability during exactly this kind of network hiccup.</li>
+<li>But automatic failover during a partition is precisely the scenario Session 2 warned about: <strong>both sides of a partition might independently believe they are now in charge.</strong></li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Let this slide’s last line sit — it’s a direct setup for the next discussion prompt.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="discussion-predict-what-should-happen" class="slide level2">
+<h2>Discussion: Predict What Should Happen</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it — discuss in pairs (2 min), then share</strong></p>
+</div>
+<div class="callout-content">
+<p>Given everything from Session 2: if a network partition briefly separates a database’s primary copy from the rest of the cluster, and the rest of the cluster automatically promotes a new primary to keep serving requests — what happens when the partition heals a few seconds later and <strong>both</strong> copies think they’re the real primary?</p>
+</div>
+</div>
+</div>
+<p>Write down your prediction before the next slide reveals what actually happened.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min including discussion.</strong> Circulate and listen for the phrase “which one is right” or “conflicting data” — that’s the answer the class needs to arrive at collectively before the reveal.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-actually-happened-split-brain" class="slide level2">
+<h2>What Actually Happened: Split-Brain</h2>
+<p>This exact scenario is called <strong>split-brain</strong>: two nodes, each convinced it is the sole authority, both accepting writes independently.</p>
+<ul>
+<li>During those tens of seconds, a small number of writes were accepted by <strong>both</strong> the original primary and the newly promoted one — each unaware of the other’s writes.</li>
+<li>When the partition healed, GitHub’s systems had <strong>two divergent versions of recent data</strong>, and no automatic way to know which write in each conflicting pair was the “real” one.</li>
+<li>This is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.</li>
+</ul>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>Two database-cylinder icons labeled “Original Primary” and “Newly Promoted Primary,” side by side with a jagged break between them (reuse the partition-break style from Session 2’s diagram). Under each cylinder, draw a small stack of write-icons flowing in — different writes on each side — to show both accepting writes independently during the split. Below, a merge arrow pointing from both cylinders down into one box labeled “Reconciliation (~24 hours)” with a question mark on the two divergent write-stacks feeding into it. Caption: “Both sides kept working. That’s the problem.”</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> If a group’s earlier prediction named “conflicting data” or similar, credit it explicitly before revealing this slide’s framing — it reinforces that the reasoning, not just the fact, is the point.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="discussion-consistency-problem-availability-problem-or-both" class="slide level2">
+<h2>Discussion: Consistency Problem, Availability Problem, or Both?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it — discuss in pairs (3 min), then share</strong></p>
+</div>
+<div class="callout-content">
+<p>Using Session 2’s precise definitions: was the <em>root cause</em> of this incident a Consistency failure, an Availability failure, or something else entirely? (Hint: was the system actually unavailable during those tens of seconds — or did trying too hard to stay available cause the real damage?)</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 6 min including discussion.</strong> The intended insight: the partition itself briefly threatened availability, but the automatic-failover mechanism’s attempt to <em>preserve</em> availability is what created the consistency violation. It’s a case where optimizing for one side of CAP directly caused the failure on the other side — a subtler lesson than “pick consistency or availability” makes it sound.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-recovery-choosing-consistency" class="slide level2">
+<h2>The Recovery: Choosing Consistency</h2>
+<p>Once GitHub discovered the divergent data, they faced the same fork in the road as Session 2’s worked scenario — except now with real, already-written, conflicting data.</p>
+<ul>
+<li>They chose <strong>consistency over availability</strong> for the recovery: rather than guess which conflicting writes were correct (or serve stale/wrong data), they took the affected systems partially offline and manually reconciled the data.</li>
+<li>This is why a network issue lasting under a minute produced an outage lasting <strong>around 24 hours</strong> — the partition itself was brief, but restoring a trustworthy, consistent state took far longer than the failure that caused the mess.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Emphasize the asymmetry: the trigger was seconds, the consequence was a day. That gap is the single most important fact of the whole case study to remember.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="discussion-was-that-the-right-call" class="slide level2">
+<h2>Discussion: Was That the Right Call?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it — small groups (3–4 students), 4 min, then share</strong></p>
+</div>
+<div class="callout-content">
+<p>GitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data. Do you agree with that choice, for a code-hosting platform specifically? Would your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system? What’s the actual variable that should decide this, in general?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 6 min including discussion.</strong> Push groups toward naming “the cost of being wrong vs.&nbsp;the cost of being unavailable” explicitly — that’s the same axis from Session 2’s consistency-vs-availability table, now applied to a real, harder case where the “right” answer is genuinely debatable.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="connecting-to-the-fallacies" class="slide level2">
+<h2>Connecting to the Fallacies</h2>
+<p>Look back at Session 1’s eight fallacies of distributed computing. Which ones does this incident illustrate?</p>
+<ul>
+<li><strong>“The network is reliable”</strong> — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.</li>
+<li><strong>“Topology doesn’t change”</strong> — the automatic failover mechanism existed <em>because</em> the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Can you connect a third fallacy from Session 1’s list to some part of this incident?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Leave the third fallacy genuinely open — several are defensible (e.g., “there is one administrator” relates to coordinating a fix across a large engineering org during an active incident).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="small-group-exercise-diagnose-your-own-scenario" class="slide level2">
+<h2>Small-Group Exercise: Diagnose Your Own Scenario</h2>
+<p>In groups of 3–4, pick <strong>one</strong> of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?</p>
+<ol type="1">
+<li><strong>A ride-sharing app’s driver-location service</strong> loses connection between two regional servers for 30 seconds.</li>
+<li><strong>A university’s course-registration system</strong> briefly can’t confirm seat counts are in sync across two servers during peak registration.</li>
+<li><strong>A multiplayer game’s leaderboard</strong> can’t sync scores between two regions for a few minutes during a network blip.</li>
+</ol>
+<p>Be ready to defend your choice to the class — including what you’d do differently from GitHub’s approach, if anything.</p>
+<aside class="notes">
+<p><strong>Timing: 7 min, including a couple of groups reporting back.</strong> If time is short, cut to 2 scenarios rather than rushing all 3 — depth of discussion matters more than covering everything.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="wrap-up" class="slide level2">
+<h2>Wrap-Up</h2>
+<p>Today’s takeaway isn’t “GitHub made a mistake” — their recovery choice was defensible and matches the consistency-favoring reasoning from Session 2. The real lesson is narrower and more useful:</p>
+<p><strong>A partition lasting seconds can create a consequence lasting a day, and the choice of how to respond to it is a design decision made in advance, not improvised during the incident.</strong></p>
+<p>Monday: back to new material — the client-server model, and what actually happens when you type a URL into a browser.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Close on the forward-reference to keep momentum into Session 4.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-4-mon-sep-28" class="title-slide slide level1 section center">
+<h1>Session 4 · Mon Sep 28</h1>
+
+</section>
+<section id="client-server-model-what-happens-when-you-type-a-url" class="slide level2">
+<h2>Client-Server Model &amp; What Happens When You Type a URL</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: From Failures to How Things Talk</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>The Client-Server Model</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Not Every Server Is Only a Server</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>The Journey of a URL — Step 1: The Address Book (DNS)</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Step 2: Opening the Line (TCP Connection)</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Step 3: Sending the Request</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Step 4: The Server Does the Work</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Step 5: The Response Comes Back</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>The Whole Journey, Start to Finish</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>HTTP: The Standard Order Form</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>HTTP Verbs</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Wrap: Bridge to REST</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>12 slides, ~50 min. This session introduces vocabulary (client, server, DNS, HTTP) that Session 5 uses constantly — don’t let it run short even if discussion runs long elsewhere, since Session 5 assumes all of this is solid.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-from-failures-to-how-things-talk" class="slide level2">
+<h2>Recap: From Failures to How Things Talk</h2>
+<p>Sessions 1–3 were about what goes <em>wrong</em>: lost messages, partitions, split-brain. Today, before going further, we need the basics of how machines talk to each other <strong>when things go right</strong> — the client-server model and HTTP.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Brief tonal shift — signal explicitly that today is foundational/mechanical rather than failure-focused, so students recalibrate expectations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-client-server-model" class="slide level2">
+<h2>The Client-Server Model</h2>
+<p>The most common shape of communication between two machines: one asks, one answers.</p>
+<ul>
+<li>The <strong>client</strong> initiates a request. Your laptop’s browser, your phone’s app — these are clients.</li>
+<li>The <strong>server</strong> receives the request, does whatever work is needed, and sends back a response. A kitchen branch answering the phone is the server; the customer calling in is the client.</li>
+<li>Crucially: <strong>the client always initiates.</strong> A server doesn’t call you out of the blue to tell you your order is ready — you have to ask.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Name three client-server interactions you had <em>this morning</em> — before you even opened this course’s slides. (Hint: your phone checking for notifications counts.)</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Let several students answer — email, weather app, any login screen, a map loading — the goal is making them notice how constant and invisible this pattern already is in their daily life.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="not-every-server-is-only-a-server" class="slide level2">
+<h2>Not Every Server Is Only a Server</h2>
+<p>Real systems are rarely just “one client, one server” — they’re chains.</p>
+<ul>
+<li>When your browser asks a web server for a page, that web server might itself act as a <strong>client</strong> to a database server, asking it for the data needed to build the page.</li>
+<li>Distributed systems are often long chains of client-server relationships: browser → web server → application server → database — each link in the chain plays “client” to the one after it, and “server” to the one before it.</li>
+<li>This is why “client” and “server” describe a <strong>role in a specific interaction</strong>, not a permanent label on a machine.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Worth a quick concrete trace: “when you load Netflix’s homepage, how many client-server hops do you think happen before you see a single thumbnail?” — no need for a precise answer, just to loosen the assumption that it’s always exactly one hop.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-journey-of-a-url-step-1-the-address-book-dns" class="slide level2">
+<h2>The Journey of a URL — Step 1: The Address Book (DNS)</h2>
+<p>You type <code>www.example.com</code> into your browser. The very first problem: <strong>that’s a name, not an address.</strong> Computers on a network find each other using numeric addresses (IP addresses), not human-friendly names.</p>
+<ul>
+<li><strong>DNS (Domain Name System)</strong> is the internet’s address book — it translates a human-readable name like <code>www.example.com</code> into a numeric address like <code>93.184.216.34</code>.</li>
+<li>Kitchen picture: you know the <em>name</em> of a restaurant branch, not its phone number. DNS is the phone directory you look the name up in before you can actually call.</li>
+<li>This lookup happens automatically, in milliseconds, before your browser can even attempt to contact the server.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> No need to go deep into DNS internals (recursive resolvers, caching, etc.) — the one idea to land is “names have to be translated to addresses before anything else can happen.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-2-opening-the-line-tcp-connection" class="slide level2">
+<h2>Step 2: Opening the Line (TCP Connection)</h2>
+<p>With the numeric address in hand, your browser opens a connection to that machine.</p>
+<ul>
+<li>This is like the phone actually starting to ring at the other end — a <strong>connection</strong> is established between your machine and the server, over which data can now flow in both directions.</li>
+<li>We won’t go deep into how this connection is established (that’s networking-course territory) — the one thing to know is that it happens <strong>before</strong> any actual request is sent, and it can itself fail (recall Session 1: the line can be slow to open, or fail to open at all).</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Deliberately light-touch — no TCP handshake details, no OS/networking vocabulary. The goal is just to have a named step between “found the address” and “sent the request,” not to teach networking.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-3-sending-the-request" class="slide level2">
+<h2>Step 3: Sending the Request</h2>
+<p>With the line open, your browser sends an actual <strong>request</strong> — a structured message asking for something specific.</p>
+<ul>
+<li>The request names what’s being asked for (which page, which resource) and how (more on this in a moment).</li>
+<li>Kitchen picture: the call has connected, and now you actually place your order — not just “hello,” but “I’d like the Tuesday special, extra large.”</li>
+<li>The request travels across the network to the server — and, as Session 1 established, that trip is not instant and not guaranteed.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is the natural moment to plant “the request has a <em>format</em>” without fully teaching HTTP yet — that’s two slides away, after the response side of the story is told first.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-4-the-server-does-the-work" class="slide level2">
+<h2>Step 4: The Server Does the Work</h2>
+<p>The server receives the request and does whatever is needed to fulfill it.</p>
+<ul>
+<li>This might be as simple as reading a file off disk, or as complex as querying a database, running a computation, or — per the previous slide’s chain idea — becoming a <em>client</em> itself to another server.</li>
+<li>How long this takes varies enormously: a cached, simple page might take milliseconds; a page that requires a complex database query might take much longer.</li>
+<li>Kitchen picture: the branch has your order, and is now actually cooking it — this is the part of the phone call where you’re on hold.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Brief — the mechanics of server-side processing aren’t this course’s focus; the point is just naming this as a distinct step with its own variable duration.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-5-the-response-comes-back" class="slide level2">
+<h2>Step 5: The Response Comes Back</h2>
+<p>Once the work is done, the server sends a <strong>response</strong> back across the same connection — the requested data, plus information about whether the request succeeded.</p>
+<ul>
+<li>Kitchen picture: the branch calls back with your order — “here it is,” or “sorry, we’re out of that.”</li>
+<li>Your browser receives the response and <strong>renders</strong> it — turning the raw data into the page you actually see.</li>
+<li>This is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1’s failure catalogue.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-whole-journey-start-to-finish" class="slide level2">
+<h2>The Whole Journey, Start to Finish</h2>
+<pre><code>1. You type www.example.com
+        ↓
+2. DNS lookup: name → numeric address     (the address book)
+        ↓
+3. Connection opens to that address        (the phone line connects)
+        ↓
+4. Browser sends a request                 (you place your order)
+        ↓
+5. Server does the work                    (the kitchen cooks)
+        ↓
+6. Server sends a response                 (the callback: "here it is")
+        ↓
+7. Browser renders the response            (you see the page)</code></pre>
+<p>Every one of these seven steps takes real time, and every one of them can fail independently — this single, everyday action is itself a small distributed system, with all the properties Sessions 1–3 described.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>A horizontal 7-step flow, browser icon on the left, server icon on the right, DNS depicted as a small “address book” icon above the line between them (queried before the main connection line is drawn). Number each step 1–7 matching the list above, with small icons: a magnifying glass for DNS lookup, a phone/plug icon for the connection, an envelope for the request, a gear/pot icon for server processing, a return envelope for the response, and an eye icon for rendering.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This is the payoff slide of the session — walk it top to bottom, and explicitly connect back: “this is why loading a single web page is not instantaneous, and why it sometimes fails partway through.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="http-the-standard-order-form" class="slide level2">
+<h2>HTTP: The Standard Order Form</h2>
+<p>Step 4 (sending a request) and step 6 (sending a response) both need to happen in a format <strong>both sides agree on</strong> — otherwise the server couldn’t understand the request, or the browser couldn’t understand the response.</p>
+<ul>
+<li><strong>HTTP (HyperText Transfer Protocol)</strong> is that agreed-upon format. It’s a set of rules both client and server follow for how requests and responses are structured.</li>
+<li>Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Why does <em>everyone</em> need to agree on the same request/response format, rather than each server inventing its own? What would break if they didn’t?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The callout’s answer is really “interoperability” — any client can talk to any HTTP server, precisely because the format is standardized rather than server-specific. Let students arrive at that themselves before naming it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="http-verbs" class="slide level2">
+<h2>HTTP Verbs</h2>
+<p>An HTTP request always names an <strong>action</strong> it wants performed — the verb:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Verb</th>
+<th>Operation</th>
+<th>Kitchen picture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>GET</code></td>
+<td>Read a resource</td>
+<td>“What’s in order #42?”</td>
+</tr>
+<tr class="even">
+<td><code>POST</code></td>
+<td>Create a new resource</td>
+<td>“Start a brand-new order”</td>
+</tr>
+<tr class="odd">
+<td><code>PUT</code></td>
+<td>Replace a resource entirely</td>
+<td>“Throw out order #42, replace it with this”</td>
+</tr>
+<tr class="even">
+<td><code>PATCH</code></td>
+<td>Partially update a resource</td>
+<td>“Just change the drink on order #42”</td>
+</tr>
+<tr class="odd">
+<td><code>DELETE</code></td>
+<td>Remove a resource</td>
+<td>“Cancel order #42”</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> These five verbs, and being able to pick the right one for a scenario, are directly tested (Quiz 2’s HTTP methods question) — worth a quick “which verb?” cold-call for a couple of scenarios before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="wrap-bridge-to-rest" class="slide level2">
+<h2>Wrap: Bridge to REST</h2>
+<p>Today gave you the mechanics: client, server, DNS, connections, and HTTP as the shared format both sides speak.</p>
+<p><strong>Wednesday: REST — the specific <em>style</em> of using HTTP that almost the entire industry has converged on, and the format Checkpoint 2 will test you on directly.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Close on the forward-reference — Session 5 builds directly and immediately on today’s HTTP-verbs slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-5-wed-sep-30" class="title-slide slide level1 section center">
+<h1>Session 5 · Wed Sep 30</h1>
+
+</section>
+<section id="rest-apis-anatomy-of-a-request-response-checkpoint-2" class="slide level2">
+<h2>REST APIs: Anatomy of a Request &amp; Response + Checkpoint 2</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: HTTP Is the Protocol, REST Is the Style</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>What Makes an API “RESTful”?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Statelessness</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Anatomy of a Request</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Anatomy of a Response</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>HTTP Status Codes</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>JSON: The Language of REST Responses</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Worked Example: Reading a Real Response</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>Why Industry Uses REST Everywhere</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Lab 3 Preview</td>
+<td>2 min</td>
+</tr>
+<tr class="odd">
+<td>Checkpoint 2 Preview &amp; Review</td>
+<td>4 min</td>
+</tr>
+</tbody>
+</table>
+<p>That’s ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-http-is-the-protocol-rest-is-the-style" class="slide level2">
+<h2>Recap: HTTP Is the Protocol, REST Is the Style</h2>
+<p>Session 4 gave you HTTP: the shared format for requests and responses. HTTP itself is fairly general — it can be used in many ways.</p>
+<p><strong>REST (Representational State Transfer)</strong> is a specific, disciplined <em>style</em> of using HTTP that the industry has largely standardized on for building APIs. Today: what makes an API count as RESTful, and how to read one.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Brief — just draw the HTTP-vs-REST distinction (protocol vs.&nbsp;a style of using it) before the rest of the session builds on it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-makes-an-api-restful" class="slide level2">
+<h2>What Makes an API “RESTful”?</h2>
+<ul>
+<li><strong>Resources have URLs.</strong> Every “thing” the API exposes — a user, an order, a book — is identified by a URL, e.g.&nbsp;<code>/users/42</code> or <code>/orders/17</code>.</li>
+<li><strong>The verb says what to do; the URL says what to do it to.</strong> <code>GET /users/42</code> reads user 42. <code>DELETE /orders/17</code> removes order 17. Same verbs from Session 4, now paired with specific resource URLs.</li>
+<li><strong>One API, many endpoints.</strong> A single REST API commonly exposes many different URLs for different resources — <code>/users</code>, <code>/orders</code>, <code>/products</code> might all live under the same API.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This slide directly matches Quiz 2’s REST-structure question — “identified by a URL and an HTTP method” and “a single API can expose multiple endpoints” are both verbatim-testable ideas here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="statelessness" class="slide level2">
+<h2>Statelessness</h2>
+<p><strong>REST is stateless:</strong> each request must contain everything the server needs to understand and fulfill it. The server does not remember anything about you between requests.</p>
+<ul>
+<li>Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
+<li>This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>If a server had to remember every client’s conversation history, what would that make harder when you’re trying to scale the service across many machines?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The callout’s intended answer connects directly back to Module 1/Session 1’s scaling motivation — remembering per-client state ties a client to a specific machine, which fights against the “add more machines” scaling story.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="anatomy-of-a-request" class="slide level2">
+<h2>Anatomy of a Request</h2>
+<pre><code>GET /users/42 HTTP/1.1
+Host: api.example.com
+Accept: application/json</code></pre>
+<ul>
+<li><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
+<li><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
+<li>Some requests (like <code>POST</code> or <code>PUT</code>) also include a <strong>body</strong> — the actual data being sent, e.g.&nbsp;the details of a new order to create.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep headers light — <code>Host</code> and <code>Accept</code> are enough to establish “headers carry metadata,” without a full catalogue of HTTP headers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="anatomy-of-a-response" class="slide level2">
+<h2>Anatomy of a Response</h2>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Alice", "email": "alice@example.com"}</code></pre>
+<ul>
+<li><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
+<li><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
+<li><strong>Body:</strong> the actual data requested.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Point out explicitly: <code>Content-Type</code> is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="http-status-codes" class="slide level2">
+<h2>HTTP Status Codes</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Range</th>
+<th>Meaning</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2xx</td>
+<td>Success</td>
+<td><code>200 OK</code>, <code>201 Created</code></td>
+</tr>
+<tr class="even">
+<td>3xx</td>
+<td>Redirect</td>
+<td><code>301 Moved Permanently</code></td>
+</tr>
+<tr class="odd">
+<td>4xx</td>
+<td>Client error — you asked for something wrong</td>
+<td><code>400 Bad Request</code>, <code>404 Not Found</code>, <code>401 Unauthorized</code></td>
+</tr>
+<tr class="even">
+<td>5xx</td>
+<td>Server error — something broke on their end</td>
+<td><code>500 Internal Server Error</code>, <code>503 Service Unavailable</code></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Why does it matter whether an error is 4xx (your fault) versus 5xx (their fault)? What would you do differently, as the client, in each case?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The callout’s intended answer: a 4xx means retrying the exact same request will fail again (you need to fix your request), while a 5xx might succeed on retry (the problem is transient, on the server side) — this is a genuinely useful distinction for real debugging, not just quiz trivia. Memorize 200, 201, 400, 401, 403, 404, 500 — the most commonly tested set.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="json-the-language-of-rest-responses" class="slide level2">
+<h2>JSON: The Language of REST Responses</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb4-1"><a></a><span class="fu">{</span></span>
+<span id="cb4-2"><a></a>  <span class="dt">"book"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-3"><a></a>    <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Designing Data-Intensive Applications"</span><span class="fu">,</span></span>
+<span id="cb4-4"><a></a>    <span class="dt">"author"</span><span class="fu">:</span> <span class="st">"Martin Kleppmann"</span><span class="fu">,</span></span>
+<span id="cb4-5"><a></a>    <span class="dt">"year"</span><span class="fu">:</span> <span class="dv">2017</span><span class="fu">,</span></span>
+<span id="cb4-6"><a></a>    <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"distributed"</span><span class="ot">,</span> <span class="st">"databases"</span><span class="ot">,</span> <span class="st">"systems"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-7"><a></a>    <span class="dt">"available"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb4-8"><a></a>  <span class="fu">}</span></span>
+<span id="cb4-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
+<li>Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
+<li>This is the near-universal body format for REST API responses, which is exactly why <code>Content-Type: application/json</code> matters — it tells you this is the format to expect.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Point out the nesting explicitly — <code>tags</code> is an array <em>inside</em> an object, which is itself the value of <code>"book"</code> — reading nested JSON correctly is exactly what Checkpoint 2 requires.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-example-reading-a-real-response" class="slide level2">
+<h2>Worked Example: Reading a Real Response</h2>
+<pre><code>GET https://api.example.com/books?isbn=9780132350884
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "pages": 464
+}</code></pre>
+<p><strong>As a class:</strong> what HTTP method was used? What does the <code>200</code> mean? What format is the body in, and how do we know? What is the title of the book returned?</p>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is deliberately the same <em>shape</em> of question as Checkpoint 2, using a different book — walk through it as a group so students rehearse the exact reasoning they’ll need to do individually on the checkpoint, without literally seeing the checkpoint’s example in advance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-industry-uses-rest-everywhere" class="slide level2">
+<h2>Why Industry Uses REST Everywhere</h2>
+<ul>
+<li><strong>Universality:</strong> any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.</li>
+<li><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
+<li><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>What would calling an API look like <em>without</em> a standard like REST — if every company invented its own request/response format? What would that cost you as a developer?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Let this connect back to Session 4’s “why does everyone need to agree” callout — same underlying idea (standardization enables interoperability), now applied specifically to REST’s dominance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="lab-3-preview" class="slide level2">
+<h2>Lab 3 Preview</h2>
+<p><strong>Lab 3 (this Friday, Oct 2):</strong> you’ll write a Java program that calls a real public API (the Open Library API), parses the JSON response using <code>HttpClient</code> and <code>org.json</code>, and handles a request that fails.</p>
+<p>Everything you need — the request/response anatomy, status codes, JSON structure — is exactly what today covered.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Keep this brief — Lab 3 itself teaches the Java syntax (<code>HttpClient</code>, <code>JSONObject</code>, <code>optString</code>) hands-on; this slide is a pointer, not a code walkthrough.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-2-preview-review" class="slide level2">
+<h2>Checkpoint 2 Preview &amp; Review</h2>
+<p><strong>Checkpoint 2 runs now, in the last 15 minutes of this session:</strong> given a REST API response, identify the HTTP method used, what the status code means, the response format (and how you know), the actual data returned, and one thing that could realistically go wrong.</p>
+<p>Quick review before you start: - <strong>HTTP methods:</strong> what each of <code>GET</code>/<code>POST</code>/<code>PUT</code>/<code>PATCH</code>/<code>DELETE</code> actually does (Session 4). - <strong>Status codes:</strong> the 2xx/4xx/5xx ranges, and what <code>200</code> specifically promises (this session). - <strong>Reading JSON:</strong> finding a specific field inside a nested object or array (this session’s worked example). - <strong>What can go wrong:</strong> connect back to Session 1 — a request can be lost, delayed, or the server can be down; a real API call has real failure modes to name.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min for this review slide — the 15-min checkpoint itself follows separately and isn’t slide content.</strong> The “what can go wrong” review point is worth emphasizing — it’s the one Checkpoint 2 question that pulls all the way back to Session 1’s failure vocabulary rather than just this session’s REST content.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>COSC420 · Module 2 · Distributed Systems</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

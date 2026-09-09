@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Module 2: CUDA Kernels</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Module 2: CUDA Kernels</h1>
+  <p class="subtitle">GPU Architecture and 1D/2D Parallelism — COSC 435</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section class="slide level2">
+
+<!--
+INSTRUCTOR NOTES
+================
+PROMOTED this session (full rewrite), completing what was previously a
+partial promotion — only the Sep 30 warps/occupancy/divergence section had
+been done before. This pass adds the two lecture sessions that were entirely
+missing (Sep 21: SMs & CUDA cores; Sep 28: GPU memory hierarchy), restructures
+the pre-existing kernel-writing content into a dated Sep 23 session, fixes a
+stale Lab 05 description (was "matrix add/transpose/flip" — Lab 05 was
+rewritten this course-session to be naive matmul + timing vs. NumPy, matching
+schedule.md), and moves explanatory content from speaker notes onto visible
+slides per the course-wide promotion standard (Module 0/1). Follows the same
+~3 min/slide pacing with time budgets in notes.
+
+The Sep 30 section (Warps, Occupancy & Divergence) is UNCHANGED from the
+earlier promotion pass — still fully correct, left as-is below.
+
+FIXED earlier session: the "Checkpoint Preview" slide referencing "CK-03"
+(stale — that's Module 1's Vectorization Speedup) was corrected to CK-04, and
+now sits at the end of the Sep 23 session where Lab 04 is previewed; a new
+CK-05 preview closes out the module at the end of the file.
+-->
+</section>
+<section>
+<section id="session-1-sep-21-inside-a-gpu" class="title-slide slide level1 center">
+<h1>Session 1 · Sep 21 · Inside a GPU</h1>
+
+</section>
+<section id="todays-plan" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>What’s actually on a GPU chip: Streaming Multiprocessors and CUDA cores</li>
+<li>How many cores a real GPU has, and how they’re grouped</li>
+<li>Why “more cores activate as your problem grows” is a myth — the hardware is fixed, the <em>work</em> is what scales</li>
+<li>How a block of threads gets assigned to run on that hardware</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Full 50-min session. This session is architecture-only — no code yet. Code starts Sep 23.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="from-one-chip-to-many-compute-units" class="slide level2">
+<h2>From One Chip to Many Compute Units</h2>
+<ul>
+<li>Module 1 compared CPU and GPU at the level of headline numbers (cores, clock, bandwidth) — today we open up the GPU chip itself</li>
+<li>A GPU is not one big processor — it’s a chip subdivided into dozens of smaller, largely independent compute units</li>
+<li>Each of those units is called a <strong>Streaming Multiprocessor</strong>, or <strong>SM</strong></li>
+<li>Understanding SMs is the prerequisite for understanding warps, occupancy, and divergence (Sep 30) — those are all properties of <em>one</em> SM</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Framing slide — connects back to Module 1’s CPU-vs-GPU table and forward to Sep 30’s content, so students see this as one continuous architectural story rather than isolated facts.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-streaming-multiprocessor-sm" class="slide level2">
+<h2>The Streaming Multiprocessor (SM)</h2>
+<p>[DIAGRAM] — One SM drawn as a labeled box containing: a grid of small “CUDA core” ALU icons (dozens of them), a “register file” block, a “shared memory / L1 cache” block, and a “warp scheduler” block. Caption: “One SM — a self-contained compute unit with its own cores, fast on-chip memory, and scheduling logic.”</p>
+<ul>
+<li>An SM bundles together: many CUDA cores (the ALUs that do arithmetic), a register file (fast per-thread storage), shared memory (fast per-block storage — full detail in Module 4), and warp schedulers (full detail Sep 30)</li>
+<li>A GPU chip contains many SMs — tens of them on a typical GPU — all working independently on different pieces of your problem at once</li>
+<li>Every thread block your kernel launches is assigned to run on exactly one SM</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This slide is the map for the rest of the module — registers, shared memory, and warp scheduling (upcoming sessions) all live <em>inside</em> the SM box drawn here. Point back to this diagram when those topics come up.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="cuda-cores-the-actual-alus" class="slide level2">
+<h2>CUDA Cores: The Actual ALUs</h2>
+<ul>
+<li>A <strong>CUDA core</strong> is one simple arithmetic unit — it can do one floating-point add or multiply per clock cycle, nothing more</li>
+<li>Compare to a CPU core: a CUDA core has no branch predictor, no out-of-order execution, no deep pipeline — just an ALU and enough control to execute the instruction a warp scheduler hands it (Module 1’s die-anatomy diagram, made concrete)</li>
+<li>Total CUDA cores on a chip = (number of SMs) × (cores per SM)</li>
+<li>This total is a <strong>fixed, physical property of the chip</strong> — it does not change based on what code you run</li>
+</ul>
+<aside class="notes">
+<p>~2 min. “Fixed physical property” is the setup for the myth-busting slide two slides from now — plant it explicitly here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="how-many-cores-a-concrete-example" class="slide level2">
+<h2>How Many Cores? A Concrete Example</h2>
+<p>The GPU behind every lab and checkpoint this semester — Google Colab’s <strong>NVIDIA T4</strong> — breaks down like this:</p>
+<pre><code>Streaming Multiprocessors (SMs) : 40
+CUDA cores per SM                : 64
+Total CUDA cores                 : 40 × 64 = 2,560
+Memory                            : 16 GB GDDR6
+Memory bandwidth                  : ~320 GB/s</code></pre>
+<ul>
+<li>2,560 cores sounds enormous next to a CPU’s 8–32 — and it is — but it’s still a <em>fixed</em> number, not something that grows with your problem size</li>
+<li>A data-center GPU (H100-class, Module 1’s “2,000 TFLOPS” chip) has far more SMs and cores than a T4 — the T4 is a modest, power-efficient GPU meant for exactly this kind of interactive/educational workload</li>
+</ul>
+<aside class="notes">
+<p>~3 min. These are the real numbers behind every timing result students will produce all semester — worth memorizing “40 SMs, 2,560 cores” as their GPU’s identity. If students run <code>!nvidia-smi</code> in Colab they can confirm they have a T4 (occasionally Colab assigns something else — mention this as a heads-up, not a concern).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="myth-the-gpu-activates-more-cores-as-n-grows" class="slide level2">
+<h2>Myth: “The GPU Activates More Cores as N Grows”</h2>
+<ul>
+<li>A tempting but <strong>wrong</strong> intuition: launching a bigger problem makes the GPU “power up” more cores to match</li>
+<li>What actually happens: the GPU always has the <em>same</em> 2,560 cores (for a T4). A bigger problem means <strong>more thread blocks are launched</strong>, and those blocks queue up to be scheduled onto the SMs that exist</li>
+<li>If you launch more blocks than can run at once, extra blocks simply wait until an SM finishes its current block and becomes free — same hardware, more rounds of scheduling</li>
+<li>This is why GPU speedup at small N is often <em>worse</em> than a CPU (fixed launch overhead dominates a tiny amount of work) but improves as N grows (fixed overhead gets amortized over far more useful work) — not because more silicon “turns on”</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This directly corrects a real exam distractor students encounter (Midterm D2 offers “the GPU activates progressively more CUDA cores as N grows” as a wrong answer) — say so explicitly, this is exactly the trap that question is testing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="from-grid-to-hardware-how-blocks-get-scheduled" class="slide level2">
+<h2>From Grid to Hardware: How Blocks Get Scheduled</h2>
+<p>[DIAGRAM] — A grid of 12 small labeled blocks (“Block 0” through “Block 11”) at the top, with arrows flowing down to a row of 4 SM boxes at the bottom. At the first moment in time, 4 arrows point from Blocks 0–3 into the 4 SMs (one block per SM), with Blocks 4–11 shown in a “waiting” queue off to the side. A second frame shows Block 0 finished and removed, replaced by an arrow from Block 4 now entering the freed SM.</p>
+<ul>
+<li>Your kernel launch specifies a <strong>grid</strong> of blocks; the hardware decides which SM runs which block, and in what order</li>
+<li>A block runs start-to-finish on a single SM — it never moves partway through, and it never splits across two SMs</li>
+<li>An SM can often hold more than one resident block at a time if there’s room (this is exactly what <strong>occupancy</strong>, covered Sep 30, measures) — the diagram above simplifies to one block per SM for clarity</li>
+<li>You don’t control this scheduling directly — you control it <em>indirectly</em>, through launch configuration (block size, grid size) — Sep 23 teaches you to write that configuration</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Keep this at “the hardware decides, you don’t” — the occupancy math (how many blocks actually fit per SM) is deliberately deferred to Sep 30, don’t get pulled into that calculation here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-week" class="slide level2">
+<h2>This Week</h2>
+<ul>
+<li><strong>Session 2 (Wed, Sep 23):</strong> From architecture to code — writing and launching your first CUDA kernels. <strong>Quiz 2</strong> (covers Module 1) opens that session.</li>
+<li><strong>Lab 04 (Fri, Sep 25):</strong> Your first Numba CUDA kernel — vector addition</li>
+<li>Everything on today’s slides (SMs, cores, block scheduling) is background you’ll <em>use</em> starting Sep 23, not something graded on its own — but Quiz 3 (Oct 5) and both exams draw on it</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Quick pointer slide. Reassure students this session is conceptual grounding, not itself a checkpointed skill — the payoff is that Sep 23 onward will make a lot more sense.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-2-sep-23-the-execution-model" class="title-slide slide level1 center">
+<h1>Session 2 · Sep 23 · The Execution Model</h1>
+
+</section>
+<section id="todays-plan-1" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>Quiz 2 first (15 min, Blackboard) — covers all of Module 1</li>
+<li>Then: what a CUDA kernel actually is, and how to launch one</li>
+<li>The thread/block/grid indexing hierarchy — in 1D, then 2D</li>
+<li>Two worked example kernels, and a preview of the capstone’s kernel</li>
+</ul>
+<aside class="notes">
+<p>~1 min. ~35 min of lecture time after the quiz, same structure as Module 1 Session 1. This is a dense, code-heavy session — keep momentum, save discussion for Lab 04.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-a-kernel-is" class="slide level2">
+<h2>What a Kernel Is</h2>
+<ul>
+<li>A <strong>kernel</strong> is a function that runs on the GPU — you write it <em>once</em>, and the GPU runs that same code for every thread, simultaneously</li>
+<li>Each thread automatically knows its own position in the grid of threads — that position is how a thread figures out <em>which</em> piece of data it’s responsible for</li>
+<li>Marked with the <code>@cuda.jit</code> decorator, which compiles ordinary-looking Python into GPU machine code</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
+<span id="cb2-2"><a></a></span>
+<span id="cb2-3"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb2-4"><a></a><span class="kw">def</span> my_kernel(arr):</span>
+<span id="cb2-5"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)          <span class="co"># this thread's global index</span></span>
+<span id="cb2-6"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:      <span class="co"># bounds guard — always required (next slide)</span></span>
+<span id="cb2-7"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Three parts every kernel has: the decorator, a position calculation, and a bounds guard</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Students will forget the bounds guard constantly in early labs — flag it now as “always required” so it’s not a surprise two slides from now.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-thread-grid" class="slide level2">
+<h2>The Thread Grid</h2>
+<p>[DIAGRAM] — A grid of 3 blocks in a row, each block containing 4 threads, drawn as a 3×4 array of small numbered boxes. Above the grid, label the whole structure “gridDim.x = 3” (number of blocks) and “blockDim.x = 4” (threads per block). Inside block 1, circle thread index 2 and label it “threadIdx.x = 2, blockIdx.x = 1”. Draw an arrow from that box to a computed value “global index = 1*4 + 2 = 6.”</p>
+<ul>
+<li><code>blockIdx.x</code> — which block is this thread in?</li>
+<li><code>threadIdx.x</code> — where is this thread within its block?</li>
+<li><code>blockDim.x</code> — how many threads are in each block?</li>
+<li><strong>Global index</strong> = <code>blockIdx.x * blockDim.x + threadIdx.x</code> — <code>cuda.grid(1)</code> computes exactly this in one call</li>
+<li>This global index is what a thread uses to know which array element is “its” element</li>
+</ul>
+<aside class="notes">
+<p>~4 min. This is the single mental model students need for the rest of the course — worth having them compute the global index for 2-3 different (blockIdx, threadIdx, blockDim) combinations out loud before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="launching-a-kernel" class="slide level2">
+<h2>Launching a Kernel</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
+<span id="cb3-3"><a></a></span>
+<span id="cb3-4"><a></a>N <span class="op">=</span> <span class="dv">1_000_000</span></span>
+<span id="cb3-5"><a></a>arr <span class="op">=</span> np.ones(N, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb3-6"><a></a>arr_gpu <span class="op">=</span> cuda.to_device(arr)          <span class="co"># host → device transfer</span></span>
+<span id="cb3-7"><a></a></span>
+<span id="cb3-8"><a></a>THREADS <span class="op">=</span> <span class="dv">256</span></span>
+<span id="cb3-9"><a></a>BLOCKS  <span class="op">=</span> (N <span class="op">+</span> THREADS <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> THREADS   <span class="co"># ceiling division — see below</span></span>
+<span id="cb3-10"><a></a></span>
+<span id="cb3-11"><a></a>my_kernel[BLOCKS, THREADS](arr_gpu)    <span class="co"># launch: BLOCKS × THREADS total threads</span></span>
+<span id="cb3-12"><a></a>cuda.synchronize()                     <span class="co"># wait for the GPU to finish</span></span>
+<span id="cb3-13"><a></a></span>
+<span id="cb3-14"><a></a>result <span class="op">=</span> arr_gpu.copy_to_host()        <span class="co"># device → host transfer</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>(N + THREADS - 1) // THREADS</code> is <strong>ceiling division</strong> — the standard way to compute “enough blocks to cover N, rounding up” using only integer arithmetic</li>
+<li>You will write this exact five-line pattern (transfer, configure, launch, synchronize, transfer back) in nearly every lab this semester</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Walk through each line out loud. Ceiling division specifically is worth a plain-integer example: N=1000, THREADS=256 → (1000+255)//256 = 4 blocks = 1024 threads launched, 24 wasted (caught by the bounds guard).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-bounds-guard" class="slide level2">
+<h2>The Bounds Guard</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb4-2"><a></a><span class="kw">def</span> my_kernel(arr):</span>
+<span id="cb4-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb4-4"><a></a>    <span class="co"># Without this line: threads with i &gt;= arr.shape[0] write out of bounds</span></span>
+<span id="cb4-5"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
+<span id="cb4-6"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>BLOCKS × THREADS</code> is a <strong>ceiling</strong>, computed by rounding up — so there are almost always a few extra threads beyond the last real array element</li>
+<li>Those extra threads still run the kernel body — without the guard, they read/write memory past the end of the array</li>
+<li>Consequence: undefined behavior — sometimes a crash, sometimes silent data corruption that produces a wrong answer with no error message at all</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Silent corruption is the scarier failure mode to emphasize — a crash at least tells you something’s wrong. Lab 04 Exercise 4 has students remove the guard intentionally on a small array so they can see the effect directly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-example-scalar-multiply" class="slide level2">
+<h2>Worked Example: Scalar Multiply</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb5-2"><a></a><span class="kw">def</span> multiply_scalar(arr, scalar):</span>
+<span id="cb5-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb5-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
+<span id="cb5-5"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> scalar</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>One thread per array element — for N = 500,000 elements, the GPU launches 500,000 threads</li>
+<li>No thread needs any other thread’s result — this is the “embarrassingly parallel” shape from Module 1</li>
+<li>This is Lab 04 Exercise 1’s pattern; you’ll write the launch configuration yourself in lab</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Deliberately simple — the goal here is the launch pattern sinking in, not the arithmetic.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-example-add-two-arrays" class="slide level2">
+<h2>Worked Example: Add Two Arrays</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb6-2"><a></a><span class="kw">def</span> add_arrays(a, b, out):</span>
+<span id="cb6-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb6-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> out.shape[<span class="dv">0</span>]:</span>
+<span id="cb6-5"><a></a>        out[i] <span class="op">=</span> a[i] <span class="op">+</span> b[i]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Three arrays now live on the device: two inputs, one output</li>
+<li>Still no dependencies between elements — output[i] only ever needs input[i], never any other index</li>
+<li>Ask yourself: if N doubles, what (if anything) changes in the launch configuration? (Answer: <code>BLOCKS</code> recomputes via the same ceiling-division formula — <code>THREADS</code> usually stays fixed)</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Lab 04 Exercise 2’s pattern. The “what changes when N doubles” question is worth pausing on — it’s testing whether students actually understand ceiling division rather than having memorized a specific number.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="thread-count-intuition" class="slide level2">
+<h2>Thread Count Intuition</h2>
+<p>[DIAGRAM] — Two small 1D grids stacked vertically. <em>Top:</em> N=12 elements, THREADS=4, BLOCKS=3 — exactly 12 threads drawn in 3 groups of 4, every thread mapped to exactly one element, no waste. <em>Bottom:</em> N=14 elements, same THREADS=4 — BLOCKS=4 (ceiling of 14/4), 16 threads drawn in 4 groups of 4; the last two threads (indices 14, 15) are colored gray/crossed-out and labeled “caught by bounds guard.”</p>
+<ul>
+<li>Students who can draw this diagram from scratch can debug almost any 1D kernel launch-configuration bug</li>
+<li>The gray/crossed-out threads in the N=14 case are exactly why the bounds guard exists — they’re real threads that ran, just with nothing valid to do</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Worth having students redraw this for N=13 themselves as a quick check before moving to 2D.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="from-1d-to-2d" class="slide level2">
+<h2>From 1D to 2D</h2>
+<ul>
+<li>Images, matrices, and (soon) the capstone’s similarity table are inherently two-dimensional</li>
+<li>Same idea as 1D, doubled: one thread per <code>(row, col)</code> pair instead of one thread per index</li>
+<li><code>cuda.grid(2)</code> returns a <code>(row, col)</code> tuple directly — you don’t need to compute it by hand from <code>blockIdx</code>/<code>threadIdx</code> (though you still can, next slide shows the underlying formula)</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb7-2"><a></a><span class="kw">def</span> add_matrices(A, B, C):</span>
+<span id="cb7-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
+<span id="cb7-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
+<span id="cb7-5"><a></a>        C[row, col] <span class="op">=</span> A[row, col] <span class="op">+</span> B[row, col]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>The bounds guard is now <strong>two conditions ANDed together</strong> — a thread must be in-bounds on <em>both</em> axes to do useful work</li>
+</ul>
+<aside class="notes">
+<p>~3 min. <code>cuda.grid(2)</code> returning <code>(row, col)</code> directly is the convention used in every 2D checkpoint and lab this semester (CK-05, Lab 05) — always unpack it as <code>row, col = cuda.grid(2)</code>, never reorder it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="d-launch-configuration" class="slide level2">
+<h2>2D Launch Configuration</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>M, N <span class="op">=</span> <span class="dv">300</span>, <span class="dv">400</span>     <span class="co"># matrix shape</span></span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a>THREADS <span class="op">=</span> (<span class="dv">16</span>, <span class="dv">16</span>)  <span class="co"># 256 threads per block — a 16×16 tile</span></span>
+<span id="cb8-4"><a></a>BLOCKS  <span class="op">=</span> (</span>
+<span id="cb8-5"><a></a>    (M <span class="op">+</span> THREADS[<span class="dv">0</span>] <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> THREADS[<span class="dv">0</span>],   <span class="co"># ceiling in the row dimension</span></span>
+<span id="cb8-6"><a></a>    (N <span class="op">+</span> THREADS[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> THREADS[<span class="dv">1</span>],   <span class="co"># ceiling in the col dimension</span></span>
+<span id="cb8-7"><a></a>)</span>
+<span id="cb8-8"><a></a></span>
+<span id="cb8-9"><a></a>add_matrices[BLOCKS, THREADS](A_gpu, B_gpu, C_gpu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>[DIAGRAM] — A 300×400 grid of cells overlaid with a coarser 16×16-cell block grid. Most blocks are full 16×16 tiles; the rightmost column of blocks and the bottom row of blocks are drawn as partial tiles (fewer than 16 cells wide/tall), shaded to show “extra threads here get caught by the bounds guard.”</p>
+<ul>
+<li>16×16 = 256 threads per block is a common convention — a power-of-two total that divides evenly into full warps (32 threads each, from Sep 30’s content)</li>
+<li>300 is not a multiple of 16 → the last block in each row/column has extra threads; the bounds guard filters them exactly as in 1D</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Point out the 256 = 8 warps connection explicitly if Sep 30 has already happened when this is taught in a future offering — for this semester’s ordering it’s a forward reference, mention it as “you’ll see exactly why 256 is a friendly number in a week and a half.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="thread-index-in-2d" class="slide level2">
+<h2>Thread Index in 2D</h2>
+<p>[DIAGRAM] — A 2×2 array of 2×2 thread blocks (4 blocks total, 4 threads each, 16 threads shown). Block (0,0) contains threads labeled with their global (row,col): (0,0),(0,1),(1,0),(1,1). Block (0,1) sits to its right and contains global indices (0,2),(0,3),(1,2),(1,3). Block (1,0) sits below the first and contains (2,0),(2,1),(3,0),(3,1). Block (1,1) contains (2,2),(2,3),(3,2),(3,3). Every box is labeled with its final (row,col) value.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>global_row <span class="op">=</span> blockIdx.x <span class="op">*</span> blockDim.x <span class="op">+</span> threadIdx.x</span>
+<span id="cb9-2"><a></a>global_col <span class="op">=</span> blockIdx.y <span class="op">*</span> blockDim.y <span class="op">+</span> threadIdx.y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>This is the formula <code>cuda.grid(2)</code> computes internally — same ceiling-division logic as 1D, just applied on both axes independently</li>
+<li>A thread that can correctly compute its own <code>(row, col)</code> here has mastered 2D kernels — everything else (2D bounds checks, 2D array indexing) follows directly</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Have students label the global index for a thread you point to at random in the diagram — this is the practical skill CK-05 tests directly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="preview-the-capstones-kernel" class="slide level2">
+<h2>Preview: The Capstone’s Kernel</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb10-2"><a></a><span class="kw">def</span> similarity_naive(Q, D, sim):</span>
+<span id="cb10-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)          <span class="co"># row = query index, col = database index</span></span>
+<span id="cb10-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> Q.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> D.shape[<span class="dv">0</span>]:</span>
+<span id="cb10-5"><a></a>        acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-6"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(Q.shape[<span class="dv">1</span>]):  <span class="co"># over the embedding dimension (64)</span></span>
+<span id="cb10-7"><a></a>            acc <span class="op">+=</span> Q[row, k] <span class="op">*</span> D[col, k]</span>
+<span id="cb10-8"><a></a>        sim[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>This is the heart of the semester-long capstone, in outline form — one thread per (query, database-item) pair</li>
+<li>At capstone scale (1,000 queries × 100,000 database items) that’s <strong>100 million threads</strong>, each running this exact loop independently</li>
+<li>You’ll fill in a version of this kernel’s gaps at CK-13; Module 4 will later replace the inner loop with tiled shared-memory access for a major speedup</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is purely a preview — students are not expected to write this today. The point is recognition: “oh, that’s just a 2D kernel with an extra loop inside,” which is exactly true.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="looking-ahead" class="slide level2">
+<h2>Looking Ahead</h2>
+<ul>
+<li><strong>Lab 04 (Fri, Sep 25):</strong> Write three kernels — scalar multiply, array add, one of your own design. Observe what happens with a missing bounds guard.</li>
+<li><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication — implement, time, and verify against NumPy’s reference (2D kernel skills applied at full scale)</li>
+<li><strong>Sep 28 (next lecture):</strong> GPU memory hierarchy — where data actually lives, and what it costs to access each kind</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Confirm students have GPU runtime configured before Friday — should already be habit from Labs 1-2.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-preview" class="slide level2">
+<h2>Checkpoint Preview</h2>
+<p>Checkpoint CK-04 will ask you to:</p>
+<ul>
+<li>Write a 1D kernel with a correct bounds guard, given a word description of the computation</li>
+<li>Give the launch configuration for a specified N and thread-block size</li>
+<li>Trace through a 2D thread index calculation by hand</li>
+</ul>
+<aside class="notes">
+<p>~1 min. 20-minute timed, paired with Lab 04 (Sep 25). One code cell, one launch-configuration problem, one short-answer trace.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-3-sep-28-gpu-memory-hierarchy" class="title-slide slide level1 center">
+<h1>Session 3 · Sep 28 · GPU Memory Hierarchy</h1>
+
+</section>
+<section id="todays-plan-2" class="slide level2">
+<h2>Today’s Plan</h2>
+<ul>
+<li>Every kind of memory a GPU has, from fastest/smallest to slowest/largest</li>
+<li>Where each kind physically lives, and what it costs to read or write it</li>
+<li>The host↔︎device boundary — the slowest hop of all, and how to minimize crossing it</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Purely conceptual session — no new kernel syntax today. This sets up Module 3 (timing/profiling) and Module 4 (shared memory in practice).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="not-all-gpu-memory-is-equal" class="slide level2">
+<h2>Not All GPU Memory Is Equal</h2>
+<p>[DIAGRAM] — A pyramid diagram, narrow at top and wide at bottom, four tiers labeled top-to-bottom: “Registers” (smallest, fastest — inside the SM, right next to each ALU), “Shared Memory” (small, very fast — inside the SM, shared by one block), “Constant Memory (cached)” (small, fast when all threads read the same address — off-chip but cached), “Global Memory” (largest, slowest per-access — off-chip DRAM, visible to every thread on the GPU). A dotted line further below the pyramid, separated by a gap, is labeled “Host RAM (CPU side) — across PCIe, slower still.”</p>
+<ul>
+<li>Just like a CPU has registers → L1 → L2 → L3 → RAM, a GPU has its own hierarchy — smaller and faster near the compute units, larger and slower further away</li>
+<li>The core tradeoff is identical to any memory hierarchy: capacity and speed trade off against each other</li>
+<li>Today: what each tier is <em>for</em>. Module 4 teaches you to <em>use</em> shared memory in a kernel; today is the map, not yet the tool</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Explicitly frame this as “the map, not the tool” — students shouldn’t leave today expecting to write <code>cuda.shared.array</code> yet, that’s Module 4’s job (C4.2). Today is purely “what exists and why.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="registers-fastest-per-thread" class="slide level2">
+<h2>Registers: Fastest, Per-Thread</h2>
+<ul>
+<li>Every thread gets its own small set of <strong>registers</strong> — the fastest storage on the entire chip, physically adjacent to the ALU that uses them</li>
+<li>Local variables in your kernel (like <code>acc</code> in the similarity-kernel preview from Sep 23) live in registers by default</li>
+<li>Registers are a <strong>scarce, fixed resource per SM</strong> — the more registers each thread’s kernel needs, the fewer threads (and therefore fewer warps) can be resident on an SM at once</li>
+<li>This is the direct link to <strong>occupancy</strong> (Sep 30): register usage per thread is one of the two things that can cap how many warps fit on an SM</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Forward-reference occupancy explicitly — this is exactly the “resource budget” idea Sep 30’s occupancy slides build on, just introduced here as one specific resource (registers) rather than the general concept.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="shared-memory-fast-per-block" class="slide level2">
+<h2>Shared Memory: Fast, Per-Block</h2>
+<ul>
+<li><strong>Shared memory</strong> is a small, fast, on-chip scratchpad that every thread in the <em>same block</em> can read and write</li>
+<li>Unlike registers (private to one thread) or global memory (visible to everyone but slow), shared memory is the middle ground: fast <em>and</em> shared, but only within a block</li>
+<li>Threads use it as a manually-managed cache: copy a chunk of data from global memory into shared memory once, then have many threads reuse it without going back to global memory each time</li>
+<li>Full syntax and a worked example (<code>cuda.shared.array</code>, <code>cuda.syncthreads()</code>) is Module 4’s subject — today, just know it exists and why it’s valuable</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Resist the urge to teach the syntax now — Module 4 (C4.2, C4.3) owns this material in full and has two dedicated lectures (Oct 26, Oct 28) for it. Today’s job is just motivating <em>why</em> it’s worth a whole module later.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="constant-memory-small-cached-broadcast-friendly" class="slide level2">
+<h2>Constant Memory: Small, Cached, Broadcast-Friendly</h2>
+<ul>
+<li><strong>Constant memory</strong> is a small (tens of KB), read-only region that’s aggressively cached</li>
+<li>It shines in one specific pattern: every thread in a warp reading the <em>same</em> address at the same time — e.g., a shared coefficient or lookup-table value used identically by every thread</li>
+<li>When that pattern holds, the read is effectively broadcast to all 32 threads in a warp from cache, instead of 32 separate trips to global memory</li>
+<li>You won’t write to constant memory in this course’s kernels, but recognizing the pattern matters for reading exam questions about memory-access strategy</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Keep this brief — it’s the least-used tier in this course’s labs, but it appears as a plausible-sounding wrong answer on exam questions (e.g.&nbsp;“constant memory is broadcast-cached” is sometimes the <em>correct</em> answer, sometimes a tempting distractor depending on the scenario — students need the real definition to tell which).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="local-memory-a-trap-in-the-name" class="slide level2">
+<h2>Local Memory: A Trap in the Name</h2>
+<ul>
+<li><strong>Local memory</strong> is per-thread scope, like registers — but it is <em>not</em> fast. It physically lives in the same off-chip DRAM as global memory, just addressed privately per thread</li>
+<li>The compiler falls back to local memory when a thread’s data doesn’t fit in registers — large local arrays, or a kernel using more registers than the hardware budget allows (“register spilling”)</li>
+<li>The name is the trap: “local” sounds like it should mean “close and fast,” but it means “private scope, global-memory speed”</li>
+<li>Practical takeaway: keep per-thread working data small and simple, so the compiler keeps it in registers instead of spilling to local memory</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is a favorite exam-distractor topic precisely because the name is misleading — spend a moment explicitly contrasting “local memory” (slow, despite the name) against “shared memory” (fast, despite being the more commonly-confused-as-slow-sounding one).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="global-memory-largest-slowest-universal" class="slide level2">
+<h2>Global Memory: Largest, Slowest, Universal</h2>
+<ul>
+<li><strong>Global memory</strong> is the GPU’s main pool — the 16 GB (T4) of GDDR6 from Sep 21’s specs. Every thread on the entire GPU can read and write it</li>
+<li>It’s the slowest tier <em>per access</em> (hundreds of cycles of latency, same “memory wall” idea from Module 1) but by far the largest</li>
+<li><code>cuda.to_device()</code> copies your data here; every kernel argument you’ve written so far (<code>arr</code>, <code>A</code>, <code>B</code>, <code>C</code>, <code>Q</code>, <code>D</code>) lives in global memory unless you explicitly move it somewhere else</li>
+<li>Module 3 teaches how the <em>pattern</em> of global-memory access (not just how much of it) affects performance — this is where “coalescing” comes from</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Tie back to Module 1’s memory-wall content explicitly — global memory latency is the concrete GPU-side instance of that general idea. Module 3 (starting Oct 5) picks up the access-pattern angle.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-memory-hierarchy-summarized" class="slide level2">
+<h2>The Memory Hierarchy, Summarized</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Scope</th>
+<th>Speed</th>
+<th>Typical size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Registers</td>
+<td>One thread</td>
+<td>Fastest</td>
+<td>A few KB per thread (shared across all resident threads on an SM)</td>
+</tr>
+<tr class="even">
+<td>Shared memory</td>
+<td>One block</td>
+<td>Very fast</td>
+<td>~48–164 KB per SM (hardware-dependent)</td>
+</tr>
+<tr class="odd">
+<td>Constant memory</td>
+<td>Whole GPU (read-only)</td>
+<td>Fast if all threads agree on the address</td>
+<td>Tens of KB</td>
+</tr>
+<tr class="even">
+<td>Local memory</td>
+<td>One thread</td>
+<td>Slow (physically off-chip)</td>
+<td>Spills only — not a size you allocate directly</td>
+</tr>
+<tr class="odd">
+<td>Global memory</td>
+<td>Whole GPU</td>
+<td>Slowest per access</td>
+<td>GBs (16 GB on a T4)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Reading this table top to bottom is reading the hierarchy from fastest/smallest to slowest/largest — the same shape as any CPU’s cache hierarchy, just with GPU-specific names and a crucial addition: <em>scope</em> (per-thread vs.&nbsp;per-block vs.&nbsp;whole-GPU) matters as much as speed</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Good slide to pause on for questions — this table is the single most exam-referenced fact in this session (it’s exactly what Midterm Q5’s register-vs-shared-vs-constant-vs-L2 question is testing).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="beyond-the-chip-the-hostdevice-boundary" class="slide level2">
+<h2>Beyond the Chip: The Host↔︎Device Boundary</h2>
+<pre><code>CPU (Host RAM) ←—[PCIe, ~16 GB/s]—→ GPU (Device global memory, ~320 GB/s on a T4)</code></pre>
+<ul>
+<li>Everything on the tiers above lives <em>inside</em> the GPU. Getting data onto the GPU in the first place — or back off it — crosses a much slower link: <strong>PCIe</strong>, connecting the GPU card to the rest of the computer</li>
+<li>PCIe bandwidth (~16 GB/s) is roughly <strong>20× slower</strong> than the T4’s own global-memory bandwidth (~320 GB/s), and dramatically slower than any on-chip tier</li>
+<li><code>cuda.to_device()</code> and <code>.copy_to_host()</code> both cross this boundary — every call is expensive relative to anything happening once your data is already on the GPU</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is the widest gap in the entire memory hierarchy — wider than the gap between any two on-chip tiers. Worth saying explicitly: “the slowest step in your entire pipeline is very often not the kernel itself, it’s getting the data there and back.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="minimizing-transfers" class="slide level2">
+<h2>Minimizing Transfers</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="co"># Host → Device (before kernel launches)</span></span>
+<span id="cb12-2"><a></a>arr_gpu <span class="op">=</span> cuda.to_device(arr_host)</span>
+<span id="cb12-3"><a></a></span>
+<span id="cb12-4"><a></a><span class="co"># Launch kernel(s) — all device-side, no PCIe traffic</span></span>
+<span id="cb12-5"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
+<span id="cb12-6"><a></a>cuda.synchronize()</span>
+<span id="cb12-7"><a></a></span>
+<span id="cb12-8"><a></a><span class="co"># Device → Host (only once, when you actually need the result)</span></span>
+<span id="cb12-9"><a></a>result <span class="op">=</span> arr_gpu.copy_to_host()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><strong>Rule of thumb:</strong> transfer data to the GPU once, do as much work as possible while it’s there, and transfer results back once — not on every iteration of a loop</li>
+<li>A very common early-semester mistake: copying results back to the host inside a loop “just to check on them,” which turns a fast GPU computation into one bottlenecked by PCIe</li>
+<li>Module 6 (CuPy) makes this pattern implicit — but understanding it explicitly now is what lets you <em>recognize</em> when a library is silently doing (or failing to do) this for you</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Flag this as an antipattern to watch for starting immediately — students will be tempted to add debug prints that copy_to_host() inside loops in upcoming labs. Naming the mistake now makes it easier to catch in code review.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-week-1" class="slide level2">
+<h2>This Week</h2>
+<ul>
+<li><strong>Sep 30 (next lecture):</strong> Warp scheduling, occupancy, and thread divergence — the last piece of the GPU-execution picture, and where the register/shared-memory <em>scope</em> facts from today become a hard resource <em>budget</em></li>
+<li><strong>Quiz 3 (Oct 5):</strong> covers all of Module 2 — architecture (today, Sep 21), execution model (Sep 23), and warps/occupancy/divergence (Sep 30)</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Quick pointer slide before the Sep 30 content picks up.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-sep-30-warps-occupancy-divergence" class="title-slide slide level1 center">
+<h1>Session · Sep 30 · Warps, Occupancy &amp; Divergence</h1>
+<!--
+PROMOTED SESSION — this fills a real gap: schedule.md's Sep 30 lecture ("Warp
+scheduling, occupancy basics, thread divergence") previously had NO slide
+content anywhere in the repo. Everything from here to "# 2D Kernels" is new,
+full-detail content, paced like the Module 0 deck (visible explanations,
+diagram placeholders, timed speaker notes) even though the rest of this file
+is still an unpromoted skeleton. Quiz 3 (Oct 5) Q1-Q3 depend directly on this
+material. Rest of Module 2 promotion is a separate future pass.
+-->
+</section>
+<section id="the-synchronized-swim-team" class="slide level2">
+<h2>The Synchronized Swim Team</h2>
+<ul>
+<li>Picture a synchronized swim team of 32 swimmers: the coach calls out <strong>one move at a time</strong> — “kick,” then “arms out,” then “dive” — and every swimmer performs that exact move at that exact moment</li>
+<li>No swimmer can be a move ahead or behind; they share one set of instructions</li>
+<li>A GPU’s threads work the same way, in groups of exactly <strong>32</strong> — that group is called a <strong>warp</strong></li>
+<li>This is why a GPU doesn’t have “10,000 independent brains” — it has far fewer instruction streams, each one driving 32 lock-step threads</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This is the intuition to plant before the formal definition — students who’ve been thinking of every thread as fully independent (a reasonable takeaway from Module 1’s “10,000 cores” framing) need this corrected before Module 2’s kernel-writing content sticks.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-is-a-warp" class="slide level2">
+<h2>What Is a Warp?</h2>
+<ul>
+<li>A <strong>warp</strong> is a group of <strong>32 threads</strong> that the hardware schedules and executes together, one instruction at a time, in lock-step</li>
+<li><code>threadIdx.x</code> values 0-31 form warp 0, values 32-63 form warp 1, and so on within a block</li>
+<li>All 32 threads in a warp execute the <em>same instruction</em> on the <em>same clock cycle</em> — this is called <strong>SIMT</strong> (Single Instruction, Multiple Threads)</li>
+<li>One instruction-fetch/decode unit serves all 32 lanes — that’s the hardware trade that makes thousands of simple cores possible (the “twenty ordinary cashiers” idea from Module 0, made concrete)</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Tie back explicitly to Module 0 Session 1’s cashier-lanes analogy and Module 1’s latency-vs-throughput table — this is the hardware mechanism behind “many simple cores.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-warp-visually" class="slide level2">
+<h2>A Warp, Visually</h2>
+<p><strong>[DIAGRAM]</strong> — A single instruction-fetch/decode unit box at the top, with 32 arrows fanning down to 32 small “ALU lane” boxes arranged in a 4×8 grid, each labeled with a thread index 0-31. All 32 lanes are shown executing the identical instruction <code>arr[i] = arr[i] * 2.0</code> simultaneously, with a caption: “One instruction, 32 lanes, same clock cycle.”</p>
+<ul>
+<li>If a block has 256 threads, that’s exactly <code>256 / 32 = 8</code> warps</li>
+<li>Block sizes that aren’t multiples of 32 waste lanes — a block of 100 threads still occupies 4 warps (128 lanes), with the last warp’s 28 unused lanes doing nothing useful</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The “not a multiple of 32 wastes lanes” point is a direct, checkable fact — good candidate for a quick in-class poll (“how many warps does a 100-thread block need?”).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="hiding-latency-the-warp-scheduler" class="slide level2">
+<h2>Hiding Latency: The Warp Scheduler</h2>
+<ul>
+<li>A memory read from global memory can take <strong>hundreds of clock cycles</strong> to come back — if the GPU just sat idle waiting, it would waste nearly all of its compute capacity</li>
+<li>Instead, each Streaming Multiprocessor (SM) keeps <strong>many warps resident at once</strong> — often dozens — and a <strong>warp scheduler</strong> switches to a different ready warp the instant one warp stalls on a memory access</li>
+<li>Analogy: a short-order cook working several dishes at once. While one dish is in the oven (a warp waiting on memory), the cook doesn’t stand and watch — they stir another pan (switch to a different warp) and come back later</li>
+<li>This is <em>why</em> GPUs want so much parallelism: idle warps are what a scheduler needs on hand to keep the hardware busy</li>
+</ul>
+<aside class="notes">
+<p>~4 min. This is the single most important idea in this session — it’s the mechanism behind why “give the GPU more work than it strictly needs” is good advice, not wasteful. Ask: “why would a GPU want MORE threads than it can run at once?” and let students reason toward “so there’s always a ready warp to switch to.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="warp-scheduling-visually" class="slide level2">
+<h2>Warp Scheduling, Visually</h2>
+<p><strong>[DIAGRAM]</strong> — A timeline strip showing one SM’s execution slots over time. Warp A runs for 2 cycles, then hits a memory request (shown as a long gray “waiting” bar spanning ~8 cycles). During Warp A’s wait, Warp B and then Warp C run in the same slot. When Warp A’s data arrives, it resumes. Caption: “The SM is never idle — it always has another ready warp to run while others wait.”</p>
+<ul>
+<li>The scheduler’s job is entirely about keeping <em>some</em> warp always running, not about running every warp faster</li>
+<li>More resident warps = more chances to hide a stall — this is exactly what <strong>occupancy</strong> measures</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This diagram is the direct setup for the occupancy slide that follows — make sure the “always some warp running” idea has landed before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="occupancy-how-many-warps-can-live-here" class="slide level2">
+<h2>Occupancy: How Many Warps Can Live Here</h2>
+<ul>
+<li><strong>Occupancy</strong> = the number of warps actually resident on an SM, divided by the maximum the hardware could support</li>
+<li>Higher occupancy generally means more scheduling flexibility to hide memory latency — but it isn’t free to achieve</li>
+<li>Each resident thread needs its own registers, and each resident block needs its share of shared memory; an SM has a <em>fixed</em> budget of both</li>
+<li>If your kernel’s threads use a lot of registers, fewer threads (fewer warps) fit at once — occupancy drops, even though nothing about your code is “wrong”</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Keep this at the definitional level — the full two-constraint (registers AND shared memory) calculation is Module 4’s job once shared memory exists as a concept. Here, the goal is: occupancy is a ratio, and resource usage per thread is what limits it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-simple-occupancy-example" class="slide level2">
+<h2>A Simple Occupancy Example</h2>
+<p>Suppose an SM supports a maximum of <strong>1536 resident threads</strong> (a realistic hardware limit), and you launch blocks of <strong>256 threads</strong>.</p>
+<pre><code>Max threads per SM        : 1536
+Threads per block         : 256
+Max blocks that fit by thread count : 1536 // 256 = 6 blocks
+Resident threads          : 6 × 256 = 1536
+Occupancy                 : 1536 / 1536 = 100%</code></pre>
+<p>Now suppose you instead launch blocks of <strong>300 threads</strong> — an awkward, non-power-of-2 size:</p>
+<pre><code>Max blocks that fit       : 1536 // 300 = 5 blocks   (integer division!)
+Resident threads          : 5 × 300 = 1500
+Occupancy                 : 1500 / 1536 ≈ 97.7%</code></pre>
+<ul>
+<li>Block size interacts with occupancy in ways that aren’t always obvious — this is why launch configuration (Module 3) is worth experimenting with, not just guessing</li>
+<li>Real kernels also have a <em>register</em> budget per SM, which can lower occupancy further — Module 4 picks this up once shared memory is in the picture</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Keep the arithmetic here purely about thread-count-per-block — do not introduce the register/shared-memory dual-constraint version yet, that’s explicitly Module 4 content (see checkpoint-competency-map.md’s C7.3 gap note). Have students compute the occupancy for a block size of 512 themselves as a check.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="thread-divergence-when-threads-disagree" class="slide level2">
+<h2>Thread Divergence: When Threads Disagree</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb15-2"><a></a><span class="kw">def</span> classify(arr, out):</span>
+<span id="cb15-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb15-4"><a></a>    <span class="cf">if</span> arr[i] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb15-5"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span>      <span class="co"># "positive" path</span></span>
+<span id="cb15-6"><a></a>    <span class="cf">else</span>:</span>
+<span id="cb15-7"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="op">-</span><span class="fl">1.0</span>     <span class="co"># "negative" path</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Every thread in a warp executes the <em>same instruction</em> together — but what happens when an <code>if</code> sends different threads down different paths?</li>
+<li>Within one warp, some threads may satisfy <code>arr[i] &gt; 0</code> and others may not — the warp cannot run two different instructions at once</li>
+<li>This situation is called <strong>thread divergence</strong>, and it has a real, measurable cost</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Set this up as a genuine puzzle before revealing the answer — ask “if the swim team’s coach calls two different moves to different swimmers at once, what actually happens?”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="how-divergence-is-handled-predication" class="slide level2">
+<h2>How Divergence Is Handled: Predication</h2>
+<ul>
+<li>The hardware runs <strong>both branches, one after another, for the whole warp</strong> — on the “positive” pass, threads that fail the condition are masked off (they execute the instruction but discard the result); on the “negative” pass, the roles reverse</li>
+<li>Total time for a divergent warp ≈ time for <em>all</em> branches taken combined, not just the one each thread needed</li>
+<li>A warp where every thread takes the <em>same</em> branch pays no divergence penalty at all — the cost only appears when a single warp’s threads disagree</li>
+</ul>
+<pre><code>Warp with a divergent if/else:
+  Pass 1 (if-branch):  active = threads where arr[i] &gt; 0, others masked/idle
+  Pass 2 (else-branch): active = threads where arr[i] &lt;= 0, others masked/idle
+  Total warp time ≈ time(if-branch) + time(else-branch)</code></pre>
+<aside class="notes">
+<p>~4 min. “Masked, not skipped” is the key correction to whatever intuition students walk in with — a masked thread still consumes a cycle, it just discards its result. This is exactly why “conditionals are expensive” on a GPU in a way they aren’t on a CPU.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="divergence-visually" class="slide level2">
+<h2>Divergence, Visually</h2>
+<p><strong>[DIAGRAM]</strong> — A single warp of 32 lanes shown twice, stacked vertically as “Pass 1” and “Pass 2.” In Pass 1, roughly half the lanes are colored (active, running the if-branch) and the rest are grayed out (masked). In Pass 2, the coloring is inverted — the previously-grayed lanes are now active running the else-branch, and the previously-active lanes are now grayed out. A time axis underneath shows Pass 1 and Pass 2 as sequential (not overlapping) blocks, with a caption: “Total time = Pass 1 + Pass 2, even though each thread only needed one of them.”</p>
+<ul>
+<li>Contrast with a warp where the condition is the same for all 32 threads (e.g., branching on <code>blockIdx.x</code> instead of <code>arr[i]</code>) — no masking needed, no penalty</li>
+<li>Rule of thumb: conditionals on <em>data</em> (varies per thread) are the risky ones; conditionals on <em>thread/block identity</em> (same for a whole warp) are free</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The “conditionals on thread/block identity are free” distinction is the practical takeaway students should leave with — it’s what turns this from a scary warning into an actionable coding habit.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-this-matters-for-your-code" class="slide level2">
+<h2>Why This Matters for Your Code</h2>
+<ul>
+<li>You will not be asked to eliminate every <code>if</code> statement — most real kernels need some</li>
+<li>What matters: when a conditional’s outcome depends on <em>data that varies across threads in the same warp</em>, expect a real performance cost proportional to how many distinct branches get taken</li>
+<li>A bounds guard (<code>if i &lt; n:</code>) is usually cheap in practice — most warps are either fully in-bounds or fully out-of-bounds, so few warps actually diverge on it</li>
+<li>Data-dependent branching inside the “hot” part of a kernel (like the classify example above) is where divergence bites hardest</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Reassure explicitly — students who’ve just written bounds guards in every Lab 4/5 kernel may worry they’ve been doing something expensive. Clarify why that specific pattern is usually fine.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-session-recap" class="slide level2">
+<h2>This Session: Recap</h2>
+<ul>
+<li><strong>Warp</strong> = 32 threads executing in lock-step (SIMT) — the real unit of GPU scheduling, not the individual thread</li>
+<li><strong>Occupancy</strong> = resident warps ÷ maximum possible, limited by per-thread resource usage (registers, shared memory)</li>
+<li><strong>Divergence</strong> = the cost paid when threads in one warp disagree on which branch to take — paid in serialized passes, not parallel ones</li>
+<li>These three ideas explain <em>why</em> GPU code that looks correct can still run far below its theoretical peak — Module 3’s profiling content picks up exactly this thread</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Land this as the transition into Module 3 (profiling/bottleneck identification) rather than a dead end — students should expect to come back to occupancy and divergence when they start reading profiler output.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="module-2-wrap-up" class="slide level2">
+<h2>Module 2 Wrap-Up</h2>
+<ul>
+<li><strong>Sep 21:</strong> GPUs are built from a fixed number of SMs, each with a fixed number of CUDA cores — bigger problems mean more <em>scheduling rounds</em>, not more silicon</li>
+<li><strong>Sep 23:</strong> Kernels are written once and run per-thread; <code>cuda.grid()</code> (1D or 2D) tells each thread its position, and every launch needs a bounds guard</li>
+<li><strong>Sep 28:</strong> Memory has a hierarchy (registers → shared → constant/global) with speed, scope, and physical location all varying together — and the host↔︎device PCIe hop is the slowest link in the whole chain</li>
+<li><strong>Sep 30:</strong> Threads execute in lock-step groups of 32 (warps); occupancy measures how many warps fit at once; divergence is the cost of threads in one warp disagreeing on a branch</li>
+</ul>
+<aside class="notes">
+<p>~1 min. This slide is worth putting up again at the start of the Sep 30 recap slide’s follow-on, or just before Quiz 3 — it’s the full-module summary in one place.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="looking-ahead-1" class="slide level2">
+<h2>Looking Ahead</h2>
+<ul>
+<li><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication — implement a 2D kernel, time it, and verify against NumPy’s reference</li>
+<li><strong>Quiz 3 (Mon, Oct 5):</strong> covers all of Module 2 (SMs/cores, execution model, memory hierarchy, warps/occupancy/divergence)</li>
+<li><strong>Module 3 starts Oct 5:</strong> kernel design patterns and profiling — picking up exactly where Sep 30’s “why code that looks correct can run below peak” thread leaves off</li>
+</ul>
+<aside class="notes">
+<p>~1 min. FIXED this session: this slide previously described Lab 05 as “matrix add, transpose, vertical flip” — stale. Lab 05 was rewritten to match schedule.md’s actual Oct 2 topic (“Naïve matrix multiplication kernel. Implement, time, and verify against NumPy reference”); see labs/lab05-2d-kernel.md’s own instructor note.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-preview-1" class="slide level2">
+<h2>Checkpoint Preview</h2>
+<p>Checkpoint CK-05 will ask you to:</p>
+<ul>
+<li>Unpack a 2D global thread index with <code>cuda.grid(2)</code></li>
+<li>Write the 2D bounds guard for a given matrix shape</li>
+<li>Implement a small 2D transformation (e.g.&nbsp;a 180° rotation) using that index</li>
+<li>Give the 2D launch configuration (<code>blocks_per_grid</code> tuple) for a specified matrix shape and thread-block size</li>
+</ul>
+<aside class="notes">
+<p>~1 min. 20-minute timed, paired with Lab 05 (Oct 2). Distinct from CK-04: CK-04 tests 1D kernel-writing plus a 2D trace-by-hand; CK-05 tests writing an actual 2D kernel end-to-end.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

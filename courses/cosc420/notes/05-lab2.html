@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-09-04">
 
-<title>Introduction to Computer Science I – Class Notes</title>
+<title>Lab 2: Java Threading Exercises – Class Notes</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,26 +24,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,7 +108,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -82,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Class Notes</span>
     </a>
   </div>
@@ -93,7 +129,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -103,25 +139,25 @@ ul.task-list li input[type="checkbox"] {
     <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
         <li class="dropdown-header">Fall 2026</li>
         <li>
-    <a class="dropdown-item" href="../cosc120/index.html">
+    <a class="dropdown-item" href="../../cosc120/index.html">
  <span class="dropdown-text">COSC120 — Introduction to Computer Science I</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../cosc420/index.html">
+    <a class="dropdown-item" href="../../cosc420/index.html">
  <span class="dropdown-text">COSC420 — Distributed / Parallel Computing</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../cosc435/index.html">
+    <a class="dropdown-item" href="../../cosc435/index.html">
  <span class="dropdown-text">COSC435 — Acceleration</span></a>
   </li>  
         <li><hr class="dropdown-divider"></li>
         <li class="dropdown-header">Spring 2026</li>
         <li>
-    <a class="dropdown-item" href="../cosc130/index.html">
+    <a class="dropdown-item" href="../../cosc130/index.html">
  <span class="dropdown-text">COSC130 — Introduction to Computer Science II</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../cosc445/index.html">
+    <a class="dropdown-item" href="../../cosc445/index.html">
  <span class="dropdown-text">COSC445 — Design and Analysis of Algorithms</span></a>
   </li>  
     </ul>
@@ -134,7 +170,7 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -142,27 +178,35 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#units" id="toc-units" class="nav-link active" data-scroll-target="#units">📚 Units</a>
-  <ul class="collapse">
-  <li><a href="#week-1" id="toc-week-1" class="nav-link" data-scroll-target="#week-1">Week 1</a></li>
-  </ul></li>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#task-1-write-a-runnable-15-min" id="toc-task-1-write-a-runnable-15-min" class="nav-link" data-scroll-target="#task-1-write-a-runnable-15-min">Task 1 — Write a Runnable (15 min)</a></li>
+  <li><a href="#task-2-use-an-executorservice-20-min" id="toc-task-2-use-an-executorservice-20-min" class="nav-link" data-scroll-target="#task-2-use-an-executorservice-20-min">Task 2 — Use an ExecutorService (20 min)</a></li>
+  <li><a href="#task-3-shared-counter-with-a-thread-pool-15-min" id="toc-task-3-shared-counter-with-a-thread-pool-15-min" class="nav-link" data-scroll-target="#task-3-shared-counter-with-a-thread-pool-15-min">Task 3 — Shared Counter with a Thread Pool (15 min)</a></li>
+  <li><a href="#submission" id="toc-submission" class="nav-link" data-scroll-target="#submission">Submission</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Introduction to Computer Science I</h1>
-<p class="subtitle lead">COSC120 · Fall 2026</p>
+<h1 class="title">Lab 2: Java Threading Exercises</h1>
+<p class="subtitle lead">Module 1: Concurrency</p>
 </div>
 
 
 
-<div class="quarto-title-meta column-page-left">
+<div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 4, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -172,15 +216,122 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="units" class="level2">
-<h2 class="anchored" data-anchor-id="units">📚 Units</h2>
-<div class="grid">
-<section id="week-1" class="level3 g-col-12 g-col-md-4 unit-card">
-<h3 class="anchored" data-anchor-id="week-1">Week 1</h3>
-<!-- Short one-line description of what this unit covers. -->
-<p><span class="badge slides"><a href="../cosc420/notes/01-intro.html">Introduction</a></span> <span class="badge slides"><a href="../cosc420/notes/02-processes-threads.html">Processes vs.&nbsp;Threads</a></span> <span class="badge lab"><a href="../cosc420/notes/03-lab1.html">Lab 1: The Race Condition Game</a></span></p>
+<p><strong>Date:</strong> September 11<br>
+<strong>Duration:</strong> 50 minutes<br>
+<strong>Points:</strong> 10<br>
+<strong>Competency:</strong> C1.2 — Apply <code>synchronized</code> and locks to prevent race conditions</p>
+<hr>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Last week (Lab 1) you observed a race condition and made it safe with <code>synchronized</code>. Today you write your own threaded programs — first using raw <code>Thread</code> objects, then using an <code>ExecutorService</code> thread pool, which is closer to how real applications manage concurrency.</p>
+<blockquote class="blockquote">
+<p><strong>Getting ahead of lecture, on purpose:</strong> thread pools aren’t covered in depth until Sep 16 (Session 5), and you’ll get a short intro at the end of Session 4 (Sep 14). Today you use one hands-on first — the same way you used <code>synchronized</code> in Lab 1 before Session 4 explains it. The pool API you need for Task 2 is spelled out below; you’re not expected to know it cold.</p>
+</blockquote>
+<hr>
 </section>
-</div>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>Open the IDE of your choice. Create a new file for each task (or use separate classes in one file).</p>
+<hr>
+</section>
+<section id="task-1-write-a-runnable-15-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-1-write-a-runnable-15-min">Task 1 — Write a Runnable (15 min)</h2>
+<p>Create a class called <code>PrintTask</code> that implements <code>Runnable</code>. When run, it should: - Print <code>"Thread &lt;name&gt; starting"</code> (use a name passed in via the constructor) - Loop 5 times, printing <code>"Thread &lt;name&gt;: step &lt;i&gt;"</code> - Print <code>"Thread &lt;name&gt; done"</code></p>
+<p>In <code>main</code>, create <strong>three</strong> <code>PrintTask</code> instances with names <code>"A"</code>, <code>"B"</code>, and <code>"C"</code>. Start all three threads and call <code>join()</code> on each so <code>main</code> waits for them to finish.</p>
+<p><strong>Expected output</strong> (order of steps will vary between runs — that is normal):</p>
+<pre><code>Thread A starting
+Thread B starting
+Thread C starting
+Thread A: step 1
+Thread B: step 1
+...
+Thread C done</code></pre>
+<hr>
+</section>
+<section id="task-2-use-an-executorservice-20-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-2-use-an-executorservice-20-min">Task 2 — Use an ExecutorService (20 min)</h2>
+<p>Rewrite Task 1 using <code>ExecutorService</code> with a <strong>fixed thread pool of 2 threads</strong> instead of creating threads manually. Submit the same three <code>PrintTask</code> instances to the pool.</p>
+<p>An <code>ExecutorService</code> is a ready-made pool of worker threads. Instead of <code>new Thread(task).start()</code>, you hand tasks to the pool with <code>submit(...)</code> and it runs them on whichever worker is free. The four calls you need:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Call</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Executors.newFixedThreadPool(n)</code></td>
+<td>create a pool with <code>n</code> reusable worker threads</td>
+</tr>
+<tr class="even">
+<td><code>pool.submit(task)</code></td>
+<td>hand one <code>Runnable</code> to the pool’s queue; a free worker picks it up</td>
+</tr>
+<tr class="odd">
+<td><code>pool.shutdown()</code></td>
+<td>stop accepting new tasks; let the ones already submitted finish</td>
+</tr>
+<tr class="even">
+<td><code>pool.awaitTermination(t, unit)</code></td>
+<td>block here until all tasks finish (or the timeout elapses) — the pool’s equivalent of <code>join()</code></td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">util</span><span class="op">.</span><span class="im">concurrent</span><span class="op">.</span><span class="im">ExecutorService</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">util</span><span class="op">.</span><span class="im">concurrent</span><span class="op">.</span><span class="im">Executors</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">util</span><span class="op">.</span><span class="im">concurrent</span><span class="op">.</span><span class="im">TimeUnit</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"A"</span><span class="op">));</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"B"</span><span class="op">));</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"C"</span><span class="op">));</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>                              <span class="co">// no more tasks after this</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span>  <span class="co">// wait for A, B, C to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote class="blockquote">
+<p>Don’t worry about <em>how</em> the pool reuses threads or manages its queue — that’s the Sep 16 lecture. Today you just need to see that 3 tasks and 2 workers means one task waits its turn.</p>
+</blockquote>
+<p><strong>Questions:</strong></p>
+<ol type="1">
+<li>With 3 tasks and a pool of 2 threads, what do you observe about the order tasks start? Can all three run at the exact same time?</li>
+<li>What does <code>pool.shutdown()</code> do? What happens if you forget it?</li>
+<li>Change the pool size to 1. What changes about the output? Why?</li>
+</ol>
+<hr>
+</section>
+<section id="task-3-shared-counter-with-a-thread-pool-15-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-3-shared-counter-with-a-thread-pool-15-min">Task 3 — Shared Counter with a Thread Pool (15 min)</h2>
+<p>Using an <code>ExecutorService</code> (same four calls as Task 2), submit <strong>5 tasks</strong> that each increment a shared counter 1000 times, then print the final counter value.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">3</span><span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">1000</span><span class="op">;</span> j<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="co">// increment the shared counter here</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Final counter: "</span> <span class="op">+</span> counter<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You’ll see the same race condition from Lab 1. Fix it with <code>synchronized</code>, the same way you did there.</p>
+<p><strong>Expected final counter:</strong> 5000 (always, after the fix).</p>
+<hr>
+</section>
+<section id="submission" class="level2">
+<h2 class="anchored" data-anchor-id="submission">Submission</h2>
+<p>Upload to Blackboard:</p>
+<ol type="1">
+<li><strong>Screenshot</strong> — terminal showing Task 2 output (all three threads completing) and Task 3 output before and after the fix</li>
+<li><strong>Code file(s)</strong> — your Java source files for Tasks 1, 2, and 3</li>
+<li><strong>Answers</strong> — paste your 3 answers from Task 2 into the Blackboard text box</li>
+</ol>
+<hr>
 
 
 </section>

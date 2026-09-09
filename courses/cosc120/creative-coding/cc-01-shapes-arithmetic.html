@@ -10,7 +10,7 @@
 <script src="../../site_libs/quarto-contrib/codemirror6-1.0.0/codemirror.bundle.js"></script><meta charset="utf-8">
   <meta name="generator" content="quarto-1.9.36">
 
-  <title>Class Notes – Arithmetic Expressions</title>
+  <title>Class Notes – Creative Coding 1 — Shapes &amp; Coordinates</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -389,6 +389,7 @@
   div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
 
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="quarto-light">
 <script type="module">
@@ -774,821 +775,443 @@ if (document.readyState === 'loading') {
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Arithmetic Expressions</h1>
-  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
+  <h1 class="title">Creative Coding 1 — Shapes &amp; Coordinates</h1>
+  <p class="subtitle">COSC120 — ungraded warm-up</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
+<section id="before-class" class="slide level2">
+<h2>Before class</h2>
+<p>Read through this whole deck on your own and try running every sketch (click <strong>Run</strong> on each code block). You don’t need to get everything working perfectly — just get a feel for it. We’ll pick this back up together in class to finish the exercises and look at what everyone made.</p>
+</section>
 <section id="learning-outcomes" class="slide level2">
 <h2>Learning Outcomes</h2>
 <ul>
-<li class="fragment">Write arithmetic expressions using <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, and <code>%</code></li>
-<li class="fragment">Explain how integer division differs from regular division and predict its result</li>
-<li class="fragment">Predict the order of evaluation in an expression by applying operator precedence rules</li>
-<li class="fragment">Use parentheses to control evaluation order</li>
-<li class="fragment">Convert string input to an integer with <code>Integer.parseInt</code> and use it in a computation</li>
-<li class="fragment">Use <code>+</code> to join strings with <code>String</code> concatenation</li>
+<li>Explain what <code>setup()</code> and <code>draw()</code> each do</li>
+<li>Read Processing’s coordinate system: where <code>(0, 0)</code> is, and which way <code>x</code> and <code>y</code> increase</li>
+<li>Use <code>ellipse()</code>, <code>rect()</code>, and <code>fill()</code> to place and color shapes</li>
+<li>Reuse the arithmetic you already know (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>) to compute <em>where</em> a shape goes, instead of typing raw numbers</li>
 </ul>
 </section>
-<section id="arithmetic" class="slide level2">
-<h2>Arithmetic</h2>
-<aside class="notes">
-<p>This is the motivational opener — spend real time here. The goal is to make students feel the significance of what they are about to learn. Every useful computation that a computer performs, from a video game physics engine to GPS navigation to the systems that guide spacecraft, reduces to arithmetic. Not magic — arithmetic. And the computer does it at a scale and speed that is hard to grasp. The course arc: we learn the operators today, then we combine them in expressions, then we repeat them billions of times using loops, then we apply them to collections of data. Today is the foundation of all of that.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-
-<img data-src="diags/arithmetic-map.svg" alt="A large central circle labeled 'Arithmetic' with arrows radiating outward to labeled boxes: 'Video game physics', 'GPS navigation', 'Weather forecasting', 'Streaming audio/video', 'Rocket guidance'. Below the circle, a small note: '~1 billion operations per second.'" class="r-stretch"></section>
-<section id="arithmetic-1" class="slide level2">
-<h2>Arithmetic</h2>
-<p>Every program that has ever run on a computer — games, GPS, streaming video, weather forecasts, the systems that control spacecraft — is built on <strong>arithmetic</strong>.</p>
-<p>A modern computer can perform <strong>hundreds of millions to billions</strong> of arithmetic operations every second.</p>
+<section id="what-is-processing" class="slide level2">
+<h2>What is Processing?</h2>
+<p>Processing is still Java — the same variables and arithmetic you’ve been writing already.</p>
+<p>What’s new: instead of printing text with <code>IO.println</code>, you’re drawing shapes onto a small rectangular canvas.</p>
+<p>Every sketch on this page runs live in your browser — no installation needed.</p>
 </section>
-<section id="arithmetic-2" class="slide level2">
-<h2>Arithmetic</h2>
-<p>What makes programs powerful is not any one operation — it’s <strong>combining</strong> simple operations and <strong>repeating</strong> them at enormous speed.</p>
-<p>Here is the course in one sentence:</p>
-<blockquote>
-<p>Learn the operators → combine them into expressions → repeat them with loops → apply them to collections of data.</p>
-</blockquote>
-<p>Today: the operators.</p>
+<section id="two-blocks-instead-of-one-main" class="slide level2">
+<h2>Two blocks instead of one <code>main</code></h2>
+<p>A picture isn’t printed once and done — it needs to be drawn, and often <em>redrawn</em>, to animate.</p>
+<p>So a Processing sketch is split into two named blocks of code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>  <span class="co">// runs ONCE, when the sketch starts</span></span>
+<span id="cb1-3"><a></a><span class="op">}</span></span>
+<span id="cb1-4"><a></a></span>
+<span id="cb1-5"><a></a><span class="dt">void</span> <span class="fu">draw</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-6"><a></a>  <span class="co">// runs OVER AND OVER, automatically, about 60 times every second</span></span>
+<span id="cb1-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="what-is-an-expression" class="slide level2">
-<h2>What Is an Expression?</h2>
-<aside class="notes">
-<p>Name the concept before diving into operators. An expression is any piece of code that the computer can evaluate to produce a single value. 3 + 4 is an expression. score * 2 is an expression. Even a lone literal like 42 is an expression. Expressions appear everywhere in programs — on the right side of an assignment, as arguments to IO.println, and later as conditions in if statements and loops. Once students see that distinction, every piece of syntax they encounter will feel more organized.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>An <strong>expression</strong> is any combination of values, variables, and operators that the computer can evaluate to produce a single value.</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Expression</th>
-<th>Evaluates to</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>3 + 4</code></td>
-<td><code>7</code></td>
-</tr>
-<tr class="even">
-<td><code>10 - 3</code></td>
-<td><code>7</code></td>
-</tr>
-<tr class="odd">
-<td><code>score * 2</code></td>
-<td>twice whatever <code>score</code> holds</td>
-</tr>
-<tr class="even">
-<td><code>100</code></td>
-<td><code>100</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section class="slide level2">
-
-<p>Expressions appear everywhere in a program:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">int</span> total <span class="op">=</span> price <span class="op">*</span> quantity<span class="op">;</span>   <span class="co">// expression on the right side</span></span>
-<span id="cb1-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">+</span> <span class="dv">10</span><span class="op">);</span>         <span class="co">// expression inside IO.println(...)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>The computer evaluates the expression first, then uses the result.</p>
-</div>
-</section>
-<section id="arithmetic-operators" class="slide level2">
-<h2>Arithmetic Operators</h2>
-<aside class="notes">
-<p>Walk through each operator one at a time. Addition, subtraction, and multiplication are unsurprising — just flag that multiplication uses * not ×. Division is where things get interesting; hold the full explanation for the next slide. Modulo is the one students have never seen before — introduce the symbol and give the one-line definition, then hold examples for its own slide. The table is a reference; students should not try to memorize it on first pass.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>Java has five arithmetic operators:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Operator</th>
-<th>Name</th>
-<th>Example</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>+</code></td>
-<td>Addition</td>
-<td><code>3 + 4</code></td>
-<td><code>7</code></td>
-</tr>
-<tr class="even">
-<td><code>-</code></td>
-<td>Subtraction</td>
-<td><code>10 - 3</code></td>
-<td><code>7</code></td>
-</tr>
-<tr class="odd">
-<td><code>*</code></td>
-<td>Multiplication</td>
-<td><code>6 * 7</code></td>
-<td><code>42</code></td>
-</tr>
-<tr class="even">
-<td><code>/</code></td>
-<td>Division</td>
-<td><code>10 / 4</code></td>
-<td><code>2</code> ← watch out</td>
-</tr>
-<tr class="odd">
-<td><code>%</code></td>
-<td>Modulo (remainder)</td>
-<td><code>10 % 3</code></td>
-<td><code>1</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section class="slide level2">
-
-<p>A quick note on each:</p>
+<section id="reading-setup-and-draw" class="slide level2">
+<h2>Reading <code>setup()</code> and <code>draw()</code></h2>
 <ul>
-<li class="fragment">Multiplication is <code>*</code> — not <code>×</code> and not <code>·</code></li>
-<li class="fragment">Division with two whole numbers does <strong>not</strong> give a decimal — more on this next</li>
-<li class="fragment">Modulo (<code>%</code>) gives the <strong>remainder</strong> after division — more on this soon</li>
+<li><code>setup()</code> — “things I only need to do once.” Mainly, telling Processing how big the canvas should be.</li>
+<li><code>draw()</code> — “the current frame of a flipbook.” Processing calls it again and again, and whatever you draw inside becomes the picture for that instant.</li>
+</ul>
+<p>You never call <code>draw()</code> yourself — Processing does that automatically, forever, once the sketch starts.</p>
+</section>
+<section id="two-things-to-file-away-for-later" class="slide level2">
+<h2>Two things to file away for later</h2>
+<ul>
+<li>These named blocks are called <strong>methods</strong> — you’ll learn to write your own soon. For now, just copy the <code>void setup() { ... }</code> / <code>void draw() { ... }</code> shape exactly and put your code inside the braces.</li>
+<li>You’ll see <code>float</code> below where you might expect <code>double</code>. <code>float</code> is just another type for decimal numbers, a little less precise than <code>double</code>. Processing uses it everywhere, so read <code>float</code> as “a number that can have a decimal point.”</li>
 </ul>
 </section>
-<section id="operator-precedence" class="slide level2 scrollable">
-<h2>Operator Precedence</h2>
-<aside class="notes">
-<p>PEMDAS from math class still applies in Java. Multiplication and division are evaluated before addition and subtraction. Within the same level, evaluation goes left to right. Parentheses override everything. Show a worked example where the answer changes depending on whether parentheses are present. The practical advice — when in doubt, add parentheses — is worth repeating. A program with extra parentheses is easier to read and less likely to have a subtle bug.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>Java follows the same precedence rules as mathematics.</p>
-<p><strong>PEMDAS still applies:</strong></p>
+<section id="an-empty-sketch" class="slide level2">
+<h2>An empty sketch</h2>
+<div class="jr-block" id="jr-1" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>size(400, 300)</code> tells Processing the canvas is 400 pixels wide, 300 pixels tall. <code>draw()</code> is empty, so nothing happens yet — click <strong>Run</strong> and you’ll just see a blank canvas.</p>
+</section>
+<section id="the-coordinate-system" class="slide level2">
+<h2>The coordinate system</h2>
+<p>Before drawing anything, you need to know how Processing measures position. It is <strong>not</strong> the x/y grid from math class.</p>
+<ul>
+<li><code>(0, 0)</code> is the <strong>top-left corner</strong>, not the center and not the bottom-left.</li>
+<li><code>x</code> increases as you move <strong>right</strong> — as you’d expect.</li>
+<li><code>y</code> increases as you move <strong>down</strong> — the <em>opposite</em> of a math-class graph. This trips almost everyone up at least once.</li>
+</ul>
+</section>
+<section id="width-and-height" class="slide level2">
+<h2><code>width</code> and <code>height</code></h2>
+<p><code>width</code> and <code>height</code> are two variables Processing fills in for you automatically, based on whatever you passed to <code>size(...)</code>.</p>
+<p>So <code>width / 2</code> always means “the horizontal middle of the canvas,” no matter what size you chose.</p>
+</section>
+<section id="step-1-paint-the-background" class="slide level2">
+<h2>Step 1 — paint the background</h2>
+<div class="jr-block" id="jr-2" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(230);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>background(230)</code> repaints the whole canvas a light gray — <strong>every single frame</strong>. Without this line, every shape you ever draw would stay on screen forever, since <code>draw()</code> never automatically clears anything; it just paints on top of whatever was there before.</p>
+</section>
+<section id="step-2-pick-a-color" class="slide level2">
+<h2>Step 2 — pick a color</h2>
+<div class="jr-block" id="jr-3" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(230);
+  fill(80, 160, 220);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>fill(80, 160, 220)</code> sets the color used to fill the <em>next</em> shape you draw — three numbers for red, green, and blue, each from 0 to 255. Like a paint bucket: it stays “loaded” with that color until you call <code>fill(...)</code> again. Nothing visibly changes yet — we haven’t drawn a shape.</p>
+</section>
+<section id="step-3-draw-a-shape" class="slide level2">
+<h2>Step 3 — draw a shape</h2>
+<div class="jr-block" id="jr-4" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(230);
+  fill(80, 160, 220);
+  noStroke();
+  ellipse(200, 150, 80, 80);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>noStroke()</code> turns off the shape’s outline. <code>ellipse(x, y, w, h)</code> draws an ellipse <strong>centered</strong> at <code>(x, y)</code>, <code>w</code> pixels wide, <code>h</code> pixels tall — equal width and height makes it a circle.</p>
+<p>Unlike <code>rect()</code>, which positions from a corner, <code>ellipse()</code> positions from the <strong>center</strong> — worth remembering, it’s a common mix-up.</p>
+</section>
+<section id="try-it-before-class" class="slide level2 scrollable">
+<h2>Try it (before class)</h2>
+<p>Run the sketch above. Then:</p>
 <ol type="1">
-<li class="fragment">Parentheses first</li>
-<li class="fragment">Multiplication and division (left to right)</li>
-<li class="fragment">Addition and subtraction (left to right)</li>
+<li>Delete <code>noStroke();</code> and re-run — notice the thin black outline appear.</li>
+<li>Change <code>200, 150</code> to <code>100, 50</code>.</li>
+<li>Change <code>80, 80</code> to <code>200, 60</code>.</li>
 </ol>
+<p>Predict what will change <em>before</em> you click Run each time.</p>
 </section>
-<section class="slide level2">
-
-<p>What does <code>2 + 3 * 4</code> evaluate to?</p>
-<pre><code>  2 + 3 * 4
-= 2 + 12        ← multiplication first
-= 14</code></pre>
-<div class="fragment">
-<p>Not <code>20</code>. Multiplication happens before addition.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<p>Parentheses override everything:</p>
-<pre><code>  (2 + 3) * 4
-= 5 * 4         ← parentheses first
-= 20</code></pre>
-<div class="fragment">
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Tip</strong></p>
-</div>
-<div class="callout-content">
-<p><strong>When in doubt — add parentheses.</strong> A program with extra parentheses is clearer and less likely to surprise you.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="integer-division" class="slide level2">
-<h2>Integer Division</h2>
-<aside class="notes">
-<p>This is one of the most common surprises for beginners and it will bite them for weeks if they do not understand it clearly. When both operands are ints, Java performs integer division: the result is always a whole number and the decimal part is simply dropped — not rounded, just gone. 7 / 2 is 3, not 3.5, not 4. Show this with several examples. Then show how to get a decimal result: if either operand is a double, the division is decimal division. Make the connection back to types: it is the type of the operands that determines what kind of division happens.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>Here is the most common surprise in this entire lecture:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="dt">int</span> result <span class="op">=</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb4-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>result<span class="op">);</span>    <span class="co">// prints 3, not 3.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>When both values are whole numbers, Java does <strong>integer division</strong> — the decimal part is dropped.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Expression</th>
-<th>Result</th>
-<th>Why</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>7 / 2</code></td>
-<td><code>3</code></td>
-<td>decimal part dropped</td>
-</tr>
-<tr class="even">
-<td><code>10 / 3</code></td>
-<td><code>3</code></td>
-<td>decimal part dropped</td>
-</tr>
-<tr class="odd">
-<td><code>1 / 4</code></td>
-<td><code>0</code></td>
-<td>0.25 → drops to 0</td>
-</tr>
-<tr class="even">
-<td><code>8 / 2</code></td>
-<td><code>4</code></td>
-<td>divides evenly — no issue</td>
-</tr>
-</tbody>
-</table>
-<div class="fragment">
-<div class="callout callout-warning callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Warning</strong></p>
-</div>
-<div class="callout-content">
-<p>The decimal part is <strong>dropped</strong>, not rounded. <code>7 / 2</code> gives <code>3</code>, not <code>4</code>.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section class="slide level2">
-
-<p>To get a decimal result, make one of the values a decimal number:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a></a><span class="dt">double</span> result <span class="op">=</span> <span class="fl">7.0</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span>    <span class="co">// one operand is a double → 3.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>The type of the operands determines the type of the result.</p>
-<p><img data-src="diags/integer-division.svg" alt="A visual of integer division as actual division with remainder. Show 7 ÷ 2: a box on the left with '7', an arrow pointing to a division operation, splitting into two outputs: a box labeled 'quotient = 3' (highlighted, this is what / gives) and a smaller box labeled 'remainder = 1' (slightly faded, this is what % gives)."></p>
-</div>
-</section>
-<section id="the-modulo-operator" class="slide level2">
-<h2>The Modulo Operator <code>%</code></h2>
-<aside class="notes">
-<p>Modulo is the one operator most students haven’t seen before. The concept is simple — it is the remainder after division — but it takes a moment to click. Walk through the division-with-remainder picture: 7 divided by 2 goes 3 times with 1 left over. That leftover is what % gives you. Then show the practical uses, which are genuinely useful and will appear repeatedly throughout the course: checking even/odd, extracting the last digit of a number, wrapping around a fixed range.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p><code>%</code> gives the <strong>remainder</strong> after integer division.</p>
-<div class="fragment">
-<p>Think of it as division with leftovers:</p>
-<pre><code>7 ÷ 2 → goes 3 times, with 1 left over
-7 % 2  →  1</code></pre>
-</div>
-</section>
-<section class="slide level2">
-
-<p>More examples:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Expression</th>
-<th>Think</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>10 % 3</code></td>
-<td>3 goes into 10 three times (9), leaving 1</td>
-<td><code>1</code></td>
-</tr>
-<tr class="even">
-<td><code>15 % 5</code></td>
-<td>5 goes into 15 exactly — no remainder</td>
-<td><code>0</code></td>
-</tr>
-<tr class="odd">
-<td><code>7 % 10</code></td>
-<td>10 goes into 7 zero times, leaving 7</td>
-<td><code>7</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section class="slide level2">
-
-<p><strong>Practical uses you will see again and again:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="co">// Is a number even or odd?</span></span>
-<span id="cb7-2"><a></a>n <span class="op">%</span> <span class="dv">2</span>    <span class="co">// produces 0 if even, 1 if odd</span></span>
-<span id="cb7-3"><a></a></span>
-<span id="cb7-4"><a></a><span class="co">// What is the last digit of a number?</span></span>
-<span id="cb7-5"><a></a>n <span class="op">%</span> <span class="dv">10</span>   <span class="co">// extracts the ones digit</span></span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a><span class="co">// Stay within a fixed range (e.g., hours on a clock)</span></span>
-<span id="cb7-8"><a></a>hour <span class="op">%</span> <span class="dv">24</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Note</strong></p>
-</div>
-<div class="callout-content">
-<p><code>%</code> only tells you the remainder — not how many times the division went. That is what <code>/</code> is for.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="introducing-flowcharts" class="slide level2">
-<h2>Introducing Flowcharts</h2>
-<aside class="notes">
-<p>Introduce flowcharts as a planning tool before writing code. Professional programmers sketch the logic of a program before writing a single line — flowcharts are one way to do that. Three symbols are enough for now: the oval marks where a program starts and ends; the rectangle describes a step or action; the arrow shows what happens next. Diamonds (for decisions) come in the next lecture when we cover conditionals. Show a completely non-programming example first — making toast — so students absorb the symbols without the distraction of syntax. Then show a programming example.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>Before writing code, it helps to <strong>plan</strong> what the program should do.</p>
-<div class="fragment">
-<p>A <strong>flowchart</strong> is a diagram that shows the steps of a program and how they connect.</p>
-</div>
-<div class="fragment">
-<p>Three symbols are enough for now:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Symbol</th>
-<th>Shape</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Start / End</td>
-<td>Oval</td>
-<td>Where the program begins and ends</td>
-</tr>
-<tr class="even">
-<td>Step</td>
-<td>Rectangle</td>
-<td>A single action (compute, read, print)</td>
-</tr>
-<tr class="odd">
-<td>Flow</td>
-<td>Arrow</td>
-<td>What happens next</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section class="slide level2">
-
-<p>Example — making toast:</p>
-
-<img data-src="diags/toaster-flow.svg" alt="A flowchart showing the steps to make toast. Start → Put bread in toaster → Push lever down → Wait for toast to pop → Remove toast → End." class="r-stretch"><div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Note</strong></p>
-</div>
-<div class="callout-content">
-<p>We will add a <strong>diamond</strong> shape for decisions — <em>“if this, do that; otherwise, do this”</em> — when we cover conditionals next week.</p>
-</div>
-</div>
-</div>
-</section>
-<section id="integer.parseint-numbers-from-the-user" class="slide level2">
-<h2><code>Integer.parseInt</code> — Numbers from the User</h2>
-<aside class="notes">
-<p>IO.readln always produces a String — even if the user types 42, the program receives the text “42”, not the number 42. That distinction matters because you cannot do arithmetic on text. To convert “42” to the number 42, use Integer.parseInt. The syntax is straightforward: wrap the String in Integer.parseInt(…). Mention that if the user types something that is not a valid number — like “hello” — the program will crash. Handling that gracefully is a topic for later in the course.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p><code>IO.readln</code> always produces a <code>String</code> — even if the user types a number.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="bu">String</span> input <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"How many minutes? "</span><span class="op">);</span></span>
-<span id="cb8-2"><a></a><span class="co">// input holds "137" — the TEXT, not the number</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>You <strong>cannot</strong> do arithmetic on a <code>String</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a>input <span class="op">/</span> <span class="dv">60</span>    <span class="co">// ERROR — can't divide text</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section class="slide level2">
-
-<p><code>Integer.parseInt</code> converts a <code>String</code> to an <code>int</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="dt">int</span> minutes <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>input<span class="op">);</span></span>
-<span id="cb10-2"><a></a><span class="co">// now minutes holds the number 137</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>Or in one step:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="dt">int</span> minutes <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"How many minutes? "</span><span class="op">));</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="fragment">
-<div class="callout callout-warning callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Warning</strong></p>
-</div>
-<div class="callout-content">
-<p>If the user types something that is not a whole number — like <code>"hello"</code> or <code>"3.5"</code> — the program will crash. Handling that gracefully is a topic for later in the course.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="putting-it-together" class="slide level2">
-<h2>Putting It Together</h2>
-<aside class="notes">
-<p>Walk through the flowchart first, then the code. Trace through a concrete example — 137 minutes — step by step with the class before running the program. 137 / 60 = 2 (integer division, decimal dropped). 137 % 60 = 17 (remainder). Output: “2 hours and 17 minutes.” Make sure students verify the math by hand before the program confirms it. This builds the habit of reasoning about code before running it.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p><strong>Problem:</strong> Ask the user how many minutes they have been studying. Print the equivalent hours and minutes.</p>
-</section>
-<section class="slide level2">
-
-<p><strong>Plan it first:</strong></p>
-
-<img data-src="diags/minutes-to-hours-flow.svg" alt="A flowchart showing the steps to convert minutes to hours and remaining minutes. Start → Read input from user → Convert to int: minutes → hours = minutes / 60 → remaining = minutes % 60 → Print hours and remaining → End." class="r-stretch"></section>
-<section class="slide level2">
-
-<p><strong>Now write it:</strong></p>
-<div class="jr-block" id="jr-1" data-type="java">
+<section id="step-4-use-arithmetic-instead-of-raw-numbers" class="slide level2">
+<h2>Step 4 — use arithmetic instead of raw numbers</h2>
+<div class="jr-block" id="jr-5" data-type="processing">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
-      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
-    int minutes = Integer.parseInt(IO.readln("Minutes studied: "));
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
 
-    int hours     = minutes / 60;
-    int remaining = minutes % 60;
+void draw() {
+  background(230);
 
-    IO.println("Hours:");
-    IO.println(hours);
-    IO.println("Minutes left over:");
-    IO.println(remaining);
+  float cx = width / 2;
+  float cy = height / 2;
+
+  fill(80, 160, 220);
+  noStroke();
+  ellipse(cx, cy, 80, 80);
 }</div>
   </div>
-  <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
-    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
-<div class="fragment">
-<p>Sample run (<code>137</code> entered):</p>
-<pre><code>Minutes studied: 137
-Hours:
-2
-Minutes left over:
-17</code></pre>
-</div>
+<p>Same picture as before, but <code>200, 150</code> became <code>width / 2, height / 2</code>. Now the circle stays centered no matter what size the canvas is — that’s the whole reason to compute a position instead of typing a fixed number.</p>
 </section>
-<section id="string-concatenation" class="slide level2">
-<h2>String Concatenation</h2>
-<aside class="notes">
-<p>This is the formal introduction of string concatenation, deferred from the variables deck. The + operator does two different things depending on the types involved. int + int is arithmetic. String + anything is concatenation — the values are joined into a single String. The anything part is important: Java automatically converts a number to its text form before joining. Show the clean cases first, then the surprising mixed case. The left-to-right evaluation rule is the key to understanding “5” + 3 + 4 = “534” vs 5 + 3 + “4” = “84”. Connect back to deck 02: we printed labels and values on separate lines because we did not have concatenation yet — now we can put them on the same line.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p>The <code>+</code> operator does <strong>different things</strong> depending on the types involved.</p>
-<div class="fragment">
-<p><strong>With two numbers — addition:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="dt">int</span> a <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
-<span id="cb13-2"><a></a><span class="dt">int</span> b <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
-<span id="cb13-3"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>a <span class="op">+</span> b<span class="op">);</span>     <span class="co">// prints: 8</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section class="slide level2">
-
-<p><strong>With a <code>String</code> — concatenation (joining):</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="bu">String</span> first <span class="op">=</span> <span class="st">"Hello, "</span><span class="op">;</span></span>
-<span id="cb14-2"><a></a><span class="bu">String</span> second <span class="op">=</span> <span class="st">"world!"</span><span class="op">;</span></span>
-<span id="cb14-3"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>first <span class="op">+</span> second<span class="op">);</span>    <span class="co">// prints: Hello, world!</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p><strong>Mixing a <code>String</code> and a number:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="dt">int</span> score <span class="op">=</span> <span class="dv">42</span><span class="op">;</span></span>
-<span id="cb15-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Score: "</span> <span class="op">+</span> score<span class="op">);</span>   <span class="co">// prints: Score: 42</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="fragment">
-<p>Java converts the number to text automatically before joining.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<p><strong>Watch out — order matters:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Total: "</span> <span class="op">+</span> <span class="dv">5</span> <span class="op">+</span> <span class="dv">3</span><span class="op">);</span>   <span class="co">// prints: Total: 53  ← not 8!</span></span>
-<span id="cb16-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Total: "</span> <span class="op">+</span> <span class="op">(</span><span class="dv">5</span> <span class="op">+</span> <span class="dv">3</span><span class="op">));</span> <span class="co">// prints: Total: 8   ← add first</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>Evaluation goes left to right: <code>"Total: " + 5</code> produces <code>"Total: 5"</code>, then <code>"Total: 5" + 3</code> produces <code>"Total: 53"</code>.</p>
-</div>
-<div class="fragment">
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Tip</strong></p>
-</div>
-<div class="callout-content">
-<p><strong>Recall from last lecture:</strong> we printed labels and values on separate lines because we did not have <code>+</code> yet. Now we can write <code>IO.println("Score: " + score)</code> and put them on one line.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="common-mistakes" class="slide level2">
-<h2>Common Mistakes</h2>
-<aside class="notes">
-<p>Four mistakes that will appear in student code in the first few weeks. Integer division truncation is the most common — stress it again. The concatenation surprise (mixing + with Strings and numbers in unexpected ways) is the most confusing. Make sure students leave knowing these pitfalls by name so they can recognize them when they appear.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<p><strong>1. Expecting a decimal from integer division</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="dt">int</span> result <span class="op">=</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb17-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>result<span class="op">);</span>    <span class="co">// prints 3 — not 3.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>Fix: make one operand a decimal — <code>7.0 / 2</code>.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<p><strong>2. Missing parentheses changing the result</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb18-1"><a></a><span class="dt">int</span> avg <span class="op">=</span> <span class="dv">10</span> <span class="op">+</span> <span class="dv">20</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span>   <span class="co">// prints 20 — not 15</span></span>
-<span id="cb18-2"><a></a><span class="dt">int</span> avg <span class="op">=</span> <span class="op">(</span><span class="dv">10</span> <span class="op">+</span> <span class="dv">20</span><span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// prints 15 — as intended</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section class="slide level2">
-
-<p><strong>3. The concatenation surprise</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb19-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Answer: "</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">3</span><span class="op">);</span>   <span class="co">// prints: Answer: 23</span></span>
-<span id="cb19-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Answer: "</span> <span class="op">+</span> <span class="op">(</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">3</span><span class="op">));</span> <span class="co">// prints: Answer: 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>Once a <code>String</code> is involved, <code>+</code> becomes concatenation — not addition.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<p><strong>4. Forgetting <code>Integer.parseInt</code></strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb20-1"><a></a><span class="bu">String</span> input <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Enter a number: "</span><span class="op">);</span></span>
-<span id="cb20-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>input <span class="op">*</span> <span class="dv">2</span><span class="op">);</span>   <span class="co">// ERROR — can't multiply a String</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>Fix: <code>int n = Integer.parseInt(input);</code></p>
-</div>
-</section>
-<section id="practice-problems" class="slide level2">
-<h2>Practice problems</h2>
-<aside class="notes">
-<p>Reserve the last 20-30 minutes. Problems 1-3 are prediction/tracing — students work on paper first, then verify in the IDE. Problems 4-5 require writing code. Problem 6 is the synthesis problem that combines everything from today with IO.readln. Common things to watch for: integer division surprises, concatenation vs addition confusion, forgetting Integer.parseInt.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section class="slide level2">
-
-<p><strong>Problem 1 — Predict the output.</strong> Work through each expression on paper, then verify.</p>
-<div class="jr-block" id="jr-2" data-type="java">
+<section id="building-a-face-the-head" class="slide level2">
+<h2>Building a face — the head</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
-      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
-    IO.println(10 + 3 * 2);
-    IO.println((10 + 3) * 2);
-    IO.println(7 / 2);
-    IO.println(7 % 2);
-    IO.println(1 / 4);
-    IO.println("Result: " + 2 + 3);
-    IO.println("Result: " + (2 + 3));
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(255, 240, 200);
+
+  float cx = width / 2;
+  float cy = height / 2;
+  float r  = 100;
+
+  fill(255, 220, 150);
+  ellipse(cx, cy, r * 2, r * 2);   // head
 }</div>
   </div>
-  <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
-    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
   </div>
 </div>
+<p>One new variable, <code>r</code>, holds the head’s radius. The head’s <em>width</em> and <em>height</em> are both <code>r * 2</code> — written in terms of <code>r</code>, not as a raw number like <code>200</code>.</p>
 </section>
-<section class="slide level2">
-
-<p><strong>Problem 2 — Fill in the result.</strong></p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Expression</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>17 / 5</code></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><code>17 % 5</code></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><code>100 % 10</code></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><code>3 % 7</code></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><code>"Hi" + " " + "there"</code></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section class="slide level2">
-
-<p><strong>Problem 3 — What type?</strong> For each computation, should you use <code>int</code> or <code>double</code>?</p>
-<ul>
-<li>The number of students in a class, divided into groups of 4</li>
-<li>A student’s average score across 3 tests</li>
-<li>The remainder when a score is divided by 10</li>
-<li>The number of hours in 250 minutes</li>
-</ul>
-</section>
-<section class="slide level2">
-
-<p><strong>Problem 4 — Write the expression.</strong> Write a single Java expression for each:</p>
-<ul>
-<li>The number of whole hours in <code>totalMinutes</code> minutes</li>
-<li>The leftover minutes after extracting hours from <code>totalMinutes</code></li>
-<li>Whether <code>n</code> is even (hint: use <code>%</code>)</li>
-<li>The last digit of the number <code>n</code></li>
-</ul>
-</section>
-<section class="slide level2">
-
-<p><strong>Problem 5 — Spot the bug.</strong> Each program below has one mistake. Find and fix it.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb21-1"><a></a><span class="co">// Program A</span></span>
-<span id="cb21-2"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb21-3"><a></a>    <span class="dt">int</span> a <span class="op">=</span> <span class="dv">10</span><span class="op">;</span></span>
-<span id="cb21-4"><a></a>    <span class="dt">int</span> b <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
-<span id="cb21-5"><a></a>    <span class="dt">double</span> result <span class="op">=</span> a <span class="op">/</span> b<span class="op">;</span></span>
-<span id="cb21-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>result<span class="op">);</span>   <span class="co">// expected: 3.333...</span></span>
-<span id="cb21-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb22-1"><a></a><span class="co">// Program B</span></span>
-<span id="cb22-2"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb22-3"><a></a>    <span class="dt">int</span> x <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
-<span id="cb22-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Double: "</span> <span class="op">+</span> x <span class="op">+</span> x<span class="op">);</span>   <span class="co">// expected: Double: 10</span></span>
-<span id="cb22-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section class="slide level2">
-
-<p><strong>Problem 6 — Write it.</strong> Ask the user to enter a number of seconds. Print how many full minutes that is, and how many seconds are left over.</p>
-<p>Example: <code>137</code> seconds → <code>2 minutes, 17 seconds</code></p>
-<div class="jr-block" id="jr-3" data-type="java">
+<section id="adding-the-eyes" class="slide level2">
+<h2>Adding the eyes</h2>
+<div class="jr-block" id="jr-7" data-type="processing">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
-      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(255, 240, 200);
+
+  float cx = width / 2;
+  float cy = height / 2;
+  float r  = 100;
+
+  fill(255, 220, 150);
+  ellipse(cx, cy, r * 2, r * 2);         // head
+
+  fill(255);
+  ellipse(cx - r / 3, cy - r / 4, 30, 30);  // left eye white
+  ellipse(cx + r / 3, cy - r / 4, 30, 30);  // right eye white
+}</div>
   </div>
-  <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
-    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
   </div>
 </div>
+<p>Each eye’s position is <code>cx</code>/<code>cy</code> plus or minus an expression built from <code>r</code> — not a fixed pixel number. Try changing <code>r</code> from <code>100</code> to <code>60</code> and re-run: the whole face shrinks and everything stays in the right place, because the <em>relationships</em> were written in arithmetic.</p>
+</section>
+<section id="adding-the-pupils-and-a-smile" class="slide level2">
+<h2>Adding the pupils and a smile</h2>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(255, 240, 200);
+
+  float cx = width / 2;
+  float cy = height / 2;
+  float r  = 100;
+
+  fill(255, 220, 150);
+  ellipse(cx, cy, r * 2, r * 2);         // head
+
+  fill(255);
+  ellipse(cx - r / 3, cy - r / 4, 30, 30);  // left eye white
+  ellipse(cx + r / 3, cy - r / 4, 30, 30);  // right eye white
+
+  fill(0);
+  ellipse(cx - r / 3, cy - r / 4, 10, 10);  // left pupil
+  ellipse(cx + r / 3, cy - r / 4, 10, 10);  // right pupil
+
+  noFill();
+  stroke(0);
+  arc(cx, cy + r / 4, r, r / 2, 0, PI);     // smile
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>arc(x, y, w, h, start, stop)</code> draws part of an ellipse’s outline, from angle <code>start</code> to angle <code>stop</code>, measured in radians — <code>0</code> to <code>PI</code> sweeps the bottom half, which is why it reads as a smile. You don’t need to understand radians yet; just know <code>PI</code> is a built-in constant holding the value of π, ready to use without declaring it.</p>
+</section>
+<section id="a-repeating-pattern-one-circle-in-a-loop" class="slide level2">
+<h2>A repeating pattern — one circle in a loop</h2>
+<div class="jr-block" id="jr-9" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(20);
+
+  for (int i = 0; i &lt; 8; i++) {
+    int x = i * 50 + 25;
+    fill(200);
+    ellipse(x, 100, 40, 40);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>You haven’t been taught <code>for</code> loops yet — for now, just trust that this repeats the block inside it 8 times, with <code>i</code> counting <code>0, 1, 2, ..., 7</code> each time through. Watch what it draws: eight identical gray circles, evenly spaced, because <code>x</code> is computed fresh from <code>i</code> on each repeat.</p>
+</section>
+<section id="cycles-the-color" class="slide level2">
+<h2><code>%</code> cycles the color</h2>
+<div class="jr-block" id="jr-10" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(20);
+
+  for (int i = 0; i &lt; 8; i++) {
+    int x = i * 50 + 25;
+    int colorLevel = (i % 3) * 100;   // cycles 0, 100, 200, 0, 100, 200, ...
+    fill(colorLevel, 255 - colorLevel, 200);
+    ellipse(x, 100, 40, 40);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>You have learned that <code>%</code> gives the <strong>remainder</strong> of a division. That has a useful side effect: <code>i % 3</code> can only ever produce <code>0</code>, <code>1</code>, or <code>2</code> — it cycles no matter how large <code>i</code> gets. Here those three values become three different colors, repeating across the row.</p>
+</section>
+<section id="try-it-yourself-before-class" class="slide level2 scrollable">
+<h2>Try it yourself (before class)</h2>
+<p>Pick one sketch above. Change:</p>
+<ol type="1">
+<li>One number that controls <strong>position</strong>.</li>
+<li>One number that controls <strong>size</strong>.</li>
+<li>One number inside a <code>%</code> expression, if the sketch has one.</li>
+</ol>
+<p>Predict what will change <em>before</em> you hit Run. We’ll compare what everyone tried in class.</p>
 
 
 </section>

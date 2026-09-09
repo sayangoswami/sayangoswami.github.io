@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <meta name="author" content="SI">
+  <title>Class Notes – Module 5: Distributed Storage &amp; NoSQL</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Module 5: Distributed Storage &amp; NoSQL</h1>
+  <p class="subtitle">COSC420 — Distributed/Parallel Computing</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+SI 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="session-1-mon-nov-9" class="title-slide slide level1 section center">
+<h1>Session 1 · Mon Nov 9</h1>
+
+</section>
+<section id="why-distribute-data-replication-sharding-and-single-points-of-failure" class="slide level2">
+<h2>Why Distribute Data? Replication, Sharding, and Single Points of Failure</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total, ~15 min of which is Checkpoint 6 itself):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: From Compute to Storage</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>The Problem: One Machine, Too Much Load</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Replication: Many Copies of the Same Data</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Sharding: Splitting the Data Itself</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Replication vs.&nbsp;Sharding — Choosing Between Them</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>The Cost of Replication</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>The Cost of Sharding</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Single Points of Failure, Revisited</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Checkpoint 6</td>
+<td>15 min</td>
+</tr>
+<tr class="even">
+<td>Bridge to Wednesday</td>
+<td>2 min</td>
+</tr>
+</tbody>
+</table>
+<p>9 content slides (~31 min) + Checkpoint 6. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-from-compute-to-storage" class="slide level2">
+<h2>Recap: From Compute to Storage</h2>
+<p>Module 4 answered “how do you <em>compute</em> something at scale?” — load data into Spark, transform it, aggregate it, write out a result.</p>
+<p>Module 5 answers the next question: <strong>where does that result actually live</strong>, once it’s computed, so that thousands of users can read it reliably at the same time? A single machine running a single database has exactly the same limits Module 3 opened with — one disk, one CPU, one point of failure — just for <em>storage</em> instead of <em>processing</em>.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Quick bridge only — the point is that “why distribute” is a question we’ve already answered once (Module 3’s big-data motivation), now being asked again about storage specifically.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-problem-one-machine-too-much-load" class="slide level2">
+<h2>The Problem: One Machine, Too Much Load</h2>
+<p>A single database server can fail in two different ways as demand grows, and they call for two different fixes:</p>
+<ul>
+<li><strong>Too much traffic, data fits fine:</strong> the machine simply can’t answer requests fast enough — every read and write funnels through one CPU, one network connection.</li>
+<li><strong>Too much data, traffic is fine:</strong> the dataset itself no longer fits on one machine’s disk (or even in a reasonable multiple of it), regardless of how much traffic there is.</li>
+<li><strong>Single point of failure</strong>, either way: if that one machine goes down, the data is completely unreachable until it comes back — recall Module 2’s “partial failures” idea, except now there’s nothing partial about it. One machine down means <em>everything</em> is down.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Setting up the two-problems framing explicitly here pays off on the very next two slides — replication answers the first bullet, sharding answers the second.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="replication-many-copies-of-the-same-data" class="slide level2">
+<h2>Replication: Many Copies of the Same Data</h2>
+<p><strong>Replication</strong> means keeping multiple full copies of the same data on different machines.</p>
+<ul>
+<li>Every replica holds the <strong>entire</strong> dataset — not a piece of it.</li>
+<li>Reads can be served by <strong>any</strong> replica, spreading read traffic across multiple machines instead of funneling it through one.</li>
+<li>If one replica goes down, the others still have every record — the single-point-of-failure problem from the last slide goes away for reads.</li>
+<li>Writes are more subtle: usually one replica (the <strong>primary</strong>) accepts writes, and the change is then copied out to the others.</li>
+</ul>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>You’ve actually seen a first, simpler version of this already: Module 3’s HDFS stored each block on 3 machines — like stocking the same ingredient at 3 kitchen branches, so one branch’s fridge breaking down doesn’t lose it. That was replication for <em>file blocks</em>, specifically for MapReduce jobs to read. Today’s version is the general idea, for <em>any</em> database, read and written directly by users — not just batch jobs.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+</div>
+<div class="callout-content">
+<p>One database-cylinder icon labeled “Primary” at the top, with two arrows fanning down to two more cylinder icons labeled “Replica 1” and “Replica 2,” each holding an identical small stack of document icons (same three icons repeated in all three cylinders, to show it’s a <em>full</em> copy each time). A read arrow pointing into any of the three; a write arrow pointing only into the Primary. Caption: “Same data, three times over. Reads go anywhere. Writes go through the primary.”</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep the “primary accepts writes” detail brief here — Session 2 goes deep on exactly <em>how</em> that copying happens (sync vs.&nbsp;async) and why it matters for consistency.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="sharding-splitting-the-data-itself" class="slide level2">
+<h2>Sharding: Splitting the Data Itself</h2>
+<p><strong>Sharding</strong> means splitting the dataset itself across multiple machines — each machine holds a different <strong>slice</strong> of the data, not a full copy.</p>
+<pre><code>Shard key: user_id
+
+Shard 1: user_id 0 – 9,999,999
+Shard 2: user_id 10,000,000 – 19,999,999
+Shard 3: user_id 20,000,000+</code></pre>
+<ul>
+<li>Each shard holds only <strong>its own fraction</strong> of the total data — together, all shards make up the whole dataset.</li>
+<li>Both <strong>storage</strong> and <strong>write traffic</strong> get spread across machines, since different records live (and are written) on different shards.</li>
+<li>The field used to decide which shard a record belongs to is called the <strong>shard key</strong>.</li>
+<li>A query for one specific record only needs to go to the one shard that holds it — but a query that spans many records may need to check every shard.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Contrast explicitly with the previous slide’s diagram: replication = same data N times; sharding = 1/N of the data, N times. That contrast is the single most important idea in today’s session.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="replication-vs.-sharding-choosing-between-them" class="slide level2">
+<h2>Replication vs.&nbsp;Sharding — Choosing Between Them</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Replication</th>
+<th>Sharding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Solves</strong></td>
+<td>Read throughput, availability</td>
+<td>Data volume, write throughput</td>
+</tr>
+<tr class="even">
+<td><strong>Each node holds</strong></td>
+<td>A full copy of all the data</td>
+<td>A fraction of the data</td>
+</tr>
+<tr class="odd">
+<td><strong>Use when</strong></td>
+<td>The dataset fits on one machine, but there’s too much read traffic</td>
+<td>The dataset itself is too large for one machine</td>
+</tr>
+<tr class="even">
+<td><strong>Single point of failure?</strong></td>
+<td>Fixed — any replica can serve reads if another fails</td>
+<td>Not fixed by sharding alone — losing one shard still loses <em>its</em> slice of data</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>A photo-sharing app’s user-profile database is only 2 GB (tiny), but gets 200,000 profile-page views per second during a viral event. A separate table logging every photo upload has grown to 40 TB and keeps growing. Which table needs replication, which needs sharding, and could a table ever need <strong>both</strong>?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The callout’s last question is the important one to land: yes, a table can need both at once (e.g., MongoDB’s sharded clusters replicate <em>within</em> each shard) — that’s exactly what Session 5’s “Replication and Sharding in MongoDB” slides come back to.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-cost-of-replication" class="slide level2">
+<h2>The Cost of Replication</h2>
+<p>Replication isn’t free — it trades storage and consistency for read throughput and availability.</p>
+<ul>
+<li><strong>Storage cost multiplies:</strong> 3 replicas means 3× the storage for the same data.</li>
+<li><strong>Replicas can briefly disagree:</strong> if a write hasn’t finished copying to every replica yet, a read from a lagging replica can return <strong>stale</strong> (out-of-date) data.</li>
+<li>This lag is usually milliseconds, but it is never exactly zero — “how much staleness is acceptable” is a real design decision, not a solved problem. Session 2 goes deep on this.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Plant this seed deliberately — “replicas can briefly disagree” is precisely what Wednesday’s session expands into strong vs.&nbsp;eventual consistency.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-cost-of-sharding" class="slide level2">
+<h2>The Cost of Sharding</h2>
+<p>Sharding isn’t free either — it trades query simplicity for scale.</p>
+<ul>
+<li><strong>Cross-shard queries are expensive:</strong> “find everyone named Alice” now has to ask <em>every</em> shard and merge the results, instead of asking one machine.</li>
+<li><strong>A bad shard key creates hot spots:</strong> if your shard key clusters too much traffic onto one shard (e.g., sharding by signup date when everyone signs up “today”), that one shard becomes the new single overloaded machine — sharding stops helping.</li>
+<li><strong>Resharding is hard:</strong> once data is split across shards, changing the shard key later means physically moving large amounts of data between machines.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> The hot-spot point is the one worth emphasizing if time is short — it’s the most common real mistake, and it directly explains <em>why</em> choosing a good shard key matters, not just that one is required.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="single-points-of-failure-revisited" class="slide level2">
+<h2>Single Points of Failure, Revisited</h2>
+<p>Tie this back to Module 2: a <strong>single point of failure (SPOF)</strong> is any one component whose failure takes down the whole system. An un-replicated database is a textbook SPOF.</p>
+<ul>
+<li>Replication removes the SPOF <strong>for reads</strong> — any surviving replica can still answer queries.</li>
+<li>It does <strong>not</strong>, by itself, remove the SPOF for writes if there’s still exactly one primary accepting them — if the primary goes down, <em>something</em> has to take over, which is a real, nontrivial problem (this is exactly the mechanism behind the GitHub split-brain case study from Module 2, Session 3 — a failover mechanism promoting a new primary is precisely what created that incident).</li>
+<li>Sharding, on its own, does not remove any SPOF — it just changes <em>what</em> is lost when one machine fails: instead of losing everything, you lose that shard’s slice of the data.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Explicitly naming the GitHub case study connection here rewards students who retained Module 2 — say it out loud rather than assuming they’ll make the connection themselves.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-6" class="slide level2">
+<h2>Checkpoint 6</h2>
+<p><strong>CP6 (today, last 15 minutes of class):</strong> given a scenario, decide whether replication or sharding better solves the described problem, and explain why in 2–3 sentences.</p>
+<p>Review before you start: ask yourself which of the two problems from the start of today’s session the scenario describes — <strong>too much traffic</strong> on data that fits fine (→ replication), or <strong>too much data / write load</strong> that no longer fits on one machine (→ sharding).</p>
+<aside class="notes">
+<p><strong>Timing: 15 min for the checkpoint itself.</strong> See <code>checkpoints/checkpoint_06.md</code> for the exact graded scenarios — don’t preview its specific news-site/ride-sharing examples before students start; today’s slides deliberately used a different example (the photo-sharing app).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-to-wednesday" class="slide level2">
+<h2>Bridge to Wednesday</h2>
+<p>Today assumed replicas eventually catch up with each other, and left “how eventually?” mostly unanswered. That question is exactly where Module 2’s CAP theorem comes back — now applied specifically to storage.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Short forward-reference only.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-2-wed-nov-11" class="title-slide slide level1 section center">
+<h1>Session 2 · Wed Nov 11</h1>
+
+</section>
+<section id="the-cap-theorem-revisited-for-storage" class="slide level2">
+<h2>The CAP Theorem, Revisited for Storage</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: Replication’s Loose Thread</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Recap: The CAP Theorem (from Module 2)</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Applying CAP to a Replicated Database</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Strong Consistency</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Eventual Consistency</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Synchronous vs.&nbsp;Asynchronous Replication</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>A Worked Scenario: Checking Your Bank Balance</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>Read Preference: Choosing Where to Read From</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Consistency Is a Spectrum, Not a Switch</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Bridge to Friday’s Worksheet</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>10 slides, ~40 min. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-replications-loose-thread" class="slide level2">
+<h2>Recap: Replication’s Loose Thread</h2>
+<p>Monday ended on an unresolved tension: replicas are supposed to hold “the same data,” but a write takes time to copy from the primary to every replica. <strong>For that window of time, they don’t quite agree.</strong></p>
+<p>Today’s question: what should a read do when it lands in that window?</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This is the whole session in one sentence — keep this slide tight so it lands as a genuine open question, not a rhetorical one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-the-cap-theorem-from-module-2" class="slide level2">
+<h2>Recap: The CAP Theorem (from Module 2)</h2>
+<p>Module 2, Session 2 covered this in full — a fast re-anchor:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>C</strong>onsistency</td>
+<td>Every read gets the latest write, or an error</td>
+</tr>
+<tr class="even">
+<td><strong>A</strong>vailability</td>
+<td>Every request gets <em>a</em> response</td>
+</tr>
+<tr class="odd">
+<td><strong>P</strong>artition tolerance</td>
+<td>The system keeps working despite a network split</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The theorem:</strong> during a network partition, a distributed system must choose between Consistency and Availability — it cannot fully guarantee both at once.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Genuinely just a recap slide — if a student is shaky on this, point them back to Module 2’s slides rather than re-teaching the proof sketch here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="applying-cap-to-a-replicated-database" class="slide level2">
+<h2>Applying CAP to a Replicated Database</h2>
+<p>A replica set (Monday’s picture: one primary, several replicas) is itself a small distributed system — so CAP applies to it directly.</p>
+<ul>
+<li>If a <strong>network partition</strong> separates a replica from the primary, that replica has a choice:
+<ul>
+<li><strong>Refuse to answer reads</strong> until it can confirm it’s caught up (favors <strong>Consistency</strong>)</li>
+<li><strong>Answer with whatever data it currently has</strong>, possibly stale (favors <strong>Availability</strong>)</li>
+</ul></li>
+<li>This is <em>exactly</em> Module 2’s CAP trade-off, just applied to “should this specific replica answer this specific read” instead of “should the whole system answer this specific request.”</li>
+</ul>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Even <strong>without</strong> a network partition, replication introduces a smaller version of this same choice: does the primary wait for replicas to confirm a write before telling the client “done” — trading speed for certainty — or does it say “done” immediately and let the copying happen in the background? That’s the next four slides.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The callout is the pivot from “CAP during rare partitions” to “consistency trade-offs during totally normal operation” — make sure that shift is explicit, since it’s easy to think CAP only matters when something is broken.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="strong-consistency" class="slide level2">
+<h2>Strong Consistency</h2>
+<p><strong>Strong consistency:</strong> every read reflects the most recent write, no matter which replica answers it.</p>
+<ul>
+<li>To guarantee this, a write typically can’t be considered “done” until it has been confirmed by enough replicas that no read could possibly see stale data.</li>
+<li><strong>Cost:</strong> writes are slower — the primary has to wait for confirmation before responding to the client.</li>
+<li><strong>Benefit:</strong> no surprises. Once a write succeeds, every subsequent read, from any replica, sees it.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this and the next slide symmetric in structure (definition → cost → benefit) so the contrast is easy to hold in mind together.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="eventual-consistency" class="slide level2">
+<h2>Eventual Consistency</h2>
+<p><strong>Eventual consistency:</strong> replicas are allowed to be temporarily out of sync — but if no new writes happen, they will all <em>eventually</em> converge to the same value.</p>
+<ul>
+<li>The primary can respond “done” to the client as soon as <strong>it</strong> has the write, without waiting for replicas to catch up.</li>
+<li><strong>Cost:</strong> a read immediately after a write might hit a replica that hasn’t caught up yet, and see the old value.</li>
+<li><strong>Benefit:</strong> writes are fast, and the system keeps working even if a replica is temporarily slow or unreachable.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Quiz 7 will ask about this directly: <strong>asynchronous replication can lead to replicas temporarily having different versions of the data.</strong> Why “asynchronous,” specifically — what would <em>synchronous</em> replication have to do differently to prevent that?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The callout’s answer is the bridge into the next slide: synchronous replication would have to wait for replicas to confirm before acknowledging the write — which is strong consistency’s mechanism, described from the replication-mechanics angle instead of the CAP angle.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="synchronous-vs.-asynchronous-replication" class="slide level2">
+<h2>Synchronous vs.&nbsp;Asynchronous Replication</h2>
+<p>This is the actual mechanism behind the strong/eventual distinction:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Synchronous replication</th>
+<th>Asynchronous replication</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Primary waits for replicas before confirming write?</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Write speed</td>
+<td>Slower</td>
+<td>Faster</td>
+</tr>
+<tr class="odd">
+<td>Consistency</td>
+<td>Strong</td>
+<td>Eventual</td>
+</tr>
+<tr class="even">
+<td>Risk if primary crashes right after a write</td>
+<td>None — replicas already have it</td>
+<td>Replicas may be missing the most recent write(s)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Synchronous</strong> = strong consistency’s mechanism: the primary refuses to say “done” until replicas confirm.</li>
+<li><strong>Asynchronous</strong> = eventual consistency’s mechanism: the primary says “done” immediately and copies the change out afterward.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-worked-scenario-checking-your-bank-balance" class="slide level2">
+<h2>A Worked Scenario: Checking Your Bank Balance</h2>
+<p>You just transferred $500 out of your checking account. One second later, you refresh the app and check your balance.</p>
+<ul>
+<li><strong>If the bank uses strong consistency:</strong> your new balance is guaranteed correct, every time — worth the extra write latency for money, where “slightly out of date” is unacceptable.</li>
+<li><strong>If the bank instead used eventual consistency and you got unlucky:</strong> you might briefly see your <em>old</em> balance, as if the transfer hadn’t happened — even though it genuinely went through.</li>
+<li>Compare this to a <strong>social media “like” count</strong>: if that count is briefly off by one because of replication lag, essentially nobody notices or cares.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Name one more real system where you’d insist on strong consistency, and one more where eventual consistency would be perfectly fine. What’s the actual property that decides which one you pick?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The intended takeaway for the callout: the deciding property is roughly “cost of showing stale data” versus “cost of slower writes” — not some fixed rule about what kind of app it is.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="read-preference-choosing-where-to-read-from" class="slide level2">
+<h2>Read Preference: Choosing Where to Read From</h2>
+<p>Many real databases let you choose, <strong>per query</strong>, how strict to be — rather than picking strong or eventual consistency for the whole system once and for all.</p>
+<ul>
+<li><strong>Read from the primary:</strong> always current, but funnels all reads through one machine — no read-scaling benefit from having replicas at all.</li>
+<li><strong>Read from any replica</strong> (“secondary” reads): spreads read load across machines, at the cost of possibly-stale results.</li>
+<li>This setting is usually called <strong>read preference</strong>, and it’s a real, named option you’ll see again in MongoDB specifically, in Session 5.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Flag explicitly that this is forward-referencing real MongoDB terminology — students will see “read preference” again in two sessions and should recognize it as the same idea introduced here, not a new concept.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="consistency-is-a-spectrum-not-a-switch" class="slide level2">
+<h2>Consistency Is a Spectrum, Not a Switch</h2>
+<p>Strong and eventual consistency are the two ends of a range, not the only two options:</p>
+<ul>
+<li>Some systems let you require confirmation from just <strong>some</strong> replicas (not all, not just one) — a middle ground between the two extremes.</li>
+<li>Some systems guarantee <strong>causal consistency</strong>: if event B happened <em>because of</em> event A, every node sees A before B — even if unrelated events can still arrive in different orders on different nodes.</li>
+<li>The exact terminology varies by database. What matters for this course: consistency is a design <strong>choice with a dial</strong>, not a single fixed property a database either has or doesn’t.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this conceptual and brief — the goal is “there’s more nuance here than strong-vs-eventual if you go looking,” not to teach every consistency model by name.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-to-fridays-worksheet" class="slide level2">
+<h2>Bridge to Friday’s Worksheet</h2>
+<p>Monday gave you two tools (replication, sharding). Today gave you a dial (how strict to be about consistency). Friday: no new concepts — just practice combining all three into an actual design, working through three storage scenarios in small groups.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Forward-reference only — don’t preview Friday’s specific scenarios.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-3-fri-nov-13" class="title-slide slide level1 section center">
+<h1>Session 3 · Fri Nov 13</h1>
+
+</section>
+<section id="in-class-activity-the-storage-design-worksheet" class="slide level2">
+<h2>In-Class Activity: The Storage Design Worksheet</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total) — this is an ungraded, discussion-driven in-class activity, not a lecture. Slides here are prompts, not content to present at students.</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Framing: No New Concepts Today</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
+<td>Scenario 1: A Note-Taking App</td>
+<td>10 min</td>
+</tr>
+<tr class="odd">
+<td>Scenario 2: A Flight-Search Engine</td>
+<td>10 min</td>
+</tr>
+<tr class="even">
+<td>Scenario 3: A Multiplayer Game’s Leaderboard</td>
+<td>10 min</td>
+</tr>
+<tr class="odd">
+<td>Class Discussion: Comparing Answers</td>
+<td>12 min</td>
+</tr>
+<tr class="even">
+<td>Wrap-Up</td>
+<td>6 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Instructor note:</strong> work scenarios in groups of 2–3, on paper or a shared doc. For each, groups should decide: replicate, shard, both, or neither — and if replicating, strong or eventual consistency, and why. There is genuine room for disagreement on all three; resist giving “the” right answer during group work, save it for the discussion slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="framing-no-new-concepts-today" class="slide level2">
+<h2>Framing: No New Concepts Today</h2>
+<p>Everything you need is already covered: replication, sharding, single points of failure (Monday); strong vs.&nbsp;eventual consistency, synchronous vs.&nbsp;asynchronous replication (Wednesday).</p>
+<p>Today’s job: <strong>combine</strong> those tools into an actual design decision, for three different scenarios, and defend your reasoning to the class.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Set expectations: this is discussion and small-group work, not a lecture.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="scenario-1-a-note-taking-app" class="slide level2">
+<h2>Scenario 1: A Note-Taking App</h2>
+<p>A note-taking app has 3 million users. Each user’s notes are small (a few KB total) and are read and written almost exclusively by that one user — nobody else ever sees your notes.</p>
+<p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
+<aside class="notes">
+<p><strong>Timing: 10 min including group work.</strong> Push toward: total data volume is enormous (3M users × notes) but each <em>individual</em> user’s working set is tiny and only touched by one person — this maps cleanly to sharding by user ID, with mild replication for availability; strong consistency isn’t very important since each user only ever reads their own writes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="scenario-2-a-flight-search-engine" class="slide level2">
+<h2>Scenario 2: A Flight-Search Engine</h2>
+<p>A flight-search engine stores current seat availability for every flight, globally. Millions of users search and book simultaneously. Double-booking the same seat is a serious, costly problem.</p>
+<p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
+<aside class="notes">
+<p><strong>Timing: 10 min including group work.</strong> Push toward: this is the strong-consistency case — two people should never be told the same seat is available after one of them already booked it. Sharding by flight/route is reasonable for scale, but each shard’s availability data needs strong consistency, not eventual.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="scenario-3-a-multiplayer-games-leaderboard" class="slide level2">
+<h2>Scenario 3: A Multiplayer Game’s Leaderboard</h2>
+<p>A multiplayer game shows a global “Top 100 players this week” leaderboard, updated as players finish matches. Millions of matches finish per hour, worldwide.</p>
+<p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
+<aside class="notes">
+<p><strong>Timing: 10 min including group work.</strong> Push toward: extremely high write volume (matches finishing constantly) argues for sharding; the leaderboard itself tolerates real staleness — if your new high score takes a few seconds to appear, nobody is harmed — so eventual consistency is an easy, correct call here, in sharp contrast to Scenario 2.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="class-discussion-comparing-answers" class="slide level2">
+<h2>Class Discussion: Comparing Answers</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it — full class, 10–12 min</strong></p>
+</div>
+<div class="callout-content">
+<p>Compare your group’s Scenario 2 (flight seats) and Scenario 3 (leaderboard) answers side by side. Both have huge write volume. Why did one need strong consistency and the other didn’t? What’s the <em>actual</em> question you should ask yourself to decide, for any new system?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 12 min.</strong> Push toward: the deciding question isn’t “how much traffic” — it’s “what’s the cost of a user briefly seeing wrong/stale data, versus the cost of slower writes.” Scale determines <em>whether you need to shard</em>; the cost of staleness determines <em>how consistent you need to be</em>. These are two separate axes, and today’s scenarios were picked to make that separation visible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="wrap-up" class="slide level2">
+<h2>Wrap-Up</h2>
+<p>Every real storage decision in this course — and in industry — comes down to combining the same handful of tools you now have: replicate for availability and read scale, shard for volume and write scale, and dial consistency to match how much staleness a given piece of data can tolerate.</p>
+<p><strong>Monday: what kind of database actually implements these tools — the landscape of NoSQL database types.</strong></p>
+<aside class="notes">
+<p><strong>Timing: 6 min</strong> (including whatever discussion time is left over from the previous slide). Close on the forward-reference to keep momentum into Monday.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-4-mon-nov-16" class="title-slide slide level1 section center">
+<h1>Session 4 · Mon Nov 16</h1>
+
+</section>
+<section id="the-nosql-landscape" class="slide level2">
+<h2>The NoSQL Landscape</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: Storage Design Is Solved — Now, What Software?</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Why Not Just a Relational Database?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>The NoSQL Landscape</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Document Stores</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Key-Value Stores</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Column-Family Stores</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Graph Databases</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Choosing the Right Type</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>NoSQL vs.&nbsp;Relational — The Real Trade-off</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Bridge: MongoDB, Specifically</td>
+<td>3 min</td>
+</tr>
+</tbody>
+</table>
+<p>11 slides, ~39 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-storage-design-is-solved-now-what-software" class="slide level2">
+<h2>Recap: Storage Design Is Solved — Now, What Software?</h2>
+<p>The last three sessions covered <em>concepts</em> that apply to any storage system — replication, sharding, consistency. Today: the actual <strong>kinds of database software</strong> that implement these concepts, and which kind fits which job.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Fast bridge — the shift is from “storage design theory” to “here are the products.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-not-just-a-relational-database" class="slide level2">
+<h2>Why Not Just a Relational Database?</h2>
+<p>Relational databases (PostgreSQL, MySQL) are excellent for structured, transactional data — and remain the right choice for a huge share of real applications. They start to struggle when you need to:</p>
+<ul>
+<li>Store data whose structure <strong>varies</strong> from record to record (not every record has the same fields)</li>
+<li><strong>Scale out</strong>, in Module 3’s terms — spread both data and load across many machines — rather than <strong>scale up</strong> (buying one increasingly expensive bigger machine)</li>
+<li>Serve extremely high read or write volume with a simpler, less rigid query model</li>
+</ul>
+<p><strong>NoSQL</strong> (“Not only SQL”) databases are a family of alternatives designed around these needs.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Resist framing this as “NoSQL is better” — it’s a trade-off, and the slide right before the module summary makes that explicit again.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-nosql-landscape-1" class="slide level2">
+<h2>The NoSQL Landscape</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Data Model</th>
+<th>Examples</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Document</strong></td>
+<td>JSON-like documents</td>
+<td>MongoDB, CouchDB</td>
+<td>User profiles, product catalogs, flexible records</td>
+</tr>
+<tr class="even">
+<td><strong>Key-Value</strong></td>
+<td>Plain key → value</td>
+<td>Redis, DynamoDB</td>
+<td>Caching, sessions, extremely simple lookups</td>
+</tr>
+<tr class="odd">
+<td><strong>Column-Family</strong></td>
+<td>Rows with dynamic columns, optimized for huge write volume</td>
+<td>Cassandra, HBase</td>
+<td>Time-series, write-heavy logging</td>
+</tr>
+<tr class="even">
+<td><strong>Graph</strong></td>
+<td>Nodes and edges with relationships</td>
+<td>Neo4j</td>
+<td>Social networks, recommendations, fraud detection</td>
+</tr>
+</tbody>
+</table>
+<p>We focus on <strong>document stores</strong> (MongoDB) for the rest of this module — the most common general-purpose choice in industry, and what the capstone uses.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q4 tests “which type is MongoDB” directly — make sure “document store” sticks as MongoDB’s category before moving on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="document-stores-the-mental-model" class="slide level2">
+<h2>Document Stores — The Mental Model</h2>
+<ul>
+<li>Data is stored as <strong>documents</strong> — JSON-like objects — instead of rows in a table.</li>
+<li>Documents in the same collection <strong>do not need identical fields.</strong></li>
+<li>There’s no schema to define upfront — you just insert documents, and the structure can vary.</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a></a><span class="er">//</span> <span class="er">User</span> <span class="er">document</span></span>
+<span id="cb2-2"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Alice"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"alice@example.com"</span><span class="fu">,</span> <span class="dt">"premium"</span><span class="fu">:</span> <span class="kw">true</span> <span class="fu">}</span></span>
+<span id="cb2-3"><a></a></span>
+<span id="cb2-4"><a></a><span class="er">//</span> <span class="er">Another</span> <span class="er">user</span> <span class="er">document</span> <span class="er">—</span> <span class="er">different</span> <span class="er">fields,</span> <span class="er">same</span> <span class="er">collection</span></span>
+<span id="cb2-5"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Bob"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"bob@example.com"</span><span class="fu">,</span> <span class="dt">"age"</span><span class="fu">:</span> <span class="dv">29</span><span class="fu">,</span> <span class="dt">"plan"</span><span class="fu">:</span> <span class="st">"free"</span> <span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Flexible schema is a genuine trade-off, not a pure win: nothing stops one document from having a typo’d field name that silently doesn’t match the others — the database won’t catch it for you.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q7 tests this exact property (two documents, same collection, different fields — true). The callout previews the “cost” side that the module-end trade-off slide expands on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="key-value-stores" class="slide level2">
+<h2>Key-Value Stores</h2>
+<p>The simplest possible model: every value is stored under a unique key, and that’s it.</p>
+<pre><code>SET session:abc123 "user_id=42,expires=..."
+GET session:abc123</code></pre>
+<ul>
+<li>The database treats the value as an <strong>opaque blob</strong> — it doesn’t know or care what’s inside.</li>
+<li>Extremely fast, often <strong>in-memory</strong> (Redis) — ideal when you always look things up by one exact key and don’t need to query by the value’s contents.</li>
+<li>Common uses: caching, session storage, rate limiting, real-time leaderboards.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="column-family-stores" class="slide level2">
+<h2>Column-Family Stores</h2>
+<p>Designed for <strong>massive write throughput</strong> distributed across many machines — think logging billions of events per day.</p>
+<ul>
+<li>Rows have a partition key; the set of columns can vary per row within a partition (similar flexibility idea to document stores, different underlying structure).</li>
+<li>No joins, and query patterns are deliberately limited — you design your tables around the specific queries you’ll run, not the other way around.</li>
+<li>Used by companies with enormous, constant write volume: Netflix, Apple, Instagram all use Cassandra for parts of their infrastructure.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep this brief relative to document/key-value — it’s the least directly relevant type to this course’s labs and capstone, included for landscape completeness and because Quiz 7 references NoSQL types generally.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="graph-databases" class="slide level2">
+<h2>Graph Databases</h2>
+<p>Built around <strong>relationships</strong> as first-class data, not an afterthought.</p>
+<ul>
+<li><strong>Nodes</strong> (entities) and <strong>edges</strong> (relationships between them), both of which can have their own properties.</li>
+<li>Query language example (Neo4j’s Cypher): <code>MATCH (a:Person)-[:FRIEND]-&gt;(b:Person) RETURN b</code></li>
+<li>Ideal when the interesting questions are about <em>connections</em>: “friends of friends,” “people who bought A also bought B,” fraud rings, recommendation engines.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q5’s recommendation-engine question maps directly here — say the “people who bought A also bought B” phrase out loud, since it’s close to the quiz’s own wording.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="choosing-the-right-type" class="slide level2">
+<h2>Choosing the Right Type</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th>Best fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Flexible, general-purpose records — user profiles, catalogs</td>
+<td>Document (MongoDB)</td>
+</tr>
+<tr class="even">
+<td>Exact-key lookups, need extreme speed</td>
+<td>Key-value (Redis)</td>
+</tr>
+<tr class="odd">
+<td>Enormous, constant write volume</td>
+<td>Column-family (Cassandra)</td>
+</tr>
+<tr class="even">
+<td>The interesting question is about relationships</td>
+<td>Graph (Neo4j)</td>
+</tr>
+<tr class="odd">
+<td>Transactions, strict schema, strong consistency by default</td>
+<td>Relational (PostgreSQL/MySQL)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>A ride-sharing app needs: (1) driver profile records that vary a bit driver-to-driver, (2) a constant firehose of GPS location pings from every active driver, and (3) “which drivers are friends/referred each other” for a referral bonus program. Which NoSQL type fits each piece?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Intended mapping: (1) document store for profiles, (2) column-family for the GPS firehose, (3) graph for the referral relationships — the point is that one real system often uses <em>multiple</em> NoSQL types for different parts of itself, not just one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="nosql-vs.-relational-the-real-trade-off" class="slide level2">
+<h2>NoSQL vs.&nbsp;Relational — The Real Trade-off</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Relational</th>
+<th>NoSQL (general)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Schema</td>
+<td>Fixed, enforced upfront</td>
+<td>Flexible or absent</td>
+</tr>
+<tr class="even">
+<td>Joins</td>
+<td>First-class, well-optimized</td>
+<td>Limited or discouraged</td>
+</tr>
+<tr class="odd">
+<td>Consistency</td>
+<td>Strong, by default</td>
+<td>Often tunable — your choice, per Session 2</td>
+</tr>
+<tr class="even">
+<td>Horizontal scaling</td>
+<td>Harder</td>
+<td>Designed in from the start</td>
+</tr>
+<tr class="odd">
+<td>Best for</td>
+<td>Transactional, strongly related data</td>
+<td>High-scale, flexible, or high-write-volume data</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Neither family is “better.” The right choice depends on your data’s shape, your consistency needs, and your scale — the same design questions from Sessions 1–3, now pointed at a concrete product decision instead of an abstract scenario.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q6 tests two of this table’s rows directly (schema flexibility, and “no universally superior option”) — this slide is close to that question’s own framing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bridge-mongodb-specifically" class="slide level2">
+<h2>Bridge: MongoDB, Specifically</h2>
+<p>Wednesday: hands-on with the one NoSQL database this course actually uses — MongoDB. Collections, documents, and the four CRUD operations you’ll need for Checkpoint 7, Lab 9, and the capstone.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Forward-reference only.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="session-5-wed-nov-18" class="title-slide slide level1 section center">
+<h1>Session 5 · Wed Nov 18</h1>
+
+</section>
+<section id="mongodb-collections-documents-and-crud-checkpoint-7" class="slide level2">
+<h2>MongoDB: Collections, Documents, and CRUD + Checkpoint 7</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total, ~15 min of which is Checkpoint 7 itself):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap + Today’s Plan</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>MongoDB Concepts</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>CRUD — Create</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>CRUD — Read, and Query Operators</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>CRUD — Update and Delete</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Replication in MongoDB</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Sharding in MongoDB</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Beyond CRUD: Counting for the Capstone</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>MongoDB Atlas</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Checkpoint 7</td>
+<td>15 min</td>
+</tr>
+<tr class="odd">
+<td>Module 5 Summary + Bridge</td>
+<td>2 min</td>
+</tr>
+</tbody>
+</table>
+<p>10 content slides (~33 min) + Checkpoint 7. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-todays-plan" class="slide level2">
+<h2>Recap + Today’s Plan</h2>
+<p>Monday and last week gave you the concepts (replication, sharding, consistency, document stores). Today: the actual syntax — MongoDB’s terminology, and the four CRUD operations (Create, Read, Update, Delete) you’ll be tested on today and use for the rest of the course.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Brief orientation only.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mongodb-concepts" class="slide level2">
+<h2>MongoDB Concepts</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>MongoDB</th>
+<th>Relational equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Database</td>
+<td>Database</td>
+</tr>
+<tr class="even">
+<td>Collection</td>
+<td>Table</td>
+</tr>
+<tr class="odd">
+<td>Document</td>
+<td>Row</td>
+</tr>
+<tr class="even">
+<td>Field</td>
+<td>Column</td>
+</tr>
+<tr class="odd">
+<td><code>_id</code></td>
+<td>Primary key (auto-generated)</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a>client <span class="op">=</span> MongoClient(<span class="st">"mongodb+srv://..."</span>)</span>
+<span id="cb4-4"><a></a>db     <span class="op">=</span> client[<span class="st">"my_database"</span>]</span>
+<span id="cb4-5"><a></a>col    <span class="op">=</span> db[<span class="st">"my_collection"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This mapping table is worth reading straight through once — it’s the Rosetta Stone for everything that follows.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="crud-create" class="slide level2">
+<h2>CRUD — Create</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="co"># Insert one document</span></span>
+<span id="cb5-2"><a></a>result <span class="op">=</span> col.insert_one({</span>
+<span id="cb5-3"><a></a>    <span class="st">"name"</span>: <span class="st">"Alice"</span>,</span>
+<span id="cb5-4"><a></a>    <span class="st">"dept"</span>: <span class="st">"Engineering"</span>,</span>
+<span id="cb5-5"><a></a>    <span class="st">"salary"</span>: <span class="dv">95000</span></span>
+<span id="cb5-6"><a></a>})</span>
+<span id="cb5-7"><a></a><span class="bu">print</span>(result.inserted_id)  <span class="co"># the auto-generated _id</span></span>
+<span id="cb5-8"><a></a></span>
+<span id="cb5-9"><a></a><span class="co"># Insert many documents at once</span></span>
+<span id="cb5-10"><a></a>col.insert_many([</span>
+<span id="cb5-11"><a></a>    {<span class="st">"name"</span>: <span class="st">"Bob"</span>,  <span class="st">"salary"</span>: <span class="dv">62000</span>},</span>
+<span id="cb5-12"><a></a>    {<span class="st">"name"</span>: <span class="st">"Carol"</span>,<span class="st">"salary"</span>: <span class="dv">78000</span>},</span>
+<span id="cb5-13"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>_id</code> is created automatically for every document — a unique identifier, unless you supply your own.</li>
+<li><code>insert_one</code> returns one new <code>_id</code>; <code>insert_many</code> returns a list of them.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q8 tests <code>insertOne</code> syntax directly (shell form: <code>db.students.insertOne(...)</code>) — note that the Python driver spells it <code>insert_one</code> (snake_case) while the MongoDB shell spells it <code>insertOne</code> (camelCase); both are correct in their own context, and worth pointing out explicitly since Lab 9 uses the Python form and Checkpoint 7 uses shell syntax.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="crud-read-and-query-operators" class="slide level2">
+<h2>CRUD — Read, and Query Operators</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="co"># Find all documents</span></span>
+<span id="cb6-2"><a></a><span class="cf">for</span> doc <span class="kw">in</span> col.find():</span>
+<span id="cb6-3"><a></a>    <span class="bu">print</span>(doc)</span>
+<span id="cb6-4"><a></a></span>
+<span id="cb6-5"><a></a><span class="co"># Find with an exact-match filter</span></span>
+<span id="cb6-6"><a></a>engineers <span class="op">=</span> col.find({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
+<span id="cb6-7"><a></a></span>
+<span id="cb6-8"><a></a><span class="co"># Filter with a comparison operator</span></span>
+<span id="cb6-9"><a></a>high_earners <span class="op">=</span> col.find({<span class="st">"salary"</span>: {<span class="st">"$gt"</span>: <span class="dv">80000</span>}})</span>
+<span id="cb6-10"><a></a></span>
+<span id="cb6-11"><a></a><span class="co"># Sort and limit</span></span>
+<span id="cb6-12"><a></a>col.find().sort(<span class="st">"salary"</span>, <span class="op">-</span><span class="dv">1</span>).limit(<span class="dv">5</span>)   <span class="co"># top 5 by salary</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Operator</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>$gt</code> / <code>$lt</code></td>
+<td>Greater than / less than</td>
+</tr>
+<tr class="even">
+<td><code>$gte</code> / <code>$lte</code></td>
+<td>≥ / ≤</td>
+</tr>
+<tr class="odd">
+<td><code>$ne</code></td>
+<td>Not equal</td>
+</tr>
+<tr class="even">
+<td><code>$in</code></td>
+<td>Value is in a given list</td>
+</tr>
+<tr class="odd">
+<td><code>$exists</code></td>
+<td>Field exists on the document</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> Quiz 7 Q9 and Q10 both test this directly — <code>find({})</code> returns <em>everything</em> (Q10), and <code>$lt</code> versus <code>$gt</code> (Q9). Say both of those out loud explicitly, they’re easy to mix up under quiz pressure.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="crud-update-and-delete" class="slide level2">
+<h2>CRUD — Update and Delete</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="co"># Update ONE matching document</span></span>
+<span id="cb7-2"><a></a>col.update_one(</span>
+<span id="cb7-3"><a></a>    {<span class="st">"name"</span>: <span class="st">"Alice"</span>},</span>
+<span id="cb7-4"><a></a>    {<span class="st">"$set"</span>: {<span class="st">"salary"</span>: <span class="dv">100000</span>}}</span>
+<span id="cb7-5"><a></a>)</span>
+<span id="cb7-6"><a></a></span>
+<span id="cb7-7"><a></a><span class="co"># Update ALL matching documents</span></span>
+<span id="cb7-8"><a></a>col.update_many(</span>
+<span id="cb7-9"><a></a>    {<span class="st">"dept"</span>: <span class="st">"Engineering"</span>},</span>
+<span id="cb7-10"><a></a>    {<span class="st">"$mul"</span>: {<span class="st">"salary"</span>: <span class="fl">1.10</span>}}   <span class="co"># 10% raise for everyone matched</span></span>
+<span id="cb7-11"><a></a>)</span>
+<span id="cb7-12"><a></a></span>
+<span id="cb7-13"><a></a><span class="co"># Delete</span></span>
+<span id="cb7-14"><a></a>col.delete_one({<span class="st">"name"</span>: <span class="st">"Bob"</span>})</span>
+<span id="cb7-15"><a></a>col.delete_many({<span class="st">"active"</span>: <span class="va">False</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>$set</code> replaces a field’s value outright; <code>$mul</code> multiplies a numeric field by a factor.</li>
+<li><code>update_one</code>/<code>delete_one</code> affect only the <strong>first</strong> match; <code>update_many</code>/<code>delete_many</code> affect <strong>every</strong> match.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This maps almost exactly onto Checkpoint 7’s Task 3 (updateOne + $set) and Task 4 (deleteMany) — don’t use the checkpoint’s own <code>active</code>/department fields as the live example here if you want to avoid spoiling it outright, though the operators themselves obviously must be taught plainly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="replication-in-mongodb" class="slide level2">
+<h2>Replication in MongoDB</h2>
+<p>Session 1’s general replication concept, applied concretely: MongoDB uses <strong>replica sets</strong> — typically 3 nodes, 1 primary + 2 secondaries.</p>
+<pre><code>Write → Primary → Secondary 1
+                → Secondary 2
+Read ← Primary (default) or a Secondary (if read preference allows it)</code></pre>
+<ul>
+<li>All writes go to the <strong>primary</strong>; changes replicate out to secondaries — asynchronously by default, which is Session 2’s “eventual consistency” in a real product.</li>
+<li>If the primary fails, the remaining secondaries automatically elect a new primary.</li>
+<li><strong>Read preference</strong> (Session 2’s concept, by its real name here): <code>primary</code> (always current) or <code>secondaryPreferred</code> (may be slightly stale, spreads out read load).</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This is the payoff moment for Session 1 and Session 2 — say explicitly “this is the exact same replication and consistency material from last week, now with MongoDB’s own names on it.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="sharding-in-mongodb" class="slide level2">
+<h2>Sharding in MongoDB</h2>
+<p>Session 1’s general sharding concept, applied concretely: when a collection outgrows one machine, split it across <strong>shards</strong> using a <strong>shard key</strong>.</p>
+<pre><code>Shard key: user_id
+
+Shard 1: user_id 0 – 9,999,999
+Shard 2: user_id 10,000,000 – 19,999,999
+Shard 3: user_id 20,000,000+</code></pre>
+<ul>
+<li>A router process (<strong><code>mongos</code></strong>) directs each query to the right shard(s), transparently to your application code — you don’t write different queries for a sharded vs.&nbsp;unsharded collection.</li>
+<li>A poorly chosen shard key creates the <strong>hot spots</strong> Session 1 warned about — e.g., sharding by signup date sends all of today’s traffic to one shard.</li>
+<li>In practice, each shard is <em>also</em> a replica set — sharding and replication are combined, not either/or, answering Session 1’s “can a table need both?” callout question directly: yes.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Land the “combined, not either/or” point explicitly — it’s the resolution to the open question from Session 1’s photo-sharing-app callout.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="beyond-crud-counting-for-the-capstone" class="slide level2">
+<h2>Beyond CRUD: Counting for the Capstone</h2>
+<p>One operation beyond plain CRUD is worth knowing now, because the capstone’s <code>flask_app.py</code> needs it for its dashboard’s stat cards:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="co"># Count documents matching a filter</span></span>
+<span id="cb10-2"><a></a>col.count_documents({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
+<span id="cb10-3"><a></a></span>
+<span id="cb10-4"><a></a><span class="co"># A simple aggregation: average salary</span></span>
+<span id="cb10-5"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
+<span id="cb10-6"><a></a>col.aggregate([</span>
+<span id="cb10-7"><a></a>    {<span class="st">"$group"</span>: {<span class="st">"_id"</span>: <span class="va">None</span>, <span class="st">"avg_salary"</span>: {<span class="st">"$avg"</span>: <span class="st">"$salary"</span>}}}</span>
+<span id="cb10-8"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>count_documents(filter)</code> — how many documents match, without fetching them.</li>
+<li>MongoDB’s full <strong>aggregation pipeline</strong> (multi-stage <code>$match</code>/<code>$group</code>/<code>$sort</code> chains) is more than this course goes deep on — the capstone only needs simple counts and averages like the example above, not the full pipeline syntax.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Keep this genuinely light — it exists so students aren’t caught off guard by <code>flask_app.py</code>’s stat-card queries, not to teach the aggregation pipeline as a topic in its own right.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mongodb-atlas-cloud-managed-mongodb" class="slide level2">
+<h2>MongoDB Atlas — Cloud-Managed MongoDB</h2>
+<ul>
+<li>No server to set up yourself — MongoDB Atlas hosts and manages it for you.</li>
+<li>Free tier (M0): enough storage for this course’s work, no credit card required.</li>
+<li>Handles replication, backups, and monitoring automatically — the replica-set mechanics from two slides ago happen behind the scenes.</li>
+<li>Connection string format: <code>mongodb+srv://user:password@cluster.mongodb.net/</code></li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Atlas is what you’ll use in Lab 9, the capstone, and — realistically — in most entry-level industry jobs. The managed service is exactly what lets you use everything from today without running a database server yourself.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> This is largely logistics for Friday’s lab — keep it brief.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="checkpoint-7" class="slide level2">
+<h2>Checkpoint 7</h2>
+<p><strong>CP7 (today, last 15 minutes of class):</strong> given a MongoDB collection’s documents, write the query for four tasks: two <code>find()</code> queries (an exact match, and a comparison operator), one <code>updateOne</code> with <code>$set</code>, and one <code>deleteMany</code> with a filter.</p>
+<p>Review before you start: - <code>db.collection.find({field: value})</code> - <code>db.collection.find({field: {$gt: value}})</code> - <code>db.collection.updateOne({filter}, {$set: {field: value}})</code> - <code>db.collection.deleteMany({filter})</code></p>
+<aside class="notes">
+<p><strong>Timing: 15 min for the checkpoint itself.</strong> See <code>checkpoints/checkpoint_07.md</code> for the exact graded prompt (an <code>employees</code> collection) — don’t preview its specific documents before students start.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="module-5-summary" class="slide level2">
+<h2>Module 5 Summary</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Key idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Replication</td>
+<td>Full copies of the data on multiple nodes — solves read throughput and availability</td>
+</tr>
+<tr class="even">
+<td>Sharding</td>
+<td>Splitting the data itself across nodes — solves data volume and write throughput</td>
+</tr>
+<tr class="odd">
+<td>Strong consistency</td>
+<td>Every read reflects the latest write — costs write latency</td>
+</tr>
+<tr class="even">
+<td>Eventual consistency</td>
+<td>Replicas converge over time — reads can briefly be stale</td>
+</tr>
+<tr class="odd">
+<td>Document store</td>
+<td>JSON-like documents, flexible schema — MongoDB</td>
+</tr>
+<tr class="even">
+<td>MongoDB CRUD</td>
+<td><code>insert_one/many</code>, <code>find</code>, <code>update_one/many</code>, <code>delete_one/many</code></td>
+</tr>
+<tr class="odd">
+<td>Replica set / sharded cluster</td>
+<td>MongoDB’s names for replication and sharding, combined in practice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Connects to:</strong> Checkpoints 6 &amp; 7, Quiz 7, Lab 9, Final Q31–Q45, Capstone (<code>spark_job.py</code>’s direct-to-MongoDB writes, <code>flask_app.py</code>’s queries)</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Bridge to Friday’s Lab 9 (MongoDB Atlas CRUD, hands-on) and Quiz 7, both on Nov 20 — then to Module 6: “everything computed and stored so far still needs a way for a user to actually see it — that’s Flask and the REST API, next.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>COSC420 · Module 5 · Distributed Storage &amp; NoSQL</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

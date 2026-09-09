@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Arrays: Basics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Arrays: Basics</h1>
+  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="learning-outcomes" class="slide level2">
+<h2>Learning Outcomes</h2>
+<ul>
+<li>Explain what an array is and describe the problem it solves</li>
+<li>Declare and initialize a one-dimensional array using <code>new int[n]</code> or initializer syntax <code>{...}</code></li>
+<li>Access and modify array elements using zero-based index notation, including <code>arr[arr.length - 1]</code> for the last element</li>
+<li>Loop over an array using <code>for (int i = 0; i &lt; arr.length; i++)</code> to read or write every element</li>
+<li>Apply array algorithms — sum, max, min, linear search, count — using accumulator and counter patterns</li>
+<li>Identify the cause of an <code>ArrayIndexOutOfBoundsException</code> and correct it</li>
+</ul>
+</section>
+<section id="the-problem-without-arrays" class="slide level2">
+<h2>The Problem Without Arrays</h2>
+<p>Storing five test grades needs five separate variables:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">int</span> grade0 <span class="op">=</span> <span class="dv">88</span><span class="op">;</span></span>
+<span id="cb1-2"><a></a><span class="dt">int</span> grade1 <span class="op">=</span> <span class="dv">74</span><span class="op">;</span></span>
+<span id="cb1-3"><a></a><span class="dt">int</span> grade2 <span class="op">=</span> <span class="dv">91</span><span class="op">;</span></span>
+<span id="cb1-4"><a></a><span class="dt">int</span> grade3 <span class="op">=</span> <span class="dv">65</span><span class="op">;</span></span>
+<span id="cb1-5"><a></a><span class="dt">int</span> grade4 <span class="op">=</span> <span class="dv">78</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Storing grades for <strong>30 students</strong> means 30 variables. Looping over them is impossible — you can’t write <code>grade + i</code>.</p>
+<aside class="notes">
+<p>Open with the pain. Ask students: “How would you compute the average of 30 grades declared like this?” They can’t — each variable has a unique name, so there’s no way to refer to them systematically. Arrays solve exactly this problem: give a collection of same-type values a single name, and refer to each by its position.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-mailbox-analogy" class="slide level2">
+<h2>The Mailbox Analogy</h2>
+<p>Imagine a row of <strong>numbered mailboxes</strong> in an apartment building:</p>
+<ul>
+<li>Every mailbox holds one letter (one value)</li>
+<li>All mailboxes hold the same type of mail (same type)</li>
+<li>The building has a fixed number of mailboxes (fixed length)</li>
+<li>Mailboxes are numbered starting at <strong>0</strong> (zero-based index)</li>
+</ul>
+<!-- FIGURE [draw.io or excalidraw]: A horizontal row of five boxes labeled 0, 1, 2, 3, 4 underneath. Above each box is a value: 88, 74, 91, 65, 78. An arrow labeled "index 2" points to the box containing 91, labeled "arr[2]". To the right, a brace labeled "arr.length = 5". -->
+<p>An <strong>array</strong> is that row of mailboxes — a single named container holding many values of the same type.</p>
+<aside class="notes">
+<p>The physical image matters. Zero is the first mailbox because it is 0 steps from the front of the row — the index is an OFFSET, not a count. This is why the last mailbox is always one less than the total: 5 boxes → last index is 4. Come back to this image whenever students get confused about indexing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="declaring-an-array" class="slide level2">
+<h2>Declaring an Array</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="kw">new</span> <span class="dt">int</span><span class="op">[</span><span class="dv">5</span><span class="op">];</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int[]</code></td>
+<td>Type: an array of <code>int</code> values</td>
+</tr>
+<tr class="even">
+<td><code>scores</code></td>
+<td>Name of the array variable</td>
+</tr>
+<tr class="odd">
+<td><code>new int[5]</code></td>
+<td>Create a new array with space for 5 integers</td>
+</tr>
+</tbody>
+</table>
+<p>After this declaration, <code>scores</code> holds 5 integers, all initialized to <strong>0</strong>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="bu">String</span><span class="op">[]</span> names <span class="op">=</span> <span class="kw">new</span> <span class="bu">String</span><span class="op">[</span><span class="dv">3</span><span class="op">];</span>    <span class="co">// 3 Strings, all null</span></span>
+<span id="cb3-2"><a></a><span class="dt">double</span><span class="op">[]</span> prices <span class="op">=</span> <span class="kw">new</span> <span class="dt">double</span><span class="op">[</span><span class="dv">10</span><span class="op">];</span>  <span class="co">// 10 doubles, all 0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>new int[5] reserves a fixed block of 5 adjacent memory slots. The size is set once — you cannot expand an array after creation. This is a key limitation to mention early (lists/ArrayLists solve this, but that’s a later topic). Default values: numeric types get 0, booleans get false, object types (String, etc.) get null.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="zero-based-indexing" class="slide level2">
+<h2>Zero-Based Indexing</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="kw">new</span> <span class="dt">int</span><span class="op">[</span><span class="dv">5</span><span class="op">];</span></span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a>scores<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">88</span><span class="op">;</span>   <span class="co">// first element</span></span>
+<span id="cb4-4"><a></a>scores<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="dv">74</span><span class="op">;</span></span>
+<span id="cb4-5"><a></a>scores<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="dv">91</span><span class="op">;</span></span>
+<span id="cb4-6"><a></a>scores<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="dv">65</span><span class="op">;</span></span>
+<span id="cb4-7"><a></a>scores<span class="op">[</span><span class="dv">4</span><span class="op">]</span> <span class="op">=</span> <span class="dv">78</span><span class="op">;</span>   <span class="co">// last element (index = length - 1)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Arrays start at <strong>index 0</strong>, not index 1. An array of length 5 has valid indices <strong>0, 1, 2, 3, 4</strong>. There is no <code>scores[5]</code> — that causes an error.</p>
+</div>
+</div>
+</div>
+<p>Reading an element:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>scores<span class="op">[</span><span class="dv">2</span><span class="op">]);</span>          <span class="co">// prints 91</span></span>
+<span id="cb5-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>scores<span class="op">[</span>scores<span class="op">.</span><span class="fu">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">]);</span>  <span class="co">// prints 78 (last element)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>The zero-based rule catches almost every beginner. Reinforce it with the mailbox: mailbox 0 is first, mailbox 4 is last in a 5-box building. The formula “last index = length - 1” is worth writing large on the board. scores.length - 1 as the last-element idiom is something they’ll write hundreds of times.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="array-length" class="slide level2">
+<h2>Array Length</h2>
+<p>Every array knows how long it is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="kw">new</span> <span class="dt">int</span><span class="op">[</span><span class="dv">5</span><span class="op">];</span></span>
+<span id="cb6-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>scores<span class="op">.</span><span class="fu">length</span><span class="op">);</span>   <span class="co">// prints 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><code>arr.length</code> is a <strong>property</strong>, not a method — no parentheses! Compare: <code>str.length()</code> for Strings uses <code>()</code>, but <code>arr.length</code> does not.</p>
+</div>
+</div>
+</div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Syntax</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>String length</td>
+<td><code>str.length()</code></td>
+<td>Method — use <code>()</code></td>
+</tr>
+<tr class="even">
+<td>Array length</td>
+<td><code>arr.length</code></td>
+<td>Property — no <code>()</code></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Students who just learned String.length() will immediately write arr.length() — a very common mistake that produces a compile error. The distinction is that arr.length is a public field, not a method call. It’s worth saying out loud: “No parentheses on arrays.” They will thank you later.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="initializer-syntax" class="slide level2">
+<h2>Initializer Syntax</h2>
+<p>When you know the values up front, skip <code>new</code> and list them directly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="op">{</span><span class="dv">88</span><span class="op">,</span> <span class="dv">74</span><span class="op">,</span> <span class="dv">91</span><span class="op">,</span> <span class="dv">65</span><span class="op">,</span> <span class="dv">78</span><span class="op">};</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates an array of length 5 with those values already in place.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="bu">String</span><span class="op">[]</span> days <span class="op">=</span> <span class="op">{</span><span class="st">"Mon"</span><span class="op">,</span> <span class="st">"Tue"</span><span class="op">,</span> <span class="st">"Wed"</span><span class="op">,</span> <span class="st">"Thu"</span><span class="op">,</span> <span class="st">"Fri"</span><span class="op">};</span></span>
+<span id="cb8-2"><a></a><span class="dt">double</span><span class="op">[]</span> pi   <span class="op">=</span> <span class="op">{</span><span class="fl">3.14159</span><span class="op">};</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can still use <code>scores.length</code> — it equals 5.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Initializer syntax only works at declaration time. You cannot use <code>{...}</code> to reassign an existing array variable later.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Initializer syntax is concise and widely used. The restriction — only at declaration — is worth stating explicitly because students will try: scores = {1,2,3} after the fact and get a syntax error. If they need to replace all values, they must assign element by element.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="looping-over-an-array" class="slide level2">
+<h2>Looping Over an Array</h2>
+<p>The standard idiom for visiting every element:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="op">{</span><span class="dv">88</span><span class="op">,</span> <span class="dv">74</span><span class="op">,</span> <span class="dv">91</span><span class="op">,</span> <span class="dv">65</span><span class="op">,</span> <span class="dv">78</span><span class="op">};</span></span>
+<span id="cb9-2"><a></a></span>
+<span id="cb9-3"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> scores<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Score "</span> <span class="op">+</span> i <span class="op">+</span> <span class="st">": "</span> <span class="op">+</span> scores<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb9-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Output:</strong></p>
+<pre><code>Score 0: 88
+Score 1: 74
+Score 2: 91
+Score 3: 65
+Score 4: 78</code></pre>
+<ul>
+<li>Start at <code>i = 0</code> (first index)</li>
+<li>Stop when <code>i &lt; arr.length</code> (not <code>&lt;=</code>!)</li>
+<li>Access the element as <code>arr[i]</code></li>
+</ul>
+<aside class="notes">
+<p>The condition i &lt; arr.length (not &lt;=) is the most important line. Walk through why: if length is 5, valid indices are 0–4. When i reaches 5, i &lt; 5 is false — loop exits safely. i &lt;= 5 would try to access scores[5], which doesn’t exist (ArrayIndexOutOfBoundsException). Burn this pattern into muscle memory: 0 to &lt; length.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="array-algorithms" class="slide level2">
+<h2>Array Algorithms</h2>
+<p>All the loop patterns from decks 11–13 apply directly to arrays:</p>
+<p><strong>Sum:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> scores<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb11-3"><a></a>    sum <span class="op">=</span> sum <span class="op">+</span> scores<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb11-4"><a></a><span class="op">}</span></span>
+<span id="cb11-5"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Sum: "</span> <span class="op">+</span> sum<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Maximum:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="dt">int</span> max <span class="op">=</span> scores<span class="op">[</span><span class="dv">0</span><span class="op">];</span>          <span class="co">// start with the first element</span></span>
+<span id="cb12-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> scores<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span>   <span class="co">// start at 1 (already have 0)</span></span>
+<span id="cb12-3"><a></a>    <span class="cf">if</span> <span class="op">(</span>scores<span class="op">[</span>i<span class="op">]</span> <span class="op">&gt;</span> max<span class="op">)</span> <span class="op">{</span> max <span class="op">=</span> scores<span class="op">[</span>i<span class="op">];</span> <span class="op">}</span></span>
+<span id="cb12-4"><a></a><span class="op">}</span></span>
+<span id="cb12-5"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Max: "</span> <span class="op">+</span> max<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>The max algorithm starts at scores[0] and the loop starts at i = 1 — because we already “considered” index 0. Starting max at 0 would break for all-negative arrays. Starting the loop at i = 0 again would also work but is slightly redundant. Both are fine; teach the “start at first element, loop from 1” pattern as the idiom.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="linear-search" class="slide level2">
+<h2>Linear Search</h2>
+<p><strong>Find the index of a value, or -1 if not found:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="dt">int</span> target <span class="op">=</span> <span class="dv">91</span><span class="op">;</span></span>
+<span id="cb13-2"><a></a><span class="dt">int</span> foundAt <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> scores<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb13-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>scores<span class="op">[</span>i<span class="op">]</span> <span class="op">==</span> target<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-6"><a></a>        foundAt <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb13-7"><a></a>    <span class="op">}</span></span>
+<span id="cb13-8"><a></a><span class="op">}</span></span>
+<span id="cb13-9"><a></a></span>
+<span id="cb13-10"><a></a><span class="cf">if</span> <span class="op">(</span>foundAt <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Found at index "</span> <span class="op">+</span> foundAt<span class="op">);</span></span>
+<span id="cb13-12"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb13-13"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Not found."</span><span class="op">);</span></span>
+<span id="cb13-14"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Returning <code>-1</code> is the Java convention for “not found” in a search. It is a <strong>sentinel value</strong> (deck 13) — a value that can never be a real index.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Linear search visits every element in order, checking each one. It stops (in this version) only at the end — so if the value appears multiple times, foundAt will hold the LAST occurrence. An early exit (break) can stop at the first occurrence; that’s a refinement to introduce once students are comfortable with the basic pattern.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="arrayindexoutofboundsexception" class="slide level2">
+<h2><code>ArrayIndexOutOfBoundsException</code></h2>
+<p>Accessing an index that doesn’t exist crashes the program:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="dt">int</span><span class="op">[]</span> arr <span class="op">=</span> <span class="kw">new</span> <span class="dt">int</span><span class="op">[</span><span class="dv">5</span><span class="op">];</span>   <span class="co">// valid indices: 0, 1, 2, 3, 4</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>arr<span class="op">[</span><span class="dv">5</span><span class="op">]);</span>       <span class="co">// ✗ crash! index 5 doesn't exist</span></span>
+<span id="cb14-4"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>arr<span class="op">[-</span><span class="dv">1</span><span class="op">]);</span>      <span class="co">// ✗ crash! negative indices don't exist</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 5</code></pre>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Using <code>i &lt;= arr.length</code> instead of <code>i &lt; arr.length</code></li>
+<li>Hardcoding an index equal to the length</li>
+<li>Calculating an index incorrectly</li>
+</ul>
+<aside class="notes">
+<p>When students see this exception, ask them to find the line number in the error message and look at the index that was used. Is it equal to the length? That’s the &lt;= vs &lt; mistake. Is it negative? They probably subtracted one too many. The stack trace line number is their friend.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="code-example" class="slide level2">
+<h2>Code Example</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a></a><span class="dt">void</span> <span class="fu">printScores</span><span class="op">(</span><span class="dt">int</span><span class="op">[]</span> grades<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Grades:"</span><span class="op">);</span></span>
+<span id="cb16-3"><a></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> grades<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb16-4"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  ["</span> <span class="op">+</span> i <span class="op">+</span> <span class="st">"] "</span> <span class="op">+</span> grades<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb16-5"><a></a>    <span class="op">}</span></span>
+<span id="cb16-6"><a></a></span>
+<span id="cb16-7"><a></a>    <span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-8"><a></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> grades<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb16-9"><a></a>        sum <span class="op">=</span> sum <span class="op">+</span> grades<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb16-10"><a></a>    <span class="op">}</span></span>
+<span id="cb16-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Average: "</span> <span class="op">+</span> <span class="op">(</span>sum <span class="op">/</span> grades<span class="op">.</span><span class="fu">length</span><span class="op">));</span></span>
+<span id="cb16-12"><a></a><span class="op">}</span></span>
+<span id="cb16-13"><a></a></span>
+<span id="cb16-14"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb16-15"><a></a>    <span class="dt">int</span><span class="op">[]</span> scores <span class="op">=</span> <span class="op">{</span><span class="dv">88</span><span class="op">,</span> <span class="dv">74</span><span class="op">,</span> <span class="dv">91</span><span class="op">,</span> <span class="dv">65</span><span class="op">,</span> <span class="dv">78</span><span class="op">};</span></span>
+<span id="cb16-16"><a></a>    <span class="fu">printScores</span><span class="op">(</span>scores<span class="op">);</span></span>
+<span id="cb16-17"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>This combines arrays, methods with parameters (deck 09), and a for loop. Point out that the method accepts int[] as a parameter type — arrays can be passed to methods just like primitives. The average uses integer division; if a more precise average is needed, cast to double first: (double) sum / grades.length.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="common-mistakes" class="slide level2">
+<h2>Common Mistakes</h2>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong><code>arr.length</code> without parentheses</strong> <code>arr.length()</code> is a compile error — arrays use a property, not a method.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong><code>i &lt;= arr.length</code> in the loop condition</strong> This accesses one index past the end → <code>ArrayIndexOutOfBoundsException</code>. Always use <code>i &lt; arr.length</code>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Starting at index 1 accidentally</strong> If you want every element, start at <code>i = 0</code>. Starting at 1 skips the first.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Confusing the index with the value</strong> <code>scores[i]</code> is the value; <code>i</code> is the position. <code>IO.println(i)</code> prints the index, not the grade.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Walk through each mistake with a short “what would happen?” exercise. Students often get length vs last-index confused even after the first example — it helps to ask them explicitly: “If the array has 5 elements, what is scores.length? What is the last valid index?”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worksheet" class="slide level2">
+<h2>Worksheet</h2>
+<ol type="1">
+<li><p>Declare an <code>int</code> array named <code>temps</code> containing the values 72, 68, 75, 80, 71. Use initializer syntax.</p></li>
+<li><p>Write a loop that prints each element of <code>temps</code> on its own line, formatted as: <code>Day 1: 72</code>, <code>Day 2: 68</code>, etc. (Hint: index + 1 = day number.)</p></li>
+<li><p>Write a method <code>int sum(int[] arr)</code> that returns the sum of all elements in the array. Call it from <code>main</code> with <code>temps</code> and print the result.</p></li>
+<li><p>Write a method <code>int min(int[] arr)</code> that returns the smallest element. Test it with <code>temps</code>.</p></li>
+<li><p>Write a method <code>int countAbove(int[] arr, int threshold)</code> that counts how many elements are strictly greater than <code>threshold</code>. Call it to find how many days were above 72 degrees.</p></li>
+<li><p><strong>Identify the bug:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="dt">int</span><span class="op">[]</span> arr <span class="op">=</span> <span class="op">{</span><span class="dv">10</span><span class="op">,</span> <span class="dv">20</span><span class="op">,</span> <span class="dv">30</span><span class="op">,</span> <span class="dv">40</span><span class="op">,</span> <span class="dv">50</span><span class="op">};</span></span>
+<span id="cb17-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;=</span> arr<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb17-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>arr<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb17-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What exception will this throw? Fix it.</p></li>
+</ol>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <title>Class Notes – Methods: void Methods</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
+  <link rel="stylesheet" href="../../custom.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Methods: <code>void</code> Methods</h1>
+  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="learning-outcomes" class="slide level2">
+<h2>Learning Outcomes</h2>
+<ul>
+<li>Explain what a method is and describe how methods reduce repetition and improve readability</li>
+<li>Define a <code>void</code> method with no parameters</li>
+<li>Call a method from <code>main</code>, including calling the same method multiple times</li>
+<li>Write a method that calls other methods to build a structured program</li>
+<li>Trace the flow of execution through a method call and back to the call site</li>
+</ul>
+</section>
+<section id="what-is-a-method" class="slide level2">
+<h2>What Is a Method?</h2>
+<aside class="notes">
+<p>Before doing anything else, plant two vocabulary words the students will hear for the rest of the course: “method” and “call.” Don’t define them formally — just give them enough meaning to follow what comes next. The table is intentionally minimal. Two words. That’s the whole slide. Students should leave this slide knowing what to listen for, not feeling like they learned something hard. The aha moments and the examples come on the slides that follow.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>You have written dozens of programs. Every instruction lived inside <code>main</code>.</p>
+<p>But what if a group of instructions belongs together and you want to use it in multiple places?</p>
+<p>Java lets you package a group of instructions, give that package a <strong>name</strong>, and run it anywhere — just by writing the name.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Word</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>method</strong></td>
+<td>a named group of instructions</td>
+</tr>
+<tr class="even">
+<td><strong>call</strong></td>
+<td>to make a method run by writing its name</td>
+</tr>
+</tbody>
+</table>
+<p>These two words are the most important new ideas in this lecture. By the end, both will feel completely natural.</p>
+</section>
+<section id="you-have-already-been-calling-methods" class="slide level2">
+<h2>You Have Already Been Calling Methods</h2>
+<aside class="notes">
+<p>This is the big callback moment. Now that “method” and “call” have been introduced as vocabulary, show students that the words describe something they have been doing all semester. The list is intentionally long to make the point land — every single item has the same pattern: a name followed by parentheses. Pause and let that sink in. Then: “Today, you learn how to write your own.” This reframes a scary-sounding topic as a natural next step.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Here are some lines of code from the last seven lectures:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, world!"</span><span class="op">)</span>         <span class="co">// Lecture 1</span></span>
+<span id="cb1-2"><a></a>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Enter your name: "</span><span class="op">)</span>      <span class="co">// Lecture 2</span></span>
+<span id="cb1-3"><a></a>name<span class="op">.</span><span class="fu">toUpperCase</span><span class="op">()</span>                   <span class="co">// Lecture 7</span></span>
+<span id="cb1-4"><a></a>name<span class="op">.</span><span class="fu">length</span><span class="op">()</span>                        <span class="co">// Lecture 7</span></span>
+<span id="cb1-5"><a></a>word<span class="op">.</span><span class="fu">charAt</span><span class="op">(</span><span class="dv">0</span><span class="op">)</span>                       <span class="co">// Lecture 7</span></span>
+<span id="cb1-6"><a></a>word<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">1</span><span class="op">,</span> <span class="dv">4</span><span class="op">)</span>                 <span class="co">// Lecture 7</span></span>
+<span id="cb1-7"><a></a>answer<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">)</span>                 <span class="co">// Lecture 5</span></span>
+<span id="cb1-8"><a></a><span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"n: "</span><span class="op">))</span>  <span class="co">// Lecture 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every single one of these is a <strong>method call</strong> — you wrote a name followed by <code>()</code>, and a group of instructions ran.</p>
+<p>Notice the pattern: <strong>a name, followed by parentheses</strong>.</p>
+<p>You have been calling methods since Day 1. <strong>Today, you learn how to write your own.</strong></p>
+<!-- FIGURE [draw.io or excalidraw]: Two columns. Left: "What you wrote" — four of the calls from the list above (pick the most recognizable ones). Right: "What it actually is" — the label "a method" repeated for each. Arrows from left to right. All four right-hand labels say the same thing. The visual argument: everything you've been writing follows the same pattern. Clean, slightly hand-drawn. -->
+</section>
+<section id="the-duel" class="slide level2">
+<h2>The Duel</h2>
+<aside class="notes">
+<p>This is the central analogy for the whole lecture. The goal is maximum drama before any code appears. Harry and Voldemort are mid-duel — spells flying, stakes high. Neither wizard stops to describe what the spell does. They just shout the name. The audience doesn’t need to know the magical mechanics of Avada Kedavra — they just see the result. The key idea to land: a name that, when said, triggers a complete sequence of actions. Students who don’t know Harry Potter can substitute any battle magic from any fiction — the structure is universal. Let this slide breathe. No code. Just the analogy.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Picture the final duel. Harry faces Voldemort.</p>
+<p>Spells are flying back and forth.</p>
+<p>Harry does <strong>not</strong> shout:</p>
+<blockquote>
+<p><em>“I am gathering magical energy in a protective dome shape around myself, calibrating the resonant frequency to deflect incoming dark magic, initializing the shield at full power…”</em></p>
+</blockquote>
+<p>He shouts:</p>
+<blockquote>
+<h2 id="protego"><strong>“Protego!”</strong></h2>
+</blockquote>
+<p>Voldemort does <strong>not</strong> announce:</p>
+<blockquote>
+<p><em>“I am directing a focused stream of lethal dark energy toward you at approximately 45 degrees, initiating the killing curse sequence…”</em></p>
+</blockquote>
+<p>He shouts:</p>
+<blockquote>
+<h2 id="avada-kedavra"><strong>“Avada Kedavra!”</strong></h2>
+</blockquote>
+<p>Each spell is a <strong>name</strong> for a complex sequence of actions. In the heat of battle, nobody cares about the steps — they call the spell, and <strong>the spell knows what to do</strong>.</p>
+<!-- FIGURE [draw.io or excalidraw]: A dramatic dueling scene. Two figures face each other — one in dark robes, one in lighter robes — with bolts of light flying between them. Speech bubbles: dark figure: "Avada Kedavra!" Light figure: "Protego!" The bolts of light are mid-air, crackling. The scene should feel urgent and cinematic, not decorative. No Java code on this slide — just the analogy, as vivid as possible. The professor will add a meme or movie still here later. -->
+</section>
+<section id="the-duel-in-java" class="slide level2">
+<h2>The Duel in Java</h2>
+<aside class="notes">
+<p>Now translate the analogy into code. The structure is identical: a name that triggers a sequence of steps. The only difference from real magic: you write the spell yourself. Walk through the Java duel line by line in main() — it reads almost exactly like the battle narration. Point out that main reads like a story: first Voldemort attacks, then Harry defends, then again. The details of each spell are hidden inside the method definition. The duel is legible without knowing the magical mechanics. This is the exact same benefit methods provide in any real program.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>In Java, a spell looks like this — you write the steps once, under a name:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="dt">void</span> <span class="fu">avadaKedavra</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"*a jet of green light flies*"</span><span class="op">);</span></span>
+<span id="cb2-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"*the killing curse is cast*"</span><span class="op">);</span></span>
+<span id="cb2-4"><a></a><span class="op">}</span></span>
+<span id="cb2-5"><a></a></span>
+<span id="cb2-6"><a></a><span class="dt">void</span> <span class="fu">protego</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-7"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"*a shimmering shield materializes*"</span><span class="op">);</span></span>
+<span id="cb2-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"*the curse is deflected*"</span><span class="op">);</span></span>
+<span id="cb2-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>And the duel itself:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-2"><a></a>    <span class="fu">avadaKedavra</span><span class="op">();</span>    <span class="co">// Voldemort attacks</span></span>
+<span id="cb3-3"><a></a>    <span class="fu">protego</span><span class="op">();</span>          <span class="co">// Harry defends</span></span>
+<span id="cb3-4"><a></a>    <span class="fu">avadaKedavra</span><span class="op">();</span>    <span class="co">// again</span></span>
+<span id="cb3-5"><a></a>    <span class="fu">protego</span><span class="op">();</span>          <span class="co">// again</span></span>
+<span id="cb3-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Harry wins."</span><span class="op">);</span></span>
+<span id="cb3-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>main</code> reads like the battle. The details of each spell are tucked away inside their own block. You don’t need to know the magical mechanics to follow the story.</p>
+<p><strong>The only difference from real magic: you write the spells yourself.</strong></p>
+<p>And once you have — calling them is exactly that simple.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>In the next two lectures you will learn how to make spells that take input (“<em>cast at this target</em>”) and produce a result (“<em>and tell me if it worked</em>”). For now, every method just does its thing.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="methods-are-mini-recipes" class="slide level2">
+<h2>Methods Are Mini-Recipes</h2>
+<aside class="notes">
+<p>The recipe analogy complements the spell analogy: where the spell emphasizes simplicity of invocation, the recipe emphasizes how a large task is decomposed into smaller named tasks. A Thanksgiving dinner recipe does not copy the gravy recipe inline — it says “make the gravy” and points elsewhere. This is exactly how a well-structured program works: main reads like a table of contents, and each method is a self-contained sub-recipe. The visual hierarchy (big card at top, smaller cards below) should make the structure feel natural and obvious.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Imagine writing a recipe for a full Thanksgiving dinner.</p>
+<p>At one point it says: <strong>“Step 4: Make the gravy.”</strong></p>
+<p>It does not paste the entire gravy recipe into the middle of the Thanksgiving recipe. It just says the name. The gravy recipe exists separately, and you look it up when you need it.</p>
+<p>Your program works the same way:</p>
+<pre><code>void main()         ←  "Cook Thanksgiving Dinner"
+    roastTurkey()   ←  Step 1 — see turkey recipe
+    makeSides()     ←  Step 2 — see sides recipe
+    makeGravy()     ←  Step 3 — see gravy recipe
+    serveDinner()   ←  Step 4 — see service recipe</code></pre>
+<p><code>main</code> is the head chef — it coordinates everything but delegates the actual work. Each method is a focused, self-contained task. The head chef doesn’t need to know how to make gravy — they just need to know when to call for it.</p>
+<!-- FIGURE [draw.io or excalidraw]: A hierarchy diagram. At the top: a large recipe card titled "Thanksgiving Dinner" (labeled "main"). It has four steps, each reading "Step N: [methodName]()." Four arrows point downward, one to each of four smaller recipe cards: "roastTurkey()", "makeSides()", "makeGravy()", "serveDinner()". Each smaller card has two or three step lines inside. The top card doesn't contain the steps — it points to the smaller cards. Warm color for the top card, neutral for the sub-cards. Slightly hand-drawn. -->
+</section>
+<section id="void-main-you-already-wrote-a-method" class="slide level2">
+<h2><code>void main()</code> — You Already Wrote a Method</h2>
+<aside class="notes">
+<p>This is the biggest aha moment of the lecture. Every student has been staring at “void main() { }” since the first day of class and now they learn that it is itself a method. Take time to annotate each part. The word “void” has been there the whole time — now it gets an explanation (doesn’t produce a value; all their methods will start with void for now). The key emotional beat: “You have been writing methods since Lecture 1. Now you will write more of them — with names you choose.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Look at every program you have written this semester:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, world!"</span><span class="op">);</span></span>
+<span id="cb5-3"><a></a>    <span class="co">// ... all your code ...</span></span>
+<span id="cb5-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That <code>void main() { ... }</code> — <strong>that is a method.</strong></p>
+<p>You have been writing a method since Lecture 1 without knowing it.</p>
+<p><code>main</code> is a special method: Java looks for it when your program starts and runs it automatically. Everything inside its braces is the body of the <code>main</code> method.</p>
+<p>The word <code>void</code> means <em>“this method does not produce a value.”</em> All the methods you write in this lecture will start with <code>void</code> — more on this in a future lecture.</p>
+<p><strong>You already know how to write a method. Now you will write them with names you choose.</strong></p>
+<!-- FIGURE [draw.io or excalidraw]: A code block showing the familiar `void main() { IO.println("Hello, world!"); }`. Four annotation arrows, each pointing to a different part of the code: (1) "void" → "means: doesn't produce a value (for now, all your methods start with void)". (2) "main" → "the name — Java always runs this one first". (3) "()" → "parentheses — always required". (4) the { } block → "the body — the steps that run when this method is called". A large bracket around the entire thing, labeled: "THIS IS A METHOD." The arrows should feel like a professor annotating a chalkboard diagram. -->
+</section>
+<section id="main-is-special" class="slide level2">
+<h2><code>main</code> Is Special</h2>
+<aside class="notes">
+<p>Students now know that main is a method — but they need to understand why it is different from every other method they will write. Three rules, stated plainly: every program must have one, there must be exactly one, and Java starts there. The “no main” and “two mains” error cases are worth spending a moment on — students will hit both of these at some point this semester. The analogy: every story has a first page. main is Java’s first page. All other methods are chapters that only get read when the story calls for them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><code>main</code> is a method — but it is a <strong>special</strong> one. Three rules set it apart from every other method you will write:</p>
+<p><strong>1. Every program must have a <code>main</code> method.</strong> When you run a program, Java looks for <code>main</code> to know where to start. No <code>main</code> — no starting point — Java stops with an error.</p>
+<p><strong>2. There must be exactly one <code>main</code>.</strong> If you write two methods both named <code>main</code>, Java doesn’t know which one to start from. That is also an error.</p>
+<p><strong>3. Java always starts at <code>main</code> — and only at <code>main</code>.</strong> Every other method you write sits quietly until something calls it. <code>main</code> is the only method that runs automatically.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-2"><a></a>    <span class="co">// Java starts here — always</span></span>
+<span id="cb6-3"><a></a><span class="op">}</span></span>
+<span id="cb6-4"><a></a></span>
+<span id="cb6-5"><a></a><span class="dt">void</span> <span class="fu">printBanner</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-6"><a></a>    <span class="co">// this only runs if something calls printBanner()</span></span>
+<span id="cb6-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>If your program produces no output and you are not sure why — check that you have a <code>main</code> method, and that your code is inside it.</p>
+</div>
+</div>
+</div>
+<p>Think of <code>main</code> as the opening scene. Every story has to start somewhere. In a Java program, it always starts at <code>main</code>.</p>
+</section>
+<section id="why-write-your-own-methods" class="slide level2">
+<h2>Why Write Your Own Methods?</h2>
+<aside class="notes">
+<p>Three reasons, stated plainly before any code. Keep this slide short — the code examples on the next two slides will make the argument concrete. Students often get the “avoid repetition” point immediately; the “change in one place” and “better names” points need the code examples to land properly. Plant the ideas here, let the code make them real.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>There are three reasons to write your own methods:</p>
+<p><strong>1. Avoid repetition.</strong> Write a group of instructions once. Call it as many times as you need. Never copy-paste the same lines again.</p>
+<p><strong>2. Give things names.</strong> <code>printHeader()</code> tells the reader exactly what is about to happen. Three raw <code>IO.println</code> lines tell them nothing until they’ve read all three.</p>
+<p><strong>3. Change in one place.</strong> Need to update the steps? Update the method body — not every place you used it.</p>
+<p>These three benefits compound as programs get longer. Let’s see them in action.</p>
+</section>
+<section id="the-problem-without-methods" class="slide level2">
+<h2>The Problem: Without Methods</h2>
+<aside class="notes">
+<p>Show the code that everyone writes before they know about methods. The repeated header block is highlighted — three copies of the exact same three lines. Ask students how they would change the header from “=” to “*“. They would have to find and change three places. What if it appeared twenty times? This sets up the next slide’s fix perfectly. Don’t solve the problem yet — just make students feel the pain.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"=  SCORE BOARD     ="</span><span class="op">);</span></span>
+<span id="cb7-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-5"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Alice: 95"</span><span class="op">);</span></span>
+<span id="cb7-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Bob:   87"</span><span class="op">);</span></span>
+<span id="cb7-7"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"=  SCORE BOARD     ="</span><span class="op">);</span></span>
+<span id="cb7-9"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Charlie: 91"</span><span class="op">);</span></span>
+<span id="cb7-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Diana:   78"</span><span class="op">);</span></span>
+<span id="cb7-12"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-13"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"=  SCORE BOARD     ="</span><span class="op">);</span></span>
+<span id="cb7-14"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb7-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The header appears <strong>three times</strong> — three identical copies of three lines.</p>
+<p>Now imagine: you want to change the header style. You must find and edit <strong>all three copies</strong> — and hope you don’t miss one.</p>
+<p>If the header appeared twenty times, you would need to edit sixty lines.</p>
+<p>There has to be a better way.</p>
+<!-- FIGURE [draw.io or excalidraw]: The code block above, with the three header sections highlighted in yellow. Red circles around each highlighted section labeled "copy #1", "copy #2", "copy #3". A label at the bottom: "Three copies. Three places to update. Easy to miss one." -->
+</section>
+<section id="the-fix-with-a-method" class="slide level2">
+<h2>The Fix: With a Method</h2>
+<aside class="notes">
+<p>Now the payoff. The method is defined once. Calling it three times is three short lines. If you want to change the header, you change the method body — one place, done. Ask the class: how many lines long is main now? How many would it be if there were twenty calls? The version with a method actually gets shorter relative to the without-method version as repetition increases — methods scale. End with: “main reads like a table of contents. Each method does one thing.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="dt">void</span> <span class="fu">printHeader</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb8-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"=  SCORE BOARD     ="</span><span class="op">);</span></span>
+<span id="cb8-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"===================="</span><span class="op">);</span></span>
+<span id="cb8-5"><a></a><span class="op">}</span></span>
+<span id="cb8-6"><a></a></span>
+<span id="cb8-7"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-8"><a></a>    <span class="fu">printHeader</span><span class="op">();</span></span>
+<span id="cb8-9"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Alice: 95"</span><span class="op">);</span></span>
+<span id="cb8-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Bob:   87"</span><span class="op">);</span></span>
+<span id="cb8-11"><a></a>    <span class="fu">printHeader</span><span class="op">();</span></span>
+<span id="cb8-12"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Charlie: 91"</span><span class="op">);</span></span>
+<span id="cb8-13"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Diana:   78"</span><span class="op">);</span></span>
+<span id="cb8-14"><a></a>    <span class="fu">printHeader</span><span class="op">();</span></span>
+<span id="cb8-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The header is <strong>defined once</strong>. To change it, change one place. <code>main</code> is shorter and reads clearly.</p>
+<p>Three calls. One definition. If the header appears twenty times, you write <code>printHeader()</code> twenty times — not sixty lines of IO.println. And to update the style, you still change just one place.</p>
+<!-- FIGURE [draw.io or excalidraw]: Two tall code blocks side by side. Left ("Without a method" — red X): the previous slide's code, with the three header blocks highlighted and labeled "copy #1", "copy #2", "copy #3". Right ("With a method" — green check): the fixed version. A bracket spans the printHeader() definition labeled "defined once." Three arrows from the three printHeader() calls in main converge on the single definition. The left block is visibly much taller. The height gap is the argument. -->
+</section>
+<section id="defining-a-void-method" class="slide level2">
+<h2>Defining a <code>void</code> Method</h2>
+<aside class="notes">
+<p>Walk through the anatomy one piece at a time. Students have seen every one of these elements before: “void” is in main; the name follows the same naming rules as variables; the parentheses have been in every method call they have ever written; and the braces are the same as in if-statements. Nothing here is truly new — this is just putting a name to something they already know. The anatomy figure with labeled arrows is the most important visual on this slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A <code>void</code> method has this structure:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="dt">void</span> <span class="fu">methodName</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-2"><a></a>    <span class="co">// the body — steps that happen when this method is called</span></span>
+<span id="cb9-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every part has a job:</p>
+<ul>
+<li><strong><code>void</code></strong> — this method does not produce a value</li>
+<li><strong><code>methodName</code></strong> — the name you choose (write it like a short command)</li>
+<li><strong><code>()</code></strong> — parentheses, always required</li>
+<li><strong><code>{ }</code></strong> — the body: the steps that run when the method is called</li>
+</ul>
+<p>Nothing here is new. You have seen every one of these pieces before — in <code>main</code>, in <code>if</code> statements, in every method you have already been calling.</p>
+<!-- FIGURE [draw.io or excalidraw]: A single code block showing `void greetUser() { IO.println("Hello!"); IO.println("Welcome."); }`. Four annotation arrows: (1) pointing to "void" → "doesn't produce a value"; (2) pointing to "greetUser" → "the name — you choose this"; (3) pointing to "()" → "parentheses — always required"; (4) pointing to the { } block → "the body — the steps that run". The arrows should feel like labels on a diagram, not prose. -->
+</section>
+<section id="method-examples" class="slide level2">
+<h2>Method Examples</h2>
+<aside class="notes">
+<p>Three examples, each with a clear purpose. Students should be able to read each method name and immediately know what it does — that’s the whole point of the naming principle. Ask students to predict what each method prints before revealing or running it. The examples are short by design: the body of each method is one or two lines. This is intentional — students often think a method has to be long. Even a method that prints a single line is worth having if it has a good name and might be called more than once.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Here are three methods, each doing one clear thing:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="dt">void</span> <span class="fu">printSeparator</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"--------------------"</span><span class="op">);</span></span>
+<span id="cb10-3"><a></a><span class="op">}</span></span>
+<span id="cb10-4"><a></a></span>
+<span id="cb10-5"><a></a><span class="dt">void</span> <span class="fu">printWelcome</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Welcome to COSC 120!"</span><span class="op">);</span></span>
+<span id="cb10-7"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Let's write some Java."</span><span class="op">);</span></span>
+<span id="cb10-8"><a></a><span class="op">}</span></span>
+<span id="cb10-9"><a></a></span>
+<span id="cb10-10"><a></a><span class="dt">void</span> <span class="fu">printGoodbye</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Thanks for learning with us."</span><span class="op">);</span></span>
+<span id="cb10-12"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"See you next class!"</span><span class="op">);</span></span>
+<span id="cb10-13"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can read each name and know exactly what it does — before reading the body. That is what a good method name does.</p>
+<p>You can call all three from <code>main</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-2"><a></a>    <span class="fu">printWelcome</span><span class="op">();</span></span>
+<span id="cb11-3"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb11-4"><a></a>    <span class="fu">printGoodbye</span><span class="op">();</span></span>
+<span id="cb11-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="naming-your-methods" class="slide level2">
+<h2>Naming Your Methods</h2>
+<aside class="notes">
+<p>The naming rules are the same as for variables, with one important addition: method names should be verb phrases — they describe an action, not a thing. A variable stores a value (a noun: “score”, “name”). A method does something (a verb phrase: “printScore”, “readName”). The good/bad examples are important — students often default to meaningless names when they are not sure what a method does. If a student cannot name a method well, that is a sign the method is trying to do too many things. Good naming is a design skill, not just a style preference.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Method names follow the same rules as variable names — with one key addition: <strong>use a verb phrase</strong>, because a method does something.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="co">// ✓ Good names — describe an action clearly</span></span>
+<span id="cb12-2"><a></a><span class="dt">void</span> <span class="fu">printHeader</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-3"><a></a><span class="dt">void</span> <span class="fu">showMenu</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-4"><a></a><span class="dt">void</span> <span class="fu">drawLine</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-5"><a></a><span class="dt">void</span> <span class="fu">displayScore</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-6"><a></a><span class="dt">void</span> <span class="fu">printEventSchedule</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-7"><a></a></span>
+<span id="cb12-8"><a></a><span class="co">// ✗ Poor names — say nothing about what the method does</span></span>
+<span id="cb12-9"><a></a><span class="dt">void</span> <span class="fu">stuff</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-10"><a></a><span class="dt">void</span> <span class="fu">doThings</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-11"><a></a><span class="dt">void</span> <span class="fu">method1</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb12-12"><a></a><span class="dt">void</span> <span class="fu">myMethod</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Rules:</p>
+<ul>
+<li><strong>camelCase</strong>: <code>printHeader</code>, not <code>PrintHeader</code> or <code>print_header</code></li>
+<li><strong>Start with a verb</strong>: print, show, draw, display, compute, check</li>
+<li><strong>Be specific</strong>: <code>printEventSchedule()</code> beats <code>printStuff()</code></li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>If you cannot name a method clearly, it might be trying to do too many things. Split it into smaller methods, each with one job and one clear name.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="calling-a-method" class="slide level2">
+<h2>Calling a Method</h2>
+<aside class="notes">
+<p>The mechanics are simple: name followed by parentheses and a semicolon. Two points to stress: (1) defining a method does not run it — you must call it; and (2) you can call it as many times as you want, and the method body runs fresh each time. The note about definition order is useful: in Java, unlike some other languages, the order of method definitions doesn’t matter. Java reads all definitions before running anything. Students who have internalized “Java reads top to bottom” will be surprised, so flag it explicitly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Once a method is defined, you <strong>call</strong> it — write its name, parentheses, semicolon:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-2"><a></a>    <span class="fu">printWelcome</span><span class="op">();</span>       <span class="co">// the lines inside printWelcome run now</span></span>
+<span id="cb13-3"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span>     <span class="co">// then the lines inside printSeparator</span></span>
+<span id="cb13-4"><a></a>    <span class="fu">printGoodbye</span><span class="op">();</span>       <span class="co">// then the lines inside printGoodbye</span></span>
+<span id="cb13-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That is the whole spell. One line. The details are inside the method.</p>
+</section>
+<section class="slide level2">
+
+<p>You can call the same method <strong>as many times as you want:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-2"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb14-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"First section"</span><span class="op">);</span></span>
+<span id="cb14-4"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb14-5"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Second section"</span><span class="op">);</span></span>
+<span id="cb14-6"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb14-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each call runs the method body fresh from top to bottom. One definition. Unlimited calls.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>In Java, the order of method definitions does not matter. You can write <code>printWelcome</code> below <code>main</code> and Java will still find it. Java reads all the definitions before running anything.</p>
+</div>
+</div>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: Split diagram. Left: the `printSeparator()` definition in a box (just one IO.println line inside). Right: `void main()` showing four calls to printSeparator(). Four arrows, one from each call, all converging on the single definition box on the left. Label: "Four calls. One definition." The arrows should look like four people calling the same phone number. -->
+</section>
+<section id="the-flow-of-execution" class="slide level2">
+<h2>The Flow of Execution</h2>
+<aside class="notes">
+<p>The most important mechanical concept of the lecture. Students need a clear mental model: the computer is executing line by line in main, hits a method call, leaves main, jumps to the method body, executes every line top to bottom, reaches the closing brace, and returns to main at exactly the next line. “Exactly where it left off” is the key phrase. Walk through the numbered comments one by one, waiting after each step. Then show the output. The figure — two vertical timelines connected by forward and return arrows — is what makes this concrete. Call stack mechanics are intentionally omitted.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>When your program hits a method call, here is exactly what happens:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span>                       <span class="co">// 1. Java starts here</span></span>
+<span id="cb15-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Before"</span><span class="op">);</span>           <span class="co">// 2. prints "Before"</span></span>
+<span id="cb15-3"><a></a>    <span class="fu">printBanner</span><span class="op">();</span>                  <span class="co">// 3. JUMP to printBanner</span></span>
+<span id="cb15-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"After"</span><span class="op">);</span>            <span class="co">// 6. back here — continues</span></span>
+<span id="cb15-5"><a></a><span class="op">}</span></span>
+<span id="cb15-6"><a></a></span>
+<span id="cb15-7"><a></a><span class="dt">void</span> <span class="fu">printBanner</span><span class="op">()</span> <span class="op">{</span>                <span class="co">// 4. runs from top to bottom</span></span>
+<span id="cb15-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"========="</span><span class="op">);</span>        <span class="co">//    prints "========="</span></span>
+<span id="cb15-9"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  Hello!  "</span><span class="op">);</span>       <span class="co">//    prints "  Hello!  "</span></span>
+<span id="cb15-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"========="</span><span class="op">);</span>        <span class="co">//    prints "========="</span></span>
+<span id="cb15-11"><a></a><span class="op">}</span>                                   <span class="co">// 5. closing brace — COME BACK</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Output:</strong></p>
+<pre><code>Before
+=========
+  Hello!
+=========
+After</code></pre>
+<p>The program <strong>jumps</strong> into the method, runs it completely, then <strong>comes back</strong> to the next line in <code>main</code>. “After” prints after the banner, not before it.</p>
+</section>
+<section class="slide level2">
+
+<p>What happens when you call the same method <strong>twice?</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Round 1:"</span><span class="op">);</span></span>
+<span id="cb17-3"><a></a>    <span class="fu">printBanner</span><span class="op">();</span>            <span class="co">// jump in, run, come back</span></span>
+<span id="cb17-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Round 2:"</span><span class="op">);</span></span>
+<span id="cb17-5"><a></a>    <span class="fu">printBanner</span><span class="op">();</span>            <span class="co">// jump in again, run again, come back</span></span>
+<span id="cb17-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Done."</span><span class="op">);</span></span>
+<span id="cb17-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>Round 1:
+=========
+  Hello!
+=========
+Round 2:
+=========
+  Hello!
+=========
+Done.</code></pre>
+<p>Two separate trips. Each time, the method runs from top to bottom, then execution returns to <code>main</code>.</p>
+<!-- FIGURE [draw.io or excalidraw]: Two vertical timelines side by side. Left timeline labeled "main()": rectangles top to bottom — "IO.println: Before", "printBanner()" call box, "IO.println: After". A bold rightward arrow labeled "JUMP" goes from the printBanner() box to the top of the right timeline. Right timeline labeled "printBanner()": three rectangles — "IO.println: =========", "IO.println:   Hello!  ", "IO.println: =========". After the last rectangle, a bold leftward arrow labeled "COMES BACK" returns to the left timeline, landing just below the printBanner() call box (at "IO.println: After"). The forward and return arrows are the visual focus — the "detour and return" shape should be clear. -->
+</section>
+<section id="methods-that-call-other-methods" class="slide level2">
+<h2>Methods That Call Other Methods</h2>
+<aside class="notes">
+<p>A method can call other methods inside its body. This is the payoff of the whole recipe hierarchy analogy — now it’s code. Main calls printTicket, which calls three helpers. Reading main tells you everything that happens at the highest level; reading printTicket tells you the structure; reading each helper tells you the actual output lines. You never have to hold the whole program in your head at once. Walk through the execution flow verbally: main → printTicket → printHeader (runs, comes back) → printDetails (runs, comes back) → printFooter (runs, comes back) → back to printTicket → back to main.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A method can call other methods inside its body — this is how large programs are built:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb19-1"><a></a><span class="dt">void</span> <span class="fu">printHeader</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"============================"</span><span class="op">);</span></span>
+<span id="cb19-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"        MOVIE TICKET        "</span><span class="op">);</span></span>
+<span id="cb19-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"============================"</span><span class="op">);</span></span>
+<span id="cb19-5"><a></a><span class="op">}</span></span>
+<span id="cb19-6"><a></a></span>
+<span id="cb19-7"><a></a><span class="dt">void</span> <span class="fu">printDetails</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Movie:  The Matrix"</span><span class="op">);</span></span>
+<span id="cb19-9"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Date:   Saturday, Aug 22"</span><span class="op">);</span></span>
+<span id="cb19-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Time:   7:30 PM"</span><span class="op">);</span></span>
+<span id="cb19-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Seat:   Row C, Seat 12"</span><span class="op">);</span></span>
+<span id="cb19-12"><a></a><span class="op">}</span></span>
+<span id="cb19-13"><a></a></span>
+<span id="cb19-14"><a></a><span class="dt">void</span> <span class="fu">printFooter</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-15"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"============================"</span><span class="op">);</span></span>
+<span id="cb19-16"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"      Enjoy the show!       "</span><span class="op">);</span></span>
+<span id="cb19-17"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"============================"</span><span class="op">);</span></span>
+<span id="cb19-18"><a></a><span class="op">}</span></span>
+<span id="cb19-19"><a></a></span>
+<span id="cb19-20"><a></a><span class="dt">void</span> <span class="fu">printTicket</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-21"><a></a>    <span class="fu">printHeader</span><span class="op">();</span></span>
+<span id="cb19-22"><a></a>    <span class="fu">printDetails</span><span class="op">();</span></span>
+<span id="cb19-23"><a></a>    <span class="fu">printFooter</span><span class="op">();</span></span>
+<span id="cb19-24"><a></a><span class="op">}</span></span>
+<span id="cb19-25"><a></a></span>
+<span id="cb19-26"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-27"><a></a>    <span class="fu">printTicket</span><span class="op">();</span>    <span class="co">// one line. that's it.</span></span>
+<span id="cb19-28"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section class="slide level2">
+
+<p>Three levels of detail, each at the right level:</p>
+<ul>
+<li>Read <code>main</code> → prints a ticket</li>
+<li>Read <code>printTicket</code> → header, then details, then footer</li>
+<li>Read each helper → the actual lines of output</li>
+</ul>
+<p>You never have to hold the whole program in your head at once. You zoom in only as far as you need to.</p>
+<!-- FIGURE [draw.io or excalidraw]: A tree/org-chart hierarchy. Top box: "main()" with one arrow pointing down to "printTicket()". From printTicket(), three arrows fan down to: "printHeader()", "printDetails()", "printFooter()". Each bottom box has two or three output lines inside it (smaller, faded font). Label the whole diagram: "A program as a hierarchy of named tasks." The tree structure mirrors the recipe card hierarchy from the earlier slide — connecting the analogy back to code. -->
+</section>
+<section id="code-example-event-schedule" class="slide level2">
+<h2>Code Example — Event Schedule</h2>
+<aside class="notes">
+<p>A complete, runnable program using everything in this lecture: multiple void methods, methods calling methods, the same method called multiple times. Ask students to predict the output before revealing it. Then ask: what would you change if you wanted a different separator style? (Just printSeparator.) What if you wanted to add a new event? (Just add a line to printSchedule.) What if you wanted to print the schedule twice? (Call printSchedule twice in main.) Each question has a one-word answer: one method, one place. That’s the payoff.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb20-1"><a></a><span class="dt">void</span> <span class="fu">printSeparator</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"--------------------------------"</span><span class="op">);</span></span>
+<span id="cb20-3"><a></a><span class="op">}</span></span>
+<span id="cb20-4"><a></a></span>
+<span id="cb20-5"><a></a><span class="dt">void</span> <span class="fu">printWelcome</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  Welcome to the COSC 120 Lab!  "</span><span class="op">);</span></span>
+<span id="cb20-7"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  Instructor: Prof. Goswami      "</span><span class="op">);</span></span>
+<span id="cb20-8"><a></a><span class="op">}</span></span>
+<span id="cb20-9"><a></a></span>
+<span id="cb20-10"><a></a><span class="dt">void</span> <span class="fu">printSchedule</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"9:00  AM   Opening remarks"</span><span class="op">);</span></span>
+<span id="cb20-12"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"9:15  AM   Team introductions"</span><span class="op">);</span></span>
+<span id="cb20-13"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"10:00 AM   Lab session 1"</span><span class="op">);</span></span>
+<span id="cb20-14"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"12:00 PM   Lunch"</span><span class="op">);</span></span>
+<span id="cb20-15"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"1:00  PM   Lab session 2"</span><span class="op">);</span></span>
+<span id="cb20-16"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"3:00  PM   Demos and wrap-up"</span><span class="op">);</span></span>
+<span id="cb20-17"><a></a><span class="op">}</span></span>
+<span id="cb20-18"><a></a></span>
+<span id="cb20-19"><a></a><span class="dt">void</span> <span class="fu">printClosing</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-20"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  Questions? Email cosc120@smcm.edu"</span><span class="op">);</span></span>
+<span id="cb20-21"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"  See you there!                   "</span><span class="op">);</span></span>
+<span id="cb20-22"><a></a><span class="op">}</span></span>
+<span id="cb20-23"><a></a></span>
+<span id="cb20-24"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-25"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb20-26"><a></a>    <span class="fu">printWelcome</span><span class="op">();</span></span>
+<span id="cb20-27"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb20-28"><a></a>    <span class="fu">printSchedule</span><span class="op">();</span></span>
+<span id="cb20-29"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb20-30"><a></a>    <span class="fu">printClosing</span><span class="op">();</span></span>
+<span id="cb20-31"><a></a>    <span class="fu">printSeparator</span><span class="op">();</span></span>
+<span id="cb20-32"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>main</code> reads like a table of contents. Each method does exactly one thing.</p>
+</section>
+<section id="common-mistakes" class="slide level2">
+<h2>Common Mistakes</h2>
+<aside class="notes">
+<p>Four mistakes that appear in almost every student’s code the first week. The most dangerous is defining without calling — the program compiles and runs, just silently does less than expected. Missing parentheses and code outside a method are compile errors, so at least they are caught early. Poor naming compiles fine but creates invisible technical debt. Go through each one slowly, asking students to identify what is wrong before revealing the answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><strong>1. Defining a method but never calling it</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb21-1"><a></a><span class="dt">void</span> <span class="fu">printBanner</span><span class="op">()</span> <span class="op">{</span>       <span class="co">// defined...</span></span>
+<span id="cb21-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"====="</span><span class="op">);</span></span>
+<span id="cb21-3"><a></a><span class="op">}</span></span>
+<span id="cb21-4"><a></a></span>
+<span id="cb21-5"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb21-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello!"</span><span class="op">);</span>  <span class="co">// ...but never called — banner never prints</span></span>
+<span id="cb21-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Java does not warn you. The method simply never runs.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>2. Forgetting <code>()</code> when calling</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb22-1"><a></a>printBanner<span class="op">;</span>     <span class="co">// ✗ — not a method call; won't compile</span></span>
+<span id="cb22-2"><a></a><span class="fu">printBanner</span><span class="op">();</span>   <span class="co">// ✓</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section class="slide level2">
+
+<p><strong>3. Writing code outside any method</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb23-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>   <span class="co">// ✗ — not inside any method; won't compile</span></span>
+<span id="cb23-2"><a></a></span>
+<span id="cb23-3"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello"</span><span class="op">);</span>   <span class="co">// ✓</span></span>
+<span id="cb23-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every executable line must live inside the <code>{ }</code> of some method.</p>
+</section>
+<section class="slide level2">
+
+<p><strong>4. Naming a method something vague</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb24-1"><a></a><span class="dt">void</span> <span class="fu">stuff</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span>           <span class="co">// ✗ — what does "stuff" do?</span></span>
+<span id="cb24-2"><a></a><span class="dt">void</span> <span class="fu">doIt</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span>            <span class="co">// ✗ — do what, exactly?</span></span>
+<span id="cb24-3"><a></a><span class="dt">void</span> <span class="fu">printEventSchedule</span><span class="op">()</span> <span class="op">{</span> <span class="op">}</span>  <span class="co">// ✓ — says exactly what it does</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A method name is a promise to whoever reads the code. Keep it.</p>
+</section>
+<section id="worksheet" class="slide level2">
+<h2>Worksheet</h2>
+<aside class="notes">
+<p>Reserve 20–30 minutes. Problems 1–2 are tracing on paper — students predict before running. Problems 3–5 are write-it. Problem 6 is synthesis with an open-ended creative element. Watch for: method defined but not called; missing parentheses; code outside a method; vague names. Problem 6 has many valid solutions — encourage creativity in what they choose to format.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><strong>Problem 1 — Trace it.</strong> What does this program print? Work through it step by step on paper before running it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb25-1"><a></a><span class="dt">void</span> <span class="fu">sayHello</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb25-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello!"</span><span class="op">);</span></span>
+<span id="cb25-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"How are you?"</span><span class="op">);</span></span>
+<span id="cb25-4"><a></a><span class="op">}</span></span>
+<span id="cb25-5"><a></a></span>
+<span id="cb25-6"><a></a><span class="dt">void</span> <span class="fu">sayBye</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb25-7"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Goodbye!"</span><span class="op">);</span></span>
+<span id="cb25-8"><a></a><span class="op">}</span></span>
+<span id="cb25-9"><a></a></span>
+<span id="cb25-10"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb25-11"><a></a>    <span class="fu">sayHello</span><span class="op">();</span></span>
+<span id="cb25-12"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"---"</span><span class="op">);</span></span>
+<span id="cb25-13"><a></a>    <span class="fu">sayHello</span><span class="op">();</span></span>
+<span id="cb25-14"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"---"</span><span class="op">);</span></span>
+<span id="cb25-15"><a></a>    <span class="fu">sayBye</span><span class="op">();</span></span>
+<span id="cb25-16"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Problem 2 — Spot the bugs.</strong> Find every mistake and fix it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb26-1"><a></a><span class="dt">void</span> printTitle <span class="op">{</span></span>
+<span id="cb26-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"= My Program ="</span><span class="op">)</span></span>
+<span id="cb26-3"><a></a><span class="op">}</span></span>
+<span id="cb26-4"><a></a></span>
+<span id="cb26-5"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb26-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Starting..."</span><span class="op">);</span></span>
+<span id="cb26-7"><a></a>    printTitle</span>
+<span id="cb26-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Done."</span><span class="op">);</span></span>
+<span id="cb26-9"><a></a><span class="op">}</span></span>
+<span id="cb26-10"><a></a></span>
+<span id="cb26-11"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"This line is floating around."</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>(How many bugs are there? What kind of error does each one cause?)</em></p>
+<p><strong>Problem 3 — Write it.</strong> Write a method called <code>printDivider</code> that prints a line of 20 asterisks. Call it from <code>main</code> three times, with <code>IO.println("Section")</code> between each call.</p>
+<p><strong>Problem 4 — Write it.</strong> Write a program with three methods: - <code>printOpening</code> — prints a title and a subtitle - <code>printBody</code> — prints three to five lines of content (a letter, an announcement, anything you like) - <code>printClosing</code> — prints a sign-off</p>
+<p>Call all three from <code>main</code>.</p>
+<p><strong>Problem 5 — Write it.</strong> Write a method called <code>printReceipt</code> that calls three helper methods: <code>printReceiptHeader</code>, <code>printReceiptItems</code>, and <code>printReceiptFooter</code>. Each helper prints two to four lines. Call <code>printReceipt</code> from <code>main</code>.</p>
+<p><strong>Problem 6 — Write it (synthesis).</strong> Write a program that prints a coffee shop menu using at least four methods. Your <code>main</code> should be no more than six lines long. The output should look like something you would actually hand to a customer.</p>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

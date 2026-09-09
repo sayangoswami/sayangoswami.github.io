@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>COSC 435 - Acceleration – Class Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Class Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-courses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Courses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
+        <li class="dropdown-header">Fall 2026</li>
+        <li>
+    <a class="dropdown-item" href="../cosc120/index.html">
+ <span class="dropdown-text">COSC120 — Introduction to Computer Science I</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc420/index.html">
+ <span class="dropdown-text">COSC420 — Distributed / Parallel Computing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc435/index.html">
+ <span class="dropdown-text">COSC435 — Acceleration</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">Spring 2026</li>
+        <li>
+    <a class="dropdown-item" href="../cosc130/index.html">
+ <span class="dropdown-text">COSC130 — Introduction to Computer Science II</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cosc445/index.html">
+ <span class="dropdown-text">COSC445 — Design and Analysis of Algorithms</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#lms-information" id="toc-lms-information" class="nav-link active" data-scroll-target="#lms-information">LMS Information</a></li>
+  <li><a href="#course-description" id="toc-course-description" class="nav-link" data-scroll-target="#course-description">Course Description</a></li>
+  <li><a href="#course-learning-outcomes" id="toc-course-learning-outcomes" class="nav-link" data-scroll-target="#course-learning-outcomes">Course Learning Outcomes</a></li>
+  <li><a href="#engaged-learning" id="toc-engaged-learning" class="nav-link" data-scroll-target="#engaged-learning">Engaged Learning</a></li>
+  <li><a href="#smcm-code-of-student-conduct" id="toc-smcm-code-of-student-conduct" class="nav-link" data-scroll-target="#smcm-code-of-student-conduct">SMCM Code of Student Conduct</a></li>
+  <li><a href="#digital-accessibility-of-course-materials" id="toc-digital-accessibility-of-course-materials" class="nav-link" data-scroll-target="#digital-accessibility-of-course-materials">Digital Accessibility of Course Materials</a></li>
+  <li><a href="#academic-accommodations" id="toc-academic-accommodations" class="nav-link" data-scroll-target="#academic-accommodations">Academic Accommodations</a></li>
+  <li><a href="#office-of-student-success-services" id="toc-office-of-student-success-services" class="nav-link" data-scroll-target="#office-of-student-success-services">Office of Student Success Services</a></li>
+  <li><a href="#office-of-civil-rights-and-compliance" id="toc-office-of-civil-rights-and-compliance" class="nav-link" data-scroll-target="#office-of-civil-rights-and-compliance">Office of Civil Rights and Compliance</a></li>
+  <li><a href="#office-of-counseling-services" id="toc-office-of-counseling-services" class="nav-link" data-scroll-target="#office-of-counseling-services">Office of Counseling Services</a></li>
+  <li><a href="#health-services" id="toc-health-services" class="nav-link" data-scroll-target="#health-services">Health Services</a></li>
+  <li><a href="#writing-and-speaking-center" id="toc-writing-and-speaking-center" class="nav-link" data-scroll-target="#writing-and-speaking-center">Writing and Speaking Center</a></li>
+  <li><a href="#course-requirements" id="toc-course-requirements" class="nav-link" data-scroll-target="#course-requirements">Course Requirements</a></li>
+  <li><a href="#methods-of-evaluation" id="toc-methods-of-evaluation" class="nav-link" data-scroll-target="#methods-of-evaluation">Methods of Evaluation</a></li>
+  <li><a href="#grading-grade-scale" id="toc-grading-grade-scale" class="nav-link" data-scroll-target="#grading-grade-scale">Grading &amp; Grade Scale</a>
+  <ul class="collapse">
+  <li><a href="#checkpoint-grading-rubric" id="toc-checkpoint-grading-rubric" class="nav-link" data-scroll-target="#checkpoint-grading-rubric">Checkpoint Grading Rubric</a></li>
+  </ul></li>
+  <li><a href="#course-attendance-policy" id="toc-course-attendance-policy" class="nav-link" data-scroll-target="#course-attendance-policy">Course Attendance Policy</a></li>
+  <li><a href="#late-work-and-missed-assignment-policy" id="toc-late-work-and-missed-assignment-policy" class="nav-link" data-scroll-target="#late-work-and-missed-assignment-policy">Late Work and Missed Assignment Policy</a></li>
+  <li><a href="#use-of-generative-artificial-intelligence-in-the-classroom" id="toc-use-of-generative-artificial-intelligence-in-the-classroom" class="nav-link" data-scroll-target="#use-of-generative-artificial-intelligence-in-the-classroom">Use of Generative Artificial Intelligence in the Classroom&nbsp;</a></li>
+  <li><a href="#course-calendaroutline" id="toc-course-calendaroutline" class="nav-link" data-scroll-target="#course-calendaroutline">Course Calendar/Outline</a>
+  <ul class="collapse">
+  <li><a href="#module-0-python-setup-weeks-12" id="toc-module-0-python-setup-weeks-12" class="nav-link" data-scroll-target="#module-0-python-setup-weeks-12">Module 0 · Python &amp; Setup (Weeks 1–2)</a></li>
+  <li><a href="#module-1-the-case-for-gpus-week-3" id="toc-module-1-the-case-for-gpus-week-3" class="nav-link" data-scroll-target="#module-1-the-case-for-gpus-week-3">Module 1 · The Case for GPUs (Week 3)</a></li>
+  <li><a href="#module-2-gpu-architecture-weeks-45" id="toc-module-2-gpu-architecture-weeks-45" class="nav-link" data-scroll-target="#module-2-gpu-architecture-weeks-45">Module 2 · GPU Architecture (Weeks 4–5)</a></li>
+  <li><a href="#module-3-kernel-development-profiling-weeks-67" id="toc-module-3-kernel-development-profiling-weeks-67" class="nav-link" data-scroll-target="#module-3-kernel-development-profiling-weeks-67">Module 3 · Kernel Development &amp; Profiling (Weeks 6–7)</a></li>
+  <li><a href="#midterm-exam-week-8" id="toc-midterm-exam-week-8" class="nav-link" data-scroll-target="#midterm-exam-week-8">Midterm Exam (Week 8)</a></li>
+  <li><a href="#module-4-memory-optimization-weeks-89" id="toc-module-4-memory-optimization-weeks-89" class="nav-link" data-scroll-target="#module-4-memory-optimization-weeks-89">Module 4 · Memory Optimization (Weeks 8–9)</a></li>
+  <li><a href="#module-5-parallel-patterns-weeks-1011" id="toc-module-5-parallel-patterns-weeks-1011" class="nav-link" data-scroll-target="#module-5-parallel-patterns-weeks-1011">Module 5 · Parallel Patterns (Weeks 10–11)</a></li>
+  <li><a href="#module-6-gpu-libraries-applications-weeks-1213" id="toc-module-6-gpu-libraries-applications-weeks-1213" class="nav-link" data-scroll-target="#module-6-gpu-libraries-applications-weeks-1213">Module 6 · GPU Libraries &amp; Applications (Weeks 12–13)</a></li>
+  <li><a href="#module-7-applications-capstone-weeks-1415" id="toc-module-7-applications-capstone-weeks-1415" class="nav-link" data-scroll-target="#module-7-applications-capstone-weeks-1415">Module 7 · Applications &amp; Capstone (Weeks 14–15)</a></li>
+  <li><a href="#finals-week" id="toc-finals-week" class="nav-link" data-scroll-target="#finals-week">Finals Week</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">COSC 435 - Acceleration</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<ul>
+<li><strong>Section:</strong> 01</li>
+<li><strong>Credit hours:</strong> 4</li>
+<li><strong>Term and year:</strong> Fall 2026</li>
+<li><strong>Delivery Mode</strong> Classroom (Schaefer Hall 160), Mon, Wed, Fri: 2:10PM - 3:00PM</li>
+<li><strong>Instructor:</strong> <a href="https://inside.smcm.edu/directory/sayan-goswami">Sayan Goswami</a></li>
+<li><strong>Office:</strong> Schaefer Hall, Room 152</li>
+<li><strong>Student Visiting Hours:</strong> Monday, Wednesday, Friday from 1:00 PM to 2:00 PM or <a href="https://calendar.app.google/eEm9QXSrKNHk63Wc7">by appointment.</a></li>
+<li><strong>Phone:</strong> 240-895-2153</li>
+<li><strong>Email:</strong> <a href="mailto:sgoswami@smcm.edu">sgoswami@smcm.edu</a></li>
+<li><strong>Textbook:</strong> None required</li>
+<li><strong>Prerequisites:</strong> COMPUTER ARCHITECTURE (COSC230) must be completed with minimum GPA of 1.70</li>
+</ul>
+<section id="lms-information" class="level2">
+<h2 class="anchored" data-anchor-id="lms-information">LMS Information</h2>
+<p>All course materials and grades are posted on <a href="https://blackboard.smcm.edu/">Blackboard</a>.</p>
+</section>
+<section id="course-description" class="level2">
+<h2 class="anchored" data-anchor-id="course-description">Course Description</h2>
+<p><em>Official catalog description:</em></p>
+<blockquote class="blockquote">
+<p>This course will study the tools, techniques and architectures to provide hardware acceleration of software. Topics include: high-level synthesis, register transfer level descriptions and synthesis, gate and transistor level descriptions, finite state machines, systolic arrays and pipeline architectures. Both Field Programmable Gate Array (FPGA) and custom integrated circuit approaches will be covered. In addition to the application of Electronic Design Automation (EDA) tools, the algorithms they use will be described.</p>
+</blockquote>
+<p><em>Course focus, Fall 2026:</em></p>
+<p>This course introduces the architectures and programming models behind modern General-Purpose Graphics Processing Unit (GPGPU) computing. As the demand for computational throughput has outpaced what traditional single-core processors can deliver, GPUs have become the engine behind machine learning, scientific simulation, and real-time graphics. <em>Acceleration</em> teaches you to think and program in parallel - shifting from the “one instruction at a time” model of introductory programming to orchestrating thousands of threads working simultaneously on the same problem. The course uses Python and industry-relevant GPU frameworks (Numba CUDA, CuPy, PyTorch) throughout, delivered via Google Colab, so no prior experience with systems languages is required.</p>
+</section>
+<section id="course-learning-outcomes" class="level2">
+<h2 class="anchored" data-anchor-id="course-learning-outcomes">Course Learning Outcomes</h2>
+<p><em>Official catalog outcomes:</em></p>
+<p>Upon completion of the course, students will be able to:</p>
+<ul>
+<li><p>Design accelerators for algorithms as demonstrated by creating an accelerator using high-level synthesis and FPGAs.</p></li>
+<li><p>Explain algorithms by explaining aspects of the acceleration process to non-experts.</p></li>
+<li><p>Create a written opinion on a technical subject as demonstrated by writing an analysis of a classic paper on hardware architecture or electronic design automation.</p></li>
+<li><p>Design an oral presentation on a technical subject as demonstrated by presenting an analysis of a classic paper on hardware architecture or electronic design automation.</p></li>
+<li><p>Create an opinion on a technical subject using appropriate sources as demonstrated by researching an analysis of a classic paper on hardware architecture on electronic design automation.</p></li>
+</ul>
+<p><em>Course-Level Learning Outcomes, Fall 2026.</em></p>
+<p>By the end of this course, students will be able to:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 2%">
+<col style="width: 89%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Learning Outcome</th>
+<th>Bloom’s Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CLO 1</td>
+<td><strong>Apply</strong> Python and NumPy to express data-parallel computations as preparation for GPU programming.</td>
+<td>Apply</td>
+</tr>
+<tr class="even">
+<td>CLO 2</td>
+<td><strong>Explain</strong> the architectural differences between CPUs and GPUs - including Streaming Multiprocessors, warps, and memory hierarchy - and <strong>predict</strong> how these differences affect program performance.</td>
+<td>Understand → Analyze</td>
+</tr>
+<tr class="odd">
+<td>CLO 3</td>
+<td><strong>Write</strong> and launch Numba CUDA kernels that correctly distribute work across threads, blocks, and grids.</td>
+<td>Apply</td>
+</tr>
+<tr class="even">
+<td>CLO 4</td>
+<td><strong>Identify</strong> memory access bottlenecks in GPU programs and <strong>apply</strong> shared memory and coalescing techniques to reduce them.</td>
+<td>Analyze → Apply</td>
+</tr>
+<tr class="odd">
+<td>CLO 5</td>
+<td><strong>Implement</strong> canonical parallel patterns - parallel reduction, prefix scan, and stencil - as GPU kernels.</td>
+<td>Apply</td>
+</tr>
+<tr class="even">
+<td>CLO 6</td>
+<td><strong>Use</strong> GPU-accelerated Python libraries (CuPy, PyTorch) to accelerate array computations and neural network inference.</td>
+<td>Apply</td>
+</tr>
+<tr class="odd">
+<td>CLO 7</td>
+<td><strong>Measure</strong> and <strong>interpret</strong> GPU kernel performance using profiling tools, and <strong>explain</strong> observed speedups in terms of hardware behavior.</td>
+<td>Analyze</td>
+</tr>
+<tr class="even">
+<td>CLO 8</td>
+<td><strong>Design</strong> and <strong>implement</strong> a team GPU-accelerated solution to a real-world computational problem, including data pipeline, kernel or library implementation, profiling, and written analysis. <em>(Capstone only)</em></td>
+<td>Create</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="engaged-learning" class="level2">
+<h2 class="anchored" data-anchor-id="engaged-learning">Engaged Learning</h2>
+<p>Students can expect the Engaged Learning element of this course to connect GPU programming skills to authentic computational problems through hands-on, collaborative work. Engaged Learning (5% of the course grade) is delivered through reflection posts, discussion-board activities, and out-of-class exercises, and culminates in the team Capstone project, in which students scope a real-world problem, design and implement a GPU-accelerated solution as a Colab notebook, profile it, and write an analysis of the results.</p>
+</section>
+<section id="smcm-code-of-student-conduct" class="level2">
+<h2 class="anchored" data-anchor-id="smcm-code-of-student-conduct">SMCM Code of Student Conduct</h2>
+<p>As shared in Article III of the SMCM Student Handbook, <a href="https://www.smcm.edu/tothepoint/">To the Point</a>, : “St.&nbsp;Mary’s College of Maryland is committed to the ideals of honesty, personal integrity, and mutual trust.&nbsp; Academic integrity is a responsibility of all students, members of the faculty, and administrative officers.&nbsp; All students are expected to uphold the highest ideals of academic integrity throughout their career at St.&nbsp;Mary’s.”</p>
+<p>Students who do not uphold these ideals and engage in&nbsp; academic misconduct will be reported to Academic Affairs. In addition to possible penalties within this course, a student may be required to appear before the Academic Judicial Board (AJB)&nbsp; with possibilities of additional penalties.&nbsp;</p>
+<p>You are also responsible for understanding and complying with the expectations set forth in the <a href="https://www.smcm.edu/tothepoint/">SMCM Code of Student Conduct</a> about&nbsp; upholding a productive learning environment.</p>
+</section>
+<section id="digital-accessibility-of-course-materials" class="level2">
+<h2 class="anchored" data-anchor-id="digital-accessibility-of-course-materials">Digital Accessibility of Course Materials</h2>
+<p>Digital accessibility requirements under Title II of the Americans with Disabilities Act go into effect as of April 26, 2027. The instructor is making every reasonable effort to ensure that the digital materials distributed to students and/or required to engage in the course are reviewed for compliance with the federal regulations. As of April 26, 2027, if you discover that a course material has an accessibility issue, please report it to the instructor immediately after discovery.&nbsp; If the issue has not been resolved within one week, please report this accessibility issue by way of the College’s standing <a href="https://cm.maxient.com/reportingform.php?StMarysMD&amp;layout_id=61">Campus Accessibility Issue reporting form</a> for review by our ADA Coordinator.&nbsp;</p>
+</section>
+<section id="academic-accommodations" class="level2">
+<h2 class="anchored" data-anchor-id="academic-accommodations">Academic Accommodations</h2>
+<p>SMCM is committed to providing access to the learning and living experience to students with disabilities or disabling health conditions. If you have received a letter from the Office of Accessibility Services (OAS), which outlines the academic accommodations to which you are entitled to and you want those accommodations to apply to this course, you MUST share your letter with me. After that, I will request that you meet with me to review that letter and determine how these accommodations will look in my course. If you suspect that you have a learning or living need related to a disability or disabling health condition and would like information on potential accommodations, you should contact the Office of Accessibility Services, who can help you learn more about how to proceed. Email: <a href="mailto:adasupport@smcm.edu">adasupport@smcm.edu</a></p>
+</section>
+<section id="office-of-student-success-services" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-student-success-services">Office of Student Success Services</h2>
+<p>The Office of Student Success Services (OS3) empowers SMCM students to thrive in and out of the classroom, persist, and graduate on time by connecting them to people, resources, and activities. OS3 strives to cultivate the potential of all students through excellent advising, coaching, and support services designed to help them be increasingly autonomous and successful. Our work includes:</p>
+<ul>
+<li>Supplemental advising in every major</li>
+<li>Registration support (not registered, under registered, or registration issues)</li>
+<li>Academic Coaching (note taking, study strategies, goal setting, textbook reading strategies, etc.)</li>
+<li>Time management and organization</li>
+<li>Peer Support (Peer Academic Success Strategies Specialists)</li>
+<li>College policy explanation</li>
+<li>Academic Notice support</li>
+<li>Tutoring (students may <a href="https://docs.google.com/forms/d/e/1FAIpQLScwidqr6UsWfsqz-2RFmd9V_H2QP672t8Q0U1z0eepajPTCvQ/viewform?usp=sharing&amp;ouid=109618543723986836381">request a tutor</a> in any course)</li>
+<li>Holistic Support</li>
+</ul>
+<p>For support call 240-895-4388, stop by Glendening 230, or email <a href="mailto:os3@smcm.edu">os3@smcm.edu</a>.</p>
+</section>
+<section id="office-of-civil-rights-and-compliance" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-civil-rights-and-compliance">Office of Civil Rights and Compliance</h2>
+<p>St.&nbsp;Mary’s College of Maryland is committed to helping create a safe and open learning environment for all students. If you (or someone you know) have experienced any form of sexual misconduct, including sexual assault, dating or domestic violence, or stalking, or discrimination based on protected characteristics, know that help and support are available.</p>
+<p>&nbsp;The College strongly encourages all community members to take action, seek support, and report incidents of sexual misconduct or discrimination to the Office of Civil Rights and Compliance.&nbsp; Under Title IX of the Education Amendments of 1972, I am required to disclose information about such misconduct to the SMCM Office of Civil Rights and Compliance.</p>
+<p>If you would like to talk to a confidential employee who does not have this reporting responsibility, you can contact SMCM Counseling Services (240) 895-2159 or SMCM Health Services (240) 895-4289.&nbsp;</p>
+<p>For more information about reporting options and resources at St.&nbsp;Mary’s College of Maryland and the community, please visit the <a href="https://www.smcm.edu/title-ix/">Office of Civil Rights and Compliance</a>.</p>
+</section>
+<section id="office-of-counseling-services" class="level2">
+<h2 class="anchored" data-anchor-id="office-of-counseling-services">Office of Counseling Services</h2>
+<p>There are many people at SMCM who care about you and your welfare. The <a href="https://www.smcm.edu/counseling">Office of Counseling Services</a> provides numerous confidential health and counseling services including same day/next day connections to counseling by calling 240-895-2159 or emailing <a href="mailto:counseling@smcm.edu">counseling@smcm.edu</a>.</p>
+</section>
+<section id="health-services" class="level2">
+<h2 class="anchored" data-anchor-id="health-services">Health Services</h2>
+<p><a href="https://www.smcm.edu/wellness">Health Services</a> provides medical care and wellness resources for enrolled students. Students are responsible for scheduling their own medical appointments by calling Health Services directly. Most students are seen the same day or within 24 hours. The medical provider can evaluate, diagnose, and treat a wide range of common illnesses and injuries. Laboratory testing is available through LabCorp and requires medical insurance; all other Health Services visits are provided at no additional cost to enrolled students.&nbsp;</p>
+<p>Health Services does not provide excuse notes for missed classes.</p>
+</section>
+<section id="writing-and-speaking-center" class="level2">
+<h2 class="anchored" data-anchor-id="writing-and-speaking-center">Writing and Speaking Center</h2>
+<p>Located on the first floor of the main Library, the Writing &amp; Speaking Center offers free peer tutoring in writing and speaking. The peer tutors are students themselves, but they have completed extensive hands-on training to learn how to assist their peers at any step of the process (planning, drafting, or revising) for any writing or speaking assignment. The peer tutors will not make decisions about revision for you and will instead work collaboratively with you to discuss ideas and consider options so that you can choose how best to revise on your own. This collaborative approach is one of the best ways to help students develop their abilities because all writers and speakers need audiences-just ask the peer tutors, who often schedule tutorials with each other. To make an appointment, please visit the <a href="https://www.smcm.edu/writingcenter">Writing Center website</a> and click the “Schedule an Appointment” button on the left side of the page. If you have questions or need assistance, please contact Interim Director Amanda Taylor at <a href="mailto:apheatwole@smcm.edu">apheatwole@smcm.edu</a>.</p>
+</section>
+<section id="course-requirements" class="level2">
+<h2 class="anchored" data-anchor-id="course-requirements">Course Requirements</h2>
+<p>All coursework is done in Python through Google Colab, so a laptop or desktop with an internet connection and a modern web browser is required. All quizzes, labs, checkpoints, and exams are completed in class on that device, and the team Capstone depends on it as well. Tablets generally don’t work with the Colab programming interface we use. If you don’t have a laptop/desktop, you can borrow a <em>Chromebook</em> from the Library (first-come, first-served; semester-long loan due December 1), or work on <em>library desktop computers</em> (Windows) available on the first and second floors. See the <a href="https://library.smcm.edu/services/computers/">SMCM library computing page</a> for details. A free Google account is needed to use Colab; you will set this up in Lab 1.</p>
+</section>
+<section id="methods-of-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="methods-of-evaluation">Methods of Evaluation</h2>
+<p>All individual work is completed in class under time constraints. <strong>There are no take-home assignments.</strong> Only the Capstone has a take-home component, completed as a team.</p>
+<ul>
+<li><p><strong>Quizzes (6)</strong> - Short Blackboard multiple-choice quizzes (15 min, auto-graded) taken at the start of a session. They check the conceptual building blocks - architecture, execution model, memory behavior - that the hands-on work depends on.</p></li>
+<li><p><strong>Labs (12)</strong> - Guided Colab notebooks worked through during the full Friday lab session. Graded on completion. Each lab introduces a skill you then practice without assistance in the paired checkpoint.</p></li>
+<li><p><strong>Checkpoints (12)</strong> - Short (20 min), individually-seeded, auto-graded fill-in-the-blank Colab exercises done at the end of the paired lab session. You submit a checksum to Blackboard.</p></li>
+<li><p><strong>Midterm Exam</strong> and <strong>Final Exam</strong> - Auto-graded Colab notebooks taken under Lockdown Browser. The Midterm covers Modules 0–3; the Final is comprehensive.</p></li>
+<li><p><strong>Capstone</strong> - A team GPU-acceleration project: scope a real-world problem, build the data pipeline and kernel or library solution, profile it, and write an analysis. Partly in class, partly take-home; graded on output and analysis.</p></li>
+<li><p><strong>Engaged Learning</strong> - Reflection posts, discussion-board activity, and out-of-class activities (see the Engaged Learning section above).</p></li>
+</ul>
+</section>
+<section id="grading-grade-scale" class="level2">
+<h2 class="anchored" data-anchor-id="grading-grade-scale">Grading &amp; Grade Scale</h2>
+<p>Your final grade will be based on the following components:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Weight</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quizzes (6)</td>
+<td>15%</td>
+<td>Blackboard, auto-graded MC, 15 min, start of session</td>
+</tr>
+<tr class="even">
+<td>Checkpoints (12)</td>
+<td>15%</td>
+<td>Colab notebook fill-in-the-blank, 20 min, end of lab session</td>
+</tr>
+<tr class="odd">
+<td>Labs (12)</td>
+<td>10%</td>
+<td>Guided Colab notebook, full lab session, graded on completion</td>
+</tr>
+<tr class="even">
+<td>Midterm Exam</td>
+<td>20%</td>
+<td>Colab notebook, auto-graded, Lockdown Browser (Oct 19)</td>
+</tr>
+<tr class="odd">
+<td>Final Exam</td>
+<td>20%</td>
+<td>Colab notebook, auto-graded, Lockdown Browser (Finals Week)</td>
+</tr>
+<tr class="even">
+<td>Capstone</td>
+<td>15%</td>
+<td>Team Colab notebook, partly in-class, graded on output &amp; analysis</td>
+</tr>
+<tr class="odd">
+<td>Engaged Learning</td>
+<td>5%</td>
+<td>Reflection posts, discussion board, out-of-class activities</td>
+</tr>
+</tbody>
+</table>
+<section id="checkpoint-grading-rubric" class="level3">
+<h3 class="anchored" data-anchor-id="checkpoint-grading-rubric">Checkpoint Grading Rubric</h3>
+<p>Each checkpoint is worth 10 points.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Result</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Correct checksum submitted to Blackboard</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td>Code runs but checksum is wrong</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td>Code does not run</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>I will determine the exact letter-grade cutoffs at the end of the course. To ensure fairness, I guarantee the <em>minimum</em> grade you will receive based on your overall percentage:</p>
+<p>If adjustments are made to the grading scale, they will only <em>raise</em> your final letter grade, never lower it.</p>
+<p>The table below represents the lowest possible letter grade you can earn for a given percentage.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Points</th>
+<th>Letter Grade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>93 - 100</td>
+<td>A or higher</td>
+</tr>
+<tr class="even">
+<td>86 - 92.9</td>
+<td>A- or higher</td>
+</tr>
+<tr class="odd">
+<td>79 - 85.9</td>
+<td>B+ or higher</td>
+</tr>
+<tr class="even">
+<td>72 - 78.9</td>
+<td>B or higher</td>
+</tr>
+<tr class="odd">
+<td>65 - 71.9</td>
+<td>B- or higher</td>
+</tr>
+<tr class="even">
+<td>58 - 64.9</td>
+<td>C+ or higher</td>
+</tr>
+<tr class="odd">
+<td>51 - 57.9</td>
+<td>C or higher</td>
+</tr>
+<tr class="even">
+<td>44 - 50.9</td>
+<td>C- or higher</td>
+</tr>
+<tr class="odd">
+<td>37 - 43.9</td>
+<td>D+ or higher</td>
+</tr>
+<tr class="even">
+<td>30 - 36.9</td>
+<td>D or higher</td>
+</tr>
+<tr class="odd">
+<td>0 - 29.9</td>
+<td>F or higher</td>
+</tr>
+</tbody>
+</table>
+<p><em>I will publish the grades on Blackboard.</em></p>
+</section>
+</section>
+<section id="course-attendance-policy" class="level2">
+<h2 class="anchored" data-anchor-id="course-attendance-policy">Course Attendance Policy</h2>
+<p>Attendance is not mandatory, and thus absence from class is not penalized directly, but you will lose out in other ways. Class attendance is the #1 indicator of academic success. OS3 emphatically encourages all students to Go To Class! Class attendance is important for numerous reasons:</p>
+<ul>
+<li>Students tend to remember info more when they attend class.</li>
+<li>Your presence in class shows your instructor that you care about the course and it is important to you. If your grade is borderline at the end of the semester, the instructor may give you the benefit of the doubt because you regularly attended class.</li>
+<li>You/your families are paying to be in class. In-state residents who miss a class are wasting over $56 per class. Out-of-state students who miss a class are throwing away $110 per class!</li>
+<li>Your instructor will likely explain material differently/better than you can learn it yourself, and can answer questions more directly.</li>
+<li>Going to class helps you build community and relationships with peers and your instructors.</li>
+<li>By not going to class, you may miss a pop quiz, participation points, extra credit opportunities, important info, or in-class assignments that can impact your grade.</li>
+</ul>
+<p><a href="https://www.smcm.edu/tothepoint/attendance/">To the Point establishes the baseline attendance policy for SMCM courses</a>.&nbsp;</p>
+<p>Please note: Per the SMCM policy, there is no distinction between “excused” or “unexcused” absences; an absence is an absence.</p>
+</section>
+<section id="late-work-and-missed-assignment-policy" class="level2">
+<h2 class="anchored" data-anchor-id="late-work-and-missed-assignment-policy">Late Work and Missed Assignment Policy</h2>
+<p>Assignments are due at <em>11:59 PM Eastern Time (UTC – 4)</em> on the posted due date, with a one-hour grace period. Submissions received after that time will be subject to a late penalty of <em>10% of the maximum possible points per additional day</em> past the deadline. The minimum grade on any assignment is zero; late penalties will not reduce a score below this.</p>
+<p>Because the penalty accumulates continuously, assignments submitted several days late will earn little or no credit. Please plan accordingly and submit on time.</p>
+<p>This policy is designed to ensure fairness and to allow me to return graded work to the class within 10 days of the due date. General requests for deadline extension requests will not be entertained after the scores for the assessment item has been posted.</p>
+</section>
+<section id="use-of-generative-artificial-intelligence-in-the-classroom" class="level2">
+<h2 class="anchored" data-anchor-id="use-of-generative-artificial-intelligence-in-the-classroom">Use of Generative Artificial Intelligence in the Classroom&nbsp;</h2>
+<p>Generative artificial intelligence (AI) (tools such as ChatGPT, Gemini, Copilot) is a fast-developing tool that greatly impacts the learning process. As with many things, there are times when using these tools is appropriate and when it is not.&nbsp; For this course, <em>I encourage you to use the generative AI tools</em> at your disposal <em>for learning and practice</em>, but <em>not for checkpoints and quizzes</em>. However it is your responsibility to properly evaluate the information created through generative AI. We will discuss how to do this in class, and you should contact me with any questions that you may have if you encounter a situation where it is unclear how to do use AI. Failure to disclose the use generative AI tools in assignments and quizzes may be considered plagiarism and will be handled via the SMCM Academic Misconduct policies.</p>
+</section>
+<section id="course-calendaroutline" class="level2">
+<h2 class="anchored" data-anchor-id="course-calendaroutline">Course Calendar/Outline</h2>
+<p>The course meets Monday / Wednesday / Friday, with <strong>Friday as the lab day</strong>. It is organized into eight modules, each ending with a graded lab and (for Modules 0–6) a paired checkpoint. Six Blackboard quizzes are given at the start of a session and cover the <em>previous</em> module.</p>
+<p><strong>Session totals:</strong> 40 sessions (excluding finals) — 25 lecture, 14 lab, 1 midterm, plus 5 holiday/break days. 6 quizzes, 14 checkpoints (CK 1–12 auto-graded; CK 13–14 are take-home capstone milestones).</p>
+<section id="module-0-python-setup-weeks-12" class="level3">
+<h3 class="anchored" data-anchor-id="module-0-python-setup-weeks-12">Module 0 · Python &amp; Setup (Weeks 1–2)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Aug 31</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Course intro. What is GPU acceleration and why now? Tour of Google Colab.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Sep 2</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Python for Java developers — syntax, types, functions, loops.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Sep 4</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 1: Python basics in Colab. Variables, control flow, functions. First notebook submission.</td>
+<td>Lab 1 · CK 1</td>
+</tr>
+<tr class="even">
+<td>Sep 7</td>
+<td>Mon</td>
+<td>—</td>
+<td><em>Labor Day — no class</em></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Sep 9</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>NumPy — arrays, slicing, vectorized operations, broadcasting. Why loops are slow.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Sep 11</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 2: NumPy in practice — array math, timing loops vs.&nbsp;vectorized code.</td>
+<td>Lab 2 · CK 2</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-1-the-case-for-gpus-week-3" class="level3">
+<h3 class="anchored" data-anchor-id="module-1-the-case-for-gpus-week-3">Module 1 · The Case for GPUs (Week 3)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sep 14</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Moore’s Law, the memory wall, the power wall. Why serial CPUs hit a ceiling.</td>
+<td><strong>Quiz 1</strong> (Mod 0)</td>
+</tr>
+<tr class="even">
+<td>Sep 16</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>CPU vs.&nbsp;GPU design philosophy — latency- vs.&nbsp;throughput-optimized. FLOPS, bandwidth, SIMD.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Sep 18</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 3: Benchmarking — measure and plot speedup of vectorized vs.&nbsp;loop code. Compute GFLOP/s.</td>
+<td>Lab 3 · CK 3</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-2-gpu-architecture-weeks-45" class="level3">
+<h3 class="anchored" data-anchor-id="module-2-gpu-architecture-weeks-45">Module 2 · GPU Architecture (Weeks 4–5)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sep 21</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Inside a GPU — Streaming Multiprocessors, CUDA cores, the chip diagram.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Sep 23</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>The execution model — threads, warps, blocks, grids. How a kernel launch maps to hardware.</td>
+<td><strong>Quiz 2</strong> (Mod 1)</td>
+</tr>
+<tr class="odd">
+<td>Sep 25</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 4: First Numba CUDA kernel — vector addition, thread indexing, launch syntax, CPU verify.</td>
+<td>Lab 4 · CK 4</td>
+</tr>
+<tr class="even">
+<td>Sep 28</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>GPU memory hierarchy — global, shared, constant, local, registers. What access costs.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Sep 30</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Warp scheduling, occupancy basics, thread divergence — why conditionals in kernels are expensive.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Oct 2</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 5: Naïve matrix multiplication kernel. Implement, time, verify against NumPy.</td>
+<td>Lab 5 · CK 5</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-3-kernel-development-profiling-weeks-67" class="level3">
+<h3 class="anchored" data-anchor-id="module-3-kernel-development-profiling-weeks-67">Module 3 · Kernel Development &amp; Profiling (Weeks 6–7)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 5</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Kernel design patterns. Launch configuration choices. Debugging Numba GPU code in Colab.</td>
+<td><strong>Quiz 3</strong> (Mod 2)</td>
+</tr>
+<tr class="even">
+<td>Oct 7</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Profiling GPU kernels — Colab timing, reading Numba profiler output, finding bottlenecks.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Oct 9</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 6: Profile the Lab 5 matrix multiply. Identify the bottleneck, iterate on launch config.</td>
+<td>Lab 6 · CK 6</td>
+</tr>
+<tr class="even">
+<td>Oct 12</td>
+<td>Mon</td>
+<td>—</td>
+<td><em>Fall Reading Day — no class</em></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Oct 14</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Stencil kernels — 1D and 2D, boundary conditions. Motivating example: image convolution.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Oct 16</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 7: Image blur as a stencil kernel (Gaussian/box blur). Visualize before/after in Colab.</td>
+<td>Lab 7 · CK 7</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="midterm-exam-week-8" class="level3">
+<h3 class="anchored" data-anchor-id="midterm-exam-week-8">Midterm Exam (Week 8)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 19</td>
+<td>Mon</td>
+<td><strong>Midterm</strong></td>
+<td>Colab notebook, auto-graded coding exercises, Lockdown Browser. Covers Modules 0–3.</td>
+<td><strong>Midterm Exam</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-4-memory-optimization-weeks-89" class="level3">
+<h3 class="anchored" data-anchor-id="module-4-memory-optimization-weeks-89">Module 4 · Memory Optimization (Weeks 8–9)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Oct 21</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Midterm debrief + memory coalescing. Why access pattern matters as much as algorithm.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Oct 23</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 8: Coalescing experiments — rearrange access patterns, measure timing difference.</td>
+<td>Lab 8 · CK 8</td>
+</tr>
+<tr class="odd">
+<td>Oct 26</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Shared memory — motivation, Numba declaration, <code>syncthreads()</code>, bank conflicts.</td>
+<td><strong>Quiz 4</strong> (Mod 3 + coalescing)</td>
+</tr>
+<tr class="even">
+<td>Oct 28</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Tiled matrix multiplication with shared memory — the canonical GPU optimization.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Oct 30</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 9: Implement tiled matrix multiply. Profile and compare to the naïve Lab 5 version.</td>
+<td>Lab 9 · CK 9</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-5-parallel-patterns-weeks-1011" class="level3">
+<h3 class="anchored" data-anchor-id="module-5-parallel-patterns-weeks-1011">Module 5 · Parallel Patterns (Weeks 10–11)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nov 2</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Parallel reduction — tree reduction, warp-level tricks. Sum, max, dot product.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Nov 4</td>
+<td>Wed</td>
+<td>—</td>
+<td><em>Wellness Day — no class</em></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Nov 6</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 10: Parallel reduction for array sum and max. Validate against NumPy.</td>
+<td><strong>Quiz 5</strong> (start; Mod 4) · Lab 10 · CK 10</td>
+</tr>
+<tr class="even">
+<td>Nov 9</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>Prefix scan — inclusive vs.&nbsp;exclusive, the Blelloch algorithm. Stream compaction, sorting.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Nov 11</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Histograms and atomic operations — safe concurrent writes to the same location.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Nov 13</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 11: Prefix scan implementation. Verify on a known sequence. Bonus: stream compaction.</td>
+<td>Lab 11 · CK 11</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-6-gpu-libraries-applications-weeks-1213" class="level3">
+<h3 class="anchored" data-anchor-id="module-6-gpu-libraries-applications-weeks-1213">Module 6 · GPU Libraries &amp; Applications (Weeks 12–13)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nov 16</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>CuPy — NumPy on the GPU. Library vs.&nbsp;custom kernel. Ecosystem (cuBLAS, cuDNN).</td>
+<td><strong>Quiz 6</strong> (Mod 5)</td>
+</tr>
+<tr class="even">
+<td>Nov 18</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>PyTorch GPU basics — tensors on GPU, autograd overview, simple NN inference. The GPU–ML link.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Nov 20</td>
+<td>Fri</td>
+<td>Lab</td>
+<td>Lab 12: CuPy — reimplement vector add and matmul, compare to Numba kernels; plus a PyTorch tensor-transfer and forward-pass exercise.</td>
+<td>Lab 12 · CK 12</td>
+</tr>
+<tr class="even">
+<td>Nov 23</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>The GPU ecosystem — HIP, OpenACC, WebGPU, Metal. Where the field is heading. <strong>Capstone kickoff &amp; team formation.</strong></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Nov 25</td>
+<td>Wed</td>
+<td>—</td>
+<td><em>Fall Break — no class</em></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Nov 27</td>
+<td>Fri</td>
+<td>—</td>
+<td><em>Fall Break — no class</em></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-7-applications-capstone-weeks-1415" class="level3">
+<h3 class="anchored" data-anchor-id="module-7-applications-capstone-weeks-1415">Module 7 · Applications &amp; Capstone (Weeks 14–15)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nov 30</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>GPU-accelerated image processing — full pipeline: load → GPU → process → download.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Dec 2</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>ML inference on GPU — how PyTorch moves data, what cuDNN does, batching strategy.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Dec 4</td>
+<td>Fri</td>
+<td>Capstone Lab 1</td>
+<td>Team kickoff. Problem selection, data prep, notebook scaffold. Milestone: working notebook stub with GPU connection confirmed.</td>
+<td>CK 13 (take-home, due Dec 1)</td>
+</tr>
+<tr class="even">
+<td>Dec 7</td>
+<td>Mon</td>
+<td>Lecture</td>
+<td>GPU computing in industry — ML training, rendering, genomics, finance case studies.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Dec 9</td>
+<td>Wed</td>
+<td>Lecture</td>
+<td>Capstone work session — Q&amp;A, debugging help. Final exam review.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Dec 11</td>
+<td>Fri</td>
+<td>Capstone Lab 2</td>
+<td>Final in-class push. Teams demo results to each other. Milestone: results notebook with plots and written summary.</td>
+<td>CK 14 (take-home, due finals week)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finals-week" class="level3">
+<h3 class="anchored" data-anchor-id="finals-week">Finals Week</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Day</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TBD</td>
+<td>—</td>
+<td><strong>Final Exam</strong></td>
+<td>Colab notebook, auto-graded coding exercises, Lockdown Browser. Comprehensive — all modules.</td>
+<td><strong>Final Exam</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Capstone checkpoints (CK 13–14):</strong> unlike the other checkpoints, these are take-home milestones with no time limit. CK 13 is due <strong>Dec 1</strong> and CK 14 during <strong>finals week</strong>; the Friday capstone-lab sessions above are in-class work/demo days tied to those milestones, not same-day deadlines.</p>
+<p>I may adjust the schedule; changes will be announced in class and on Blackboard.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

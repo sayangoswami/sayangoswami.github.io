@@ -96,3 +96,81 @@ div.sourceCode, .reveal div.sourceCode {
 .navbar {
   background-color: var(--heading-color);
 }
+
+/* Unit cards (extends your existing .grid > [class*="g-col-"] rule) */
+.unit-card {
+  background: var(--card-bg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.unit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.unit-card h3 {
+  margin-top: 0;
+  color: var(--primary-accent);
+}
+
+/* Badges/pills for material links — cycle through the palette accents */
+.badge {
+  display: inline-block;
+  margin: 0.3rem 0.4rem 0 0;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.badge.notes, .badge.slides {
+  background: rgba(0, 122, 120, 0.1);   /* heading-color */
+  color: var(--heading-color);
+}
+
+.badge.worksheet, .badge.lab {
+  background: rgba(139, 124, 105, 0.18); /* link-hover tan */
+  color: #6b5d47;
+}
+
+.badge.assignment {
+  background: rgba(211, 39, 62, 0.1);   /* secondary-accent */
+  color: var(--secondary-accent);
+}
+
+/* Schedule stat cards */
+.stat-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.stat-card h3 {
+  margin: 0 0 0.3rem 0;
+  color: var(--heading-color);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Logistics info cards */
+.info-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--primary-accent);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.info-card h4 {
+  margin-top: 0;
+  color: var(--link-color);
+}

@@ -15,7 +15,8 @@
     "listing": "/cosc435/notes/index.html",
     "items": [
       "/cosc435/notes/01-intro.html",
-      "/cosc435/notes/02-python.html"
+      "/cosc435/notes/02-python.html",
+      "/cosc435/notes/04-numpy.html"
     ]
   },
   {
@@ -23,7 +24,12 @@
     "items": [
       "/cosc420/notes/01-intro.html",
       "/cosc420/notes/02-processes-threads.html",
-      "/cosc420/notes/03-lab1.html"
+      "/cosc420/notes/03-lab1.html",
+      "/cosc420/notes/04.html",
+      "/cosc420/notes/05-lab2.html",
+      "/cosc420/notes/06.html",
+      "/cosc420/notes/07.html",
+      "/cosc420/notes/08.html"
     ]
   },
   {
@@ -31,7 +37,8 @@
     "items": [
       "/cosc120/notes/01-intro.html",
       "/cosc120/notes/02-variables.html",
-      "/cosc120/notes/03-arithmetic.html"
+      "/cosc120/notes/03-arithmetic.html",
+      "/cosc120/notes/04-type-conversion.html"
     ]
   },
   {
