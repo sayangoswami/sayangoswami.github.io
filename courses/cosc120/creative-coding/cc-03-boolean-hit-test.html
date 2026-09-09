@@ -606,6 +606,14 @@ async function runJava(code, out, stopBtn) {
         ws.send(JSON.stringify({ type: 'stdin', text: value + '\n' }));
 
       out.scrollTop = out.scrollHeight;
+
+      // The program may read again immediately without printing anything in
+      // between (e.g. back-to-back prompt-less IO.readln() calls), so keep an
+      // input line ready rather than waiting for the next stdout/status
+      // message — otherwise there'd be nowhere to type and it would hang
+      // until the server's kill timer fires. 'done' removes it if the
+      // program doesn't actually read again.
+      showInput(ws);
     });
 
     line.appendChild(ps);
@@ -662,13 +670,20 @@ async function runJava(code, out, stopBtn) {
       let msg;
       try { msg = JSON.parse(event.data); } catch (_) { return; }  // ignore non-JSON frames
       if (msg.type === 'status') {
-        // Show compile/run status as faint italic text (replaced by real output)
-        if (!inputLine) {
-          // Use a temporary placeholder that gets replaced by first stdout
-          out._statusNode = document.createTextNode(
-            msg.text === 'compiling' ? 'Compiling…\n' : ''
-          );
-          out.appendChild(out._statusNode);
+        if (msg.text === 'compiling') {
+          // Faint placeholder, replaced once the program starts (see below)
+          // or produces real output.
+          if (!inputLine && !out._statusNode) {
+            out._statusNode = document.createTextNode('Compiling…\n');
+            out.appendChild(out._statusNode);
+          }
+        } else if (msg.text === 'running') {
+          if (out._statusNode) { out._statusNode.remove(); delete out._statusNode; }
+          // The program may read input before printing anything (e.g. a
+          // prompt-less IO.readln()), so show the input line as soon as it's
+          // running rather than waiting for stdout — otherwise the student
+          // has nowhere to type and the process hangs until it's killed.
+          if (!inputLine) showInput(ws);
         }
       } else if (msg.type === 'stdout') {
         // Remove the status placeholder on first real output
