@@ -215,10 +215,6 @@
 <aside class="notes">
 <p><strong>Full-session timing plan (50 min total):</strong></p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Slide</th>
@@ -231,24 +227,32 @@
 <td>3 min</td>
 </tr>
 <tr class="even">
-<td>The <code>synchronized</code> Keyword: Mechanics</td>
-<td>6 min</td>
+<td>The <code>synchronized</code> Keyword: The Lock</td>
+<td>3 min</td>
 </tr>
 <tr class="odd">
+<td><code>synchronized</code>: Acquiring and Releasing</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
 <td>Method-Level vs.&nbsp;Block-Level Locking</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Worked Fix: Closing the Loop on Session 3</td>
 <td>6 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>synchronized</code> — Tradeoffs</td>
 <td>5 min</td>
 </tr>
+<tr class="odd">
+<td>Deadlock: The Circular Wait</td>
+<td>4 min</td>
+</tr>
 <tr class="even">
-<td>Deadlock</td>
-<td>7 min</td>
+<td>Deadlock: The Picture and How to Prevent It</td>
+<td>3 min</td>
 </tr>
 <tr class="odd">
 <td>Livelock</td>
@@ -263,11 +267,16 @@
 <td>4 min</td>
 </tr>
 <tr class="even">
-<td>Preview: Threads Cost Something to Create — and a First Look at Pools</td>
-<td>6 min</td>
+<td>Threads Cost Something to Create</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>A First Look at Pools (from Lab 2)</td>
+<td>3 min</td>
 </tr>
 </tbody>
 </table>
+<p>Slides use reveal.js fragments (<code>. . .</code> pauses, incremental lists) for pacing — advance with arrow/space. The full text is retained for the study export.</p>
 <p>Students have used <code>synchronized</code> in Lab 1 and a thread pool in Lab 2 — both mechanically, without the underlying explanation. This session explains the first one fully and closes with a real (not just teaser) intro to the second, so Session 5’s deep dive isn’t cold. Open by reading back Session 3’s last line (“you already know the tool — do you know why it works, or what it breaks?”).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -284,9 +293,9 @@
 <section id="recap-the-synchronized-youve-already-used" class="slide level2">
 <h2>Recap: The <code>synchronized</code> You’ve Already Used</h2>
 <ul>
-<li>You’ve written <code>synchronized</code> twice now: Lab 1 Part 2 (the shared counter) and Lab 2 Task 3. Both times it worked — the count came out right on every run.</li>
-<li>What you <em>haven’t</em> seen: why one keyword is enough, what it’s actually locking, and what it costs. That’s today.</li>
-<li>By the end of this session you’ll be able to explain, precisely, why the keyword you already used solves the exact problem from Session 3 — and name three ways locking can go wrong.</li>
+<li class="fragment">You’ve written <code>synchronized</code> twice now: Lab 1 Part 2 (the shared counter) and Lab 2 Task 3. Both times it worked — the count came out right on every run.</li>
+<li class="fragment">What you <em>haven’t</em> seen: why one keyword is enough, what it’s actually locking, and what it costs. That’s today.</li>
+<li class="fragment">By the end of this session you’ll be able to explain, precisely, why the keyword you already used solves the exact problem from Session 3 — and name three ways locking can go wrong.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Ask a student to describe what <code>synchronized</code> did for them in Lab 1/2 in their own words before you give the formal mechanics — you’ll likely get an intuitive-but-imprecise answer (“it stops them from messing it up”), which is a good springboard into the precise version. Keep this short: they know it works, so don’t over-sell the motivation.</p>
@@ -302,20 +311,16 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-synchronized-keyword-mechanics" class="slide level2">
-<h2>The <code>synchronized</code> Keyword: Mechanics</h2>
+<section id="the-synchronized-keyword-the-lock" class="slide level2">
+<h2>The <code>synchronized</code> Keyword: The Lock</h2>
 <p>Every object in Java has an invisible <strong>lock</strong> attached to it (called a <strong>monitor lock</strong>, or <strong>intrinsic lock</strong>). <code>synchronized</code> is how you use it.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
 <span id="cb1-2"><a></a>    counter<span class="op">++;</span>  <span class="co">// only one thread at a time can be inside here</span></span>
 <span id="cb1-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Marking a method <code>synchronized</code> means: <strong>before any thread can run this method, it must first acquire the lock on the object the method belongs to</strong> (<code>this</code>, for an instance method).</li>
-<li>Only one thread can hold a given object’s lock at a time. Any other thread that calls a <code>synchronized</code> method on that same object must <strong>wait</strong> until the lock is released.</li>
-<li>The lock is automatically released when the method returns — you never unlock it by hand.</li>
-</ul>
-<p><strong>Kitchen picture:</strong> the lock is a single claim ticket for the stove. A cook must hold the ticket to use the stove; every other cook who wants it simply waits in line until it’s returned.</p>
+<div class="fragment">
+<p>Marking a method <code>synchronized</code> means: <strong>before any thread can run this method, it must first acquire the lock on the object the method belongs to</strong> (<code>this</code>, for an instance method).</p>
 <aside class="notes">
-<p><strong>Timing: 6 min.</strong> The “attached to every object” framing is worth stating explicitly and slowly — it’s not obvious to students that locking is a property of <em>objects</em>, not of methods or variables in the abstract.</p>
+<p><strong>Timing: 3 min.</strong> The “attached to every object” framing is worth stating explicitly and slowly — it’s not obvious to students that locking is a property of <em>objects</em>, not of methods or variables in the abstract. Stop here; acquire/release and the kitchen picture are the next slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -327,6 +332,30 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="synchronized-acquiring-and-releasing" class="slide level2">
+<h2><code>synchronized</code>: Acquiring and Releasing</h2>
+<ul>
+<li class="fragment">Only one thread can hold a given object’s lock at a time. Any other thread that calls a <code>synchronized</code> method on that same object must <strong>wait</strong> until the lock is released.</li>
+<li class="fragment">The lock is automatically released when the method returns — you never unlock it by hand.</li>
+</ul>
+<div class="fragment">
+<p><strong>Kitchen picture:</strong> the lock is a single claim ticket for the stove. A cook must hold the ticket to use the stove; every other cook who wants it simply waits in line until it’s returned.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Emphasize “automatically released” — students coming from other languages sometimes expect an explicit unlock and worry about forgetting it. The kitchen picture (single claim ticket) is the one to carry forward; it’s reused on the Tradeoffs slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="method-level-vs.-block-level-locking" class="slide level2">
 <h2>Method-Level vs.&nbsp;Block-Level Locking</h2>
@@ -343,9 +372,9 @@
 <span id="cb2-10"><a></a>    <span class="op">}</span></span>
 <span id="cb2-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><strong>Method-level</strong> is shorthand for “lock on <code>this</code> (or the class, for <code>static</code> methods), for the whole method body.”</li>
-<li><strong>Block-level</strong> lets you (a) lock on a <em>specific</em> object rather than always <code>this</code>, and (b) protect only the few lines that actually touch shared data, leaving the rest of the method free to run unsynchronized.</li>
-<li>Block-level is usually the better default once your methods do more than one thing — locking is a cost (next slide), and you only want to pay it for the part that’s actually shared.</li>
+<li class="fragment"><strong>Method-level</strong> is shorthand for “lock on <code>this</code> (or the class, for <code>static</code> methods), for the whole method body.”</li>
+<li class="fragment"><strong>Block-level</strong> lets you (a) lock on a <em>specific</em> object rather than always <code>this</code>, and (b) protect only the few lines that actually touch shared data, leaving the rest of the method free to run unsynchronized.</li>
+<li class="fragment">Block-level is usually the better default once your methods do more than one thing — locking is a cost (next slide), and you only want to pay it for the part that’s actually shared.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This slide is new depth beyond what was previously taught — students need to see block-level syntax since it’s the more common real-world pattern, not just the toy method-level example.</p>
@@ -364,6 +393,7 @@
 <section id="worked-fix-closing-the-loop-on-session-3" class="slide level2">
 <h2>Worked Fix: Closing the Loop on Session 3</h2>
 <p>Recall Session 3’s “wrong interleaving” — two threads both read <code>5</code>, both write <code>6</code>, one increment lost. With <code>synchronized</code> protecting the increment:</p>
+<div class="fragment">
 <table class="caption-top">
 <colgroup>
 <col style="width: 25%">
@@ -406,6 +436,8 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="fragment">
 <p>Thread B cannot even <em>begin</em> its read until Thread A has finished its entire read-modify-write sequence and released the lock. The interleaving that produced the wrong answer in Session 3 is now <strong>impossible</strong> — not unlikely, impossible, by construction.</p>
 <aside class="notes">
 <p><strong>Timing: 6 min.</strong> This is the payoff slide of the whole session — literally reuse the Session 3 slide’s wrong-interleaving table as a mental side-by-side if you have it up on a second screen or printed. The word “impossible, not unlikely” is worth emphasizing — synchronized doesn’t reduce the odds of a race, it removes the possibility entirely.</p>
@@ -420,14 +452,16 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="synchronized-tradeoffs" class="slide level2">
 <h2><code>synchronized</code> — Tradeoffs</h2>
 <ul>
-<li>✅ <strong>Correctness:</strong> eliminates this entire class of race condition.</li>
-<li>❌ <strong>Performance:</strong> threads that would have run simultaneously now wait in line — the protected section runs one-at-a-time no matter how many CPU cores you have. This is called <strong>serializing</strong> execution.</li>
-<li><strong>Kitchen picture:</strong> one claim ticket for the stove means every cook who needs the stove queues up, even if only one of them is actually using it at any instant. If ten cooks all need the stove for one second each, the kitchen just spent ten seconds on stove work that <em>could</em> have taken one second with ten stoves.</li>
+<li class="fragment">✅ <strong>Correctness:</strong> eliminates this entire class of race condition.</li>
+<li class="fragment">❌ <strong>Performance:</strong> threads that would have run simultaneously now wait in line — the protected section runs one-at-a-time no matter how many CPU cores you have. This is called <strong>serializing</strong> execution.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> one claim ticket for the stove means every cook who needs the stove queues up, even if only one of them is actually using it at any instant. If ten cooks all need the stove for one second each, the kitchen just spent ten seconds on stove work that <em>could</em> have taken one second with ten stoves.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -454,27 +488,21 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="deadlock" class="slide level2">
-<h2>Deadlock</h2>
+<section id="deadlock-the-circular-wait" class="slide level2">
+<h2>Deadlock: The Circular Wait</h2>
 <p>Locking introduces a new failure mode that didn’t exist before: two threads can each be waiting for a lock the <em>other</em> one holds, forever.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="co">// Thread A                      // Thread B</span></span>
 <span id="cb3-2"><a></a><span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span>           <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-3"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>         <span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>  <span class="co">// ← DEADLOCK</span></span>
 <span id="cb3-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Thread A grabs <code>lockA</code>, then tries to grab <code>lockB</code> — but Thread B already holds <code>lockB</code> and is trying to grab <code>lockA</code>.</li>
-<li>Neither thread will ever release the lock it holds, because both are stuck waiting for the <em>other</em> lock first. Both threads freeze permanently.</li>
-<li><strong>Kitchen picture:</strong> Cook A is holding the only knife and waiting for the only cutting board; Cook B is holding the only cutting board and waiting for the only knife. Neither will let go of what they’re holding. Nobody cooks again.</li>
-<li><strong>Prevention:</strong> always acquire multiple locks <strong>in the same order</strong>, everywhere in your code. If both threads had grabbed <code>lockA</code> before <code>lockB</code>, this deadlock could not happen.</li>
+<li class="fragment">Thread A grabs <code>lockA</code>, then tries to grab <code>lockB</code> — but Thread B already holds <code>lockB</code> and is trying to grab <code>lockA</code>.</li>
+<li class="fragment">Neither thread will ever release the lock it holds, because both are stuck waiting for the <em>other</em> lock first. Both threads freeze permanently.</li>
 </ul>
-<p><img data-src="images/deadlock.png"> {fig-alt=“Two cook icons, ‘Thread A’ and ‘Thread B,’ facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled ‘holds,’ and a dashed arrow pointing from Thread A to a cutting-board icon labeled ‘wants.’ Thread B has the cutting-board icon in hand (‘holds’), with a dashed arrow pointing from Thread B to the knife icon (‘wants’). The two dashed ‘wants’ arrows visually form a closed loop/cycle between the two cooks — that closed loop is the deadlock.”}</p>
-<!-- ::: {.callout-note}
-## Diagram to add later (Excalidraw / pyxcd / draw.io)
-Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled "holds," and a dashed arrow pointing from Thread A to a cutting-board icon labeled "wants." Thread B has the cutting-board icon in hand ("holds"), with a dashed arrow pointing from Thread B to the knife icon ("wants"). The two dashed "wants" arrows should visually form a closed loop/cycle between the two cooks — that closed loop *is* the deadlock, and is the single most important visual to get right in the whole module, since "circular wait" is easiest to grasp as a picture rather than as prose.
-::: -->
 <aside class="notes">
-<p><strong>Timing: 7 min, the longest slide.</strong> Walk the code example line by line — this is the one diagram/scenario worth drawing on the board live even before the Excalidraw version exists, since seeing the circular wait traced out is what makes it click.</p>
+<p><strong>Timing: 4 min.</strong> Walk the code example line by line — trace the circular wait out loud (or on the board): A holds lockA wants lockB, B holds lockB wants lockA. The picture and the prevention rule are the next slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -487,13 +515,40 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
           display:block!important;
       }</style></aside>
 </section>
+<section id="deadlock-the-picture-and-how-to-prevent-it" class="slide level2">
+<h2>Deadlock: The Picture and How to Prevent It</h2>
+<ul>
+<li class="fragment"><strong>Kitchen picture:</strong> Cook A is holding the only knife and waiting for the only cutting board; Cook B is holding the only cutting board and waiting for the only knife. Neither will let go of what they’re holding. Nobody cooks again.</li>
+<li class="fragment"><strong>Prevention:</strong> always acquire multiple locks <strong>in the same order</strong>, everywhere in your code. If both threads had grabbed <code>lockA</code> before <code>lockB</code>, this deadlock could not happen.</li>
+</ul>
+<div class="fragment">
+<p><img data-src="images/deadlock.png"> {fig-alt=“Two cook icons, ‘Thread A’ and ‘Thread B,’ facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled ‘holds,’ and a dashed arrow pointing from Thread A to a cutting-board icon labeled ‘wants.’ Thread B has the cutting-board icon in hand (‘holds’), with a dashed arrow pointing from Thread B to the knife icon (‘wants’). The two dashed ‘wants’ arrows visually form a closed loop/cycle between the two cooks — that closed loop is the deadlock.”}</p>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled "holds," and a dashed arrow pointing from Thread A to a cutting-board icon labeled "wants." Thread B has the cutting-board icon in hand ("holds"), with a dashed arrow pointing from Thread B to the knife icon ("wants"). The two dashed "wants" arrows should visually form a closed loop/cycle between the two cooks — that closed loop *is* the deadlock, and is the single most important visual to get right in the whole module, since "circular wait" is easiest to grasp as a picture rather than as prose.
+::: -->
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> The closed-loop picture is the payoff — “circular wait” clicks as a shape, not as prose. State the same-order prevention rule as the one thing to memorize.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="livelock" class="slide level2">
 <h2>Livelock</h2>
 <p>A subtler failure: both threads <em>are</em> actively doing something, repeatedly — they’re just never making actual progress.</p>
 <ul>
-<li>Two threads each detect they might be about to conflict, and both politely back off and retry — but they back off in a way that causes them to collide again immediately, forever.</li>
-<li><strong>Kitchen picture:</strong> two cooks meet in a narrow doorway, both step to the same side to let the other pass, still blocked, both step to the other side, still blocked — repeating indefinitely. Both are constantly moving. Neither ever gets through.</li>
-<li>Unlike deadlock (frozen, doing nothing), livelock burns CPU time on threads that are busy but unproductive — which can make it <em>harder</em> to notice, since the program doesn’t look stuck.</li>
+<li class="fragment">Two threads each detect they might be about to conflict, and both politely back off and retry — but they back off in a way that causes them to collide again immediately, forever.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> two cooks meet in a narrow doorway, both step to the same side to let the other pass, still blocked, both step to the other side, still blocked — repeating indefinitely. Both are constantly moving. Neither ever gets through.</li>
+<li class="fragment">Unlike deadlock (frozen, doing nothing), livelock burns CPU time on threads that are busy but unproductive — which can make it <em>harder</em> to notice, since the program doesn’t look stuck.</li>
 </ul>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -526,9 +581,9 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <h2>Starvation</h2>
 <p>A third failure mode: a thread is technically able to run, but never actually gets the chance.</p>
 <ul>
-<li>If some threads are consistently prioritized over others (explicitly, via thread priorities, or implicitly, through unlucky scheduling), a lower-priority thread can wait indefinitely while higher-priority threads keep cutting in front of it.</li>
-<li><strong>Kitchen picture:</strong> a junior cook keeps stepping up to use the stove, but senior cooks keep arriving and taking their turn first, over and over. The junior cook is never explicitly blocked — they’re just never actually first.</li>
-<li>Starvation is different from deadlock and livelock: the <em>system</em> is making progress overall, it’s just one specific thread that never gets its share.</li>
+<li class="fragment">If some threads are consistently prioritized over others (explicitly, via thread priorities, or implicitly, through unlucky scheduling), a lower-priority thread can wait indefinitely while higher-priority threads keep cutting in front of it.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> a junior cook keeps stepping up to use the stove, but senior cooks keep arriving and taking their turn first, over and over. The junior cook is never explicitly blocked — they’re just never actually first.</li>
+<li class="fragment">Starvation is different from deadlock and livelock: the <em>system</em> is making progress overall, it’s just one specific thread that never gets its share.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep this the shortest of the three failure-mode slides — starvation is the least likely to show up in checkpoint/quiz questions compared to deadlock, but it completes the set and is worth naming.</p>
@@ -582,6 +637,7 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>All three are consequences of introducing locks to fix race conditions — you traded “sometimes wrong” for “sometimes stuck,” and avoiding all three is a real design skill, not just a syntax rule.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> This table is worth putting up as the one thing students photograph for exam review — it’s the single highest-density slide in the session.</p>
@@ -596,24 +652,41 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="preview-threads-cost-something-and-a-first-look-at-pools" class="slide level2">
-<h2>Preview: Threads Cost Something — and a First Look at Pools</h2>
+<section id="threads-cost-something-to-create" class="slide level2">
+<h2>Threads Cost Something to Create</h2>
 <p>Locking solves correctness. But there’s a cost we haven’t addressed: <strong>creating a thread itself is not free.</strong></p>
 <ul>
-<li>Every <code>new Thread(...)</code> creates a brand-new cook from scratch — real overhead, every time. Thousands of short tasks × one new-then-discarded thread each = wasteful.</li>
-<li>The fix is a <strong>thread pool</strong>: a fixed set of reusable worker threads pulling tasks off a shared queue. Hire a fixed kitchen staff on payroll instead of a new cook per order.</li>
-<li>You already used one in <strong>Lab 2</strong>. The three pieces you touched there:</li>
+<li class="fragment">Every <code>new Thread(...)</code> creates a brand-new cook from scratch — real overhead, every time. Thousands of short tasks × one new-then-discarded thread each = wasteful.</li>
+<li class="fragment">The fix is a <strong>thread pool</strong>: a fixed set of reusable worker threads pulling tasks off a shared queue. Hire a fixed kitchen staff on payroll instead of a new cook per order.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Set up the cost problem and name the fix (a pool). The concrete Lab 2 API and the “extra tasks wait” behavior are the next slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-first-look-at-pools-from-lab-2" class="slide level2">
+<h2>A First Look at Pools (from Lab 2)</h2>
+<p>You already used a thread pool in <strong>Lab 2</strong>. The three pieces you touched there:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span>  <span class="co">// fixed staff of 2</span></span>
 <span id="cb4-2"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"A"</span><span class="op">));</span>                          <span class="co">// hand a task to the queue</span></span>
 <span id="cb4-3"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>                                          <span class="co">// no new tasks; finish what's queued</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>With 3 tasks and a pool of 2, the third waits until a thread is free — the behavior you observed in Lab 2 Task 2.</li>
-<li><strong>Next session (Sep 16):</strong> how the queue actually works, getting results back with <code>Future</code>, <code>Callable</code> vs <code>Runnable</code>, and where industry uses pools — then Checkpoint 1.</li>
+<li class="fragment">With 3 tasks and a pool of 2, the third waits until a thread is free — the behavior you observed in Lab 2 Task 2.</li>
+<li class="fragment"><strong>Next session (Sep 16):</strong> how the queue actually works, getting results back with <code>Future</code>, <code>Callable</code> vs <code>Runnable</code>, and where industry uses pools — then Checkpoint 1.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 6 min.</strong> This is now a real intro, not just a teaser, because Lab 2 (Sep 11) already had students use <code>ExecutorService</code> before this lecture. Keep it to the three methods on the slide — <code>submit</code>/<code>shutdown</code>/<code>newFixedThreadPool</code> and the “extra tasks wait” behavior. Do <strong>not</strong> get into <code>Future.get()</code>, <code>awaitTermination</code> semantics, or pool-sizing strategy — those are Session 5. The goal is that Session 5 opens on something students have both done (Lab 2) and seen named (here), not something cold.</p>
+<p><strong>Timing: 3 min.</strong> This is a real intro, not just a teaser, because Lab 2 (Sep 11) already had students use <code>ExecutorService</code>. Keep it to the three methods on the slide and the “extra tasks wait” behavior. Do <strong>not</strong> get into <code>Future.get()</code>, <code>awaitTermination</code> semantics, or pool-sizing strategy — those are Session 5. The goal is that Session 5 opens on something students have both done (Lab 2) and seen named (here), not something cold.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

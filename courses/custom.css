@@ -89,9 +89,15 @@
   font-weight: bold;
 }
 
-.reveal em, .reveal i {
+.reveal em, .reveal i:not(.fa) {
   color: var(--secondary-color);
   font-style: italic;
+}
+
+/* Don't let the global <i> italic styling distort Font Awesome icon
+   glyphs used by plugins like reveal-chalkboard's color palette. */
+.reveal i.fa {
+  font-style: normal;
 }
 
 .reveal a {

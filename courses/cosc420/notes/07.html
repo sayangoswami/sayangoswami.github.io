@@ -243,28 +243,32 @@
 <td>4 min</td>
 </tr>
 <tr class="even">
-<td>Tracing the Queue: 5 Tasks, 2 Threads</td>
-<td>7 min</td>
-</tr>
-<tr class="odd">
-<td><code>Future</code> — Getting Results Back</td>
-<td>6 min</td>
-</tr>
-<tr class="even">
-<td><code>Callable</code> vs.&nbsp;<code>Runnable</code></td>
+<td>Tracing the Queue: The Setup</td>
 <td>3 min</td>
 </tr>
 <tr class="odd">
+<td>Tracing the Queue: Step by Step</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td><code>Future</code> — Getting Results Back</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td><code>Callable</code> vs.&nbsp;<code>Runnable</code></td>
+<td>3 min</td>
+</tr>
+<tr class="even">
 <td>Industry Patterns: Pools Everywhere</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Checkpoint 1 Preview &amp; Review</td>
 <td>4 min</td>
 </tr>
 </tbody>
 </table>
-<p>These 10 slides are the ~35-minute lecture portion; the graded 15-minute Checkpoint 1 exercise happens live afterward and isn’t slide content.</p>
+<p>These slides are the ~35-minute lecture portion; the graded 15-minute Checkpoint 1 exercise happens live afterward and isn’t slide content. Slides use reveal.js fragments (<code>. . .</code>, incremental lists) for pacing — advance with arrow/space; the full text is kept for the study export.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -281,9 +285,9 @@
 <h2>Recap: Why Pools?</h2>
 <p>Session 4 closed with a first look at pools: locking fixed <em>correctness</em>, but creating a thread still has a <em>cost</em>. You’ve already used a pool in Lab 2 (<code>newFixedThreadPool</code>, <code>submit</code>, <code>shutdown</code>) — today is how it actually works.</p>
 <ul>
-<li>Every <code>new Thread(...)</code> you’ve written is a brand-new cook, hired from scratch, every single time — real overhead, paid again and again.</li>
-<li>If a program needs to handle thousands of short-lived tasks, hiring a new cook per task and letting them go the moment the task is done is wasteful — most of the “cost” goes to hiring and firing, not cooking.</li>
-<li>Today’s fix: keep a <strong>fixed staff of cooks on payroll</strong>, and hand them tasks from a shared queue instead of hiring anew each time.</li>
+<li class="fragment">Every <code>new Thread(...)</code> you’ve written is a brand-new cook, hired from scratch, every single time — real overhead, paid again and again.</li>
+<li class="fragment">If a program needs to handle thousands of short-lived tasks, hiring a new cook per task and letting them go the moment the task is done is wasteful — most of the “cost” goes to hiring and firing, not cooking.</li>
+<li class="fragment">Today’s fix: keep a <strong>fixed staff of cooks on payroll</strong>, and hand them tasks from a shared queue instead of hiring anew each time.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> Brief — students have used a pool in Lab 2 and seen the three methods named in Session 4’s closing slide, so this should feel like continuing a topic, not starting one. Move quickly to the mechanics they haven’t seen.</p>
@@ -303,10 +307,11 @@
 <h2>The Cost of Creating a Thread</h2>
 <p>Creating a real thread isn’t just “declare a variable” — it involves real machinery underneath:</p>
 <ul>
-<li>Space must be set up for that thread’s own stack (recall Session 2: every thread gets its own private stack).</li>
-<li>The thread must be registered with whatever is deciding who runs when — remember, “something outside your control decides whose turn it is.”</li>
-<li>All of this happens <strong>again</strong>, from scratch, every time you write <code>new Thread(...)</code> — and gets thrown away the moment that thread finishes.</li>
+<li class="fragment">Space must be set up for that thread’s own stack (recall Session 2: every thread gets its own private stack).</li>
+<li class="fragment">The thread must be registered with whatever is deciding who runs when — remember, “something outside your control decides whose turn it is.”</li>
+<li class="fragment">All of this happens <strong>again</strong>, from scratch, every time you write <code>new Thread(...)</code> — and gets thrown away the moment that thread finishes.</li>
 </ul>
+<div class="fragment">
 <p>For a handful of long-running threads, this cost is trivial. For <strong>thousands of short tasks</strong>, creating and discarding a thread per task can cost more time than the tasks themselves take to run.</p>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> No OS/scheduler vocabulary needed — “space for a stack” and “registered with whatever decides who runs when” both reuse language already established in Session 2, deliberately avoiding new jargon.</p>
@@ -321,14 +326,16 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="a-thread-pool-fixed-staff-shared-queue" class="slide level2">
 <h2>A Thread Pool: Fixed Staff, Shared Queue</h2>
 <ul>
-<li>A <strong>thread pool</strong> is a fixed set of worker threads, created once up front, that stays alive and reused for many tasks.</li>
-<li>Tasks don’t get their own thread — they’re dropped into a <strong>shared queue</strong>. Each worker thread, whenever it’s free, pulls the next task off the queue and runs it.</li>
-<li><strong>Kitchen picture:</strong> instead of hiring a new cook for every single order, the kitchen keeps a fixed staff of, say, 4 cooks. Orders pile up on a ticket rail; whenever a cook finishes a dish, they grab the next ticket. No hiring, no firing — just a fixed staff working through a queue.</li>
+<li class="fragment">A <strong>thread pool</strong> is a fixed set of worker threads, created once up front, that stays alive and reused for many tasks.</li>
+<li class="fragment">Tasks don’t get their own thread — they’re dropped into a <strong>shared queue</strong>. Each worker thread, whenever it’s free, pulls the next task off the queue and runs it.</li>
+<li class="fragment"><strong>Kitchen picture:</strong> instead of hiring a new cook for every single order, the kitchen keeps a fixed staff of, say, 4 cooks. Orders pile up on a ticket rail; whenever a cook finishes a dish, they grab the next ticket. No hiring, no firing — just a fixed staff working through a queue.</li>
 </ul>
+<div class="fragment">
 <p>This is the idea; the next few slides show Java’s tool for it.</p>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This slide is purely conceptual, no code yet — make sure the queue-and-fixed-staff picture is solid before introducing <code>ExecutorService</code>, since the API only makes sense once this mental model is in place.</p>
@@ -343,6 +350,7 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="executorservice-submitting-tasks" class="slide level2">
 <h2><code>ExecutorService</code> — Submitting Tasks</h2>
@@ -355,9 +363,9 @@
 <span id="cb1-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>               <span class="co">// stop accepting new tasks</span></span>
 <span id="cb1-7"><a></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span>   <span class="co">// wait for queued/running tasks to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>Executors.newFixedThreadPool(4)</code> creates the pool with exactly 4 worker threads — they’re created once, here, not per task.</li>
-<li><code>submit(...)</code> adds a task to the shared queue; it does <strong>not</strong> create a new thread. One of the 4 existing workers will pick it up when free.</li>
-<li><code>shutdown()</code> stops the pool from accepting <em>new</em> tasks but lets already-queued and already-running tasks finish — it is not an immediate stop.</li>
+<li class="fragment"><code>Executors.newFixedThreadPool(4)</code> creates the pool with exactly 4 worker threads — they’re created once, here, not per task.</li>
+<li class="fragment"><code>submit(...)</code> adds a task to the shared queue; it does <strong>not</strong> create a new thread. One of the 4 existing workers will pick it up when free.</li>
+<li class="fragment"><code>shutdown()</code> stops the pool from accepting <em>new</em> tasks but lets already-queued and already-running tasks finish — it is not an immediate stop.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 6 min.</strong> Emphasize “created once, here” for the pool size — a common misread is assuming <code>submit()</code> creates threads, when the whole point is that it reuses the 4 already created.</p>
@@ -409,6 +417,7 @@
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>Always call <code>shutdown()</code> when you’re done submitting work — an <code>ExecutorService</code> that’s never shut down keeps its worker threads alive indefinitely, even after your program logically has nothing left to do.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> The last line is worth stating explicitly — “forgetting shutdown()” is a common real bug (a program that never exits because idle pool threads are still alive), not just a syntax footnote.</p>
@@ -423,9 +432,10 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="tracing-the-queue-5-tasks-2-threads" class="slide level2">
-<h2>Tracing the Queue: 5 Tasks, 2 Threads</h2>
+<section id="tracing-the-queue-the-setup" class="slide level2">
+<h2>Tracing the Queue: The Setup</h2>
 <p>Pool of 2 worker threads, 5 tasks submitted at once:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
 <span id="cb2-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
@@ -433,6 +443,25 @@
 <span id="cb2-4"><a></a>    pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Running task "</span> <span class="op">+</span> taskId<span class="op">));</span></span>
 <span id="cb2-5"><a></a><span class="op">}</span></span>
 <span id="cb2-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>Five tasks, two workers. Before we trace it: how many of the five do you expect to run at the <em>literal same instant</em>?</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Ask the “how many at once” question and take a couple of guesses before advancing — the trace on the next slide is the answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="tracing-the-queue-step-by-step" class="slide level2">
+<h2>Tracing the Queue: Step by Step</h2>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -481,6 +510,7 @@
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>Only 2 tasks ever run at the literal same instant — the other 3 wait their turn in the queue, picked up by whichever worker finishes first. This is exactly the “fixed staff, shared queue” picture from three slides ago, now traced step by step.</p>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -496,7 +526,7 @@
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 7 min, the longest slide.</strong> Walk this row by row on the board — the point students need to take away is that task-to-worker assignment isn’t fixed in advance (Task 3 could just as easily have gone to Worker 2, depending on which finishes first); it’s whichever worker becomes free first.</p>
+<p><strong>Timing: 4 min.</strong> Walk this row by row on the board — the point students need to take away is that task-to-worker assignment isn’t fixed in advance (Task 3 could just as easily have gone to Worker 2, depending on which finishes first); it’s whichever worker becomes free first.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -508,6 +538,7 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="future-getting-results-back" class="slide level2">
 <h2><code>Future</code> — Getting Results Back</h2>
@@ -523,9 +554,9 @@
 <span id="cb3-9"><a></a><span class="dt">int</span> result <span class="op">=</span> future<span class="op">.</span><span class="fu">get</span><span class="op">();</span>  <span class="co">// blocks here until the task finishes</span></span>
 <span id="cb3-10"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Result: "</span> <span class="op">+</span> result<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>submit(...)</code> returns immediately with a <strong><code>Future</code></strong> — think of it as an order ticket or a buzzer: you’re handed it right away, but the actual result isn’t ready yet.</li>
-<li><code>future.get()</code> is “go back to the counter and wait for your buzzer to light up” — it <strong>blocks</strong> the calling thread until the task’s result is ready, then returns it.</li>
-<li><code>future.isDone()</code> checks whether the result is ready <strong>without</strong> blocking — like glancing at your buzzer instead of standing at the counter.</li>
+<li class="fragment"><code>submit(...)</code> returns immediately with a <strong><code>Future</code></strong> — think of it as an order ticket or a buzzer: you’re handed it right away, but the actual result isn’t ready yet.</li>
+<li class="fragment"><code>future.get()</code> is “go back to the counter and wait for your buzzer to light up” — it <strong>blocks</strong> the calling thread until the task’s result is ready, then returns it.</li>
+<li class="fragment"><code>future.isDone()</code> checks whether the result is ready <strong>without</strong> blocking — like glancing at your buzzer instead of standing at the counter.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 6 min.</strong> The buzzer analogy is worth restating twice — once for <code>submit()</code> (handed the buzzer immediately), once for <code>get()</code> (waiting at the counter for it to light up) — students often conflate submitting and blocking as the same moment.</p>
@@ -575,6 +606,7 @@
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>Every <code>Future</code>-returning example on the previous slide used a <code>Callable</code> under the hood — the lambda <code>() -&gt; { ...; return 42; }</code> is a <code>Callable&lt;Integer&gt;</code> because it returns a value.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Short and purely definitional — this used to live only in speaker notes; it’s promoted to a visible slide because the <code>Runnable</code>/<code>Callable</code> distinction is a natural checkpoint/quiz question shape.</p>
@@ -589,14 +621,15 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="industry-patterns-pools-everywhere" class="slide level2">
 <h2>Industry Patterns: Pools Everywhere</h2>
 <p>Thread pools aren’t a Java classroom exercise — this exact “fixed staff, shared queue” pattern is everywhere in real systems:</p>
 <ul>
-<li><strong>Web servers</strong> keep a fixed pool of worker threads to handle incoming requests, instead of spawning a new thread per request — exactly the cost problem from three slides ago, at internet scale.</li>
-<li><strong>Database connection pools</strong> keep a fixed set of already-open database connections ready to reuse, since opening a new connection is expensive, the same way creating a new thread is.</li>
-<li><strong>Foreshadowing Module 4:</strong> Apache Spark itself runs a fixed set of worker processes across a cluster and hands them tasks from a queue — the same idea you just traced with 2 threads and 5 tasks, just spread across many machines instead of many threads on one machine.</li>
+<li class="fragment"><strong>Web servers</strong> keep a fixed pool of worker threads to handle incoming requests, instead of spawning a new thread per request — exactly the cost problem from three slides ago, at internet scale.</li>
+<li class="fragment"><strong>Database connection pools</strong> keep a fixed set of already-open database connections ready to reuse, since opening a new connection is expensive, the same way creating a new thread is.</li>
+<li class="fragment"><strong>Foreshadowing Module 4:</strong> Apache Spark itself runs a fixed set of worker processes across a cluster and hands them tasks from a queue — the same idea you just traced with 2 threads and 5 tasks, just spread across many machines instead of many threads on one machine.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> The Spark foreshadow is worth saying explicitly by name — “fixed workers, shared task queue” is literally the mental model they’ll reuse in Module 4, so planting it now pays off later.</p>
@@ -615,7 +648,12 @@
 <section id="checkpoint-1-preview-review" class="slide level2">
 <h2>Checkpoint 1 Preview &amp; Review</h2>
 <p><strong>Checkpoint 1 runs now, in the last 15 minutes of this session:</strong> given a <code>BankAccount</code> Java class with a race condition, fix it using <code>synchronized</code> — 15 minutes, individual work.</p>
-<p>Quick review before you start: - <strong>What <code>synchronized</code> does:</strong> only one thread can be inside a <code>synchronized</code> method (or block) on a given object at a time — everyone else waits (Session 4). - <strong>How to spot the unsafe variable:</strong> look for a field that multiple methods read <em>and</em> write — especially a read-modify-write shape like <code>balance = balance - amount</code> (Session 3’s exact pattern, just with a different variable name). - <strong>How to test your fix:</strong> run the scenario with multiple threads calling the risky method simultaneously; before the fix, the final balance should sometimes be wrong; after the fix, it should be correct on every run, not just usually.</p>
+<p>Quick review before you start:</p>
+<ul>
+<li class="fragment"><strong>What <code>synchronized</code> does:</strong> only one thread can be inside a <code>synchronized</code> method (or block) on a given object at a time — everyone else waits (Session 4).</li>
+<li class="fragment"><strong>How to spot the unsafe variable:</strong> look for a field that multiple methods read <em>and</em> write — especially a read-modify-write shape like <code>balance = balance - amount</code> (Session 3’s exact pattern, just with a different variable name).</li>
+<li class="fragment"><strong>How to test your fix:</strong> run the scenario with multiple threads calling the risky method simultaneously; before the fix, the final balance should sometimes be wrong; after the fix, it should be correct on every run, not just usually.</li>
+</ul>
 <aside class="notes">
 <p><strong>Timing: 4 min for this review slide — the 15-min checkpoint itself follows separately and isn’t slide content.</strong> Resist over-explaining the checkpoint’s exact scenario; the point is to remind them of the <em>method</em> for finding and fixing the bug, not to preview the specific answer.</p>
 <style type="text/css">
