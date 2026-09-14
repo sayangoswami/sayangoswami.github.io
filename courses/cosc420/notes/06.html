@@ -116,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -522,7 +523,7 @@
 <li class="fragment"><strong>Prevention:</strong> always acquire multiple locks <strong>in the same order</strong>, everywhere in your code. If both threads had grabbed <code>lockA</code> before <code>lockB</code>, this deadlock could not happen.</li>
 </ul>
 <div class="fragment">
-<p><img data-src="images/deadlock.png"> {fig-alt=“Two cook icons, ‘Thread A’ and ‘Thread B,’ facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled ‘holds,’ and a dashed arrow pointing from Thread A to a cutting-board icon labeled ‘wants.’ Thread B has the cutting-board icon in hand (‘holds’), with a dashed arrow pointing from Thread B to the knife icon (‘wants’). The two dashed ‘wants’ arrows visually form a closed loop/cycle between the two cooks — that closed loop is the deadlock.”}</p>
+<p><img data-src="images/deadlock.png" alt="Two cook icons, 'Thread A' and 'Thread B,' facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled 'holds,' and a dashed arrow pointing from Thread A to a cutting-board icon labeled 'wants.' Thread B has the cutting-board icon in hand ('holds'), with a dashed arrow pointing from Thread B to the knife icon ('wants'). The two dashed 'wants' arrows visually form a closed loop/cycle between the two cooks — that closed loop is the deadlock."></p>
 <!-- ::: {.callout-note}
 ## Diagram to add later (Excalidraw / pyxcd / draw.io)
 Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a knife icon in hand with a solid arrow pointing to it labeled "holds," and a dashed arrow pointing from Thread A to a cutting-board icon labeled "wants." Thread B has the cutting-board icon in hand ("holds"), with a dashed arrow pointing from Thread B to the knife icon ("wants"). The two dashed "wants" arrows should visually form a closed loop/cycle between the two cooks — that closed loop *is* the deadlock, and is the single most important visual to get right in the whole module, since "circular wait" is easiest to grasp as a picture rather than as prose.

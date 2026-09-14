@@ -116,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -277,7 +278,7 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="welcome-to-review-day" class="slide level2">
+<section id="welcome-to-review-day" class="slide level2 scrollable">
 <h2>Welcome to Review Day</h2>
 <p>No new concepts today — three things happen this session:</p>
 <ol type="1">
@@ -445,7 +446,7 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="practice-1-solution" class="slide level2">
+<section id="practice-1-solution" class="slide level2 scrollable">
 <h2>Practice 1: Solution</h2>
 <p><strong>No — <code>add()</code> is not thread-safe.</strong> <code>total = total + amount</code> is a read-modify-write, exactly like <code>counter++</code> in Session 3:</p>
 <ol type="1">
