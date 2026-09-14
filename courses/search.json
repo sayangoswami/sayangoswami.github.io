@@ -1796,7 +1796,7 @@
     "href": "cosc435/slides/module01-why-gpus.html#todays-plan",
     "title": "Module 1: The Case for GPUs",
     "section": "Today’s Plan",
-    "text": "Today’s Plan\n\nQuiz 1 first (15 min, Blackboard) — covers all of Module 0\nThen: why serial CPU performance stopped improving for free\nThree physical walls: clock speed, power, memory\nWhy the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer\n\n\n~1 min. Pure housekeeping — say it, move on. Today’s lecture time is ~35 min after the quiz, so pacing is tighter than a normal 50-min session."
+    "text": "Today’s Plan\n\n\nWhy serial CPU performance stopped improving for free\nThree physical walls: clock speed, power, memory\nWhy the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer\n\n\n~1 min. Pure housekeeping — say it, move on. Today’s lecture time is ~35 min after the quiz, so pacing is tighter than a normal 50-min session."
   },
   {
     "objectID": "cosc435/slides/module01-why-gpus.html#years-of-free-performance",
@@ -1817,21 +1817,21 @@
     "href": "cosc435/slides/module01-why-gpus.html#clock-speed-stagnation",
     "title": "Module 1: The Case for GPUs",
     "section": "Clock Speed Stagnation",
-    "text": "Clock Speed Stagnation\n[DIAGRAM] — Line chart, x-axis “Year” (1970–2024), y-axis “Clock speed (GHz),” log or linear scale. Curve rises smoothly and steeply from ~1 MHz (1970s) through the 1990s, then bends sharply flat starting around 2004–2005, plateauing in a narrow 3–4 GHz band all the way to 2024. Annotate the bend point “~2005: Dennard scaling breaks down.”\n\nSingle-core clock speed has been stuck at ~3–4 GHz for two decades\nSingle-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months\nSomething had to replace “just run it at a higher frequency”\n\n\n~3 min. Source a current chart (CPU-DB, Karl Rupp’s “42 Years of Microprocessor Trend Data” is the canonical one instructors use) before drawing this. Students are often surprised the plateau has lasted this long — it predates most of them being alive."
+    "text": "Clock Speed Stagnation\n \n\nSingle-core clock speed has been stuck at ~3–4 GHz for two decades\nSingle-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months\nSomething had to replace “just run it at a higher frequency”\n\n\n~3 min. Source a current chart (CPU-DB, Karl Rupp’s “42 Years of Microprocessor Trend Data” is the canonical one instructors use) before drawing this. Students are often surprised the plateau has lasted this long — it predates most of them being alive."
   },
   {
     "objectID": "cosc435/slides/module01-why-gpus.html#the-power-wall",
     "href": "cosc435/slides/module01-why-gpus.html#the-power-wall",
     "title": "Module 1: The Case for GPUs",
     "section": "The Power Wall",
-    "text": "The Power Wall\n\nDynamic power draw of a chip is approximately \\(P \\approx C \\cdot V^2 \\cdot f\\) (capacitance × voltage² × frequency)\nUnder Dennard scaling, shrinking transistors let you lower \\(V\\) every generation — so raising \\(f\\) didn’t raise power density\nAround 2005 (~90 nm), \\(V\\) hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit\nWithout falling \\(V\\), raising \\(f\\) directly raises power density — past what air cooling (and eventually any practical cooling) can remove from a chip the size of a fingernail\n\n\n~3 min. This is the physical reason behind the previous slide’s plateau. Keep the formula but don’t derive it — the takeaway is “voltage stopped shrinking, so frequency stopped rising, or the chip melts.” EL-03’s Sutter essay covers this from the software-consequences angle; this slide covers the hardware cause."
+    "text": "The Power Wall\n\n\nDynamic power draw of a chip is approximately \\(P \\approx C \\cdot V^2 \\cdot f\\) (capacitance × voltage² × frequency)\nUnder Dennard scaling, shrinking transistors let you lower \\(V\\) every generation — so raising \\(f\\) didn’t raise power density\nAround 2005 (~90 nm), \\(V\\) hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit\nWithout falling \\(V\\), raising \\(f\\) directly raises power density — past what air cooling (and eventually any practical cooling) can remove from a chip the size of a fingernail\n\n\n~3 min. This is the physical reason behind the previous slide’s plateau. Keep the formula but don’t derive it — the takeaway is “voltage stopped shrinking, so frequency stopped rising, or the chip melts.” EL-03’s Sutter essay covers this from the software-consequences angle; this slide covers the hardware cause."
   },
   {
     "objectID": "cosc435/slides/module01-why-gpus.html#the-memory-wall",
     "href": "cosc435/slides/module01-why-gpus.html#the-memory-wall",
     "title": "Module 1: The Case for GPUs",
     "section": "The Memory Wall",
-    "text": "The Memory Wall\n[DIAGRAM] — Two diverging line charts sharing an x-axis “Year” (1980–2024). Top line “CPU speed” rises steeply (exponential). Bottom line “DRAM latency improvement” rises only gently. The vertical gap between the two lines, shaded, is labeled “the memory wall” and grows continuously wider toward the right edge.\n\nCPU compute throughput improved dramatically for decades; DRAM latency (time to fetch one value) improved only modestly over the same period\nA single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute hundreds of instructions\nConsequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time\nCPUs hide this with large caches and speculative prefetching; GPUs hide it differently — by keeping thousands of other threads ready to run while one thread waits (Module 2)\n\n\n~3 min. Term coined by Wulf & McKee (1994). This is the setup for why occupancy/warp-scheduling (Module 2) and coalesced memory access (Module 4) matter so much for GPU performance — plant the vocabulary “hiding latency” now, it recurs constantly for the rest of the course."
+    "text": "The Memory Wall\n\n\nCPU compute throughput improved dramatically for decades; DRAM latency (time to fetch one value) improved only modestly over the same period\nA single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute hundreds of instructions\nConsequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time\nCPUs hide this with large caches and speculative prefetching; GPUs hide it differently — by keeping thousands of other threads ready to run while one thread waits (Module 2)\n\n\n~3 min. Term coined by Wulf & McKee (1994). This is the setup for why occupancy/warp-scheduling (Module 2) and coalesced memory access (Module 4) matter so much for GPU performance — plant the vocabulary “hiding latency” now, it recurs constantly for the rest of the course."
   },
   {
     "objectID": "cosc435/slides/module01-why-gpus.html#the-industrys-answer-more-cores",
@@ -1978,7 +1978,91 @@
     "href": "cosc435/notes/index.html",
     "title": "COSC435 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nThe End of Free Lunch\n\n\n\n\n\n\n\n\n\nEL-01: The Shape of a Dot Product\n\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "cosc435/notes/05.html#todays-plan",
+    "href": "cosc435/notes/05.html#todays-plan",
+    "title": "The End of Free Lunch",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\n\nWhy serial CPU performance stopped improving for free\nThree physical walls: clock speed, power, memory\nWhy the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer\n\n\n~1 min. Pure housekeeping — say it, move on. Today’s lecture time is ~35 min after the quiz, so pacing is tighter than a normal 50-min session."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#years-of-free-performance",
+    "href": "cosc435/notes/05.html#years-of-free-performance",
+    "title": "The End of Free Lunch",
+    "section": "20 Years of Free Performance",
+    "text": "20 Years of Free Performance\n\nFrom roughly 1980 to 2004, CPU clock speed doubled about every 18 months (a corollary of Moore’s Law, below)\nEvery year, the exact same program ran faster on new hardware — with zero code changes\nDevelopers could treat performance as someone else’s problem: just wait for next year’s chip\n\n\n~2 min. Ask the room: “When did you last upgrade a device and notice your code/apps ran faster just from the hardware?” The honest answer today is: rarely, unless the workload is GPU-accelerated. That gap is the subject of this module."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#moores-law-precisely",
+    "href": "cosc435/notes/05.html#moores-law-precisely",
+    "title": "The End of Free Lunch",
+    "section": "Moore’s Law, Precisely",
+    "text": "Moore’s Law, Precisely\n\n“The number of transistors on an integrated circuit doubles roughly every two years, at roughly constant cost.” — Gordon Moore, 1965\n\n\nMoore’s Law is about transistor count, not clock speed directly\nFor ~40 years, more transistors did translate into higher clock speed, because of a companion effect: Dennard scaling\nDennard scaling (1974): as transistors shrink by a factor, you can also lower their voltage by that same factor — so power density stays roughly constant even as clock speed rises\nTransistor count kept doubling. Clock speed did not — Dennard scaling broke first (next slide)\n\n\n~3 min. Common misconception to correct explicitly: many students conflate “Moore’s Law” with “clock speeds double every 2 years.” Moore’s Law (transistor count) is alive-ish today; the clock-speed corollary died around 2005 specifically because Dennard scaling died, not because Moore’s Law did."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#clock-speed-stagnation",
+    "href": "cosc435/notes/05.html#clock-speed-stagnation",
+    "title": "The End of Free Lunch",
+    "section": "Clock Speed Stagnation",
+    "text": "Clock Speed Stagnation\n \n\nSingle-core clock speed has been stuck at ~3–4 GHz for two decades\nSingle-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months\nSomething had to replace “just run it at a higher frequency”\n\n\n~3 min. Source a current chart (CPU-DB, Karl Rupp’s “42 Years of Microprocessor Trend Data” is the canonical one instructors use) before drawing this. Students are often surprised the plateau has lasted this long — it predates most of them being alive."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#the-power-wall",
+    "href": "cosc435/notes/05.html#the-power-wall",
+    "title": "The End of Free Lunch",
+    "section": "The Power Wall",
+    "text": "The Power Wall"
+  },
+  {
+    "objectID": "cosc435/notes/05.html#the-power-wall-1",
+    "href": "cosc435/notes/05.html#the-power-wall-1",
+    "title": "The End of Free Lunch",
+    "section": "The Power Wall",
+    "text": "The Power Wall\n\nDynamic power draw of a chip is approximately \\(P \\approx C \\cdot V^2 \\cdot f\\) (capacitance × voltage² × frequency)\nUnder Dennard scaling, shrinking transistors let you lower \\(V\\) every generation — so raising \\(f\\) didn’t raise power density\nAround 2005 (~90 nm), \\(V\\) hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit\nWithout falling \\(V\\), raising \\(f\\) directly raises power density — past what air cooling (and eventually any practical cooling) can remove from a chip the size of a fingernail\n\n\n~3 min. This is the physical reason behind the previous slide’s plateau. Keep the formula but don’t derive it — the takeaway is “voltage stopped shrinking, so frequency stopped rising, or the chip melts.” EL-03’s Sutter essay covers this from the software-consequences angle; this slide covers the hardware cause."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#the-memory-wall",
+    "href": "cosc435/notes/05.html#the-memory-wall",
+    "title": "The End of Free Lunch",
+    "section": "The Memory Wall",
+    "text": "The Memory Wall"
+  },
+  {
+    "objectID": "cosc435/notes/05.html#the-memory-wall-1",
+    "href": "cosc435/notes/05.html#the-memory-wall-1",
+    "title": "The End of Free Lunch",
+    "section": "The Memory Wall",
+    "text": "The Memory Wall\n\nCPU compute throughput improved dramatically for decades; DRAM latency (time to fetch one value) improved only modestly over the same period\nA single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute hundreds of instructions\nConsequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time\nCPUs hide this with large caches and speculative prefetching; GPUs hide it differently — by keeping thousands of other threads ready to run while one thread waits (Module 2)\n\n\n~3 min. Term coined by Wulf & McKee (1994). This is the setup for why occupancy/warp-scheduling (Module 2) and coalesced memory access (Module 4) matter so much for GPU performance — plant the vocabulary “hiding latency” now, it recurs constantly for the rest of the course."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#the-industrys-answer-more-cores",
+    "href": "cosc435/notes/05.html#the-industrys-answer-more-cores",
+    "title": "The End of Free Lunch",
+    "section": "The Industry’s Answer: More Cores",
+    "text": "The Industry’s Answer: More Cores\n\nClock speed capped by the power wall. Memory latency capped by physics. Single-core performance alone could no longer 10× every few years\nThe industry’s pivot (mid-2000s onward): stop making one core faster, put more cores on the chip instead\nConsumer CPUs went from 1 core (pre-2005) → 2 → 4 → 8 → today’s 16–32+ core desktop chips\nA GPU is the same idea taken to its logical extreme: instead of tens of powerful cores, thousands of small, simple ones\n\n\n~2 min. This is the bridge sentence for the whole module: multicore CPUs and GPUs are answers to the same problem (the walls above), differing only in degree. Session 2 makes that “degree” concrete with real numbers."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#one-expert-vs.-a-crowd",
+    "href": "cosc435/notes/05.html#one-expert-vs.-a-crowd",
+    "title": "The End of Free Lunch",
+    "section": "One Expert vs. a Crowd",
+    "text": "One Expert vs. a Crowd\n \n\nA CPU core is built to finish one task as fast as possible — deep pipelines, branch prediction, large caches, all in service of low latency\nA GPU core is built to keep as many tasks moving simultaneously as possible, even if each one individually is slower — high throughput\nNeither is “better” in general — they’re optimized for different jobs. Session 2 puts real numbers on this comparison\n\n\n~3 min. Callback to Module 0’s cashier analogy — reuse the same visual language deliberately so it reads as a continuation, not a new idea. Attach the vocabulary words “latency” and “throughput” precisely here; Module 0 introduced the picture without the terms."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#amdahls-law-a-first-look",
+    "href": "cosc435/notes/05.html#amdahls-law-a-first-look",
+    "title": "The End of Free Lunch",
+    "section": "Amdahl’s Law — A First Look",
+    "text": "Amdahl’s Law — A First Look\nEven if you accelerate 95% of a program perfectly on parallel hardware, the unaccelerated 5% caps your total speedup:\n\\[\\text{Speedup} \\leq \\frac{1}{1 - 0.95} = \\frac{1}{0.05} = 20\\times\\]\n\nNo matter how many cores (or GPU threads) you throw at the parallel 95%, the serial 5% eventually dominates the wall-clock time\nThis is why “just add more cores” has diminishing returns, and why which part of a problem you parallelize matters as much as how well\nWe derive and apply this formally in Module 3 — for now, just the intuition: serial code is a ceiling on parallel speedup\n\n\n~3 min. Full derivation and the general formula (with \\(p\\) = parallel fraction, \\(s\\) = speedup of that fraction) is Module 3. Here, one concrete worked number is enough — don’t derive the general form yet."
+  },
+  {
+    "objectID": "cosc435/notes/05.html#this-week",
+    "href": "cosc435/notes/05.html#this-week",
+    "title": "The End of Free Lunch",
+    "section": "This Week",
+    "text": "This Week\n\nSession 2 (Wed, Sep 16): CPU vs. GPU design philosophy, with real numbers — FLOPS, memory bandwidth, SIMD\nLab 03 (Fri, Sep 18): Benchmark a loop vs. a vectorized NumPy call; measure the actual speedup ratio and compute GFLOP/s \n\n\n~1 min. Quick pointer slide, not a deep dive — just orient students to what’s next."
   },
   {
     "objectID": "cosc435/notes/02-python.html#same-logic-different-grammar",
@@ -7144,7 +7228,7 @@
     "href": "cosc420/notes/06.html#livelock",
     "title": "Synchronization, Locks, and Their Failure Modes",
     "section": "Livelock",
-    "text": "Livelock\nA subtler failure: both threads are actively doing something, repeatedly — they’re just never making actual progress.\n\nTwo threads each detect they might be about to conflict, and both politely back off and retry — but they back off in a way that causes them to collide again immediately, forever.\nKitchen picture: two cooks meet in a narrow doorway, both step to the same side to let the other pass, still blocked, both step to the other side, still blocked — repeating indefinitely. Both are constantly moving. Neither ever gets through.\nUnlike deadlock (frozen, doing nothing), livelock burns CPU time on threads that are busy but unproductive — which can make it harder to notice, since the program doesn’t look stuck.\n\n\n\n\n\n\n\nDiagram to add later (Excalidraw / pyxcd / draw.io)\n\n\nA narrow doorway/corridor, two cook icons on either side. Show two or three faded/ghosted repeats of each cook stepping left, then right, then left again (motion-trail style, like a simple 3-frame flipbook within one image) — both always moving, neither ever passing through the doorway. Caption underneath: “Always moving. Never through.” Deliberately draw this to look busy/animated in contrast to the frozen, static deadlock diagram above — the visual contrast between the two is the point.\n\n\n\n\nTiming: 4 min. Contrast directly with deadlock on this slide: “deadlock looks frozen, livelock looks busy but goes nowhere” — that contrast is the exam-relevant distinction."
+    "text": "Livelock\nA subtler failure: both threads are actively doing something, repeatedly — they’re just never making actual progress.\n\nTwo threads each detect they might be about to conflict, and both politely back off and retry — but they back off in a way that causes them to collide again immediately, forever.\nKitchen picture: two cooks meet in a narrow doorway, both step to the same side to let the other pass, still blocked, both step to the other side, still blocked — repeating indefinitely. Both are constantly moving. Neither ever gets through.\nUnlike deadlock (frozen, doing nothing), livelock burns CPU time on threads that are busy but unproductive — which can make it harder to notice, since the program doesn’t look stuck.\n\n\n\nTiming: 4 min. Contrast directly with deadlock on this slide: “deadlock looks frozen, livelock looks busy but goes nowhere” — that contrast is the exam-relevant distinction."
   },
   {
     "objectID": "cosc420/notes/06.html#starvation",
@@ -8600,7 +8684,7 @@
     "href": "cosc435/notes/04-numpy.html#this-week",
     "title": "NumPy Foundations",
     "section": "This Week",
-    "text": "This Week\n\nFri: Lab 2 — vectorization practice: unit conversion, boolean masking, weighted dot products, and axis-based reduction, no loops allowed in your exercises\nEL-01 (due Sun Sep 13): 3Blue1Brown’s “Essence of Linear Algebra” videos — watch before Quiz 1 (Mon Sep 14) for the geometric intuition behind today’s dot product material\nMon Sep 14: Quiz 1 (covers all of Module 0) opens Module 1 — “The Case for GPUs”\n\n\n~2 min. Remind students EL-01 is due Sunday, three days before Quiz 1 — the geometric intuition it builds will make several Quiz 1 questions easier, not just Module 1’s lecture content."
+    "text": "This Week\n\nFri: Lab 2 — vectorization practice: unit conversion, boolean masking, weighted dot products, and axis-based reduction, no loops allowed in your exercises\nEL-01: 3Blue1Brown’s “Essence of Linear Algebra” videos — watch before Quiz 1 for the geometric intuition behind today’s dot product material\nMon Sep 14: Quiz 1 (covers all of Module 0) opens Module 1 — “The Case for GPUs”\n\n\n~2 min. Remind students EL-01 is due Sunday, three days before Quiz 1 — the geometric intuition it builds will make several Quiz 1 questions easier, not just Module 1’s lecture content."
   },
   {
     "objectID": "cosc435/notes/04-numpy.html#checkpoint-preview-ck-02",
@@ -8608,6 +8692,34 @@
     "title": "NumPy Foundations",
     "section": "Checkpoint Preview: CK-02",
     "text": "Checkpoint Preview: CK-02\nCheckpoint CK-02 (Friday, last 20 minutes of Lab 2) will ask you to:\n\nApply an element-wise arithmetic expression to a full array, with no Python for loop\nBuild a Boolean mask and use it to select a subset of an array\nCompute a weighted value using np.dot\n\n\n~2 min. 20-minute timed, individually seeded. No pen-and-paper component — this one is fully in-notebook, unlike CK-01’s mix. Remind students the loop-free constraint is graded implicitly: a correct-but-looped answer still passes the checksum, but defeats the point — call this out explicitly so nobody “cheats” their way past the actual learning objective."
+  },
+  {
+    "objectID": "cosc435/notes/el1.html",
+    "href": "cosc435/notes/el1.html",
+    "title": "EL-01: The Shape of a Dot Product",
+    "section": "",
+    "text": "Engaged Learning · 1% of course grade\n\n\n\nOn the first day of class you heard: “Every song is described by 64 numbers. We measure how well two things match by multiplying those numbers together and adding up.” That operation is a dot product — and it is the computational heart of your capstone.\nThis assignment gives you the visual intuition that makes the math feel obvious rather than arbitrary. You will need it in Module 4 (tiled matrix multiply) and in the capstone.\n\n\n\n\n3Blue1Brown — Essence of Linear Algebra (YouTube playlist: “Essence of linear algebra” by 3Blue1Brown)\nWatch these three episodes in order — they are short (8–10 min each):\n\nEpisode 1 — “Vectors, what even are they?” What a vector is, how to picture it, why mathematicians and physicists define it differently.\nEpisode 3 — “Linear transformations and matrices” What it means to multiply a matrix by a vector. The visual that makes matrix math click.\nEpisode 9 — “Dot products and duality” The geometric meaning of the dot product: projection, alignment, and why a value near 1.0 means “pointing in the same direction.”\n\nTotal viewing time: approximately 30 minutes.\n\n\n\n\n\nWrite a 200–300 word reflection on Blackboard for EL-01. Address all three prompts — a sentence or two each is fine, but be specific:\n1. The geometric picture. In your own words, what does a dot product measure geometrically? (Not the formula — the meaning. Use the word “direction” somewhere in your answer.)\n2. The similarity connection. Suppose two songs both have 64-number embeddings and those vectors point in nearly the same direction. What does their dot product tell you about how similar the songs are? Why does normalising the vectors to unit length make this cleaner?\n3. Your honest reaction. Did anything in the videos surprise you, change how you think about something, or clarify something that felt like magic before? If the videos were old news to you, describe one thing you noticed in the visualisations that you had not thought about that way before."
+  },
+  {
+    "objectID": "cosc435/notes/el1.html#why-this-matters",
+    "href": "cosc435/notes/el1.html#why-this-matters",
+    "title": "EL-01: The Shape of a Dot Product",
+    "section": "",
+    "text": "On the first day of class you heard: “Every song is described by 64 numbers. We measure how well two things match by multiplying those numbers together and adding up.” That operation is a dot product — and it is the computational heart of your capstone.\nThis assignment gives you the visual intuition that makes the math feel obvious rather than arbitrary. You will need it in Module 4 (tiled matrix multiply) and in the capstone."
+  },
+  {
+    "objectID": "cosc435/notes/el1.html#what-to-watch",
+    "href": "cosc435/notes/el1.html#what-to-watch",
+    "title": "EL-01: The Shape of a Dot Product",
+    "section": "",
+    "text": "3Blue1Brown — Essence of Linear Algebra (YouTube playlist: “Essence of linear algebra” by 3Blue1Brown)\nWatch these three episodes in order — they are short (8–10 min each):\n\nEpisode 1 — “Vectors, what even are they?” What a vector is, how to picture it, why mathematicians and physicists define it differently.\nEpisode 3 — “Linear transformations and matrices” What it means to multiply a matrix by a vector. The visual that makes matrix math click.\nEpisode 9 — “Dot products and duality” The geometric meaning of the dot product: projection, alignment, and why a value near 1.0 means “pointing in the same direction.”\n\nTotal viewing time: approximately 30 minutes."
+  },
+  {
+    "objectID": "cosc435/notes/el1.html#reflection-prompts",
+    "href": "cosc435/notes/el1.html#reflection-prompts",
+    "title": "EL-01: The Shape of a Dot Product",
+    "section": "",
+    "text": "Write a 200–300 word reflection on Blackboard for EL-01. Address all three prompts — a sentence or two each is fine, but be specific:\n1. The geometric picture. In your own words, what does a dot product measure geometrically? (Not the formula — the meaning. Use the word “direction” somewhere in your answer.)\n2. The similarity connection. Suppose two songs both have 64-number embeddings and those vectors point in nearly the same direction. What does their dot product tell you about how similar the songs are? Why does normalising the vectors to unit length make this cleaner?\n3. Your honest reaction. Did anything in the videos surprise you, change how you think about something, or clarify something that felt like magic before? If the videos were old news to you, describe one thing you noticed in the visualisations that you had not thought about that way before."
   },
   {
     "objectID": "cosc435/slides/module00-python-numpy.html#todays-plan",

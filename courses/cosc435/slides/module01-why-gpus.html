@@ -230,9 +230,9 @@ matching the pattern in every other promoted module.
 </section>
 <section id="todays-plan" class="slide level2">
 <h2>Today’s Plan</h2>
+<!-- - Quiz 1 first (15 min, Blackboard) — covers all of Module 0 -->
 <ul>
-<li>Quiz 1 first (15 min, Blackboard) — covers all of Module 0</li>
-<li>Then: why serial CPU performance stopped improving for free</li>
+<li>Why serial CPU performance stopped improving for free</li>
 <li>Three physical walls: clock speed, power, memory</li>
 <li>Why the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer</li>
 </ul>
@@ -298,7 +298,7 @@ matching the pattern in every other promoted module.
 </section>
 <section id="clock-speed-stagnation" class="slide level2">
 <h2>Clock Speed Stagnation</h2>
-<p>[DIAGRAM] — Line chart, x-axis “Year” (1970–2024), y-axis “Clock speed (GHz),” log or linear scale. Curve rises smoothly and steeply from ~1 MHz (1970s) through the 1990s, then bends sharply flat starting around 2004–2005, plateauing in a narrow 3–4 GHz band all the way to 2024. Annotate the bend point “~2005: Dennard scaling breaks down.”</p>
+<p><img data-src="https://upload.wikimedia.org/wikipedia/commons/0/08/CPU_clock_speed_and_Core_count_Graph.png?utm_source=commons.wikimedia.org&amp;utm_campaign=index&amp;utm_content=original" alt="Line chart showing CPU clock speed stagnation over time" width="600"> <!-- [DIAGRAM] — Line chart, x-axis "Year" (1970–2024), y-axis "Clock speed (GHz)," log or linear scale. Curve rises smoothly and steeply from ~1 MHz (1970s) through the 1990s, then bends sharply flat starting around 2004–2005, plateauing in a narrow 3–4 GHz band all the way to 2024. Annotate the bend point "~2005: Dennard scaling breaks down." --></p>
 <ul>
 <li>Single-core clock speed has been stuck at ~3–4 GHz for two decades</li>
 <li>Single-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months</li>
@@ -320,7 +320,8 @@ matching the pattern in every other promoted module.
 </section>
 <section id="the-power-wall" class="slide level2">
 <h2>The Power Wall</h2>
-<ul>
+
+<img data-src="diags/dennard-scaling.png" alt="Two stacked line charts sharing a 1985-2025 x-axis: clock frequency rising steeply then flattening after 2005, and supply voltage falling steadily then hitting a floor around the same year" width="560" class="r-stretch"><ul>
 <li>Dynamic power draw of a chip is approximately <span class="math inline">\(P \approx C \cdot V^2 \cdot f\)</span> (capacitance × voltage² × frequency)</li>
 <li>Under Dennard scaling, shrinking transistors let you <em>lower</em> <span class="math inline">\(V\)</span> every generation — so raising <span class="math inline">\(f\)</span> didn’t raise power density</li>
 <li>Around 2005 (~90 nm), <span class="math inline">\(V\)</span> hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit</li>
@@ -342,8 +343,8 @@ matching the pattern in every other promoted module.
 </section>
 <section id="the-memory-wall" class="slide level2">
 <h2>The Memory Wall</h2>
-<p>[DIAGRAM] — Two diverging line charts sharing an x-axis “Year” (1980–2024). Top line “CPU speed” rises steeply (exponential). Bottom line “DRAM latency improvement” rises only gently. The vertical gap between the two lines, shaded, is labeled “the memory wall” and grows continuously wider toward the right edge.</p>
-<ul>
+
+<img data-src="diags/memory-wall.png" alt="Log-scale line chart, 1980-2024, showing CPU performance rising steeply (about 55% per year, slowing after 2005) while DRAM latency improvement rises only gently (about 8% per year); the widening shaded gap between the two lines is labeled the memory wall" width="560" class="r-stretch"><ul>
 <li>CPU compute throughput improved dramatically for decades; DRAM <strong>latency</strong> (time to fetch one value) improved only modestly over the same period</li>
 <li>A single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute <em>hundreds</em> of instructions</li>
 <li>Consequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time</li>
