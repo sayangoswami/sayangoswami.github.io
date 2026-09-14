@@ -10,7 +10,7 @@
 <script src="../../site_libs/quarto-contrib/codemirror6-1.0.0/codemirror.bundle.js"></script><meta charset="utf-8">
   <meta name="generator" content="quarto-1.9.36">
 
-  <title>Class Notes – Creative Coding 8 — Mutating Arrays in Methods</title>
+  <title>Class Notes – Worksheet: Input → Processing → Output</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -31,6 +31,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -333,7 +399,6 @@
   div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
 
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="quarto-light">
 <script type="module">
@@ -734,187 +799,527 @@ if (document.readyState === 'loading') {
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Creative Coding 8 — Mutating Arrays in Methods</h1>
-  <p class="subtitle">COSC120 — ungraded warm-up</p>
+  <h1 class="title">Worksheet: Input → Processing → Output</h1>
+  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="before-class" class="slide level2">
-<h2>Before class</h2>
-<p>Read through this deck and run each sketch yourself. Companion Java material: your lecture on passing arrays to methods, and how that differs from passing a plain <code>int</code>/<code>double</code>. We’ll finish the exercises together in class.</p>
-</section>
 <section id="learning-outcomes" class="slide level2">
 <h2>Learning Outcomes</h2>
 <ul>
-<li>Watch, visually, why changing a primitive parameter inside a method does <em>not</em> affect the caller’s variable</li>
-<li>Watch, visually, why changing an array parameter’s contents <em>does</em> persist after the method returns</li>
-<li>Explain the difference in your own words: primitives are passed as copies; arrays are passed by reference to the same underlying data</li>
+<li class="fragment">Identify the <em>input</em>, <em>processing</em>, and <em>output</em> <em>stages</em> in a program’s description before writing any code</li>
+<li class="fragment">Read one or more values with <code>IO.readln</code>, convert numeric input with <code>Integer.parseInt</code></li>
+<li class="fragment">Compute a result using arithmetic operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>)</li>
+<li class="fragment">Print a labeled result using <code>IO.println</code> and <em>String concatenation</em></li>
+<li class="fragment">Explain, for a program that fails, which of the three stages is broken</li>
+<li class="fragment">Explain why a silent <code>IO.readln()</code> is confusing to a user, and fix it with a printed prompt — either as a separate <code>IO.println</code>/<code>IO.print</code> or built into <code>IO.readln("...")</code></li>
 </ul>
 </section>
-<section id="step-1-a-variable-and-a-rectangle" class="slide level2">
-<h2>Step 1 — a variable and a rectangle</h2>
-<div class="jr-block" id="jr-1" data-type="processing">
+<section id="why-new-programmers-hit-a-wall-here" class="slide level2 scrollable">
+<h2>Why New Programmers Hit a Wall Here</h2>
+<aside class="notes">
+<p>This deck is a remediation/consolidation session, not new content — everything here uses only what lecture 2 (variables, IO.readln, IO.println) and lecture 3 (arithmetic, Integer.parseInt) already covered. The wall students hit is usually not syntax, it’s not having a plan before they start typing. They stare at a word problem and don’t know where to begin because they’re trying to write the whole program in one motion. The fix is a habit: before touching the keyboard, name the three stages out loud (or in a comment). Use this slide to diagnose that out loud with the class — ask “when a program you wrote doesn’t work, do you know if the input is wrong, the math is wrong, or the print statement is wrong?” Most say no. That’s the gap this worksheet closes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>You already know <code>IO.readln</code>, <code>IO.println</code>, variables, and arithmetic.</p>
+<p>You must have a <strong>plan</strong> before you start typing.</p>
+<p>Every program you’ve written so far, no matter how small, does the same three things:</p>
+<ol type="1">
+<li class="fragment"><strong>Get some data in</strong></li>
+<li class="fragment"><strong>Do something with it</strong></li>
+<li class="fragment"><strong>Show a result</strong></li>
+</ol>
+<div class="fragment">
+<p><img data-src="diags/io-pattern-flow.svg" alt="Diagram showing the flow from INPUT to PROCESSING to OUTPUT"></p>
+<!-- FIGURE [draw.io or excalidraw]: Three labeled boxes in a horizontal row connected by right-pointing arrows: "INPUT" (icon: keyboard or arrow entering a box) → "PROCESSING" (icon: gears) → "OUTPUT" (icon: monitor screen with text). Clean, simple, this is the central image of the whole worksheet and should reappear conceptually on every problem slide. -->
+</div>
+</section>
+<section id="the-pattern-input-processing-output" class="slide level2">
+<h2>The Pattern: Input → Processing → Output</h2>
+<aside class="notes">
+<p>Name the pattern explicitly and give it an acronym (IPO) so students have a label to reach for. Map each stage directly onto the Java constructs they already know — this is not new material, it’s a lens for organizing material they have. Emphasize that not every program has all three (a program can print a fixed message with zero input or processing), but almost every <em>interesting</em> program does.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<table class="caption-top">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 31%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Question to ask</th>
+<th>Java tools you already know</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Input</strong></td>
+<td>What data does the program need, and where does it come from?</td>
+<td><code>IO.readln()</code>, <code>IO.readln("prompt: ")</code></td>
+</tr>
+<tr class="even">
+<td><strong>Processing</strong></td>
+<td>What computation turns that data into the answer?</td>
+<td><code>+ - * / %</code>, <code>Integer.parseInt(...)</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Output</strong></td>
+<td>What exactly should be printed, and in what format?</td>
+<td><code>IO.println(...)</code>, <code>+</code> for concatenation</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Not every program needs all three. A program that just prints a message has <strong>output only</strong> — zero input, zero processing. But most real programs use all three, in that order.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="worked-example-labeling-the-stages" class="slide level2">
+<h2>Worked Example — Labeling the Stages</h2>
+<aside class="notes">
+<p>Walk through this once, slowly, before turning students loose. The point of the <code>//INPUT</code>, <code>//PROCESSING</code>, <code>//OUTPUT</code> comments is not that real programs need these comments forever — it’s training wheels. Have students write these three comments in their code for every problem on this worksheet, in order, before writing any other code. It forces them to plan the shape of the program before worrying about syntax. Trace through the example with a concrete input (say, 45 minutes studied) before running it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><strong>Problem:</strong> Ask the user how many minutes they studied. Print how many full hours that is, and how many minutes are left over.</p>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>    <span class="co">// INPUT</span></span>
+<span id="cb1-3"><a></a>    <span class="dt">int</span> minutes <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Minutes studied: "</span><span class="op">));</span></span>
+<span id="cb1-4"><a></a></span>
+<span id="cb1-5"><a></a>    <span class="co">// PROCESSING</span></span>
+<span id="cb1-6"><a></a>    <span class="dt">int</span> hours <span class="op">=</span> minutes <span class="op">/</span> <span class="dv">60</span><span class="op">;</span></span>
+<span id="cb1-7"><a></a>    <span class="dt">int</span> leftover <span class="op">=</span> minutes <span class="op">%</span> <span class="dv">60</span><span class="op">;</span></span>
+<span id="cb1-8"><a></a></span>
+<span id="cb1-9"><a></a>    <span class="co">// OUTPUT</span></span>
+<span id="cb1-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hours: "</span> <span class="op">+</span> hours<span class="op">);</span></span>
+<span id="cb1-11"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Leftover minutes: "</span> <span class="op">+</span> leftover<span class="op">);</span></span>
+<span id="cb1-12"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<p>Notice the shape: <strong>one block to get data, one block to compute, one block to print.</strong> That order almost never changes.</p>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Before you write any code on this worksheet</strong>, write the three comments <code>//INPUT</code>, <code>//PROCESSING</code>, <code>//OUTPUT</code> in your file first. Then fill in each block one at a time.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>This worked example uses <code>IO.readln("Minutes studied: ")</code> — a prompt built right into the read. The worksheet below builds up to that style in stages; you’ll see why it’s the one worth defaulting to.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="prompts-three-ways-to-ask" class="slide level2">
+<h2>Prompts: Three Ways to Ask</h2>
+<aside class="notes">
+<p>This is the second confusion point layered on top of IPO, and it deserves its own slide before students hit the worksheet. A silent <code>IO.readln()</code> is technically correct Java but a terrible user experience — the cursor just blinks and the student (or grader) doesn’t know the program is waiting for anything. Walk through all three versions live: run the silent one first and let the awkward silence land, then show the two fixes. The <code>IO.println</code> + <code>IO.readln()</code> version matters because it’s the one students reach for instinctively once they realize they need to say something before reading — but it puts the prompt on its own line, and the input the user types appears on the <em>next</em> line, which looks different from the inline-prompt version. Point that out explicitly: same information reaches the program either way, but the on-screen layout differs. <code>IO.readln("prompt: ")</code> is the idiomatic one-line version and should become the default once it’s introduced.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><code>IO.readln</code> doesn’t require a prompt — but leaving one out makes the program confusing to use.</p>
+<!-- :::: {.columns}
+::: {.column width="33%"} -->
+<div class="fragment">
+<p><strong>No prompt</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="bu">String</span> name <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The program just waits. The user has no idea what to type. <!-- :::
+::: {.column width="33%"} --></p>
+</div>
+<div class="fragment">
+<p><strong>Separate print, then read</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Enter your name:"</span><span class="op">);</span></span>
+<span id="cb3-2"><a></a><span class="bu">String</span> name <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The prompt appears on its own line; the user’s answer appears on the <em>next</em> line. <!-- :::
+::: {.column width="34%"} --></p>
+</div>
+<div class="fragment">
+<p><strong>Prompt built into <code>readln</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="bu">String</span> name <span class="op">=</span></span>
+<span id="cb4-2"><a></a>    IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Enter your name: "</span><span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Prompt and answer share <strong>one line</strong> — the style you should default to from here on. <!-- :::
+:::: --></p>
+</div>
+</section>
+<section id="worksheet" class="slide level2">
+<h2>Worksheet</h2>
+<aside class="notes">
+<p>Reserve the last 20-30 minutes, or use as a standalone remediation session. Require the <code>// INPUT</code> / <code>// PROCESSING</code> / <code>// OUTPUT</code> comment scaffold on every problem, even the trivial ones — the habit is the point, not the code. Problem 1 is intentionally degenerate (missing a stage) so students see that the pattern is a lens, not a rigid template. On top of the IPO progression, prompts are layered in gradually: Problems 2-4 read with no prompt at all (let them feel the confusion), Problems 5-7 print a prompt separately with <code>IO.println</code>/<code>IO.print</code> before calling <code>IO.readln()</code>, and Problems 8-10 fold the prompt into <code>IO.readln("...")</code>, which should become the default from here on. Problems 7-9 also require two or more processing steps in sequence, and Problem 10 is the synthesis problem. Common failure: students try to read all inputs, then do all processing, then print — which is actually correct and is exactly the pattern; the more common bug is interleaving a println into the middle of processing and getting confused about what’s been computed yet. Watch for forgotten <code>Integer.parseInt</code>, and for <code>/</code> vs <code>%</code> confusion.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>For <strong>every</strong> problem below, start by writing <code>// INPUT</code>, <code>// PROCESSING</code>, and <code>// OUTPUT</code> as comments in your file, in that order. Then fill in the code under each one. If a problem has no input or no processing, leave that comment in place with nothing under it — that’s fine, and worth noticing.</p>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Watch the prompt style change as you go: <strong>Problems 2-4 use no prompt at all</strong> (read silently), <strong>Problems 5-7 print a prompt with <code>IO.println</code>/<code>IO.print</code> before reading</strong>, and <strong>Problems 8-10 build the prompt into <code>IO.readln("...")</code></strong>.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 1 — Output only.</strong> Print a 3-line “business card” with no input at all:</p>
+<pre><code>Name: Ada Lovelace
+Course: COSC120
+Semester: Fall 2026</code></pre>
+<p><em>What goes under <code>// INPUT</code> and <code>// PROCESSING</code>? Nothing — and that’s the point. Not every program needs every stage.</em></p>
+<div class="jr-block" id="jr-1" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">int score = 10;
-
-void setup() {
-  size(400, 150);
-}
-
-void draw() {
-  background(240);
-  noStroke();
-  fill(90, 150, 220);
-  rect(20, 50, score * 10, 40);
-}</div>
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p>A rectangle whose width is <code>score * 10</code>. Nothing changes it yet — it’s the same width every frame.</p>
 </section>
-<section id="step-2-try-to-double-it-inside-a-method" class="slide level2">
-<h2>Step 2 — try to double it inside a method</h2>
-<p>You have learned that Java passes primitive values like <code>int</code> and <code>double</code> as <em>copies</em> — a method can do whatever it wants to its own parameter, and the caller’s original variable is untouched once the method returns.</p>
-<div class="jr-block" id="jr-2" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 2 — Input and output, no processing.</strong> Read the user’s name and their favorite color with <code>IO.readln()</code> — <strong>no prompt, just read</strong>. Print them back in a sentence.</p>
+<p>Typed input, in order: <code>Ada</code>, then <code>green</code>. Program prints:</p>
+<pre><code>Ada's favorite color is green.</code></pre>
+<div class="jr-block" id="jr-2" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">int score = 10;
-
-void setup() {
-  size(400, 150);
-}
-
-void draw() {
-  background(240);
-  tryToDouble(score);
-  noStroke();
-  fill(90, 150, 220);
-  rect(20, 50, score * 10, 40);   // still uses the ORIGINAL score
-}
-
-void tryToDouble(int n) {
-  n = n * 2;   // only changes the local copy n
-}</div>
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p><code>tryToDouble(score)</code> passes a <strong>copy</strong> of <code>score</code> into the parameter <code>n</code>. Doubling <code>n</code> inside the method only changes that local copy — <code>score</code> itself never changes. Run this: the rectangle’s width never grows, no matter how many frames go by.</p>
+<div class="fragment">
+<p><em>Try running it and typing the two values without seeing any prompt first. Notice how disorienting that is — you’re about to fix it.</em></p>
+<p><em>The <code>// PROCESSING</code> comment stays in your file, but there’s nothing under it — you’re just rearranging the input into a sentence, not computing anything.</em></p>
+</div>
 </section>
-<section id="step-3-an-array-drawn-as-bars" class="slide level2">
-<h2>Step 3 — an array, drawn as bars</h2>
-<div class="jr-block" id="jr-3" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 3 — One computation.</strong> Read two integers, still with <strong>no prompt</strong>. Print their sum.</p>
+<p>Example: typed <code>4</code>, then <code>9</code> → prints <code>Sum: 13</code></p>
+<div class="jr-block" id="jr-3" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] bars = { 20, 20, 20, 20, 20 };
-
-void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(240);
-  int barWidth = width / bars.length;
-  for (int i = 0; i &lt; bars.length; i++) {
-    fill(70, 150, 110);
-    noStroke();
-    rect(i * barWidth, height - bars[i], barWidth - 4, bars[i]);
-  }
-}</div>
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p>Five equal bars, same array-loop pattern as before.</p>
 </section>
-<section id="step-4-pass-the-array-to-a-method-that-mutates-it" class="slide level2">
-<h2>Step 4 — pass the array to a method that mutates it</h2>
-<p>You have also learned that arrays behave differently from primitives: an array parameter refers to the <em>same</em> array the caller has, so changes made through it inside the method are still there afterward.</p>
-<div class="jr-block" id="jr-4" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 4 — Two computations, same inputs.</strong> Read the length and width of a rectangle (as integers), <strong>no prompt</strong>. Print both the area and the perimeter.</p>
+<p>Example: typed <code>5</code>, then <code>3</code> → prints <code>Area: 15</code> and <code>Perimeter: 16</code></p>
+<div class="jr-block" id="jr-4" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] bars = { 20, 20, 20, 20, 20 };
-
-void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(240);
-  int barWidth = width / bars.length;
-  for (int i = 0; i &lt; bars.length; i++) {
-    fill(70, 150, 110);
-    noStroke();
-    rect(i * barWidth, height - bars[i], barWidth - 4, bars[i]);
-  }
-}
-
-void mousePressed() {
-  growAll(bars);
-}
-
-void growAll(int[] arr) {
-  for (int i = 0; i &lt; arr.length; i++) {
-    arr[i] += 15;   // mutates the SAME array the caller has
-  }
-}</div>
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p>Click repeatedly: every bar grows and <strong>stays</strong> grown, click after click. The key line is <code>growAll(bars)</code>: it passes a reference to the very same array <code>draw()</code> reads from, not a copy of its contents. Inside <code>growAll</code>, the parameter is named <code>arr</code> rather than <code>bars</code>, but <code>arr</code> and <code>bars</code> refer to the identical array in memory — modifying <code>arr[i]</code> inside the method <em>is</em> modifying <code>bars[i]</code>, seen from the caller’s side. That’s why the growth persists after the method returns, unlike <code>score</code> in Step 2.</p>
+<div class="fragment">
+<p><em>This is the last no-prompt problem. Did you find yourself wanting to add a prompt already? That instinct is correct — next up.</em></p>
+</div>
 </section>
-<section id="your-turn-before-class" class="slide level2">
-<h2>Your turn (before class)</h2>
-<p>Write a second method, <code>shrinkAll(int[] arr)</code>, that does the opposite of <code>growAll</code> (subtract instead of add), and swap which method <code>mousePressed()</code> calls to confirm it works the same way in reverse.</p>
+<section class="slide level2">
+
+<p><strong>Problem 5 — Using <code>%</code> and <code>/</code> together.</strong> Ask the user for a number of cents (an integer): print a prompt with <code>IO.println</code> (or <code>IO.print</code>), <strong>then</strong> call <code>IO.readln()</code> on its own to get the value. Print how many whole quarters that makes, and how many cents are left over.</p>
+<p>Example: <code>87</code> cents → <code>Quarters: 3</code> and <code>Leftover cents: 12</code></p>
+<div class="jr-block" id="jr-5" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 6 — Multiplication.</strong> Same style — a separate <code>IO.println</code>/<code>IO.print</code> before each <code>IO.readln()</code>. Ask for the number of miles driven and the cost per mile in cents (both integers). Print the total trip cost, in cents.</p>
+<p>Example: <code>12</code> miles at <code>12</code> cents/mile → <code>Total cost (cents): 144</code></p>
+<div class="jr-block" id="jr-6" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+<div class="fragment">
+<p><em>Notice each prompt sits on its own line, and the value you type shows up on the line below it.</em></p>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 7 — Three inputs, one computation.</strong> Still a separate <code>IO.println</code>/<code>IO.print</code> before each of the three <code>IO.readln()</code> calls. Ask for three quiz scores (integers). Print their sum and their average (integer division — the result will truncate, and that’s expected here).</p>
+<p>Example: <code>90</code>, <code>80</code>, <code>100</code> → <code>Sum: 270</code> and <code>Average: 90</code></p>
+<div class="jr-block" id="jr-7" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+<div class="fragment">
+<p><em>What would happen with <code>90</code>, <code>85</code>, <code>100</code>? Compute the average by hand first — does the printed value surprise you? Why?</em></p>
+<p><em>This is the last problem with the prompt on its own line. Next, you’ll fold it into <code>IO.readln("...")</code> directly.</em></p>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 8 — Digit extraction.</strong> From here on, build the prompt directly into the read: <code>int n = Integer.parseInt(IO.readln("Number: "));</code>. Ask for a two- or three-digit whole number this way. Print its last digit, and print the number with its last digit removed.</p>
+<p>Example: <code>247</code> → <code>Last digit: 7</code> and <code>Without last digit: 24</code></p>
+<p><em>Hint: one of these uses <code>%</code>, the other uses <code>/</code>.</em></p>
+<div class="jr-block" id="jr-8" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+<div class="fragment">
+<p><em>Compare this to Problems 5-7: same information reaches your program, but the prompt and the typed value now share one line.</em></p>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 9 — Percentage of a value.</strong> Use <code>IO.readln("...: ")</code> with an inline prompt for both reads. Ask for a bill amount in cents and a tip percentage (both integers). Print the tip amount in cents and the total (bill + tip) in cents.</p>
+<p>Example: bill <code>2000</code> cents, tip <code>15</code>% → <code>Tip (cents): 300</code> and <code>Total (cents): 2300</code></p>
+<p><em>Hint: <code>bill * percent / 100</code> computes a percentage using only integers.</em></p>
+<div class="jr-block" id="jr-9" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Problem 10 — Synthesis: receipt.</strong> Use <code>IO.readln("...: ")</code> with an inline prompt for all three reads. Ask for an item’s price in cents, the quantity purchased, and the sales-tax percentage (three integers). Compute and print an itemized receipt: the subtotal, the tax amount, and the total — each on its own line.</p>
+<p>Example: price <code>500</code> cents, quantity <code>3</code>, tax <code>8</code>% →</p>
+<pre><code>Subtotal (cents): 1500
+Tax (cents): 120
+Total (cents): 1620</code></pre>
+<p><em>This one has three inputs and three separate processing steps that build on each other — subtotal feeds into tax, and both feed into total. Write out all three <code>//INPUT</code> reads first, then work through <code>//PROCESSING</code> top to bottom before printing anything.</em></p>
+<div class="jr-block" id="jr-10" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
 
 
 </section>

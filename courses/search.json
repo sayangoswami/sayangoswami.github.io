@@ -4627,452 +4627,116 @@
     "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-3 are prediction/translation — paper first. Problems 4-6 are write-the-code. Problem 7 is the synthesis problem with a full else if chain. Watch for: missing parentheses in compound conditions; wrong ordering in else if; using == instead of .equals() on Strings; deep nesting when else if would be cleaner.\n\nProblem 1 — Evaluate. What does each expression produce — true or false? Work through them without running.\nint x = 5;\nint y = 10;\nboolean isOn = true;\n\nx &gt; 3 && y &lt; 20\nx &gt; 3 && y &gt; 20\nx &gt; 3 || y &gt; 20\n!(x == 5)\n!(x == 5) || isOn\nx &gt; 0 && x &lt; 10\nProblem 2 — English to Java. Translate each condition into a Java boolean expression. Use variables age, hasTicket, isMember, score, isWeekend.\n\n“18 or older and has a ticket”\n“A member or the score is above 90”\n“Not a weekend”\n“Score is between 70 and 89 (inclusive)”\n“A member and not a weekend, or score is above 95”\n\nProblem 3 — Spot the bug. Each snippet has one mistake. Identify and fix it.\n// Snippet A\nint score = 95;\nif (score &gt;= 60) {\n    IO.println(\"D\");\n} else if (score &gt;= 90) {\n    IO.println(\"A\");   // student expected \"A\" but got \"D\"\n}\n// Snippet B — intended: (isMember || isGuest) && hasId\nif (isMember || isGuest && hasId) {\n    IO.println(\"Allowed\");\n}\nProblem 4 — Write it. Write a program that asks for a temperature in Fahrenheit and prints one of: - \"Freezing\" — below 32 - \"Cold\" — 32 to 59 - \"Comfortable\" — 60 to 79 - \"Hot\" — 80 and above\nProblem 5 — Write it. Ask the user for two numbers and a choice of operation (+, -, *). Print the result. If the operation is not recognized, print \"Unknown operation\".\nProblem 6 — Write it. Ask for a user’s age and whether they have a student ID (yes/no). Print \"Full price\", \"Student discount\" (age 13–25 with ID), \"Child\" (under 13), or \"Senior discount\" (65 and above).\nProblem 7 — Trace it. What does this print for score = 85? For score = 60? For score = 59?\nvoid main() {\n    int score = 85;\n\n    if (score &gt;= 90) {\n        IO.println(\"A\");\n    } else if (score &gt;= 80) {\n        IO.println(\"B\");\n    } else if (score &gt;= 70) {\n        IO.println(\"C\");\n    } else if (score &gt;= 60) {\n        IO.println(\"D\");\n    } else {\n        IO.println(\"F\");\n    }\n\n    IO.println(\"Grade assigned.\");\n}"
   },
   {
-    "objectID": "cosc120/notes/index.html",
-    "href": "cosc120/notes/index.html",
-    "title": "COSC120 — Slides and Notes",
-    "section": "",
-    "text": "Lecture slide decks and notes for COSC120.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nWhat Is a Program?\n\n\n\n\n\n\n\n\n\nVariables and Data Types\n\n\n\n\n\n\n\n\n\nArithmetic Expressions\n\n\n\n\n\n\n\n\n\nType Conversion and Casting\n\n\n\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#learning-outcomes",
-    "href": "cosc120/notes/03-arithmetic.html#learning-outcomes",
-    "title": "Arithmetic Expressions",
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
+    "title": "Worksheet: Input → Processing → Output",
     "section": "Learning Outcomes",
-    "text": "Learning Outcomes\n\nWrite arithmetic expressions using +, -, *, /, and %\nExplain how integer division differs from regular division and predict its result\nPredict the order of evaluation in an expression by applying operator precedence rules\nUse parentheses to control evaluation order\nConvert string input to an integer with Integer.parseInt and use it in a computation\nUse + to join strings with String concatenation"
+    "text": "Learning Outcomes\n\nIdentify the input, processing, and output stages in a program’s description before writing any code\nRead one or more values with IO.readln, convert numeric input with Integer.parseInt\nCompute a result using arithmetic operators (+, -, *, /, %)\nPrint a labeled result using IO.println and String concatenation\nExplain, for a program that fails, which of the three stages is broken\nExplain why a silent IO.readln() is confusing to a user, and fix it with a printed prompt — either as a separate IO.println/IO.print or built into IO.readln(\"...\")"
   },
   {
-    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic",
-    "href": "cosc120/notes/03-arithmetic.html#arithmetic",
-    "title": "Arithmetic Expressions",
-    "section": "Arithmetic",
-    "text": "Arithmetic\n\nThis is the motivational opener — spend real time here. The goal is to make students feel the significance of what they are about to learn. Every useful computation that a computer performs, from a video game physics engine to GPS navigation to the systems that guide spacecraft, reduces to arithmetic. Not magic — arithmetic. And the computer does it at a scale and speed that is hard to grasp. The course arc: we learn the operators today, then we combine them in expressions, then we repeat them billions of times using loops, then we apply them to collections of data. Today is the foundation of all of that."
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Why New Programmers Hit a Wall Here",
+    "text": "Why New Programmers Hit a Wall Here\n\nThis deck is a remediation/consolidation session, not new content — everything here uses only what lecture 2 (variables, IO.readln, IO.println) and lecture 3 (arithmetic, Integer.parseInt) already covered. The wall students hit is usually not syntax, it’s not having a plan before they start typing. They stare at a word problem and don’t know where to begin because they’re trying to write the whole program in one motion. The fix is a habit: before touching the keyboard, name the three stages out loud (or in a comment). Use this slide to diagnose that out loud with the class — ask “when a program you wrote doesn’t work, do you know if the input is wrong, the math is wrong, or the print statement is wrong?” Most say no. That’s the gap this worksheet closes.\n\nYou already know IO.readln, IO.println, variables, and arithmetic.\nYou must have a plan before you start typing.\nEvery program you’ve written so far, no matter how small, does the same three things:\n\nGet some data in\nDo something with it\nShow a result"
   },
   {
-    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-1",
-    "href": "cosc120/notes/03-arithmetic.html#arithmetic-1",
-    "title": "Arithmetic Expressions",
-    "section": "Arithmetic",
-    "text": "Arithmetic\nEvery program that has ever run on a computer — games, GPS, streaming video, weather forecasts, the systems that control spacecraft — is built on arithmetic.\nA modern computer can perform hundreds of millions to billions of arithmetic operations every second."
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "The Pattern: Input → Processing → Output",
+    "text": "The Pattern: Input → Processing → Output\n\nName the pattern explicitly and give it an acronym (IPO) so students have a label to reach for. Map each stage directly onto the Java constructs they already know — this is not new material, it’s a lens for organizing material they have. Emphasize that not every program has all three (a program can print a fixed message with zero input or processing), but almost every interesting program does.\n\n\n\n\n\n\n\n\n\nStage\nQuestion to ask\nJava tools you already know\n\n\n\n\nInput\nWhat data does the program need, and where does it come from?\nIO.readln(), IO.readln(\"prompt: \")\n\n\nProcessing\nWhat computation turns that data into the answer?\n+ - * / %, Integer.parseInt(...)\n\n\nOutput\nWhat exactly should be printed, and in what format?\nIO.println(...), + for concatenation\n\n\n\n\n\n\n\n\n\nNote\n\n\nNot every program needs all three. A program that just prints a message has output only — zero input, zero processing. But most real programs use all three, in that order."
   },
   {
-    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-2",
-    "href": "cosc120/notes/03-arithmetic.html#arithmetic-2",
-    "title": "Arithmetic Expressions",
-    "section": "Arithmetic",
-    "text": "Arithmetic\nWhat makes programs powerful is not any one operation — it’s combining simple operations and repeating them at enormous speed.\nHere is the course in one sentence:\n\nLearn the operators → combine them into expressions → repeat them with loops → apply them to collections of data.\n\nToday: the operators."
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Worked Example — Labeling the Stages",
+    "text": "Worked Example — Labeling the Stages\n\nWalk through this once, slowly, before turning students loose. The point of the //INPUT, //PROCESSING, //OUTPUT comments is not that real programs need these comments forever — it’s training wheels. Have students write these three comments in their code for every problem on this worksheet, in order, before writing any other code. It forces them to plan the shape of the program before worrying about syntax. Trace through the example with a concrete input (say, 45 minutes studied) before running it.\n\nProblem: Ask the user how many minutes they studied. Print how many full hours that is, and how many minutes are left over.\n\nvoid main() {\n    // INPUT\n    int minutes = Integer.parseInt(IO.readln(\"Minutes studied: \"));\n\n    // PROCESSING\n    int hours = minutes / 60;\n    int leftover = minutes % 60;\n\n    // OUTPUT\n    IO.println(\"Hours: \" + hours);\n    IO.println(\"Leftover minutes: \" + leftover);\n}\n\n\nNotice the shape: one block to get data, one block to compute, one block to print. That order almost never changes.\n\n\n\n\n\n\nTip\n\n\nBefore you write any code on this worksheet, write the three comments //INPUT, //PROCESSING, //OUTPUT in your file first. Then fill in each block one at a time.\n\n\n\n\n\n\n\n\n\nNote\n\n\nThis worked example uses IO.readln(\"Minutes studied: \") — a prompt built right into the read. The worksheet below builds up to that style in stages; you’ll see why it’s the one worth defaulting to."
   },
   {
-    "objectID": "cosc120/notes/03-arithmetic.html#what-is-an-expression",
-    "href": "cosc120/notes/03-arithmetic.html#what-is-an-expression",
-    "title": "Arithmetic Expressions",
-    "section": "What Is an Expression?",
-    "text": "What Is an Expression?\n\nName the concept before diving into operators. An expression is any piece of code that the computer can evaluate to produce a single value. 3 + 4 is an expression. score * 2 is an expression. Even a lone literal like 42 is an expression. Expressions appear everywhere in programs — on the right side of an assignment, as arguments to IO.println, and later as conditions in if statements and loops. Once students see that distinction, every piece of syntax they encounter will feel more organized.\n\nAn expression is any combination of values, variables, and operators that the computer can evaluate to produce a single value.\n\n\n\nExpression\nEvaluates to\n\n\n\n\n3 + 4\n7\n\n\n10 - 3\n7\n\n\nscore * 2\ntwice whatever score holds\n\n\n100\n100"
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Prompts: Three Ways to Ask",
+    "text": "Prompts: Three Ways to Ask\n\nThis is the second confusion point layered on top of IPO, and it deserves its own slide before students hit the worksheet. A silent IO.readln() is technically correct Java but a terrible user experience — the cursor just blinks and the student (or grader) doesn’t know the program is waiting for anything. Walk through all three versions live: run the silent one first and let the awkward silence land, then show the two fixes. The IO.println + IO.readln() version matters because it’s the one students reach for instinctively once they realize they need to say something before reading — but it puts the prompt on its own line, and the input the user types appears on the next line, which looks different from the inline-prompt version. Point that out explicitly: same information reaches the program either way, but the on-screen layout differs. IO.readln(\"prompt: \") is the idiomatic one-line version and should become the default once it’s introduced.\n\nIO.readln doesn’t require a prompt — but leaving one out makes the program confusing to use.\n\n\nNo prompt\nString name = IO.readln();\nThe program just waits. The user has no idea what to type. \n\n\nSeparate print, then read\nIO.println(\"Enter your name:\");\nString name = IO.readln();\nThe prompt appears on its own line; the user’s answer appears on the next line. \n\n\nPrompt built into readln\nString name =\n    IO.readln(\"Enter your name: \");\nPrompt and answer share one line — the style you should default to from here on."
   },
   {
-    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-operators",
-    "href": "cosc120/notes/03-arithmetic.html#arithmetic-operators",
-    "title": "Arithmetic Expressions",
-    "section": "Arithmetic Operators",
-    "text": "Arithmetic Operators\n\nWalk through each operator one at a time. Addition, subtraction, and multiplication are unsurprising — just flag that multiplication uses * not ×. Division is where things get interesting; hold the full explanation for the next slide. Modulo is the one students have never seen before — introduce the symbol and give the one-line definition, then hold examples for its own slide. The table is a reference; students should not try to memorize it on first pass.\n\nJava has five arithmetic operators:\n\n\n\nOperator\nName\nExample\nResult\n\n\n\n\n+\nAddition\n3 + 4\n7\n\n\n-\nSubtraction\n10 - 3\n7\n\n\n*\nMultiplication\n6 * 7\n42\n\n\n/\nDivision\n10 / 4\n2 ← watch out\n\n\n%\nModulo (remainder)\n10 % 3\n1"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#operator-precedence",
-    "href": "cosc120/notes/03-arithmetic.html#operator-precedence",
-    "title": "Arithmetic Expressions",
-    "section": "Operator Precedence",
-    "text": "Operator Precedence\n\nPEMDAS from math class still applies in Java. Multiplication and division are evaluated before addition and subtraction. Within the same level, evaluation goes left to right. Parentheses override everything. Show a worked example where the answer changes depending on whether parentheses are present. The practical advice — when in doubt, add parentheses — is worth repeating. A program with extra parentheses is easier to read and less likely to have a subtle bug.\n\nJava follows the same precedence rules as mathematics.\nPEMDAS still applies:\n\nParentheses first\nMultiplication and division (left to right)\nAddition and subtraction (left to right)"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#integer-division",
-    "href": "cosc120/notes/03-arithmetic.html#integer-division",
-    "title": "Arithmetic Expressions",
-    "section": "Integer Division",
-    "text": "Integer Division\n\nThis is one of the most common surprises for beginners and it will bite them for weeks if they do not understand it clearly. When both operands are ints, Java performs integer division: the result is always a whole number and the decimal part is simply dropped — not rounded, just gone. 7 / 2 is 3, not 3.5, not 4. Show this with several examples. Then show how to get a decimal result: if either operand is a double, the division is decimal division. Make the connection back to types: it is the type of the operands that determines what kind of division happens.\n\nHere is the most common surprise in this entire lecture:\nint result = 7 / 2;\nIO.println(result);    // prints 3, not 3.5\n\nWhen both values are whole numbers, Java does integer division — the decimal part is dropped."
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#the-modulo-operator",
-    "href": "cosc120/notes/03-arithmetic.html#the-modulo-operator",
-    "title": "Arithmetic Expressions",
-    "section": "The Modulo Operator %",
-    "text": "The Modulo Operator %\n\nModulo is the one operator most students haven’t seen before. The concept is simple — it is the remainder after division — but it takes a moment to click. Walk through the division-with-remainder picture: 7 divided by 2 goes 3 times with 1 left over. That leftover is what % gives you. Then show the practical uses, which are genuinely useful and will appear repeatedly throughout the course: checking even/odd, extracting the last digit of a number, wrapping around a fixed range.\n\n% gives the remainder after integer division.\n\nThink of it as division with leftovers:\n7 ÷ 2 → goes 3 times, with 1 left over\n7 % 2  →  1"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#introducing-flowcharts",
-    "href": "cosc120/notes/03-arithmetic.html#introducing-flowcharts",
-    "title": "Arithmetic Expressions",
-    "section": "Introducing Flowcharts",
-    "text": "Introducing Flowcharts\n\nIntroduce flowcharts as a planning tool before writing code. Professional programmers sketch the logic of a program before writing a single line — flowcharts are one way to do that. Three symbols are enough for now: the oval marks where a program starts and ends; the rectangle describes a step or action; the arrow shows what happens next. Diamonds (for decisions) come in the next lecture when we cover conditionals. Show a completely non-programming example first — making toast — so students absorb the symbols without the distraction of syntax. Then show a programming example.\n\nBefore writing code, it helps to plan what the program should do.\n\nA flowchart is a diagram that shows the steps of a program and how they connect.\n\n\nThree symbols are enough for now:\n\n\n\nSymbol\nShape\nMeaning\n\n\n\n\nStart / End\nOval\nWhere the program begins and ends\n\n\nStep\nRectangle\nA single action (compute, read, print)\n\n\nFlow\nArrow\nWhat happens next"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#integer.parseint-numbers-from-the-user",
-    "href": "cosc120/notes/03-arithmetic.html#integer.parseint-numbers-from-the-user",
-    "title": "Arithmetic Expressions",
-    "section": "Integer.parseInt — Numbers from the User",
-    "text": "Integer.parseInt — Numbers from the User\n\nIO.readln always produces a String — even if the user types 42, the program receives the text “42”, not the number 42. That distinction matters because you cannot do arithmetic on text. To convert “42” to the number 42, use Integer.parseInt. The syntax is straightforward: wrap the String in Integer.parseInt(…). Mention that if the user types something that is not a valid number — like “hello” — the program will crash. Handling that gracefully is a topic for later in the course.\n\nIO.readln always produces a String — even if the user types a number.\nString input = IO.readln(\"How many minutes? \");\n// input holds \"137\" — the TEXT, not the number\n\nYou cannot do arithmetic on a String:\ninput / 60    // ERROR — can't divide text"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#putting-it-together",
-    "href": "cosc120/notes/03-arithmetic.html#putting-it-together",
-    "title": "Arithmetic Expressions",
-    "section": "Putting It Together",
-    "text": "Putting It Together\n\nWalk through the flowchart first, then the code. Trace through a concrete example — 137 minutes — step by step with the class before running the program. 137 / 60 = 2 (integer division, decimal dropped). 137 % 60 = 17 (remainder). Output: “2 hours and 17 minutes.” Make sure students verify the math by hand before the program confirms it. This builds the habit of reasoning about code before running it.\n\nProblem: Ask the user how many minutes they have been studying. Print the equivalent hours and minutes."
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#string-concatenation",
-    "href": "cosc120/notes/03-arithmetic.html#string-concatenation",
-    "title": "Arithmetic Expressions",
-    "section": "String Concatenation",
-    "text": "String Concatenation\n\nThis is the formal introduction of string concatenation, deferred from the variables deck. The + operator does two different things depending on the types involved. int + int is arithmetic. String + anything is concatenation — the values are joined into a single String. The anything part is important: Java automatically converts a number to its text form before joining. Show the clean cases first, then the surprising mixed case. The left-to-right evaluation rule is the key to understanding “5” + 3 + 4 = “534” vs 5 + 3 + “4” = “84”. Connect back to deck 02: we printed labels and values on separate lines because we did not have concatenation yet — now we can put them on the same line.\n\nThe + operator does different things depending on the types involved.\n\nWith two numbers — addition:\nint a = 5;\nint b = 3;\nIO.println(a + b);     // prints: 8"
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#common-mistakes",
-    "href": "cosc120/notes/03-arithmetic.html#common-mistakes",
-    "title": "Arithmetic Expressions",
-    "section": "Common Mistakes",
-    "text": "Common Mistakes\n\nFour mistakes that will appear in student code in the first few weeks. Integer division truncation is the most common — stress it again. The concatenation surprise (mixing + with Strings and numbers in unexpected ways) is the most confusing. Make sure students leave knowing these pitfalls by name so they can recognize them when they appear.\n\n1. Expecting a decimal from integer division\nint result = 7 / 2;\nIO.println(result);    // prints 3 — not 3.5\n\nFix: make one operand a decimal — 7.0 / 2."
-  },
-  {
-    "objectID": "cosc120/notes/03-arithmetic.html#practice-problems",
-    "href": "cosc120/notes/03-arithmetic.html#practice-problems",
-    "title": "Arithmetic Expressions",
-    "section": "Practice problems",
-    "text": "Practice problems\n\nReserve the last 20-30 minutes. Problems 1-3 are prediction/tracing — students work on paper first, then verify in the IDE. Problems 4-5 require writing code. Problem 6 is the synthesis problem that combines everything from today with IO.readln. Common things to watch for: integer division surprises, concatenation vs addition confusion, forgetting Integer.parseInt."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#hello-world",
-    "href": "cosc120/notes/01-intro.html#hello-world",
-    "title": "What Is a Program?",
-    "section": "Hello World",
-    "text": "Hello World"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#learning-outcomes",
-    "href": "cosc120/notes/01-intro.html#learning-outcomes",
-    "title": "What Is a Program?",
-    "section": "Learning Outcomes",
-    "text": "Learning Outcomes\n\n\nConcepts\n\nUsing vs. programming a computer\nPrecision, ambiguity, and programming languages\nHardware basics (CPU, RAM, Storage)\nSequential top-to-bottom execution\n\n\nSkills\n\nWrite a Java program using void main()\nPrint exact console output via IO.println\nTrace and predict program output\nDocument code with single-line comments (//)"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#what-is-a-computer",
-    "href": "cosc120/notes/01-intro.html#what-is-a-computer",
-    "title": "What Is a Program?",
-    "section": "What Is a Computer?",
-    "text": "What Is a Computer?\n\nBrief and grounded — just enough to set up the “everything is a computer” point later. Hit the three parts: CPU executes instructions, RAM is fast scratch-pad memory that vanishes when power goes off, storage is where things persist. The goal is not a hardware lecture — it’s to plant the idea that a computer is a machine that executes instructions, and that a phone is also a machine that executes instructions.\n\nA computer is a machine built around three things:\n\n\n\n\n\n\n\n\n\n\n\n\nPart\nWhat it does\n\n\n\n\nCPU\nThe brain — fetches and executes instructions, billions per second\n\n\nMemory (RAM)\nThe scratch pad — fast, but gone when the power goes off\n\n\nStorage\nThe filing cabinet — slow, but permanent\n\n\n\n\nEverything else — keyboard, screen, WiFi — is just input and output."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer",
-    "href": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer",
-    "title": "What Is a Program?",
-    "section": "Your Phone Is Also a Computer",
-    "text": "Your Phone Is Also a Computer\n\nStudents relate to phones far more than to desktop PCs. The key insight: a phone has a CPU, RAM, and storage — it IS a computer. The difference is that phone manufacturers have wrapped everything in a layer of apps and made it very hard to program the device directly. But every single app was written by a programmer. This sets up the “using vs. programming” distinction on the next slide.\n\nUnder the hood, your phone has a CPU, RAM, and storage.\nIt is a computer — manufacturers just hide the machinery behind apps.\n\nThink about every app on your phone:\n\nThe alarm app\nThe maps app\nThe game you play on the bus\nThe on-screen keyboard"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer-1",
-    "href": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer-1",
-    "title": "What Is a Program?",
-    "section": "Your Phone Is Also a Computer",
-    "text": "Your Phone Is Also a Computer\nEvery one of these was written by a programmer who sat down and wrote instructions, one line at a time.\nThat is what you are learning to do."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer",
-    "href": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer",
-    "title": "What Is a Program?",
-    "section": "Two Ways to Use a Computer",
-    "text": "Two Ways to Use a Computer\n\nThis is the conceptual heart of the first lecture. Spend time here. When you “use” a computer you’re running someone else’s program. When you “program” a computer you are the one writing the instructions the machine will follow. The second path is harder but it’s also what gives you real power over the machine."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer-1",
-    "href": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer-1",
-    "title": "What Is a Program?",
-    "section": "Two Ways to Use a Computer",
-    "text": "Two Ways to Use a Computer\n\n\nUsing a Computer\n\nOpen an app → it runs\nClick a button → something happens\nSomeone else wrote those instructions\nYou follow the rules someone else set\n\n\nProgramming a Computer\n\nYou write the instructions\nThe computer does exactly what you say\nYou set the rules\n(Whether or not that’s what you meant is another story)\n\n\n\n\nMost people use computers. This course teaches you to program them."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#what-is-a-program",
-    "href": "cosc120/notes/01-intro.html#what-is-a-program",
-    "title": "What Is a Program?",
-    "section": "What Is a Program?",
-    "text": "What Is a Program?\n\nIntroduce the recipe analogy here — it’s intuitive and you’ll return to it. A recipe is a list of precise, ordered steps that a cook follows. A program is exactly that, but for a CPU instead of a cook. Key word: PRECISE. “Add salt to taste” would be a bug.\n\nA program is a precise, ordered sequence of instructions for a computer.\nThe best analogy: a recipe.\n\n\n\nRecipe\nProgram\n\n\n\n\nIngredients\nData — numbers, text, …\n\n\nSteps\nInstructions\n\n\nCook\nCPU\n\n\nFinished dish\nOutput\n\n\n\nA recipe tells a cook exactly what to do. A program tells a CPU exactly what to do."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#what-is-a-program-1",
-    "href": "cosc120/notes/01-intro.html#what-is-a-program-1",
-    "title": "What Is a Program?",
-    "section": "What Is a Program?",
-    "text": "What Is a Program?"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#programming-is-like-mailing-a-recipe",
-    "href": "cosc120/notes/01-intro.html#programming-is-like-mailing-a-recipe",
-    "title": "What Is a Program?",
-    "section": "Programming Is Like Mailing a Recipe",
-    "text": "Programming Is Like Mailing a Recipe\n\nThis is the key insight about completeness and unambiguity. When you cook yourself you can improvise. When you mail the recipe to a stranger, every step must be spelled out — they can’t call you mid-bake. A program is a mailed recipe: the computer follows it exactly with no improvisation and no common sense. If a step is missing or ambiguous, it either fails or does something wrong.\n\nImagine you’re cooking something following a recipe:\n\nSomething unclear? Improvise. Ask a friend. Use judgment.\n\n\nNow imagine giving that recipe to a friend who is going camping for a few days and has no internet or phone:\n\nThey follow only what is written\nThey cannot call you mid-cook\n“Add salt to taste” → useless. How much?\nEvery step must be complete and unambiguous"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#programs-as-recipes",
-    "href": "cosc120/notes/01-intro.html#programs-as-recipes",
-    "title": "What Is a Program?",
-    "section": "Programs as recipes",
-    "text": "Programs as recipes\nA program is a recipe - the computer opens the envelope and follows the instructions exactly.\nNo improvising, no common sense, no filling in gaps.\n {fig-alt=“robot/computer holding an open envelope with a recipe inside that says”add a pinch of salt” — robot has a large “?” above its head and cannot proceed.”}"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english",
-    "href": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english",
-    "title": "What Is a Program?",
-    "section": "Why Can’t Computers Just Understand English?",
-    "text": "Why Can’t Computers Just Understand English?\n\nNatural language is wonderfully ambiguous — that’s a feature for poetry and conversation, and a serious bug for programming. We invented programming languages precisely to eliminate ambiguity. This is why programs look the way they do: strange syntax, strict rules, no shortcuts. Every quirk of a programming language exists to make sure there is exactly one valid reading of every statement.\n\nEnglish is beautifully ambiguous:\n\n“I saw a man on a hill with a telescope.”"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english-1",
-    "href": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english-1",
-    "title": "What Is a Program?",
-    "section": "Why Can’t Computers Just Understand English?",
-    "text": "Why Can’t Computers Just Understand English?\nHumans resolve ambiguity with context, tone, and common sense.\nComputers have none of these.\nProgramming languages are designed so every statement has exactly one meaning.\nThat is why they look the way they do — no shortcuts, no “you know what I mean.”"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#learning-a-new-language",
-    "href": "cosc120/notes/01-intro.html#learning-a-new-language",
-    "title": "What Is a Program?",
-    "section": "Learning a New Language",
-    "text": "Learning a New Language\n\nProgramming IS like learning a new language — make this connection explicit. The vocabulary is small compared to French or Spanish, but the grammar is absolute: no partial credit, no “close enough”, no context to save you from a typo. The good news is the vocabulary is tiny. The bad news is every rule is enforced by a machine that has no sympathy. Emphasize that this takes practice, not just reading.\n\nProgramming is genuinely like learning a new language:\n\nVocabulary: small — a few dozen keywords in Java\nGrammar: absolute — one wrong character breaks everything\nAccent: none allowed — spelling, capitalization, and punctuation are all exact\n\nBut like any language, you don’t learn it by reading about it.\nYou learn it by using it — making mistakes, getting confused, and practicing until it clicks.\n\n\n\n\n\n\nImportant\n\n\nThe in-class worksheets and homework are not optional extras. They are the practice reps. You cannot get fluent by watching someone else do it."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#what-about-ai",
-    "href": "cosc120/notes/01-intro.html#what-about-ai",
-    "title": "What Is a Program?",
-    "section": "What About AI?",
-    "text": "What About AI?\n\nStudents are thinking about this already — address it directly and honestly. AI tools like ChatGPT and GitHub Copilot can write Java code, often impressively well. Don’t dismiss this. Be honest. Then give the real reason it’s not allowed: you’re here to build understanding and skill. If AI does the reps for you, you don’t build anything — and in an exam, on a job, when something breaks at 2am, you’re on your own. The calculator analogy is strong: you learned arithmetic before you were allowed to use a calculator, not because arithmetic is more important than calculators, but because you needed to understand what the calculator was doing.\n\nYes — AI tools can write code. Sometimes very well.\nSo why aren’t you allowed to use them in this course?\nThe same reason you learned long division before using a calculator:\n\nUnderstanding why the code works is what makes you a programmer.\n\nAI can hand you a correct answer without you understanding a thing. That works great — until:\n\nYou need to modify the code\nSomething breaks and you have to debug it\nYou sit down for an exam\n\n\n\n\n\n\n\nWarning\n\n\nAI use on assignments and tests is not allowed. This is not because AI is bad — it is a powerful tool you will likely use in your career. But right now, you need to build the skills. The reps matter."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#your-first-java-program",
-    "href": "cosc120/notes/01-intro.html#your-first-java-program",
-    "title": "What Is a Program?",
-    "section": "Your First Java Program",
-    "text": "Your First Java Program\n\nUse the modern Java 25 flexible-main syntax: void main() with no public static. IO.println is the course’s simplified output wrapper — no System.out.println boilerplate. Walk through each piece of the program carefully: void main() means “start here”, curly braces wrap a block of code, IO.println prints a line, the string is in double quotes, and the semicolon ends the statement like a period ends a sentence. Do NOT spend time on the compile/run cycle — students use an online IDE where that is invisible.\n\nvoid main() {\n    IO.println(\"Hello, World!\");\n}\nEvery piece has a job:\n\n\n\nPiece\nWhat it means\n\n\n\n\nvoid main()\n“Start here when the program runs”\n\n\n{ }\nCurly braces wrap a block of code\n\n\nIO.println(...)\nPrint a line to the screen\n\n\n\"Hello, World!\"\nThe text to print — always in double quotes\n\n\n;\nEnd of statement (like a period at the end of a sentence)"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#what-the-computer-hears",
-    "href": "cosc120/notes/01-intro.html#what-the-computer-hears",
-    "title": "What Is a Program?",
-    "section": "What the Computer “Hears”",
-    "text": "What the Computer “Hears”\n\nLighten the mood — this is intentionally humorous. The underlying point is serious: the computer is completely literal. It has no intuition about what you “meant.” This slide sets up the importance of exact syntax, matched braces, and semicolons. Use it to open a conversation: what happens if the semicolon is missing? What if you write Println instead of println?\n\n// What you type:                   // What the computer hears:\nvoid main() {                       // \"Dear Computer,\"\n    IO.println(\"Hello\");            // \"Please print 'Hello' on the screen.\"\n}                                   // \"Thanks and regards, Programmer\"\nThe computer is completely literal. It does precisely what you wrote.\nMiss a semicolon — error. Write Println instead of println — error. Forget a closing brace — error.\n\nProgramming feels hard at first because you are learning to think like someone with no common sense whatsoever.\n\nThat gets easier with practice. Promise."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#whitespace-and-readability",
-    "href": "cosc120/notes/01-intro.html#whitespace-and-readability",
-    "title": "What Is a Program?",
-    "section": "Whitespace and Readability",
-    "text": "Whitespace and Readability\n\nStudents often wonder if indentation “counts.” Honest answer: the compiler ignores whitespace almost entirely. But humans don’t — and your code will be read by humans (you, a classmate, your professor, a TA, eventually an employer). Readable code is professional code. Also: when your program has a bug, readable code is much easier to debug. Establish the expectation early: indentation is required in this course.\n\nThese two programs are identical to the computer:\n\n\nvoid main() {\n    IO.println(\"Hello\");\n    IO.println(\"World\");\n}\nReadable\n\nvoid main(){IO.println(\"Hello\");IO.println(\"World\");}\nValid, but painful\n\nThe computer does not care. You should.\n\nIndentation reveals structure at a glance\nBlank lines separate ideas\nConsistent style makes bugs easier to find\n\n\n\n\n\n\n\nTip\n\n\nIn this course, indentation is required. Write readable code from day one — your future self will thank you."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#comments-notes-for-humans",
-    "href": "cosc120/notes/01-intro.html#comments-notes-for-humans",
-    "title": "What Is a Program?",
-    "section": "Comments — Notes for Humans",
-    "text": "Comments — Notes for Humans\n\nComments are text inside code that the computer ignores completely. They exist purely for the human reader — yourself, a classmate, your professor. Introduce both the concept and the syntax: // makes everything after it on that line a comment. Then talk specifically about how comments will be used in this course: homework assignments will ask students to explain their thinking in comments, and the grader reads them. This is also a good time to distinguish a useful comment from a useless one — “prints hello” adds nothing; “converts the raw score to a letter grade” actually helps.\n\nA comment is a note you write inside your code.\nThe computer ignores it completely. It is there for the human reading the code.\nvoid main() {\n    // This program greets the user.\n    IO.println(\"Hello, World!\");   // prints a greeting to the screen\n}\nEverything after // on a line is a comment — it has no effect on what the program does."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen",
-    "href": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen",
-    "title": "What Is a Program?",
-    "section": "IO.println — Printing to the Screen",
-    "text": "IO.println — Printing to the Screen\n\nIO.println is the course wrapper for output. Each call prints one line of text and moves the cursor to the next line. You can print strings (in double quotes) or numbers (no quotes). Crucially: the ORDER of calls determines the order of output. This sets up the top-to-bottom execution slide.\n\nIO.println prints one line and moves to the next.\nvoid main() {\n    IO.println(\"Apples\");\n    IO.println(\"Bananas\");\n    IO.println(\"Cherries\");\n}\n\nOutput:\nApples\nBananas\nCherries"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen-1",
-    "href": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen-1",
-    "title": "What Is a Program?",
-    "section": "IO.println — Printing to the Screen",
-    "text": "IO.println — Printing to the Screen\nYou can also print numbers directly — no quotes needed:\nvoid main() {\n    IO.println(42);\n    IO.println(3.14);\n}\nOutput:\n42\n3.14"
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#programs-execute-top-to-bottom",
-    "href": "cosc120/notes/01-intro.html#programs-execute-top-to-bottom",
-    "title": "What Is a Program?",
-    "section": "Programs Execute Top to Bottom",
-    "text": "Programs Execute Top to Bottom\n\nSequential execution is the default model. The computer runs statements in order, one at a time, from top to bottom — exactly like reading a recipe. Nothing runs out of order; nothing is skipped unless you tell it to (conditionals, loops — coming later). Trace this program together as a class before moving on.\n\nJava executes statements in order — one at a time, top to bottom.\nvoid main() {\n    IO.println(\"First\");\n    IO.println(\"Second\");\n    IO.println(\"Third\");\n}\nThe computer runs line 2, then line 3, then line 4. Always, in that order.\n\n\n\n\n\n\n\nNote\n\n\nLater in this course, we will learn to make programs jump (conditionals), repeat (loops), and call other code (methods). But the default is always: one step at a time, top to bottom, just like following a recipe."
-  },
-  {
-    "objectID": "cosc120/notes/01-intro.html#worksheet",
-    "href": "cosc120/notes/01-intro.html#worksheet",
-    "title": "What Is a Program?",
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
+    "title": "Worksheet: Input → Processing → Output",
     "section": "Worksheet",
-    "text": "Worksheet\n\nReserve the last 20 minutes of class for in-class practice. Students work individually or in pairs on the online IDE. Walk around and check progress — common mistakes to watch for: missing semicolons, mismatched quotes, forgetting the closing brace."
+    "text": "Worksheet\n\nReserve the last 20-30 minutes, or use as a standalone remediation session. Require the // INPUT / // PROCESSING / // OUTPUT comment scaffold on every problem, even the trivial ones — the habit is the point, not the code. Problem 1 is intentionally degenerate (missing a stage) so students see that the pattern is a lens, not a rigid template. On top of the IPO progression, prompts are layered in gradually: Problems 2-4 read with no prompt at all (let them feel the confusion), Problems 5-7 print a prompt separately with IO.println/IO.print before calling IO.readln(), and Problems 8-10 fold the prompt into IO.readln(\"...\"), which should become the default from here on. Problems 7-9 also require two or more processing steps in sequence, and Problem 10 is the synthesis problem. Common failure: students try to read all inputs, then do all processing, then print — which is actually correct and is exactly the pattern; the more common bug is interleaving a println into the middle of processing and getting confused about what’s been computed yet. Watch for forgotten Integer.parseInt, and for / vs % confusion.\n\nFor every problem below, start by writing // INPUT, // PROCESSING, and // OUTPUT as comments in your file, in that order. Then fill in the code under each one. If a problem has no input or no processing, leave that comment in place with nothing under it — that’s fine, and worth noticing.\n\n\n\n\n\n\nImportant\n\n\nWatch the prompt style change as you go: Problems 2-4 use no prompt at all (read silently), Problems 5-7 print a prompt with IO.println/IO.print before reading, and Problems 8-10 build the prompt into IO.readln(\"...\")."
   },
   {
-    "objectID": "cosc120/index.html#units",
-    "href": "cosc120/index.html#units",
-    "title": "Introduction to Computer Science I",
-    "section": "📚 Units",
-    "text": "📚 Units\n\n\nIntroduction\n\nSlides Worksheet Assignment\n\n\nVariables and Types\n\nSlides Worksheet Assignment\n\n\nArithmetic\n\n🖥 Slides"
+    "objectID": "cosc120/notes/04-type-conversion.html#learning-outcomes",
+    "href": "cosc120/notes/04-type-conversion.html#learning-outcomes",
+    "title": "Type Conversion and Casting",
+    "section": "Learning Outcomes",
+    "text": "Learning Outcomes\n\nExplain why type conversion is sometimes necessary, even when types were chosen carefully\nDistinguish between widening (automatic) and narrowing (explicit) conversion\nPredict the result of a mixed-type arithmetic expression\nCast between int and double using (int) and (double)\nExplain why (double) a / b and (double)(a / b) produce different results\nExplain that (int) truncates a decimal value rather than rounding it"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Class Notes",
-    "section": "",
-    "text": "Lecture notes, slides, and syllabi for my courses at St. Mary’s College of Maryland.\nPress / or f anywhere on the site to search across every course for a topic (e.g. “dynamic programming”, “ArrayList”, “CAP theorem”)."
+    "objectID": "cosc120/notes/04-type-conversion.html#why-cant-we-just-choose-the-right-type-once",
+    "href": "cosc120/notes/04-type-conversion.html#why-cant-we-just-choose-the-right-type-once",
+    "title": "Type Conversion and Casting",
+    "section": "Why Can’t We Just Choose the Right Type Once?",
+    "text": "Why Can’t We Just Choose the Right Type Once?\n\nStart with the student’s natural objection: if we pick the right type upfront, why would we ever need to convert? The answer is that we often do not control what type a value comes in as. IO.readln always produces a String — even if the user types a number. Two int values divided can produce a fraction — but int cannot hold a fraction, so something has to give. And sometimes a piece of code we did not write gives us a value in a type we did not expect. Types in real programs collide constantly, and knowing how to handle those collisions is a core skill.\n\nYou might be thinking: “If I pick the right type from the start, why would I ever need to change it?”\n\nThat is a fair question. Here is why it comes up anyway:"
   },
   {
-    "objectID": "index.html#fall-2026",
-    "href": "index.html#fall-2026",
-    "title": "Class Notes",
-    "section": "Fall 2026",
-    "text": "Fall 2026\n\n\nCOSC120 — Introduction to Computer Science I\nA survey of computer science with an introduction to algorithmic thinking and object-oriented programming in Java.\nSyllabus · Content\n\n\nCOSC420 — Distributed / Parallel Computing\nHands-on introduction to concurrency, distributed-systems concepts, MapReduce on Hadoop, Spark, NoSQL, and cloud microservices.\nSyllabus · Content\n\n\nCOSC435 — Acceleration\nGPGPU architectures and parallel programming models using Python and GPU frameworks (Numba CUDA, CuPy, PyTorch).\nSyllabus · Content"
+    "objectID": "cosc120/notes/04-type-conversion.html#the-starbucks-cup-analogy",
+    "href": "cosc120/notes/04-type-conversion.html#the-starbucks-cup-analogy",
+    "title": "Type Conversion and Casting",
+    "section": "The Starbucks Cup Analogy",
+    "text": "The Starbucks Cup Analogy\n\nThe Starbucks analogy from the variables deck extends naturally here. A tall cup is small — like int. A venti cup is large — like double. Pouring a tall into a venti is easy: all the coffee fits, the cup just is not full. Nothing is lost. That is widening. Pouring a venti into a tall is the problem: the tall cup cannot hold everything. Coffee spills. You lose some. That is narrowing — and it is why Java makes you do it explicitly. The analogy also sets up truncation nicely: the coffee that spills (the decimal part) is simply gone — it does not round up.\n\nRemember our Starbucks cup analogy from the variables lecture?\nA tall cup (small) ↔︎ int A venti cup (large) ↔︎ double"
   },
   {
-    "objectID": "index.html#spring-2026",
-    "href": "index.html#spring-2026",
-    "title": "Class Notes",
-    "section": "Spring 2026",
-    "text": "Spring 2026\n\n\nCOSC130 — Introduction to Computer Science II\nContinuation of CS I: data structures, generics, maps and sets, and a term-long programming project.\nSyllabus · Slides\n\n\nCOSC445 — Design and Analysis of Algorithms\nAlgorithm design and analysis: dynamic programming, backtracking, randomized and streaming algorithms, and P vs. NP.\nSyllabus · Slides"
+    "objectID": "cosc120/notes/04-type-conversion.html#widening-int-to-double",
+    "href": "cosc120/notes/04-type-conversion.html#widening-int-to-double",
+    "title": "Type Conversion and Casting",
+    "section": "Widening — int to double",
+    "text": "Widening — int to double\n\nWidening is the safe direction: going from a smaller type to a larger one. An int can always fit inside a double — a whole number is just a decimal number with nothing after the decimal point. Java does this automatically whenever it is needed: assigning an int to a double variable, using an int where a double is expected. Show several examples. Emphasize that nothing is lost and nothing has to be written — Java handles it silently.\n\nGoing from int to double is always safe — a whole number fits perfectly inside a decimal type.\n\nJava does this automatically, without any special syntax."
   },
   {
-    "objectID": "index.html#accessibility",
-    "href": "index.html#accessibility",
-    "title": "Class Notes",
-    "section": "Accessibility",
-    "text": "Accessibility\nThis site is designed to be screen-reader friendly and supports keyboard-only navigation. Search shortcuts: F / S / / open search; ↓ / ↑ move between results; Enter follows a result; Esc closes search. If you encounter any issue accessing these materials, please contact me directly."
+    "objectID": "cosc120/notes/04-type-conversion.html#narrowing-double-to-int",
+    "href": "cosc120/notes/04-type-conversion.html#narrowing-double-to-int",
+    "title": "Type Conversion and Casting",
+    "section": "Narrowing — double to int",
+    "text": "Narrowing — double to int\n\nNarrowing is the risky direction. A double might have a decimal part that simply cannot exist in an int. Java will not do this automatically — it refuses at compile time if you try. You have to write an explicit cast to say: “I know something might be lost, and I am okay with that.” The syntax is (int) in front of the value. The critical point: (int) truncates — it drops the decimal part regardless of its size. 3.1 and 3.9 both become 3. This surprises students who expect rounding.\n\nGoing from double to int may lose the decimal part.\n\nJava refuses to do this automatically — you must ask explicitly.\ndouble price = 9.99;\nint dollars = price;          // ERROR — Java will not compile this\nint dollars = (int) price;    // OK — you asked explicitly; dollars is 9\n\n\nThe (int) before a value is called a cast. It means: “convert this to an int.”"
   },
   {
-    "objectID": "cosc120/syllabus.html",
-    "href": "cosc120/syllabus.html",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "",
-    "text": "Section: 03\nCredit hours: 4\nTerm and year: Fall 2026\nDelivery Mode Classroom (Schaefer Hall 165), Mon, Wed, Fri: 9:30AM - 10:20AM\nInstructor: Sayan Goswami\nOffice: Schaefer Hall, Room 152\nStudent Visiting Hours: Monday, Wednesday, Friday from 1:00 PM to 2:00 PM or by appointment.\nPhone: 240-895-2153\nEmail: sgoswami@smcm.edu\nTextbook: None required\nPrerequisites: None"
+    "objectID": "cosc120/notes/04-type-conversion.html#mixed-type-expressions",
+    "href": "cosc120/notes/04-type-conversion.html#mixed-type-expressions",
+    "title": "Type Conversion and Casting",
+    "section": "Mixed-Type Expressions",
+    "text": "Mixed-Type Expressions\n\nWhen an arithmetic expression involves both int and double values, Java widens the int to a double before computing. The rule is: if either operand is a double, the result is a double. This is the key to getting decimal division: put a .0 on one of the numbers, or use a cast. Show a series of examples where the only change is one type, and walk through how the result changes. Connect explicitly to the integer division surprise from last lecture — this is the explanation for why 7/2 is 3.\n\nWhen int and double values appear together in an expression, Java widens the int to double before computing.\n\nThe rule: if either operand is a double, the result is a double.\nIO.println(7 / 2);       // 3   — both int → integer division\nIO.println(7 / 2.0);     // 3.5 — one is double → decimal division\nIO.println(7.0 / 2);     // 3.5 — one is double → decimal division\nIO.println(7.0 / 2.0);   // 3.5 — both double → decimal division\n\n\nThe only case that gives 3 is when both sides are int."
   },
   {
-    "objectID": "cosc120/syllabus.html#lms-information",
-    "href": "cosc120/syllabus.html#lms-information",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "LMS Information",
-    "text": "LMS Information\nAll course materials and grades are posted on Blackboard."
+    "objectID": "cosc120/notes/04-type-conversion.html#casting-placement-matters",
+    "href": "cosc120/notes/04-type-conversion.html#casting-placement-matters",
+    "title": "Type Conversion and Casting",
+    "section": "Casting Placement Matters",
+    "text": "Casting Placement Matters\n\nThis is the subtle one, and it trips up even students who understand casting in isolation. The cast applies to exactly what is immediately to its right — and parentheses control what that is. (double) a / b casts a to double first, then divides: decimal division. (double)(a / b) divides first (integer division, result is 3), then casts the 3 to 3.0: too late. Walk through each example step by step, making the order of evaluation explicit. The lesson: cast before the division, not after.\n\nWhere you place the cast changes the result completely.\nint a = 7;\nint b = 2;"
   },
   {
-    "objectID": "cosc120/syllabus.html#course-description",
-    "href": "cosc120/syllabus.html#course-description",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Course Description",
-    "text": "Course Description\nThis course surveys computer science and introduces object-oriented programming. A survey of the pivotal fields of computer science, including software engineering, computer networks, programming languages, algorithms, computer architecture, models of computation and operating systems. Students begin to solve simple problems using object-oriented programming. The emphasis is on implementing object-oriented designs. This course is suitable for non-majors who want an overview of computer science and to learn to solve problems with programs. COSC 120 satisfies the Core Curriculum requirement in Mathematics.\nMore specifically, in this course, we would\n\nLearn to think algorithmically — breaking problems into precise, ordered steps that a computer can execute\nRead, write, and reason about programs in Java\nUnderstand how core programming concepts — variables, conditionals, loops, methods, and objects — work and interact\nBuild a foundation for further study in computer science"
+    "objectID": "cosc120/notes/04-type-conversion.html#code-example-grade-percentage",
+    "href": "cosc120/notes/04-type-conversion.html#code-example-grade-percentage",
+    "title": "Type Conversion and Casting",
+    "section": "Code Example — Grade Percentage",
+    "text": "Code Example — Grade Percentage\n\nA complete program that brings together everything from today: int variables, a cast to force decimal division, and a mixed-type expression. The scenario is immediately relatable — every student cares about their grade percentage. Walk through the flowchart, then the code. Trace through with concrete values: earned = 43, possible = 50. Without the cast: 43 / 50 = 0 (integer division) → 0 * 100 = 0. With the cast: 43.0 / 50 = 0.86 → 0.86 * 100 = 86.0. The cast is not optional.\n\nProblem: Ask the user how many points they earned and how many were possible. Calculate and print their percentage."
   },
   {
-    "objectID": "cosc120/syllabus.html#course-learning-outcomes",
-    "href": "cosc120/syllabus.html#course-learning-outcomes",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Course Learning Outcomes",
-    "text": "Course Learning Outcomes\nUpon completion of the course, students will be able to:\n\nInterpret class and activity diagrams as demonstrated by creating Java classes based on the diagrams.\nIdentify areas of concentration in computer science as demonstrated by answering related questions on examinations through the semester.\nUse decision making control structures as demonstrated by writing a Java program which utilizes if else or switch statements.\nUse looping control structures as demonstrated by writing a Java program which utilizes loops.\nReplicate object-oriented programs as demonstrated by developing programs from given class diagrams.\nImplement variables of assorted types as demonstrated by developing programs using simple and complex variables.\nExplain a basic description of computer science and who a computer scientist is as demonstrated by writing a short paper."
+    "objectID": "cosc120/notes/04-type-conversion.html#common-mistakes",
+    "href": "cosc120/notes/04-type-conversion.html#common-mistakes",
+    "title": "Type Conversion and Casting",
+    "section": "Common Mistakes",
+    "text": "Common Mistakes\n\nFour mistakes that follow directly from this lecture. The first two are both about casting too late or not at all — the most common. The third is the truncation surprise. The fourth is trying to let Java narrow automatically, which it refuses to do.\n\n1. Forgetting to cast before integer division\nint a = 3;\nint b = 4;\ndouble result = a / b;           // 0.0 — integer division happened first\ndouble result = (double) a / b;  // 0.75 ✓"
   },
   {
-    "objectID": "cosc120/syllabus.html#engaged-learning",
-    "href": "cosc120/syllabus.html#engaged-learning",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Engaged Learning",
-    "text": "Engaged Learning\nStudents can expect the Engaged Learning element of this course to deepen their learning by building a creative animation project in Processing (Java) across the second half of the term, supported by scheduled one-on-one progress check-ins with the instructor and a final public showcase of the class’s work.\nEngaged Learning is separate from regular homework: credit is earned by completing each milestone (three progress check-ins and the showcase), not by the correctness or polish of the work. See the Programming Project description and the project guide for details."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#smcm-code-of-student-conduct",
-    "href": "cosc120/syllabus.html#smcm-code-of-student-conduct",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "SMCM Code of Student Conduct",
-    "text": "SMCM Code of Student Conduct\nAs shared in Article III of the SMCM Student Handbook, To the Point, : “St. Mary’s College of Maryland is committed to the ideals of honesty, personal integrity, and mutual trust.  Academic integrity is a responsibility of all students, members of the faculty, and administrative officers.  All students are expected to uphold the highest ideals of academic integrity throughout their career at St. Mary’s.”\nStudents who do not uphold these ideals and engage in  academic misconduct will be reported to Academic Affairs. In addition to possible penalties within this course, a student may be required to appear before the Academic Judicial Board (AJB)  with possibilities of additional penalties. \nYou are also responsible for understanding and complying with the expectations set forth in the SMCM Code of Student Conduct about  upholding a productive learning environment."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#digital-accessibility-of-course-materials",
-    "href": "cosc120/syllabus.html#digital-accessibility-of-course-materials",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Digital Accessibility of Course Materials",
-    "text": "Digital Accessibility of Course Materials\nDigital accessibility requirements under Title II of the Americans with Disabilities Act go into effect as of April 26, 2027. The instructor is making every reasonable effort to ensure that the digital materials distributed to students and/or required to engage in the course are reviewed for compliance with the federal regulations. As of April 26, 2027, if you discover that a course material has an accessibility issue, please report it to the instructor immediately after discovery.  If the issue has not been resolved within one week, please report this accessibility issue by way of the College’s standing Campus Accessibility Issue reporting form for review by our ADA Coordinator."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#academic-accommodations",
-    "href": "cosc120/syllabus.html#academic-accommodations",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Academic Accommodations",
-    "text": "Academic Accommodations\nSMCM is committed to providing access to the learning and living experience to students with disabilities or disabling health conditions. If you have received a letter from the Office of Accessibility Services (OAS), which outlines the academic accommodations to which you are entitled to and you want those accommodations to apply to this course, you MUST share your letter with me. After that, I will request that you meet with me to review that letter and determine how these accommodations will look in my course. If you suspect that you have a learning or living need related to a disability or disabling health condition and would like information on potential accommodations, you should contact the Office of Accessibility Services, who can help you learn more about how to proceed. Email: adasupport@smcm.edu"
-  },
-  {
-    "objectID": "cosc120/syllabus.html#office-of-student-success-services",
-    "href": "cosc120/syllabus.html#office-of-student-success-services",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Office of Student Success Services",
-    "text": "Office of Student Success Services\nThe Office of Student Success Services (OS3) empowers SMCM students to thrive in and out of the classroom, persist, and graduate on time by connecting them to people, resources, and activities. OS3 strives to cultivate the potential of all students through excellent advising, coaching, and support services designed to help them be increasingly autonomous and successful. Our work includes:\n\nSupplemental advising in every major\nRegistration support (not registered, under registered, or registration issues)\nAcademic Coaching (note taking, study strategies, goal setting, textbook reading strategies, etc.)\nTime management and organization\nPeer Support (Peer Academic Success Strategies Specialists)\nCollege policy explanation\nAcademic Notice support\nTutoring (students may request a tutor in any course)\nHolistic Support\n\nFor support call 240-895-4388, stop by Glendening 230, or email os3@smcm.edu."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#office-of-civil-rights-and-compliance",
-    "href": "cosc120/syllabus.html#office-of-civil-rights-and-compliance",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Office of Civil Rights and Compliance",
-    "text": "Office of Civil Rights and Compliance\nSt. Mary’s College of Maryland is committed to helping create a safe and open learning environment for all students. If you (or someone you know) have experienced any form of sexual misconduct, including sexual assault, dating or domestic violence, or stalking, or discrimination based on protected characteristics, know that help and support are available.\n The College strongly encourages all community members to take action, seek support, and report incidents of sexual misconduct or discrimination to the Office of Civil Rights and Compliance.  Under Title IX of the Education Amendments of 1972, I am required to disclose information about such misconduct to the SMCM Office of Civil Rights and Compliance.\nIf you would like to talk to a confidential employee who does not have this reporting responsibility, you can contact SMCM Counseling Services (240) 895-2159 or SMCM Health Services (240) 895-4289. \nFor more information about reporting options and resources at St. Mary’s College of Maryland and the community, please visit the Office of Civil Rights and Compliance."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#office-of-counseling-services",
-    "href": "cosc120/syllabus.html#office-of-counseling-services",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Office of Counseling Services",
-    "text": "Office of Counseling Services\nThere are many people at SMCM who care about you and your welfare. The Office of Counseling Services provides numerous confidential health and counseling services including same day/next day connections to counseling by calling 240-895-2159 or emailing counseling@smcm.edu."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#health-services",
-    "href": "cosc120/syllabus.html#health-services",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Health Services",
-    "text": "Health Services\nHealth Services provides medical care and wellness resources for enrolled students. Students are responsible for scheduling their own medical appointments by calling Health Services directly. Most students are seen the same day or within 24 hours. The medical provider can evaluate, diagnose, and treat a wide range of common illnesses and injuries. Laboratory testing is available through LabCorp and requires medical insurance; all other Health Services visits are provided at no additional cost to enrolled students. \nHealth Services does not provide excuse notes for missed classes."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#writing-and-speaking-center",
-    "href": "cosc120/syllabus.html#writing-and-speaking-center",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Writing and Speaking Center",
-    "text": "Writing and Speaking Center\nLocated on the first floor of the main Library, the Writing & Speaking Center offers free peer tutoring in writing and speaking. The peer tutors are students themselves, but they have completed extensive hands-on training to learn how to assist their peers at any step of the process (planning, drafting, or revising) for any writing or speaking assignment. The peer tutors will not make decisions about revision for you and will instead work collaboratively with you to discuss ideas and consider options so that you can choose how best to revise on your own. This collaborative approach is one of the best ways to help students develop their abilities because all writers and speakers need audiences—just ask the peer tutors, who often schedule tutorials with each other. To make an appointment, please visit the Writing Center website and click the “Schedule an Appointment” button on the left side of the page. If you have questions or need assistance, please contact Interim Director Amanda Taylor at apheatwole@smcm.edu."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#course-requirements",
-    "href": "cosc120/syllabus.html#course-requirements",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Course Requirements",
-    "text": "Course Requirements\nA laptop/desktop with internet connection is required for this course because the homework assignments depend on it. Tablets generally don’t work with the programming interface we use in this course. If you don’t have a laptop/desktop, you can borrow a Chromebook from the Library (first-come, first-served; semester-long loan due May 1 or December 1), or work on library desktop computers (Windows) available on the first and second floors. See the SMCM library computing page for details."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#methods-of-evaluation",
-    "href": "cosc120/syllabus.html#methods-of-evaluation",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Methods of Evaluation",
-    "text": "Methods of Evaluation\nYour course grade will be based on homework assignments, quizzes, a midterm exam, a final exam, and a programming project. Most components will emphasize hands-on programming.\n\nHomework Assignments - Programming requires consistent practice, so you will complete several assignments throughout the semester. These involve coding on a laptop or desktop computer. You may use your own device, or borrow one (see Course Requirements section above)\nQuizzes - Programming builds on many small concepts that fit together to form larger systems. To help you stay on track, there will be regular quizzes focused on these building blocks.\nMidterm Exam and Final Exam - These exams will assess your cumulative knowledge and problem-solving skills.\nProgramming Project - A larger-scale, open-ended project: a creative animation or interactive sketch built in Processing (Java). You choose your own concept. It is graded on how well it uses the course’s building blocks — variables, conditionals, methods, loops, arrays, and a class of your own — not on artistic merit. The project is developed over the second half of the term through the Engaged Learning check-ins and presented at the end-of-term showcase."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#grading-grade-scale",
-    "href": "cosc120/syllabus.html#grading-grade-scale",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Grading & Grade Scale",
-    "text": "Grading & Grade Scale\nYour final grade will be based on the following components:\n\n\n\nComponent\nWeight\n\n\n\n\nAssignments\n15%\n\n\nQuizzes\n20%\n\n\nMidterm exam\n20%\n\n\nProject\n15%\n\n\nEngaged Learning\n5%\n\n\nFinal exam\n25%\n\n\n\nI will determine the exact letter-grade cutoffs at the end of the course. To ensure fairness, I guarantee the minimum grade you will receive based on your overall percentage:\nIf adjustments are made to the grading scale, they will only raise your final letter grade, never lower it.\nThe table below represents the lowest possible letter grade you can earn for a given percentage.\n\n\n\nPoints\nLetter Grade\n\n\n\n\n93 - 100\nA or higher\n\n\n86 - 92.9\nA- or higher\n\n\n79 - 85.9\nB+ or higher\n\n\n72 - 78.9\nB or higher\n\n\n65 - 71.9\nB- or higher\n\n\n58 - 64.9\nC+ or higher\n\n\n51 - 57.9\nC or higher\n\n\n44 - 50.9\nC- or higher\n\n\n37 - 43.9\nD+ or higher\n\n\n30 - 36.9\nD or higher\n\n\n0 - 29.9\nF or higher\n\n\n\nI will publish the grades on Blackboard."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#course-attendance-policy",
-    "href": "cosc120/syllabus.html#course-attendance-policy",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Course Attendance Policy",
-    "text": "Course Attendance Policy\nAttendance is not mandatory, and thus absence from class is not penalized directly, but you will lose out in other ways. Class attendance is the #1 indicator of academic success. OS3 emphatically encourages all students to Go To Class! Class attendance is important for numerous reasons:\n\nStudents tend to remember info more when they attend class.\nYour presence in class shows your instructor that you care about the course and it is important to you. If your grade is borderline at the end of the semester, the instructor may give you the benefit of the doubt because you regularly attended class.\nYou/your families are paying to be in class. In-state residents who miss a class are wasting over $56 per class. Out-of-state students who miss a class are throwing away $110 per class!\nYour instructor will likely explain material differently/better than you can learn it yourself, and can answer questions more directly.\nGoing to class helps you build community and relationships with peers and your instructors.\nBy not going to class, you may miss a pop quiz, participation points, extra credit opportunities, important info, or in-class assignments that can impact your grade.\n\nTo the Point establishes the baseline attendance policy for SMCM courses. \nPlease note: Per the SMCM policy, there is no distinction between “excused” or “unexcused” absences; an absence is an absence."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#late-work-and-missed-assignment-policy",
-    "href": "cosc120/syllabus.html#late-work-and-missed-assignment-policy",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Late Work and Missed Assignment Policy",
-    "text": "Late Work and Missed Assignment Policy\nAssignments are due at 11:59 PM Eastern Time (UTC – 4) on the posted due date, with a one-hour grace period. Submissions received after that time will be subject to a late penalty of 10% of the maximum possible points per additional day past the deadline. The minimum grade on any assignment is zero; late penalties will not reduce a score below this.\nBecause the penalty accumulates continuously, assignments submitted several days late will earn little or no credit. Please plan accordingly and submit on time.\nThis policy is designed to ensure fairness and to allow me to return graded work to the class within 10 days of the due date. General requests for deadline extension requests will not be entertained after the scores for the assessment item has been posted."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#use-of-generative-artificial-intelligence-in-the-classroom",
-    "href": "cosc120/syllabus.html#use-of-generative-artificial-intelligence-in-the-classroom",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Use of Generative Artificial Intelligence in the Classroom ",
-    "text": "Use of Generative Artificial Intelligence in the Classroom \nGenerative artificial intelligence (AI) (tools such as ChatGPT, Gemini, Copilot) is a fast-developing tool that greatly impacts the learning process. As with many things, there are times when using these tools is appropriate and when it is not.  For this course, I encourage you to use the generative AI tools at your disposal for learning and practice, but not for homework assignments and quizzes. However it is your responsibility to properly evaluate the information created through generative AI. We will discuss how to do this in class, and you should contact me with any questions that you may have if you encounter a situation where it is unclear how to do use AI. Failure to disclose the use generative AI tools in assignments and quizzes may be considered plagiarism and will be handled via the SMCM Academic Misconduct policies."
-  },
-  {
-    "objectID": "cosc120/syllabus.html#course-calendaroutline",
-    "href": "cosc120/syllabus.html#course-calendaroutline",
-    "title": "COSC120 - Introduction to Computer Science I",
-    "section": "Course Calendar/Outline",
-    "text": "Course Calendar/Outline\nLectures meet Monday, Wednesday, and Friday for 50 minutes. Each class session reserves the last 20–30 minutes for in-class programming worksheets. Weekly tests are held on the last class day of each week (typically Friday): 10 minutes to return and discuss the previous test, 30 minutes for the current test, and 10 minutes for a brief topic from broader computer science.\n\n\n\n\n\n\n\n\n\n\nWeek\nDates\nTopics\nHomework\nTest\n\n\n\n\n1\nAug 31, Sep 2, Sep 4\nWhat is a program; first Java program; IO.println — Variables and data types (int, double, boolean, String); IO.readln; simple interactive programs\n—\n—\n\n\n2\nSep 9, Sep 11\nArithmetic expressions; operator precedence; integer division; %; Integer.parseInt\nHW 1: variables and arithmetic\nTest 1: variables, output tracing\n\n\n3\nSep 14, Sep 16, Sep 18\nType conversion and casting (widening and narrowing) — if / else; relational operators; comparing Strings with .equals()\nHW 2: type conversion and conditionals\nTest 2: arithmetic, type conversion\n\n\n4\nSep 21, Sep 23, Sep 25\nBoolean logic (&&, \\|\\|, !); else if chains; nested conditionals — String methods (.length(), .charAt(), .substring(), .toUpperCase()); String immutability\nHW 3: boolean logic, else if, and String methods\nTest 3: conditionals\n\n\n5\nSep 28, Sep 30, Oct 2\nvoid methods; flow of execution through method calls — Methods with parameters; parameters vs arguments\nHW 4: void methods and parameters\nTest 4: conditionals (harder)\n\n\n6\nOct 5, Oct 7, Oct 9\nReturn values and scope — while loops — for loops; while vs for\nHW 5: methods with return values\nTest 5: methods\n\n\n7\nOct 14, Oct 16\nLoop patterns: accumulator, counter, sentinel\nHW 6: while and for loops\nTest 6: while and for loops\n\n\n8\nOct 19, Oct 21, Oct 23\nMidterm Exam (Oct 19) — Nested loops — Arrays: declaration, indexing, and iteration\n—\nMidterm\n\n\n9\nOct 26, Oct 28, Oct 30\nArray algorithms: sum, average, min/max, linear search; in-place array operations (reverse, rotate)\nHW 7: loop patterns\nTest 7: nested loops\n\n\n10\nNov 2, Nov 6\nPassing arrays to methods; arrays passed by reference vs primitive parameters\nHW 8: arrays basics\nTest 8: arrays\n\n\n11\nNov 9, Nov 11, Nov 13\nWhat is an object; OOP concepts — Writing a class: fields and constructor\nHW 9: array algorithms\nTest 9: arrays (harder)\n\n\n12\nNov 16, Nov 18, Nov 20\nInstance methods — static vs instance\nHW 10: fields and constructors\nTest 10: classes basics\n\n\n13\nNov 23\nnull: what it is, when it appears, NullPointerException, null checks\n—\n—\n\n\n14\nNov 30, Dec 2, Dec 4\nPutting it all together: arrays of objects, multi-step problem solving, method stubs\nHW 11: instance methods\nTest 11: classes\n\n\n15\nDec 7, Dec 9, Dec 11\nComprehensive review and practice\n—\nTest 12: cumulative\n\n\n16\nFinals Week\nFinal Exam\n—\nFinal Exam\n\n\n\n\nSchedule Notes\n\nSep 7: Labor Day — no class\nOct 12: Fall Reading Day — no class\nNov 4: Wellness Day — no class\nNov 25–27: Fall Break — no class"
+    "objectID": "cosc120/notes/04-type-conversion.html#worksheet",
+    "href": "cosc120/notes/04-type-conversion.html#worksheet",
+    "title": "Type Conversion and Casting",
+    "section": "Worksheet",
+    "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-2 are prediction problems — students work on paper first. Problems 3-4 require writing expressions. Problem 5 is the synthesis program. Watch for: students who forget the cast; students who cast too late; students who expect truncation to round."
   },
   {
     "objectID": "cosc120/notes/02-variables.html#learning-outcomes",
@@ -5243,74 +4907,452 @@
     "text": "Worksheet\n\nReserve the last 20-30 minutes. Students work in the online IDE. Common things to check on: are they remembering the type keyword? Are they using = correctly? Are they storing the result of IO.readln? Are they printing the variable name without quotes?"
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#learning-outcomes",
-    "href": "cosc120/notes/04-type-conversion.html#learning-outcomes",
-    "title": "Type Conversion and Casting",
+    "objectID": "cosc120/syllabus.html",
+    "href": "cosc120/syllabus.html",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "",
+    "text": "Section: 03\nCredit hours: 4\nTerm and year: Fall 2026\nDelivery Mode Classroom (Schaefer Hall 165), Mon, Wed, Fri: 9:30AM - 10:20AM\nInstructor: Sayan Goswami\nOffice: Schaefer Hall, Room 152\nStudent Visiting Hours: Monday, Wednesday, Friday from 1:00 PM to 2:00 PM or by appointment.\nPhone: 240-895-2153\nEmail: sgoswami@smcm.edu\nTextbook: None required\nPrerequisites: None"
+  },
+  {
+    "objectID": "cosc120/syllabus.html#lms-information",
+    "href": "cosc120/syllabus.html#lms-information",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "LMS Information",
+    "text": "LMS Information\nAll course materials and grades are posted on Blackboard."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#course-description",
+    "href": "cosc120/syllabus.html#course-description",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Course Description",
+    "text": "Course Description\nThis course surveys computer science and introduces object-oriented programming. A survey of the pivotal fields of computer science, including software engineering, computer networks, programming languages, algorithms, computer architecture, models of computation and operating systems. Students begin to solve simple problems using object-oriented programming. The emphasis is on implementing object-oriented designs. This course is suitable for non-majors who want an overview of computer science and to learn to solve problems with programs. COSC 120 satisfies the Core Curriculum requirement in Mathematics.\nMore specifically, in this course, we would\n\nLearn to think algorithmically — breaking problems into precise, ordered steps that a computer can execute\nRead, write, and reason about programs in Java\nUnderstand how core programming concepts — variables, conditionals, loops, methods, and objects — work and interact\nBuild a foundation for further study in computer science"
+  },
+  {
+    "objectID": "cosc120/syllabus.html#course-learning-outcomes",
+    "href": "cosc120/syllabus.html#course-learning-outcomes",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Course Learning Outcomes",
+    "text": "Course Learning Outcomes\nUpon completion of the course, students will be able to:\n\nInterpret class and activity diagrams as demonstrated by creating Java classes based on the diagrams.\nIdentify areas of concentration in computer science as demonstrated by answering related questions on examinations through the semester.\nUse decision making control structures as demonstrated by writing a Java program which utilizes if else or switch statements.\nUse looping control structures as demonstrated by writing a Java program which utilizes loops.\nReplicate object-oriented programs as demonstrated by developing programs from given class diagrams.\nImplement variables of assorted types as demonstrated by developing programs using simple and complex variables.\nExplain a basic description of computer science and who a computer scientist is as demonstrated by writing a short paper."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#engaged-learning",
+    "href": "cosc120/syllabus.html#engaged-learning",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Engaged Learning",
+    "text": "Engaged Learning\nStudents can expect the Engaged Learning element of this course to deepen their learning by building a creative animation project in Processing (Java) across the second half of the term, supported by scheduled one-on-one progress check-ins with the instructor and a final public showcase of the class’s work.\nEngaged Learning is separate from regular homework: credit is earned by completing each milestone (three progress check-ins and the showcase), not by the correctness or polish of the work. See the Programming Project description and the project guide for details."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#smcm-code-of-student-conduct",
+    "href": "cosc120/syllabus.html#smcm-code-of-student-conduct",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "SMCM Code of Student Conduct",
+    "text": "SMCM Code of Student Conduct\nAs shared in Article III of the SMCM Student Handbook, To the Point, : “St. Mary’s College of Maryland is committed to the ideals of honesty, personal integrity, and mutual trust.  Academic integrity is a responsibility of all students, members of the faculty, and administrative officers.  All students are expected to uphold the highest ideals of academic integrity throughout their career at St. Mary’s.”\nStudents who do not uphold these ideals and engage in  academic misconduct will be reported to Academic Affairs. In addition to possible penalties within this course, a student may be required to appear before the Academic Judicial Board (AJB)  with possibilities of additional penalties. \nYou are also responsible for understanding and complying with the expectations set forth in the SMCM Code of Student Conduct about  upholding a productive learning environment."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#digital-accessibility-of-course-materials",
+    "href": "cosc120/syllabus.html#digital-accessibility-of-course-materials",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Digital Accessibility of Course Materials",
+    "text": "Digital Accessibility of Course Materials\nDigital accessibility requirements under Title II of the Americans with Disabilities Act go into effect as of April 26, 2027. The instructor is making every reasonable effort to ensure that the digital materials distributed to students and/or required to engage in the course are reviewed for compliance with the federal regulations. As of April 26, 2027, if you discover that a course material has an accessibility issue, please report it to the instructor immediately after discovery.  If the issue has not been resolved within one week, please report this accessibility issue by way of the College’s standing Campus Accessibility Issue reporting form for review by our ADA Coordinator."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#academic-accommodations",
+    "href": "cosc120/syllabus.html#academic-accommodations",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Academic Accommodations",
+    "text": "Academic Accommodations\nSMCM is committed to providing access to the learning and living experience to students with disabilities or disabling health conditions. If you have received a letter from the Office of Accessibility Services (OAS), which outlines the academic accommodations to which you are entitled to and you want those accommodations to apply to this course, you MUST share your letter with me. After that, I will request that you meet with me to review that letter and determine how these accommodations will look in my course. If you suspect that you have a learning or living need related to a disability or disabling health condition and would like information on potential accommodations, you should contact the Office of Accessibility Services, who can help you learn more about how to proceed. Email: adasupport@smcm.edu"
+  },
+  {
+    "objectID": "cosc120/syllabus.html#office-of-student-success-services",
+    "href": "cosc120/syllabus.html#office-of-student-success-services",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Office of Student Success Services",
+    "text": "Office of Student Success Services\nThe Office of Student Success Services (OS3) empowers SMCM students to thrive in and out of the classroom, persist, and graduate on time by connecting them to people, resources, and activities. OS3 strives to cultivate the potential of all students through excellent advising, coaching, and support services designed to help them be increasingly autonomous and successful. Our work includes:\n\nSupplemental advising in every major\nRegistration support (not registered, under registered, or registration issues)\nAcademic Coaching (note taking, study strategies, goal setting, textbook reading strategies, etc.)\nTime management and organization\nPeer Support (Peer Academic Success Strategies Specialists)\nCollege policy explanation\nAcademic Notice support\nTutoring (students may request a tutor in any course)\nHolistic Support\n\nFor support call 240-895-4388, stop by Glendening 230, or email os3@smcm.edu."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#office-of-civil-rights-and-compliance",
+    "href": "cosc120/syllabus.html#office-of-civil-rights-and-compliance",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Office of Civil Rights and Compliance",
+    "text": "Office of Civil Rights and Compliance\nSt. Mary’s College of Maryland is committed to helping create a safe and open learning environment for all students. If you (or someone you know) have experienced any form of sexual misconduct, including sexual assault, dating or domestic violence, or stalking, or discrimination based on protected characteristics, know that help and support are available.\n The College strongly encourages all community members to take action, seek support, and report incidents of sexual misconduct or discrimination to the Office of Civil Rights and Compliance.  Under Title IX of the Education Amendments of 1972, I am required to disclose information about such misconduct to the SMCM Office of Civil Rights and Compliance.\nIf you would like to talk to a confidential employee who does not have this reporting responsibility, you can contact SMCM Counseling Services (240) 895-2159 or SMCM Health Services (240) 895-4289. \nFor more information about reporting options and resources at St. Mary’s College of Maryland and the community, please visit the Office of Civil Rights and Compliance."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#office-of-counseling-services",
+    "href": "cosc120/syllabus.html#office-of-counseling-services",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Office of Counseling Services",
+    "text": "Office of Counseling Services\nThere are many people at SMCM who care about you and your welfare. The Office of Counseling Services provides numerous confidential health and counseling services including same day/next day connections to counseling by calling 240-895-2159 or emailing counseling@smcm.edu."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#health-services",
+    "href": "cosc120/syllabus.html#health-services",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Health Services",
+    "text": "Health Services\nHealth Services provides medical care and wellness resources for enrolled students. Students are responsible for scheduling their own medical appointments by calling Health Services directly. Most students are seen the same day or within 24 hours. The medical provider can evaluate, diagnose, and treat a wide range of common illnesses and injuries. Laboratory testing is available through LabCorp and requires medical insurance; all other Health Services visits are provided at no additional cost to enrolled students. \nHealth Services does not provide excuse notes for missed classes."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#writing-and-speaking-center",
+    "href": "cosc120/syllabus.html#writing-and-speaking-center",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Writing and Speaking Center",
+    "text": "Writing and Speaking Center\nLocated on the first floor of the main Library, the Writing & Speaking Center offers free peer tutoring in writing and speaking. The peer tutors are students themselves, but they have completed extensive hands-on training to learn how to assist their peers at any step of the process (planning, drafting, or revising) for any writing or speaking assignment. The peer tutors will not make decisions about revision for you and will instead work collaboratively with you to discuss ideas and consider options so that you can choose how best to revise on your own. This collaborative approach is one of the best ways to help students develop their abilities because all writers and speakers need audiences—just ask the peer tutors, who often schedule tutorials with each other. To make an appointment, please visit the Writing Center website and click the “Schedule an Appointment” button on the left side of the page. If you have questions or need assistance, please contact Interim Director Amanda Taylor at apheatwole@smcm.edu."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#course-requirements",
+    "href": "cosc120/syllabus.html#course-requirements",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Course Requirements",
+    "text": "Course Requirements\nA laptop/desktop with internet connection is required for this course because the homework assignments depend on it. Tablets generally don’t work with the programming interface we use in this course. If you don’t have a laptop/desktop, you can borrow a Chromebook from the Library (first-come, first-served; semester-long loan due May 1 or December 1), or work on library desktop computers (Windows) available on the first and second floors. See the SMCM library computing page for details."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#methods-of-evaluation",
+    "href": "cosc120/syllabus.html#methods-of-evaluation",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Methods of Evaluation",
+    "text": "Methods of Evaluation\nYour course grade will be based on homework assignments, quizzes, a midterm exam, a final exam, and a programming project. Most components will emphasize hands-on programming.\n\nHomework Assignments - Programming requires consistent practice, so you will complete several assignments throughout the semester. These involve coding on a laptop or desktop computer. You may use your own device, or borrow one (see Course Requirements section above)\nQuizzes - Programming builds on many small concepts that fit together to form larger systems. To help you stay on track, there will be regular quizzes focused on these building blocks.\nMidterm Exam and Final Exam - These exams will assess your cumulative knowledge and problem-solving skills.\nProgramming Project - A larger-scale, open-ended project: a creative animation or interactive sketch built in Processing (Java). You choose your own concept. It is graded on how well it uses the course’s building blocks — variables, conditionals, methods, loops, arrays, and a class of your own — not on artistic merit. The project is developed over the second half of the term through the Engaged Learning check-ins and presented at the end-of-term showcase."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#grading-grade-scale",
+    "href": "cosc120/syllabus.html#grading-grade-scale",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Grading & Grade Scale",
+    "text": "Grading & Grade Scale\nYour final grade will be based on the following components:\n\n\n\nComponent\nWeight\n\n\n\n\nAssignments\n15%\n\n\nQuizzes\n20%\n\n\nMidterm exam\n20%\n\n\nProject\n15%\n\n\nEngaged Learning\n5%\n\n\nFinal exam\n25%\n\n\n\nI will determine the exact letter-grade cutoffs at the end of the course. To ensure fairness, I guarantee the minimum grade you will receive based on your overall percentage:\nIf adjustments are made to the grading scale, they will only raise your final letter grade, never lower it.\nThe table below represents the lowest possible letter grade you can earn for a given percentage.\n\n\n\nPoints\nLetter Grade\n\n\n\n\n93 - 100\nA or higher\n\n\n86 - 92.9\nA- or higher\n\n\n79 - 85.9\nB+ or higher\n\n\n72 - 78.9\nB or higher\n\n\n65 - 71.9\nB- or higher\n\n\n58 - 64.9\nC+ or higher\n\n\n51 - 57.9\nC or higher\n\n\n44 - 50.9\nC- or higher\n\n\n37 - 43.9\nD+ or higher\n\n\n30 - 36.9\nD or higher\n\n\n0 - 29.9\nF or higher\n\n\n\nI will publish the grades on Blackboard."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#course-attendance-policy",
+    "href": "cosc120/syllabus.html#course-attendance-policy",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Course Attendance Policy",
+    "text": "Course Attendance Policy\nAttendance is not mandatory, and thus absence from class is not penalized directly, but you will lose out in other ways. Class attendance is the #1 indicator of academic success. OS3 emphatically encourages all students to Go To Class! Class attendance is important for numerous reasons:\n\nStudents tend to remember info more when they attend class.\nYour presence in class shows your instructor that you care about the course and it is important to you. If your grade is borderline at the end of the semester, the instructor may give you the benefit of the doubt because you regularly attended class.\nYou/your families are paying to be in class. In-state residents who miss a class are wasting over $56 per class. Out-of-state students who miss a class are throwing away $110 per class!\nYour instructor will likely explain material differently/better than you can learn it yourself, and can answer questions more directly.\nGoing to class helps you build community and relationships with peers and your instructors.\nBy not going to class, you may miss a pop quiz, participation points, extra credit opportunities, important info, or in-class assignments that can impact your grade.\n\nTo the Point establishes the baseline attendance policy for SMCM courses. \nPlease note: Per the SMCM policy, there is no distinction between “excused” or “unexcused” absences; an absence is an absence."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#late-work-and-missed-assignment-policy",
+    "href": "cosc120/syllabus.html#late-work-and-missed-assignment-policy",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Late Work and Missed Assignment Policy",
+    "text": "Late Work and Missed Assignment Policy\nAssignments are due at 11:59 PM Eastern Time (UTC – 4) on the posted due date, with a one-hour grace period. Submissions received after that time will be subject to a late penalty of 10% of the maximum possible points per additional day past the deadline. The minimum grade on any assignment is zero; late penalties will not reduce a score below this.\nBecause the penalty accumulates continuously, assignments submitted several days late will earn little or no credit. Please plan accordingly and submit on time.\nThis policy is designed to ensure fairness and to allow me to return graded work to the class within 10 days of the due date. General requests for deadline extension requests will not be entertained after the scores for the assessment item has been posted."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#use-of-generative-artificial-intelligence-in-the-classroom",
+    "href": "cosc120/syllabus.html#use-of-generative-artificial-intelligence-in-the-classroom",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Use of Generative Artificial Intelligence in the Classroom ",
+    "text": "Use of Generative Artificial Intelligence in the Classroom \nGenerative artificial intelligence (AI) (tools such as ChatGPT, Gemini, Copilot) is a fast-developing tool that greatly impacts the learning process. As with many things, there are times when using these tools is appropriate and when it is not.  For this course, I encourage you to use the generative AI tools at your disposal for learning and practice, but not for homework assignments and quizzes. However it is your responsibility to properly evaluate the information created through generative AI. We will discuss how to do this in class, and you should contact me with any questions that you may have if you encounter a situation where it is unclear how to do use AI. Failure to disclose the use generative AI tools in assignments and quizzes may be considered plagiarism and will be handled via the SMCM Academic Misconduct policies."
+  },
+  {
+    "objectID": "cosc120/syllabus.html#course-calendaroutline",
+    "href": "cosc120/syllabus.html#course-calendaroutline",
+    "title": "COSC120 - Introduction to Computer Science I",
+    "section": "Course Calendar/Outline",
+    "text": "Course Calendar/Outline\nLectures meet Monday, Wednesday, and Friday for 50 minutes. Each class session reserves the last 20–30 minutes for in-class programming worksheets. Weekly tests are held on the last class day of each week (typically Friday): 10 minutes to return and discuss the previous test, 30 minutes for the current test, and 10 minutes for a brief topic from broader computer science.\n\n\n\n\n\n\n\n\n\n\nWeek\nDates\nTopics\nHomework\nTest\n\n\n\n\n1\nAug 31, Sep 2, Sep 4\nWhat is a program; first Java program; IO.println — Variables and data types (int, double, boolean, String); IO.readln; simple interactive programs\n—\n—\n\n\n2\nSep 9, Sep 11\nArithmetic expressions; operator precedence; integer division; %; Integer.parseInt\nHW 1: variables and arithmetic\nTest 1: variables, output tracing\n\n\n3\nSep 14, Sep 16, Sep 18\nType conversion and casting (widening and narrowing) — if / else; relational operators; comparing Strings with .equals()\nHW 2: type conversion and conditionals\nTest 2: arithmetic, type conversion\n\n\n4\nSep 21, Sep 23, Sep 25\nBoolean logic (&&, \\|\\|, !); else if chains; nested conditionals — String methods (.length(), .charAt(), .substring(), .toUpperCase()); String immutability\nHW 3: boolean logic, else if, and String methods\nTest 3: conditionals\n\n\n5\nSep 28, Sep 30, Oct 2\nvoid methods; flow of execution through method calls — Methods with parameters; parameters vs arguments\nHW 4: void methods and parameters\nTest 4: conditionals (harder)\n\n\n6\nOct 5, Oct 7, Oct 9\nReturn values and scope — while loops — for loops; while vs for\nHW 5: methods with return values\nTest 5: methods\n\n\n7\nOct 14, Oct 16\nLoop patterns: accumulator, counter, sentinel\nHW 6: while and for loops\nTest 6: while and for loops\n\n\n8\nOct 19, Oct 21, Oct 23\nMidterm Exam (Oct 19) — Nested loops — Arrays: declaration, indexing, and iteration\n—\nMidterm\n\n\n9\nOct 26, Oct 28, Oct 30\nArray algorithms: sum, average, min/max, linear search; in-place array operations (reverse, rotate)\nHW 7: loop patterns\nTest 7: nested loops\n\n\n10\nNov 2, Nov 6\nPassing arrays to methods; arrays passed by reference vs primitive parameters\nHW 8: arrays basics\nTest 8: arrays\n\n\n11\nNov 9, Nov 11, Nov 13\nWhat is an object; OOP concepts — Writing a class: fields and constructor\nHW 9: array algorithms\nTest 9: arrays (harder)\n\n\n12\nNov 16, Nov 18, Nov 20\nInstance methods — static vs instance\nHW 10: fields and constructors\nTest 10: classes basics\n\n\n13\nNov 23\nnull: what it is, when it appears, NullPointerException, null checks\n—\n—\n\n\n14\nNov 30, Dec 2, Dec 4\nPutting it all together: arrays of objects, multi-step problem solving, method stubs\nHW 11: instance methods\nTest 11: classes\n\n\n15\nDec 7, Dec 9, Dec 11\nComprehensive review and practice\n—\nTest 12: cumulative\n\n\n16\nFinals Week\nFinal Exam\n—\nFinal Exam\n\n\n\n\nSchedule Notes\n\nSep 7: Labor Day — no class\nOct 12: Fall Reading Day — no class\nNov 4: Wellness Day — no class\nNov 25–27: Fall Break — no class"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Class Notes",
+    "section": "",
+    "text": "Lecture notes, slides, and syllabi for my courses at St. Mary’s College of Maryland.\nPress / or f anywhere on the site to search across every course for a topic (e.g. “dynamic programming”, “ArrayList”, “CAP theorem”)."
+  },
+  {
+    "objectID": "index.html#fall-2026",
+    "href": "index.html#fall-2026",
+    "title": "Class Notes",
+    "section": "Fall 2026",
+    "text": "Fall 2026\n\n\nCOSC120 — Introduction to Computer Science I\nA survey of computer science with an introduction to algorithmic thinking and object-oriented programming in Java.\nSyllabus · Content\n\n\nCOSC420 — Distributed / Parallel Computing\nHands-on introduction to concurrency, distributed-systems concepts, MapReduce on Hadoop, Spark, NoSQL, and cloud microservices.\nSyllabus · Content\n\n\nCOSC435 — Acceleration\nGPGPU architectures and parallel programming models using Python and GPU frameworks (Numba CUDA, CuPy, PyTorch).\nSyllabus · Content"
+  },
+  {
+    "objectID": "index.html#spring-2026",
+    "href": "index.html#spring-2026",
+    "title": "Class Notes",
+    "section": "Spring 2026",
+    "text": "Spring 2026\n\n\nCOSC130 — Introduction to Computer Science II\nContinuation of CS I: data structures, generics, maps and sets, and a term-long programming project.\nSyllabus · Slides\n\n\nCOSC445 — Design and Analysis of Algorithms\nAlgorithm design and analysis: dynamic programming, backtracking, randomized and streaming algorithms, and P vs. NP.\nSyllabus · Slides"
+  },
+  {
+    "objectID": "index.html#accessibility",
+    "href": "index.html#accessibility",
+    "title": "Class Notes",
+    "section": "Accessibility",
+    "text": "Accessibility\nThis site is designed to be screen-reader friendly and supports keyboard-only navigation. Search shortcuts: F / S / / open search; ↓ / ↑ move between results; Enter follows a result; Esc closes search. If you encounter any issue accessing these materials, please contact me directly."
+  },
+  {
+    "objectID": "cosc120/index.html#units",
+    "href": "cosc120/index.html#units",
+    "title": "Introduction to Computer Science I",
+    "section": "📚 Units",
+    "text": "📚 Units\n\n\nIntroduction\n\nSlides Worksheet Assignment\n\n\nVariables and Types\n\nSlides Worksheet Assignment\n\n\nArithmetic\n\n🖥 Slides"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#hello-world",
+    "href": "cosc120/notes/01-intro.html#hello-world",
+    "title": "What Is a Program?",
+    "section": "Hello World",
+    "text": "Hello World"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#learning-outcomes",
+    "href": "cosc120/notes/01-intro.html#learning-outcomes",
+    "title": "What Is a Program?",
     "section": "Learning Outcomes",
-    "text": "Learning Outcomes\n\nExplain why type conversion is sometimes necessary, even when types were chosen carefully\nDistinguish between widening (automatic) and narrowing (explicit) conversion\nPredict the result of a mixed-type arithmetic expression\nCast between int and double using (int) and (double)\nExplain why (double) a / b and (double)(a / b) produce different results\nExplain that (int) truncates a decimal value rather than rounding it"
+    "text": "Learning Outcomes\n\n\nConcepts\n\nUsing vs. programming a computer\nPrecision, ambiguity, and programming languages\nHardware basics (CPU, RAM, Storage)\nSequential top-to-bottom execution\n\n\nSkills\n\nWrite a Java program using void main()\nPrint exact console output via IO.println\nTrace and predict program output\nDocument code with single-line comments (//)"
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#why-cant-we-just-choose-the-right-type-once",
-    "href": "cosc120/notes/04-type-conversion.html#why-cant-we-just-choose-the-right-type-once",
-    "title": "Type Conversion and Casting",
-    "section": "Why Can’t We Just Choose the Right Type Once?",
-    "text": "Why Can’t We Just Choose the Right Type Once?\n\nStart with the student’s natural objection: if we pick the right type upfront, why would we ever need to convert? The answer is that we often do not control what type a value comes in as. IO.readln always produces a String — even if the user types a number. Two int values divided can produce a fraction — but int cannot hold a fraction, so something has to give. And sometimes a piece of code we did not write gives us a value in a type we did not expect. Types in real programs collide constantly, and knowing how to handle those collisions is a core skill.\n\nYou might be thinking: “If I pick the right type from the start, why would I ever need to change it?”\n\nThat is a fair question. Here is why it comes up anyway:"
+    "objectID": "cosc120/notes/01-intro.html#what-is-a-computer",
+    "href": "cosc120/notes/01-intro.html#what-is-a-computer",
+    "title": "What Is a Program?",
+    "section": "What Is a Computer?",
+    "text": "What Is a Computer?\n\nBrief and grounded — just enough to set up the “everything is a computer” point later. Hit the three parts: CPU executes instructions, RAM is fast scratch-pad memory that vanishes when power goes off, storage is where things persist. The goal is not a hardware lecture — it’s to plant the idea that a computer is a machine that executes instructions, and that a phone is also a machine that executes instructions.\n\nA computer is a machine built around three things:\n\n\n\n\n\n\n\n\n\n\n\n\nPart\nWhat it does\n\n\n\n\nCPU\nThe brain — fetches and executes instructions, billions per second\n\n\nMemory (RAM)\nThe scratch pad — fast, but gone when the power goes off\n\n\nStorage\nThe filing cabinet — slow, but permanent\n\n\n\n\nEverything else — keyboard, screen, WiFi — is just input and output."
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#the-starbucks-cup-analogy",
-    "href": "cosc120/notes/04-type-conversion.html#the-starbucks-cup-analogy",
-    "title": "Type Conversion and Casting",
-    "section": "The Starbucks Cup Analogy",
-    "text": "The Starbucks Cup Analogy\n\nThe Starbucks analogy from the variables deck extends naturally here. A tall cup is small — like int. A venti cup is large — like double. Pouring a tall into a venti is easy: all the coffee fits, the cup just is not full. Nothing is lost. That is widening. Pouring a venti into a tall is the problem: the tall cup cannot hold everything. Coffee spills. You lose some. That is narrowing — and it is why Java makes you do it explicitly. The analogy also sets up truncation nicely: the coffee that spills (the decimal part) is simply gone — it does not round up.\n\nRemember our Starbucks cup analogy from the variables lecture?\nA tall cup (small) ↔︎ int A venti cup (large) ↔︎ double"
+    "objectID": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer",
+    "href": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer",
+    "title": "What Is a Program?",
+    "section": "Your Phone Is Also a Computer",
+    "text": "Your Phone Is Also a Computer\n\nStudents relate to phones far more than to desktop PCs. The key insight: a phone has a CPU, RAM, and storage — it IS a computer. The difference is that phone manufacturers have wrapped everything in a layer of apps and made it very hard to program the device directly. But every single app was written by a programmer. This sets up the “using vs. programming” distinction on the next slide.\n\nUnder the hood, your phone has a CPU, RAM, and storage.\nIt is a computer — manufacturers just hide the machinery behind apps.\n\nThink about every app on your phone:\n\nThe alarm app\nThe maps app\nThe game you play on the bus\nThe on-screen keyboard"
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#widening-int-to-double",
-    "href": "cosc120/notes/04-type-conversion.html#widening-int-to-double",
-    "title": "Type Conversion and Casting",
-    "section": "Widening — int to double",
-    "text": "Widening — int to double\n\nWidening is the safe direction: going from a smaller type to a larger one. An int can always fit inside a double — a whole number is just a decimal number with nothing after the decimal point. Java does this automatically whenever it is needed: assigning an int to a double variable, using an int where a double is expected. Show several examples. Emphasize that nothing is lost and nothing has to be written — Java handles it silently.\n\nGoing from int to double is always safe — a whole number fits perfectly inside a decimal type.\n\nJava does this automatically, without any special syntax."
+    "objectID": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer-1",
+    "href": "cosc120/notes/01-intro.html#your-phone-is-also-a-computer-1",
+    "title": "What Is a Program?",
+    "section": "Your Phone Is Also a Computer",
+    "text": "Your Phone Is Also a Computer\nEvery one of these was written by a programmer who sat down and wrote instructions, one line at a time.\nThat is what you are learning to do."
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#narrowing-double-to-int",
-    "href": "cosc120/notes/04-type-conversion.html#narrowing-double-to-int",
-    "title": "Type Conversion and Casting",
-    "section": "Narrowing — double to int",
-    "text": "Narrowing — double to int\n\nNarrowing is the risky direction. A double might have a decimal part that simply cannot exist in an int. Java will not do this automatically — it refuses at compile time if you try. You have to write an explicit cast to say: “I know something might be lost, and I am okay with that.” The syntax is (int) in front of the value. The critical point: (int) truncates — it drops the decimal part regardless of its size. 3.1 and 3.9 both become 3. This surprises students who expect rounding.\n\nGoing from double to int may lose the decimal part.\n\nJava refuses to do this automatically — you must ask explicitly.\ndouble price = 9.99;\nint dollars = price;          // ERROR — Java will not compile this\nint dollars = (int) price;    // OK — you asked explicitly; dollars is 9\n\n\nThe (int) before a value is called a cast. It means: “convert this to an int.”"
+    "objectID": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer",
+    "href": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer",
+    "title": "What Is a Program?",
+    "section": "Two Ways to Use a Computer",
+    "text": "Two Ways to Use a Computer\n\nThis is the conceptual heart of the first lecture. Spend time here. When you “use” a computer you’re running someone else’s program. When you “program” a computer you are the one writing the instructions the machine will follow. The second path is harder but it’s also what gives you real power over the machine."
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#mixed-type-expressions",
-    "href": "cosc120/notes/04-type-conversion.html#mixed-type-expressions",
-    "title": "Type Conversion and Casting",
-    "section": "Mixed-Type Expressions",
-    "text": "Mixed-Type Expressions\n\nWhen an arithmetic expression involves both int and double values, Java widens the int to a double before computing. The rule is: if either operand is a double, the result is a double. This is the key to getting decimal division: put a .0 on one of the numbers, or use a cast. Show a series of examples where the only change is one type, and walk through how the result changes. Connect explicitly to the integer division surprise from last lecture — this is the explanation for why 7/2 is 3.\n\nWhen int and double values appear together in an expression, Java widens the int to double before computing.\n\nThe rule: if either operand is a double, the result is a double.\nIO.println(7 / 2);       // 3   — both int → integer division\nIO.println(7 / 2.0);     // 3.5 — one is double → decimal division\nIO.println(7.0 / 2);     // 3.5 — one is double → decimal division\nIO.println(7.0 / 2.0);   // 3.5 — both double → decimal division\n\n\nThe only case that gives 3 is when both sides are int."
+    "objectID": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer-1",
+    "href": "cosc120/notes/01-intro.html#two-ways-to-use-a-computer-1",
+    "title": "What Is a Program?",
+    "section": "Two Ways to Use a Computer",
+    "text": "Two Ways to Use a Computer\n\n\nUsing a Computer\n\nOpen an app → it runs\nClick a button → something happens\nSomeone else wrote those instructions\nYou follow the rules someone else set\n\n\nProgramming a Computer\n\nYou write the instructions\nThe computer does exactly what you say\nYou set the rules\n(Whether or not that’s what you meant is another story)\n\n\n\n\nMost people use computers. This course teaches you to program them."
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#casting-placement-matters",
-    "href": "cosc120/notes/04-type-conversion.html#casting-placement-matters",
-    "title": "Type Conversion and Casting",
-    "section": "Casting Placement Matters",
-    "text": "Casting Placement Matters\n\nThis is the subtle one, and it trips up even students who understand casting in isolation. The cast applies to exactly what is immediately to its right — and parentheses control what that is. (double) a / b casts a to double first, then divides: decimal division. (double)(a / b) divides first (integer division, result is 3), then casts the 3 to 3.0: too late. Walk through each example step by step, making the order of evaluation explicit. The lesson: cast before the division, not after.\n\nWhere you place the cast changes the result completely.\nint a = 7;\nint b = 2;"
+    "objectID": "cosc120/notes/01-intro.html#what-is-a-program",
+    "href": "cosc120/notes/01-intro.html#what-is-a-program",
+    "title": "What Is a Program?",
+    "section": "What Is a Program?",
+    "text": "What Is a Program?\n\nIntroduce the recipe analogy here — it’s intuitive and you’ll return to it. A recipe is a list of precise, ordered steps that a cook follows. A program is exactly that, but for a CPU instead of a cook. Key word: PRECISE. “Add salt to taste” would be a bug.\n\nA program is a precise, ordered sequence of instructions for a computer.\nThe best analogy: a recipe.\n\n\n\nRecipe\nProgram\n\n\n\n\nIngredients\nData — numbers, text, …\n\n\nSteps\nInstructions\n\n\nCook\nCPU\n\n\nFinished dish\nOutput\n\n\n\nA recipe tells a cook exactly what to do. A program tells a CPU exactly what to do."
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#code-example-grade-percentage",
-    "href": "cosc120/notes/04-type-conversion.html#code-example-grade-percentage",
-    "title": "Type Conversion and Casting",
-    "section": "Code Example — Grade Percentage",
-    "text": "Code Example — Grade Percentage\n\nA complete program that brings together everything from today: int variables, a cast to force decimal division, and a mixed-type expression. The scenario is immediately relatable — every student cares about their grade percentage. Walk through the flowchart, then the code. Trace through with concrete values: earned = 43, possible = 50. Without the cast: 43 / 50 = 0 (integer division) → 0 * 100 = 0. With the cast: 43.0 / 50 = 0.86 → 0.86 * 100 = 86.0. The cast is not optional.\n\nProblem: Ask the user how many points they earned and how many were possible. Calculate and print their percentage."
+    "objectID": "cosc120/notes/01-intro.html#what-is-a-program-1",
+    "href": "cosc120/notes/01-intro.html#what-is-a-program-1",
+    "title": "What Is a Program?",
+    "section": "What Is a Program?",
+    "text": "What Is a Program?"
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#common-mistakes",
-    "href": "cosc120/notes/04-type-conversion.html#common-mistakes",
-    "title": "Type Conversion and Casting",
-    "section": "Common Mistakes",
-    "text": "Common Mistakes\n\nFour mistakes that follow directly from this lecture. The first two are both about casting too late or not at all — the most common. The third is the truncation surprise. The fourth is trying to let Java narrow automatically, which it refuses to do.\n\n1. Forgetting to cast before integer division\nint a = 3;\nint b = 4;\ndouble result = a / b;           // 0.0 — integer division happened first\ndouble result = (double) a / b;  // 0.75 ✓"
+    "objectID": "cosc120/notes/01-intro.html#programming-is-like-mailing-a-recipe",
+    "href": "cosc120/notes/01-intro.html#programming-is-like-mailing-a-recipe",
+    "title": "What Is a Program?",
+    "section": "Programming Is Like Mailing a Recipe",
+    "text": "Programming Is Like Mailing a Recipe\n\nThis is the key insight about completeness and unambiguity. When you cook yourself you can improvise. When you mail the recipe to a stranger, every step must be spelled out — they can’t call you mid-bake. A program is a mailed recipe: the computer follows it exactly with no improvisation and no common sense. If a step is missing or ambiguous, it either fails or does something wrong.\n\nImagine you’re cooking something following a recipe:\n\nSomething unclear? Improvise. Ask a friend. Use judgment.\n\n\nNow imagine giving that recipe to a friend who is going camping for a few days and has no internet or phone:\n\nThey follow only what is written\nThey cannot call you mid-cook\n“Add salt to taste” → useless. How much?\nEvery step must be complete and unambiguous"
   },
   {
-    "objectID": "cosc120/notes/04-type-conversion.html#worksheet",
-    "href": "cosc120/notes/04-type-conversion.html#worksheet",
-    "title": "Type Conversion and Casting",
+    "objectID": "cosc120/notes/01-intro.html#programs-as-recipes",
+    "href": "cosc120/notes/01-intro.html#programs-as-recipes",
+    "title": "What Is a Program?",
+    "section": "Programs as recipes",
+    "text": "Programs as recipes\nA program is a recipe - the computer opens the envelope and follows the instructions exactly.\nNo improvising, no common sense, no filling in gaps.\n {fig-alt=“robot/computer holding an open envelope with a recipe inside that says”add a pinch of salt” — robot has a large “?” above its head and cannot proceed.”}"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english",
+    "href": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english",
+    "title": "What Is a Program?",
+    "section": "Why Can’t Computers Just Understand English?",
+    "text": "Why Can’t Computers Just Understand English?\n\nNatural language is wonderfully ambiguous — that’s a feature for poetry and conversation, and a serious bug for programming. We invented programming languages precisely to eliminate ambiguity. This is why programs look the way they do: strange syntax, strict rules, no shortcuts. Every quirk of a programming language exists to make sure there is exactly one valid reading of every statement.\n\nEnglish is beautifully ambiguous:\n\n“I saw a man on a hill with a telescope.”"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english-1",
+    "href": "cosc120/notes/01-intro.html#why-cant-computers-just-understand-english-1",
+    "title": "What Is a Program?",
+    "section": "Why Can’t Computers Just Understand English?",
+    "text": "Why Can’t Computers Just Understand English?\nHumans resolve ambiguity with context, tone, and common sense.\nComputers have none of these.\nProgramming languages are designed so every statement has exactly one meaning.\nThat is why they look the way they do — no shortcuts, no “you know what I mean.”"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#learning-a-new-language",
+    "href": "cosc120/notes/01-intro.html#learning-a-new-language",
+    "title": "What Is a Program?",
+    "section": "Learning a New Language",
+    "text": "Learning a New Language\n\nProgramming IS like learning a new language — make this connection explicit. The vocabulary is small compared to French or Spanish, but the grammar is absolute: no partial credit, no “close enough”, no context to save you from a typo. The good news is the vocabulary is tiny. The bad news is every rule is enforced by a machine that has no sympathy. Emphasize that this takes practice, not just reading.\n\nProgramming is genuinely like learning a new language:\n\nVocabulary: small — a few dozen keywords in Java\nGrammar: absolute — one wrong character breaks everything\nAccent: none allowed — spelling, capitalization, and punctuation are all exact\n\nBut like any language, you don’t learn it by reading about it.\nYou learn it by using it — making mistakes, getting confused, and practicing until it clicks.\n\n\n\n\n\n\nImportant\n\n\nThe in-class worksheets and homework are not optional extras. They are the practice reps. You cannot get fluent by watching someone else do it."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#what-about-ai",
+    "href": "cosc120/notes/01-intro.html#what-about-ai",
+    "title": "What Is a Program?",
+    "section": "What About AI?",
+    "text": "What About AI?\n\nStudents are thinking about this already — address it directly and honestly. AI tools like ChatGPT and GitHub Copilot can write Java code, often impressively well. Don’t dismiss this. Be honest. Then give the real reason it’s not allowed: you’re here to build understanding and skill. If AI does the reps for you, you don’t build anything — and in an exam, on a job, when something breaks at 2am, you’re on your own. The calculator analogy is strong: you learned arithmetic before you were allowed to use a calculator, not because arithmetic is more important than calculators, but because you needed to understand what the calculator was doing.\n\nYes — AI tools can write code. Sometimes very well.\nSo why aren’t you allowed to use them in this course?\nThe same reason you learned long division before using a calculator:\n\nUnderstanding why the code works is what makes you a programmer.\n\nAI can hand you a correct answer without you understanding a thing. That works great — until:\n\nYou need to modify the code\nSomething breaks and you have to debug it\nYou sit down for an exam\n\n\n\n\n\n\n\nWarning\n\n\nAI use on assignments and tests is not allowed. This is not because AI is bad — it is a powerful tool you will likely use in your career. But right now, you need to build the skills. The reps matter."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#your-first-java-program",
+    "href": "cosc120/notes/01-intro.html#your-first-java-program",
+    "title": "What Is a Program?",
+    "section": "Your First Java Program",
+    "text": "Your First Java Program\n\nUse the modern Java 25 flexible-main syntax: void main() with no public static. IO.println is the course’s simplified output wrapper — no System.out.println boilerplate. Walk through each piece of the program carefully: void main() means “start here”, curly braces wrap a block of code, IO.println prints a line, the string is in double quotes, and the semicolon ends the statement like a period ends a sentence. Do NOT spend time on the compile/run cycle — students use an online IDE where that is invisible.\n\nvoid main() {\n    IO.println(\"Hello, World!\");\n}\nEvery piece has a job:\n\n\n\nPiece\nWhat it means\n\n\n\n\nvoid main()\n“Start here when the program runs”\n\n\n{ }\nCurly braces wrap a block of code\n\n\nIO.println(...)\nPrint a line to the screen\n\n\n\"Hello, World!\"\nThe text to print — always in double quotes\n\n\n;\nEnd of statement (like a period at the end of a sentence)"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#what-the-computer-hears",
+    "href": "cosc120/notes/01-intro.html#what-the-computer-hears",
+    "title": "What Is a Program?",
+    "section": "What the Computer “Hears”",
+    "text": "What the Computer “Hears”\n\nLighten the mood — this is intentionally humorous. The underlying point is serious: the computer is completely literal. It has no intuition about what you “meant.” This slide sets up the importance of exact syntax, matched braces, and semicolons. Use it to open a conversation: what happens if the semicolon is missing? What if you write Println instead of println?\n\n// What you type:                   // What the computer hears:\nvoid main() {                       // \"Dear Computer,\"\n    IO.println(\"Hello\");            // \"Please print 'Hello' on the screen.\"\n}                                   // \"Thanks and regards, Programmer\"\nThe computer is completely literal. It does precisely what you wrote.\nMiss a semicolon — error. Write Println instead of println — error. Forget a closing brace — error.\n\nProgramming feels hard at first because you are learning to think like someone with no common sense whatsoever.\n\nThat gets easier with practice. Promise."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#whitespace-and-readability",
+    "href": "cosc120/notes/01-intro.html#whitespace-and-readability",
+    "title": "What Is a Program?",
+    "section": "Whitespace and Readability",
+    "text": "Whitespace and Readability\n\nStudents often wonder if indentation “counts.” Honest answer: the compiler ignores whitespace almost entirely. But humans don’t — and your code will be read by humans (you, a classmate, your professor, a TA, eventually an employer). Readable code is professional code. Also: when your program has a bug, readable code is much easier to debug. Establish the expectation early: indentation is required in this course.\n\nThese two programs are identical to the computer:\n\n\nvoid main() {\n    IO.println(\"Hello\");\n    IO.println(\"World\");\n}\nReadable\n\nvoid main(){IO.println(\"Hello\");IO.println(\"World\");}\nValid, but painful\n\nThe computer does not care. You should.\n\nIndentation reveals structure at a glance\nBlank lines separate ideas\nConsistent style makes bugs easier to find\n\n\n\n\n\n\n\nTip\n\n\nIn this course, indentation is required. Write readable code from day one — your future self will thank you."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#comments-notes-for-humans",
+    "href": "cosc120/notes/01-intro.html#comments-notes-for-humans",
+    "title": "What Is a Program?",
+    "section": "Comments — Notes for Humans",
+    "text": "Comments — Notes for Humans\n\nComments are text inside code that the computer ignores completely. They exist purely for the human reader — yourself, a classmate, your professor. Introduce both the concept and the syntax: // makes everything after it on that line a comment. Then talk specifically about how comments will be used in this course: homework assignments will ask students to explain their thinking in comments, and the grader reads them. This is also a good time to distinguish a useful comment from a useless one — “prints hello” adds nothing; “converts the raw score to a letter grade” actually helps.\n\nA comment is a note you write inside your code.\nThe computer ignores it completely. It is there for the human reading the code.\nvoid main() {\n    // This program greets the user.\n    IO.println(\"Hello, World!\");   // prints a greeting to the screen\n}\nEverything after // on a line is a comment — it has no effect on what the program does."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen",
+    "href": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen",
+    "title": "What Is a Program?",
+    "section": "IO.println — Printing to the Screen",
+    "text": "IO.println — Printing to the Screen\n\nIO.println is the course wrapper for output. Each call prints one line of text and moves the cursor to the next line. You can print strings (in double quotes) or numbers (no quotes). Crucially: the ORDER of calls determines the order of output. This sets up the top-to-bottom execution slide.\n\nIO.println prints one line and moves to the next.\nvoid main() {\n    IO.println(\"Apples\");\n    IO.println(\"Bananas\");\n    IO.println(\"Cherries\");\n}\n\nOutput:\nApples\nBananas\nCherries"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen-1",
+    "href": "cosc120/notes/01-intro.html#io.println-printing-to-the-screen-1",
+    "title": "What Is a Program?",
+    "section": "IO.println — Printing to the Screen",
+    "text": "IO.println — Printing to the Screen\nYou can also print numbers directly — no quotes needed:\nvoid main() {\n    IO.println(42);\n    IO.println(3.14);\n}\nOutput:\n42\n3.14"
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#programs-execute-top-to-bottom",
+    "href": "cosc120/notes/01-intro.html#programs-execute-top-to-bottom",
+    "title": "What Is a Program?",
+    "section": "Programs Execute Top to Bottom",
+    "text": "Programs Execute Top to Bottom\n\nSequential execution is the default model. The computer runs statements in order, one at a time, from top to bottom — exactly like reading a recipe. Nothing runs out of order; nothing is skipped unless you tell it to (conditionals, loops — coming later). Trace this program together as a class before moving on.\n\nJava executes statements in order — one at a time, top to bottom.\nvoid main() {\n    IO.println(\"First\");\n    IO.println(\"Second\");\n    IO.println(\"Third\");\n}\nThe computer runs line 2, then line 3, then line 4. Always, in that order.\n\n\n\n\n\n\n\nNote\n\n\nLater in this course, we will learn to make programs jump (conditionals), repeat (loops), and call other code (methods). But the default is always: one step at a time, top to bottom, just like following a recipe."
+  },
+  {
+    "objectID": "cosc120/notes/01-intro.html#worksheet",
+    "href": "cosc120/notes/01-intro.html#worksheet",
+    "title": "What Is a Program?",
     "section": "Worksheet",
-    "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-2 are prediction problems — students work on paper first. Problems 3-4 require writing expressions. Problem 5 is the synthesis program. Watch for: students who forget the cast; students who cast too late; students who expect truncation to round."
+    "text": "Worksheet\n\nReserve the last 20 minutes of class for in-class practice. Students work individually or in pairs on the online IDE. Walk around and check progress — common mistakes to watch for: missing semicolons, mismatched quotes, forgetting the closing brace."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#learning-outcomes",
+    "href": "cosc120/notes/03-arithmetic.html#learning-outcomes",
+    "title": "Arithmetic Expressions",
+    "section": "Learning Outcomes",
+    "text": "Learning Outcomes\n\nWrite arithmetic expressions using +, -, *, /, and %\nExplain how integer division differs from regular division and predict its result\nPredict the order of evaluation in an expression by applying operator precedence rules\nUse parentheses to control evaluation order\nConvert string input to an integer with Integer.parseInt and use it in a computation\nUse + to join strings with String concatenation"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic",
+    "href": "cosc120/notes/03-arithmetic.html#arithmetic",
+    "title": "Arithmetic Expressions",
+    "section": "Arithmetic",
+    "text": "Arithmetic\n\nThis is the motivational opener — spend real time here. The goal is to make students feel the significance of what they are about to learn. Every useful computation that a computer performs, from a video game physics engine to GPS navigation to the systems that guide spacecraft, reduces to arithmetic. Not magic — arithmetic. And the computer does it at a scale and speed that is hard to grasp. The course arc: we learn the operators today, then we combine them in expressions, then we repeat them billions of times using loops, then we apply them to collections of data. Today is the foundation of all of that."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-1",
+    "href": "cosc120/notes/03-arithmetic.html#arithmetic-1",
+    "title": "Arithmetic Expressions",
+    "section": "Arithmetic",
+    "text": "Arithmetic\nEvery program that has ever run on a computer — games, GPS, streaming video, weather forecasts, the systems that control spacecraft — is built on arithmetic.\nA modern computer can perform hundreds of millions to billions of arithmetic operations every second."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-2",
+    "href": "cosc120/notes/03-arithmetic.html#arithmetic-2",
+    "title": "Arithmetic Expressions",
+    "section": "Arithmetic",
+    "text": "Arithmetic\nWhat makes programs powerful is not any one operation — it’s combining simple operations and repeating them at enormous speed.\nHere is the course in one sentence:\n\nLearn the operators → combine them into expressions → repeat them with loops → apply them to collections of data.\n\nToday: the operators."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#what-is-an-expression",
+    "href": "cosc120/notes/03-arithmetic.html#what-is-an-expression",
+    "title": "Arithmetic Expressions",
+    "section": "What Is an Expression?",
+    "text": "What Is an Expression?\n\nName the concept before diving into operators. An expression is any piece of code that the computer can evaluate to produce a single value. 3 + 4 is an expression. score * 2 is an expression. Even a lone literal like 42 is an expression. Expressions appear everywhere in programs — on the right side of an assignment, as arguments to IO.println, and later as conditions in if statements and loops. Once students see that distinction, every piece of syntax they encounter will feel more organized.\n\nAn expression is any combination of values, variables, and operators that the computer can evaluate to produce a single value.\n\n\n\nExpression\nEvaluates to\n\n\n\n\n3 + 4\n7\n\n\n10 - 3\n7\n\n\nscore * 2\ntwice whatever score holds\n\n\n100\n100"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#arithmetic-operators",
+    "href": "cosc120/notes/03-arithmetic.html#arithmetic-operators",
+    "title": "Arithmetic Expressions",
+    "section": "Arithmetic Operators",
+    "text": "Arithmetic Operators\n\nWalk through each operator one at a time. Addition, subtraction, and multiplication are unsurprising — just flag that multiplication uses * not ×. Division is where things get interesting; hold the full explanation for the next slide. Modulo is the one students have never seen before — introduce the symbol and give the one-line definition, then hold examples for its own slide. The table is a reference; students should not try to memorize it on first pass.\n\nJava has five arithmetic operators:\n\n\n\nOperator\nName\nExample\nResult\n\n\n\n\n+\nAddition\n3 + 4\n7\n\n\n-\nSubtraction\n10 - 3\n7\n\n\n*\nMultiplication\n6 * 7\n42\n\n\n/\nDivision\n10 / 4\n2 ← watch out\n\n\n%\nModulo (remainder)\n10 % 3\n1"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#operator-precedence",
+    "href": "cosc120/notes/03-arithmetic.html#operator-precedence",
+    "title": "Arithmetic Expressions",
+    "section": "Operator Precedence",
+    "text": "Operator Precedence\n\nPEMDAS from math class still applies in Java. Multiplication and division are evaluated before addition and subtraction. Within the same level, evaluation goes left to right. Parentheses override everything. Show a worked example where the answer changes depending on whether parentheses are present. The practical advice — when in doubt, add parentheses — is worth repeating. A program with extra parentheses is easier to read and less likely to have a subtle bug.\n\nJava follows the same precedence rules as mathematics.\nPEMDAS still applies:\n\nParentheses first\nMultiplication and division (left to right)\nAddition and subtraction (left to right)"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#integer-division",
+    "href": "cosc120/notes/03-arithmetic.html#integer-division",
+    "title": "Arithmetic Expressions",
+    "section": "Integer Division",
+    "text": "Integer Division\n\nThis is one of the most common surprises for beginners and it will bite them for weeks if they do not understand it clearly. When both operands are ints, Java performs integer division: the result is always a whole number and the decimal part is simply dropped — not rounded, just gone. 7 / 2 is 3, not 3.5, not 4. Show this with several examples. Then show how to get a decimal result: if either operand is a double, the division is decimal division. Make the connection back to types: it is the type of the operands that determines what kind of division happens.\n\nHere is the most common surprise in this entire lecture:\nint result = 7 / 2;\nIO.println(result);    // prints 3, not 3.5\n\nWhen both values are whole numbers, Java does integer division — the decimal part is dropped."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#the-modulo-operator",
+    "href": "cosc120/notes/03-arithmetic.html#the-modulo-operator",
+    "title": "Arithmetic Expressions",
+    "section": "The Modulo Operator %",
+    "text": "The Modulo Operator %\n\nModulo is the one operator most students haven’t seen before. The concept is simple — it is the remainder after division — but it takes a moment to click. Walk through the division-with-remainder picture: 7 divided by 2 goes 3 times with 1 left over. That leftover is what % gives you. Then show the practical uses, which are genuinely useful and will appear repeatedly throughout the course: checking even/odd, extracting the last digit of a number, wrapping around a fixed range.\n\n% gives the remainder after integer division.\n\nThink of it as division with leftovers:\n7 ÷ 2 → goes 3 times, with 1 left over\n7 % 2  →  1"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#introducing-flowcharts",
+    "href": "cosc120/notes/03-arithmetic.html#introducing-flowcharts",
+    "title": "Arithmetic Expressions",
+    "section": "Introducing Flowcharts",
+    "text": "Introducing Flowcharts\n\nIntroduce flowcharts as a planning tool before writing code. Professional programmers sketch the logic of a program before writing a single line — flowcharts are one way to do that. Three symbols are enough for now: the oval marks where a program starts and ends; the rectangle describes a step or action; the arrow shows what happens next. Diamonds (for decisions) come in the next lecture when we cover conditionals. Show a completely non-programming example first — making toast — so students absorb the symbols without the distraction of syntax. Then show a programming example.\n\nBefore writing code, it helps to plan what the program should do.\n\nA flowchart is a diagram that shows the steps of a program and how they connect.\n\n\nThree symbols are enough for now:\n\n\n\nSymbol\nShape\nMeaning\n\n\n\n\nStart / End\nOval\nWhere the program begins and ends\n\n\nStep\nRectangle\nA single action (compute, read, print)\n\n\nFlow\nArrow\nWhat happens next"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#integer.parseint-numbers-from-the-user",
+    "href": "cosc120/notes/03-arithmetic.html#integer.parseint-numbers-from-the-user",
+    "title": "Arithmetic Expressions",
+    "section": "Integer.parseInt — Numbers from the User",
+    "text": "Integer.parseInt — Numbers from the User\n\nIO.readln always produces a String — even if the user types 42, the program receives the text “42”, not the number 42. That distinction matters because you cannot do arithmetic on text. To convert “42” to the number 42, use Integer.parseInt. The syntax is straightforward: wrap the String in Integer.parseInt(…). Mention that if the user types something that is not a valid number — like “hello” — the program will crash. Handling that gracefully is a topic for later in the course.\n\nIO.readln always produces a String — even if the user types a number.\nString input = IO.readln(\"How many minutes? \");\n// input holds \"137\" — the TEXT, not the number\n\nYou cannot do arithmetic on a String:\ninput / 60    // ERROR — can't divide text"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#putting-it-together",
+    "href": "cosc120/notes/03-arithmetic.html#putting-it-together",
+    "title": "Arithmetic Expressions",
+    "section": "Putting It Together",
+    "text": "Putting It Together\n\nWalk through the flowchart first, then the code. Trace through a concrete example — 137 minutes — step by step with the class before running the program. 137 / 60 = 2 (integer division, decimal dropped). 137 % 60 = 17 (remainder). Output: “2 hours and 17 minutes.” Make sure students verify the math by hand before the program confirms it. This builds the habit of reasoning about code before running it.\n\nProblem: Ask the user how many minutes they have been studying. Print the equivalent hours and minutes."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#string-concatenation",
+    "href": "cosc120/notes/03-arithmetic.html#string-concatenation",
+    "title": "Arithmetic Expressions",
+    "section": "String Concatenation",
+    "text": "String Concatenation\n\nThis is the formal introduction of string concatenation, deferred from the variables deck. The + operator does two different things depending on the types involved. int + int is arithmetic. String + anything is concatenation — the values are joined into a single String. The anything part is important: Java automatically converts a number to its text form before joining. Show the clean cases first, then the surprising mixed case. The left-to-right evaluation rule is the key to understanding “5” + 3 + 4 = “534” vs 5 + 3 + “4” = “84”. Connect back to deck 02: we printed labels and values on separate lines because we did not have concatenation yet — now we can put them on the same line.\n\nThe + operator does different things depending on the types involved.\n\nWith two numbers — addition:\nint a = 5;\nint b = 3;\nIO.println(a + b);     // prints: 8"
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#common-mistakes",
+    "href": "cosc120/notes/03-arithmetic.html#common-mistakes",
+    "title": "Arithmetic Expressions",
+    "section": "Common Mistakes",
+    "text": "Common Mistakes\n\nFour mistakes that will appear in student code in the first few weeks. Integer division truncation is the most common — stress it again. The concatenation surprise (mixing + with Strings and numbers in unexpected ways) is the most confusing. Make sure students leave knowing these pitfalls by name so they can recognize them when they appear.\n\n1. Expecting a decimal from integer division\nint result = 7 / 2;\nIO.println(result);    // prints 3 — not 3.5\n\nFix: make one operand a decimal — 7.0 / 2."
+  },
+  {
+    "objectID": "cosc120/notes/03-arithmetic.html#practice-problems",
+    "href": "cosc120/notes/03-arithmetic.html#practice-problems",
+    "title": "Arithmetic Expressions",
+    "section": "Practice problems",
+    "text": "Practice problems\n\nReserve the last 20-30 minutes. Problems 1-3 are prediction/tracing — students work on paper first, then verify in the IDE. Problems 4-5 require writing code. Problem 6 is the synthesis problem that combines everything from today with IO.readln. Common things to watch for: integer division surprises, concatenation vs addition confusion, forgetting Integer.parseInt."
+  },
+  {
+    "objectID": "cosc120/notes/index.html",
+    "href": "cosc120/notes/index.html",
+    "title": "COSC120 — Slides and Notes",
+    "section": "",
+    "text": "Lecture slide decks and notes for COSC120.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nWhat Is a Program?\n\n\n\n\n\n\n\n\n\nVariables and Data Types\n\n\n\n\n\n\n\n\n\nArithmetic Expressions\n\n\n\n\n\n\n\n\n\nType Conversion and Casting\n\n\n\n\n\n\n\n\n\nWorksheet: Input → Processing → Output\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc120/slides/05-conditionals.html#learning-outcomes",
