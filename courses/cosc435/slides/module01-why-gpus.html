@@ -232,9 +232,9 @@ matching the pattern in every other promoted module.
 <h2>Today’s Plan</h2>
 <!-- - Quiz 1 first (15 min, Blackboard) — covers all of Module 0 -->
 <ul>
-<li>Why serial CPU performance stopped improving for free</li>
-<li>Three physical walls: clock speed, power, memory</li>
-<li>Why the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer</li>
+<li class="fragment">Why serial CPU performance stopped improving for free</li>
+<li class="fragment">Three physical walls: clock speed, power, memory</li>
+<li class="fragment">Why the industry’s answer was “more cores,” and why GPUs are the extreme end of that answer</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Pure housekeeping — say it, move on. Today’s lecture time is ~35 min after the quiz, so pacing is tighter than a normal 50-min session.</p>
@@ -253,9 +253,9 @@ matching the pattern in every other promoted module.
 <section id="years-of-free-performance" class="slide level2">
 <h2>20 Years of Free Performance</h2>
 <ul>
-<li>From roughly 1980 to 2004, CPU clock speed doubled about every 18 months (a corollary of Moore’s Law, below)</li>
-<li>Every year, the exact same program ran faster on new hardware — with zero code changes</li>
-<li>Developers could treat performance as someone else’s problem: just wait for next year’s chip</li>
+<li class="fragment">From roughly 1980 to 2004, CPU clock speed doubled about every 18 months (a corollary of Moore’s Law, below)</li>
+<li class="fragment">Every year, the exact same program ran faster on new hardware — with zero code changes</li>
+<li class="fragment">Developers could treat performance as someone else’s problem: just wait for next year’s chip</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Ask the room: “When did you last upgrade a device and notice your code/apps ran faster just from the hardware?” The honest answer today is: rarely, unless the workload is GPU-accelerated. That gap <em>is</em> the subject of this module.</p>
@@ -277,10 +277,10 @@ matching the pattern in every other promoted module.
 <p>“The number of transistors on an integrated circuit doubles roughly every two years, at roughly constant cost.” — Gordon Moore, 1965</p>
 </blockquote>
 <ul>
-<li>Moore’s Law is about <strong>transistor count</strong>, not clock speed directly</li>
-<li>For ~40 years, more transistors <em>did</em> translate into higher clock speed, because of a companion effect: <strong>Dennard scaling</strong></li>
-<li>Dennard scaling (1974): as transistors shrink by a factor, you can also lower their voltage by that same factor — so power <em>density</em> stays roughly constant even as clock speed rises</li>
-<li>Transistor count kept doubling. Clock speed did not — Dennard scaling broke first (next slide)</li>
+<li class="fragment">Moore’s Law is about <strong>transistor count</strong>, not clock speed directly</li>
+<li class="fragment">For ~40 years, more transistors <em>did</em> translate into higher clock speed, because of a companion effect: <strong>Dennard scaling</strong></li>
+<li class="fragment">Dennard scaling (1974): as transistors shrink by a factor, you can also lower their voltage by that same factor — so power <em>density</em> stays roughly constant even as clock speed rises</li>
+<li class="fragment">Transistor count kept doubling. Clock speed did not — Dennard scaling broke first (next slide)</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Common misconception to correct explicitly: many students conflate “Moore’s Law” with “clock speeds double every 2 years.” Moore’s Law (transistor count) is alive-ish today; the clock-speed corollary died around 2005 specifically because Dennard scaling died, not because Moore’s Law did.</p>
@@ -300,9 +300,9 @@ matching the pattern in every other promoted module.
 <h2>Clock Speed Stagnation</h2>
 <p><img data-src="https://upload.wikimedia.org/wikipedia/commons/0/08/CPU_clock_speed_and_Core_count_Graph.png?utm_source=commons.wikimedia.org&amp;utm_campaign=index&amp;utm_content=original" alt="Line chart showing CPU clock speed stagnation over time" width="600"> <!-- [DIAGRAM] — Line chart, x-axis "Year" (1970–2024), y-axis "Clock speed (GHz)," log or linear scale. Curve rises smoothly and steeply from ~1 MHz (1970s) through the 1990s, then bends sharply flat starting around 2004–2005, plateauing in a narrow 3–4 GHz band all the way to 2024. Annotate the bend point "~2005: Dennard scaling breaks down." --></p>
 <ul>
-<li>Single-core clock speed has been stuck at ~3–4 GHz for two decades</li>
-<li>Single-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months</li>
-<li>Something had to replace “just run it at a higher frequency”</li>
+<li class="fragment">Single-core clock speed has been stuck at ~3–4 GHz for two decades</li>
+<li class="fragment">Single-thread performance still creeps up (better branch prediction, bigger caches, deeper pipelines) — but those are diminishing returns, not doubling every 18 months</li>
+<li class="fragment">Something had to replace “just run it at a higher frequency”</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Source a current chart (CPU-DB, Karl Rupp’s “42 Years of Microprocessor Trend Data” is the canonical one instructors use) before drawing this. Students are often surprised the plateau has lasted this long — it predates most of them being alive.</p>
@@ -322,10 +322,10 @@ matching the pattern in every other promoted module.
 <h2>The Power Wall</h2>
 
 <img data-src="diags/dennard-scaling.png" alt="Two stacked line charts sharing a 1985-2025 x-axis: clock frequency rising steeply then flattening after 2005, and supply voltage falling steadily then hitting a floor around the same year" width="560" class="r-stretch"><ul>
-<li>Dynamic power draw of a chip is approximately <span class="math inline">\(P \approx C \cdot V^2 \cdot f\)</span> (capacitance × voltage² × frequency)</li>
-<li>Under Dennard scaling, shrinking transistors let you <em>lower</em> <span class="math inline">\(V\)</span> every generation — so raising <span class="math inline">\(f\)</span> didn’t raise power density</li>
-<li>Around 2005 (~90 nm), <span class="math inline">\(V\)</span> hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit</li>
-<li>Without falling <span class="math inline">\(V\)</span>, raising <span class="math inline">\(f\)</span> directly raises power density — past what air cooling (and eventually any practical cooling) can remove from a chip the size of a fingernail</li>
+<li class="fragment">Dynamic power draw of a chip is approximately <span class="math inline">\(P \approx C \cdot V^2 \cdot f\)</span> (capacitance × voltage² × frequency)</li>
+<li class="fragment">Under Dennard scaling, shrinking transistors let you <em>lower</em> <span class="math inline">\(V\)</span> every generation — so raising <span class="math inline">\(f\)</span> didn’t raise power density</li>
+<li class="fragment">Around 2005 (~90 nm), <span class="math inline">\(V\)</span> hit a floor: drop it further and transistors leak current even when “off,” wasting power and generating heat with no benefit</li>
+<li class="fragment">Without falling <span class="math inline">\(V\)</span>, raising <span class="math inline">\(f\)</span> directly raises power density — past what air cooling (and eventually any practical cooling) can remove from a chip the size of a fingernail</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is the physical reason behind the previous slide’s plateau. Keep the formula but don’t derive it — the takeaway is “voltage stopped shrinking, so frequency stopped rising, or the chip melts.” EL-03’s Sutter essay covers this from the software-consequences angle; this slide covers the hardware cause.</p>
@@ -345,10 +345,10 @@ matching the pattern in every other promoted module.
 <h2>The Memory Wall</h2>
 
 <img data-src="diags/memory-wall.png" alt="Log-scale line chart, 1980-2024, showing CPU performance rising steeply (about 55% per year, slowing after 2005) while DRAM latency improvement rises only gently (about 8% per year); the widening shaded gap between the two lines is labeled the memory wall" width="560" class="r-stretch"><ul>
-<li>CPU compute throughput improved dramatically for decades; DRAM <strong>latency</strong> (time to fetch one value) improved only modestly over the same period</li>
-<li>A single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute <em>hundreds</em> of instructions</li>
-<li>Consequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time</li>
-<li>CPUs hide this with large caches and speculative prefetching; GPUs hide it differently — by keeping thousands of other threads ready to run while one thread waits (Module 2)</li>
+<li class="fragment">CPU compute throughput improved dramatically for decades; DRAM <strong>latency</strong> (time to fetch one value) improved only modestly over the same period</li>
+<li class="fragment">A single memory fetch has taken roughly 100 ns for a long time — during which a modern CPU core could execute <em>hundreds</em> of instructions</li>
+<li class="fragment">Consequence: a core that issues one memory request and then waits idles for hundreds of cycles unless something else fills that time</li>
+<li class="fragment">CPUs hide this with large caches and speculative prefetching; GPUs hide it differently — by keeping thousands of other threads ready to run while one thread waits (Module 2)</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Term coined by Wulf &amp; McKee (1994). This is the setup for why occupancy/warp-scheduling (Module 2) and coalesced memory access (Module 4) matter so much for GPU performance — plant the vocabulary “hiding latency” now, it recurs constantly for the rest of the course.</p>
@@ -367,10 +367,10 @@ matching the pattern in every other promoted module.
 <section id="the-industrys-answer-more-cores" class="slide level2">
 <h2>The Industry’s Answer: More Cores</h2>
 <ul>
-<li>Clock speed capped by the power wall. Memory latency capped by physics. Single-core performance alone could no longer 10× every few years</li>
-<li>The industry’s pivot (mid-2000s onward): stop making one core faster, put more cores on the chip instead</li>
-<li>Consumer CPUs went from 1 core (pre-2005) → 2 → 4 → 8 → today’s 16–32+ core desktop chips</li>
-<li>A GPU is the same idea taken to its logical extreme: instead of tens of powerful cores, thousands of small, simple ones</li>
+<li class="fragment">Clock speed capped by the power wall. Memory latency capped by physics. Single-core performance alone could no longer 10× every few years</li>
+<li class="fragment">The industry’s pivot (mid-2000s onward): stop making one core faster, put more cores on the chip instead</li>
+<li class="fragment">Consumer CPUs went from 1 core (pre-2005) → 2 → 4 → 8 → today’s 16–32+ core desktop chips</li>
+<li class="fragment">A GPU is the same idea taken to its logical extreme: instead of tens of powerful cores, thousands of small, simple ones</li>
 </ul>
 <aside class="notes">
 <p>~2 min. This is the bridge sentence for the whole module: multicore CPUs and GPUs are answers to the <em>same</em> problem (the walls above), differing only in degree. Session 2 makes that “degree” concrete with real numbers.</p>
@@ -390,9 +390,9 @@ matching the pattern in every other promoted module.
 <h2>One Expert vs.&nbsp;a Crowd</h2>
 <p>[DIAGRAM] — Two side-by-side scenes (same visual language as Module 0’s cashier diagram). <em>Left:</em> one highly-skilled cashier serving customers one at a time from a long line, labeled “CPU core: minimize time per customer.” <em>Right:</em> many ordinary cashiers, each serving one customer simultaneously from short lines, labeled “GPU cores: maximize customers served per minute.” A stopwatch icon on the left, a “customers/min” throughput gauge on the right.</p>
 <ul>
-<li>A CPU core is built to finish <em>one</em> task as fast as possible — deep pipelines, branch prediction, large caches, all in service of low <strong>latency</strong></li>
-<li>A GPU core is built to keep as many tasks moving <em>simultaneously</em> as possible, even if each one individually is slower — high <strong>throughput</strong></li>
-<li>Neither is “better” in general — they’re optimized for different jobs. Session 2 puts real numbers on this comparison</li>
+<li class="fragment">A CPU core is built to finish <em>one</em> task as fast as possible — deep pipelines, branch prediction, large caches, all in service of low <strong>latency</strong></li>
+<li class="fragment">A GPU core is built to keep as many tasks moving <em>simultaneously</em> as possible, even if each one individually is slower — high <strong>throughput</strong></li>
+<li class="fragment">Neither is “better” in general — they’re optimized for different jobs. Session 2 puts real numbers on this comparison</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Callback to Module 0’s cashier analogy — reuse the same visual language deliberately so it reads as a continuation, not a new idea. Attach the vocabulary words “latency” and “throughput” precisely here; Module 0 introduced the picture without the terms.</p>
@@ -413,9 +413,9 @@ matching the pattern in every other promoted module.
 <p>Even if you accelerate 95% of a program perfectly on parallel hardware, the <em>unaccelerated</em> 5% caps your total speedup:</p>
 <p><span class="math display">\[\text{Speedup} \leq \frac{1}{1 - 0.95} = \frac{1}{0.05} = 20\times\]</span></p>
 <ul>
-<li>No matter how many cores (or GPU threads) you throw at the parallel 95%, the serial 5% eventually dominates the wall-clock time</li>
-<li>This is why “just add more cores” has diminishing returns, and why <em>which part</em> of a problem you parallelize matters as much as <em>how well</em></li>
-<li>We derive and apply this formally in Module 3 — for now, just the intuition: <strong>serial code is a ceiling on parallel speedup</strong></li>
+<li class="fragment">No matter how many cores (or GPU threads) you throw at the parallel 95%, the serial 5% eventually dominates the wall-clock time</li>
+<li class="fragment">This is why “just add more cores” has diminishing returns, and why <em>which part</em> of a problem you parallelize matters as much as <em>how well</em></li>
+<li class="fragment">We derive and apply this formally in Module 3 — for now, just the intuition: <strong>serial code is a ceiling on parallel speedup</strong></li>
 </ul>
 <aside class="notes">
 <p>~3 min. Full derivation and the general formula (with <span class="math inline">\(p\)</span> = parallel fraction, <span class="math inline">\(s\)</span> = speedup of that fraction) is Module 3. Here, one concrete worked number is enough — don’t derive the general form yet.</p>
@@ -434,9 +434,9 @@ matching the pattern in every other promoted module.
 <section id="this-week" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Session 2 (Wed, Sep 16):</strong> CPU vs.&nbsp;GPU design philosophy, with real numbers — FLOPS, memory bandwidth, SIMD</li>
-<li><strong>Lab 03 (Fri, Sep 18):</strong> Benchmark a loop vs.&nbsp;a vectorized NumPy call; measure the actual speedup ratio and compute GFLOP/s</li>
-<li><strong>EL-02</strong> (GPU architecture video, due Sun Oct 4): gives the physical/circuit picture that will make Module 2’s kernels feel concrete rather than abstract</li>
+<li class="fragment"><strong>Session 2 (Wed, Sep 16):</strong> CPU vs.&nbsp;GPU design philosophy, with real numbers — FLOPS, memory bandwidth, SIMD</li>
+<li class="fragment"><strong>Lab 03 (Fri, Sep 18):</strong> Benchmark a loop vs.&nbsp;a vectorized NumPy call; measure the actual speedup ratio and compute GFLOP/s</li>
+<li class="fragment"><strong>EL-02</strong> (GPU architecture video, due Sun Oct 4): gives the physical/circuit picture that will make Module 2’s kernels feel concrete rather than abstract</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Quick pointer slide, not a deep dive — just orient students to what’s next.</p>
@@ -463,11 +463,11 @@ matching the pattern in every other promoted module.
 <section id="todays-plan-1" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Put real numbers on “latency-optimized vs.&nbsp;throughput-optimized”</li>
-<li>Three metrics that quantify the difference: FLOPS, memory bandwidth, SIMD width</li>
-<li>When a GPU actually wins — and when it loses</li>
-<li>Where GPUs came from (GPGPU/CUDA), and where the field is now</li>
-<li>Checkpoint CK-03 preview, and what’s due before Lab 3</li>
+<li class="fragment">Put real numbers on “latency-optimized vs.&nbsp;throughput-optimized”</li>
+<li class="fragment">Three metrics that quantify the difference: FLOPS, memory bandwidth, SIMD width</li>
+<li class="fragment">When a GPU actually wins — and when it loses</li>
+<li class="fragment">Where GPUs came from (GPGPU/CUDA), and where the field is now</li>
+<li class="fragment">Checkpoint CK-03 preview, and what’s due before Lab 3</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Full 50-minute session — no quiz today. Sixteen slides at roughly 3 min each; keep moving, this is a dense but mostly-conceptual session.</p>
@@ -486,9 +486,9 @@ matching the pattern in every other promoted module.
 <section id="two-design-philosophies-defined" class="slide level2">
 <h2>Two Design Philosophies, Defined</h2>
 <ul>
-<li><strong>Latency-optimized</strong> (CPU): minimize the time to finish <em>one</em> task, even if that costs silicon area and power that a hundred smaller cores could have used instead</li>
-<li><strong>Throughput-optimized</strong> (GPU): maximize the number of tasks finished <em>per second</em>, even if any single task takes longer than it would on a CPU</li>
-<li>Every architectural difference on the next few slides is a consequence of one of these two design goals</li>
+<li class="fragment"><strong>Latency-optimized</strong> (CPU): minimize the time to finish <em>one</em> task, even if that costs silicon area and power that a hundred smaller cores could have used instead</li>
+<li class="fragment"><strong>Throughput-optimized</strong> (GPU): maximize the number of tasks finished <em>per second</em>, even if any single task takes longer than it would on a CPU</li>
+<li class="fragment">Every architectural difference on the next few slides is a consequence of one of these two design goals</li>
 </ul>
 <aside class="notes">
 <p>~2 min. This slide is the thesis statement for the whole session — the rest is evidence. Consider writing “latency” and “throughput” on the board and returning to these two words explicitly at the end of the session.</p>
@@ -506,12 +506,18 @@ matching the pattern in every other promoted module.
 </section>
 <section id="anatomy-of-a-cpu-core-vs.-a-gpu-core" class="slide level2">
 <h2>Anatomy of a CPU Core vs.&nbsp;a GPU Core</h2>
-<p>[DIAGRAM] — Two die diagrams side by side. <em>CPU die:</em> a handful (4–16) of large, complex core blocks, each containing a big labeled cache, a “branch predictor” block, and an “out-of-order execution engine” block — most of the die area is control logic and cache, a small fraction is ALUs. <em>GPU die:</em> thousands of tiny, simple core blocks (small ALU icons) arranged in a dense grid with much smaller caches and no branch-predictor block — most of the die area is ALUs.</p>
-<ul>
-<li>CPU cores spend most of their transistor budget on <em>control</em>: predicting branches, reordering instructions, caching data — all to keep one instruction stream fast</li>
-<li>GPU cores spend most of their transistor budget on <em>arithmetic</em>: many small, simple ALUs with minimal control logic each</li>
-<li>Removing branch prediction and out-of-order execution is a deliberate trade: a GPU core is “dumber” per-core, but you get thousands of them for the same silicon</li>
-</ul>
+
+<img data-src="diags/cpu-vs-gpu-die.svg" alt="Two die diagrams side by side. Left, the CPU die: 8 large core blocks in a 4x2 grid, each containing a big labeled Cache block, a Branch Predictor block, an Out-of-Order Execution Engine block, and only a small ALU block — most of each core's area is control logic and cache. Caption: mostly control logic plus cache, few ALUs. Right, the GPU die: a dense grid of hundreds of tiny identical ALU core cells with only a thin shared L2 cache strip at the top and bottom and no branch-predictor block — most of the die area is ALUs. Caption: mostly ALUs, minimal control logic." width="640" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>CPU cores spend most of their transistor budget on <em>control</em>: predicting branches, reordering instructions, caching data — all to keep one instruction stream fast</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>GPU cores spend most of their transistor budget on <em>arithmetic</em>: many small, simple ALUs with minimal control logic each</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>Removing branch prediction and out-of-order execution is a deliberate trade: a GPU core is “dumber” per-core, but you get thousands of them for the same silicon</p>
+</div>
+</div>
 <aside class="notes">
 <p>~3 min. This is the physical justification for every number on the next slide’s table. Students sometimes ask “why doesn’t NVIDIA just make GPU cores as smart as CPU cores” — the answer is area: a CPU-grade core with branch prediction and OOO execution is roughly an order of magnitude larger than a GPU core.</p>
 <style type="text/css">
@@ -565,9 +571,9 @@ matching the pattern in every other promoted module.
 </tbody>
 </table>
 <ul>
-<li>Per-core, the CPU is faster (higher clock) and smarter (branch prediction, deep pipelines)</li>
-<li>In aggregate, the GPU has 100–1,000× the core count and 10–30× the memory bandwidth</li>
-<li>Neither number alone tells you which chip is faster for <em>your</em> problem — that depends on whether your problem can use thousands of simultaneous, independent cores (next few slides)</li>
+<li class="fragment">Per-core, the CPU is faster (higher clock) and smarter (branch prediction, deep pipelines)</li>
+<li class="fragment">In aggregate, the GPU has 100–1,000× the core count and 10–30× the memory bandwidth</li>
+<li class="fragment">Neither number alone tells you which chip is faster for <em>your</em> problem — that depends on whether your problem can use thousands of simultaneous, independent cores (next few slides)</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Numbers are representative of a high-end 2025-era CPU (e.g.&nbsp;desktop/workstation-class) vs.&nbsp;a data-center GPU (e.g.&nbsp;A100/H100-class) and a Colab T4 will be noticeably smaller than the GPU column here — flag that Lab 3 onward runs on a T4, so measured numbers in lab will be well below these headline figures.</p>
@@ -586,10 +592,10 @@ matching the pattern in every other promoted module.
 <section id="flops-measuring-raw-compute" class="slide level2">
 <h2>FLOPS: Measuring Raw Compute</h2>
 <ul>
-<li><strong>FLOPS</strong> = <strong>fl</strong>oating-point <strong>op</strong>erations per <strong>s</strong>econd — one add or one multiply on a floating-point number counts as one FLOP</li>
-<li>GFLOPS = <span class="math inline">\(10^9\)</span> FLOPS, TFLOPS = <span class="math inline">\(10^{12}\)</span> FLOPS</li>
-<li>A “multiply-then-add” (fused multiply-add, FMA) is often counted as 2 FLOPs, since it does both operations in one hardware step</li>
-<li><strong>Achieved GFLOP/s</strong> for a program = (total FLOPs the program performs) ÷ (measured wall-clock time) — this is exactly what Lab 3 asks you to compute</li>
+<li class="fragment"><strong>FLOPS</strong> = <strong>fl</strong>oating-point <strong>op</strong>erations per <strong>s</strong>econd — one add or one multiply on a floating-point number counts as one FLOP</li>
+<li class="fragment">GFLOPS = <span class="math inline">\(10^9\)</span> FLOPS, TFLOPS = <span class="math inline">\(10^{12}\)</span> FLOPS</li>
+<li class="fragment">A “multiply-then-add” (fused multiply-add, FMA) is often counted as 2 FLOPs, since it does both operations in one hardware step</li>
+<li class="fragment"><strong>Achieved GFLOP/s</strong> for a program = (total FLOPs the program performs) ÷ (measured wall-clock time) — this is exactly what Lab 3 asks you to compute</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Worked example if time allows: a length-<span class="math inline">\(N\)</span> dot product does <span class="math inline">\(N\)</span> multiplies + <span class="math inline">\(N\)</span> adds = <span class="math inline">\(2N\)</span> FLOPs; if it runs in <span class="math inline">\(t\)</span> seconds, achieved rate is <span class="math inline">\(2N/t\)</span> FLOP/s. Students will reuse this exact formula in Lab 3.</p>
@@ -608,11 +614,11 @@ matching the pattern in every other promoted module.
 <section id="memory-bandwidth-the-other-half-of-the-story" class="slide level2">
 <h2>Memory Bandwidth: The Other Half of the Story</h2>
 <ul>
-<li>FLOPS tells you how fast the ALUs <em>can</em> compute — but they can’t compute on data that hasn’t arrived yet</li>
-<li><strong>Memory bandwidth</strong> = bytes per second the chip can move between memory and its compute units</li>
-<li><strong>Arithmetic intensity</strong> = FLOPs performed per byte of data moved — the ratio that determines whether compute or memory is your bottleneck</li>
-<li>Low arithmetic intensity → <strong>memory-bound</strong>: ALUs sit idle waiting on data, no matter how fast they are</li>
-<li>High arithmetic intensity → <strong>compute-bound</strong>: memory keeps up, so raw FLOPS is what limits you</li>
+<li class="fragment">FLOPS tells you how fast the ALUs <em>can</em> compute — but they can’t compute on data that hasn’t arrived yet</li>
+<li class="fragment"><strong>Memory bandwidth</strong> = bytes per second the chip can move between memory and its compute units</li>
+<li class="fragment"><strong>Arithmetic intensity</strong> = FLOPs performed per byte of data moved — the ratio that determines whether compute or memory is your bottleneck</li>
+<li class="fragment">Low arithmetic intensity → <strong>memory-bound</strong>: ALUs sit idle waiting on data, no matter how fast they are</li>
+<li class="fragment">High arithmetic intensity → <strong>compute-bound</strong>: memory keeps up, so raw FLOPS is what limits you</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Don’t derive the roofline model here — that’s Module 4’s job, and it explicitly says so on its own slide. This is only the vocabulary preview: “arithmetic intensity,” “memory-bound,” “compute-bound.” Students will recognize these terms when Module 4 formalizes them.</p>
@@ -630,13 +636,21 @@ matching the pattern in every other promoted module.
 </section>
 <section id="simd-one-instruction-many-data" class="slide level2">
 <h2>SIMD: One Instruction, Many Data</h2>
-<p>[DIAGRAM] — One “instruction dispatch” box at the top labeled “ADD” with an arrow fanning out to 8 small ALU boxes in a row below it, each ALU box processing a different pair of numbers from two aligned arrays but executing the <em>identical</em> instruction. Contrast with a second, smaller diagram below: one ALU box processing one pair of numbers with a “next instruction” loop arrow, labeled “scalar (one instruction, one datum).”</p>
-<ul>
-<li><strong>SIMD</strong> = Single Instruction, Multiple Data: one instruction, dispatched once, applied to many data elements in lock-step</li>
-<li>CPUs have narrow SIMD units (e.g.&nbsp;AVX processes 8 float32s at once) as an add-on to their mainly-scalar design</li>
-<li>GPU cores execute in wide lock-step groups by default — NVIDIA calls a group of 32 threads executing the same instruction together a <strong>warp</strong> (SIMT — Single Instruction, Multiple <em>Threads</em> — the GPU-specific variant; full mechanics in Module 2)</li>
-<li>SIMD/SIMT is <em>why</em> “same operation on every element” (like NumPy vectorization) maps so naturally onto GPU hardware</li>
-</ul>
+
+<img data-src="diags/simd-vs-scalar.svg" alt="Two stacked diagrams. Top: one instruction dispatch box labeled ADD, with arrows fanning out to 8 small ALU boxes in a row below it; each ALU box processes a different pair of numbers from two aligned arrays a[] and b[] but executes the identical ADD instruction, captioned 'one instruction, dispatched once, applied to 8 data elements in lock-step.' Bottom, smaller: one instruction dispatch box labeled ADD feeding a single ALU box that processes one pair of numbers, with a 'next instruction' loop arrow looping back from the ALU to the dispatch box, captioned 'scalar (one instruction, one datum).'" width="640" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>SIMD</strong> = Single Instruction, Multiple Data: one instruction, dispatched once, applied to many data elements in lock-step</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>CPUs have narrow SIMD units (e.g.&nbsp;AVX processes 8 float32s at once) as an add-on to their mainly-scalar design</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>GPU cores execute in wide lock-step groups by default — NVIDIA calls a group of 32 threads executing the same instruction together a <strong>warp</strong> (SIMT — Single Instruction, Multiple <em>Threads</em> — the GPU-specific variant; full mechanics in Module 2)</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>SIMD/SIMT is <em>why</em> “same operation on every element” (like NumPy vectorization) maps so naturally onto GPU hardware</p>
+</div>
+</div>
 <aside class="notes">
 <p>~3 min. Deliberately foreshadow “warp” without teaching it — Module 2’s execution-model lecture (Sep 23) is where thread/warp/block/grid gets taught properly (C2.2). Here it’s just enough vocabulary to explain why SIMD-shaped problems are the GPU’s home turf.</p>
 <style type="text/css">
@@ -655,12 +669,12 @@ matching the pattern in every other promoted module.
 <h2>When Does the GPU Win?</h2>
 <p>The GPU wins when a problem has:</p>
 <ol type="1">
-<li><strong>Many independent operations</strong> — no data dependencies between them, so they can run in any order or simultaneously</li>
-<li><strong>The same operation on every element</strong> — one instruction can serve millions of threads (SIMD/SIMT, previous slide)</li>
-<li><strong>Enough arithmetic per byte moved</strong> — high arithmetic intensity, so the ALUs aren’t left waiting on memory (previous-previous slide)</li>
+<li class="fragment"><strong>Many independent operations</strong> — no data dependencies between them, so they can run in any order or simultaneously</li>
+<li class="fragment"><strong>The same operation on every element</strong> — one instruction can serve millions of threads (SIMD/SIMT, previous slide)</li>
+<li class="fragment"><strong>Enough arithmetic per byte moved</strong> — high arithmetic intensity, so the ALUs aren’t left waiting on memory (previous-previous slide)</li>
 </ol>
 <ul>
-<li>NumPy’s vectorized array operations are a preview of exactly this shape — which is why Module 0’s “why loops are slow” lesson is really a GPU-suitability lesson in disguise</li>
+<li class="fragment">NumPy’s vectorized array operations are a preview of exactly this shape — which is why Module 0’s “why loops are slow” lesson is really a GPU-suitability lesson in disguise</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Tie explicitly back to Module 0 Session 3’s NumPy vectorization content — same underlying reason, different hardware. Students should start recognizing “is this vectorizable?” and “would this benefit from a GPU?” as close to the same question.</p>
@@ -680,9 +694,9 @@ matching the pattern in every other promoted module.
 <h2>When Does the GPU Lose?</h2>
 <p>The GPU loses (or the CPU wins) when:</p>
 <ol type="1">
-<li><strong>Serial dependencies dominate</strong> — each step needs the previous step’s result, so there’s nothing to run in parallel (Amdahl’s Law from Session 1 sets the ceiling)</li>
-<li><strong>The problem is too small</strong> — launching thousands of GPU threads has fixed overhead; if the work doesn’t fill the device, that overhead isn’t amortized</li>
-<li><strong>Data transfer costs more than the speedup</strong> — moving data to and from the GPU takes time; if the computation itself is cheap, the round trip can cost more than it saves</li>
+<li class="fragment"><strong>Serial dependencies dominate</strong> — each step needs the previous step’s result, so there’s nothing to run in parallel (Amdahl’s Law from Session 1 sets the ceiling)</li>
+<li class="fragment"><strong>The problem is too small</strong> — launching thousands of GPU threads has fixed overhead; if the work doesn’t fill the device, that overhead isn’t amortized</li>
+<li class="fragment"><strong>Data transfer costs more than the speedup</strong> — moving data to and from the GPU takes time; if the computation itself is cheap, the round trip can cost more than it saves</li>
 </ol>
 <aside class="notes">
 <p>~2 min. Students will hit all three of these failure modes empirically in labs (especially #2 and #3 — a common early-semester mistake is “my GPU code was slower,” which is almost always one of these). Naming them now gives students the vocabulary to self-diagnose later.</p>
@@ -701,10 +715,10 @@ matching the pattern in every other promoted module.
 <section id="from-graphics-to-general-purpose" class="slide level2">
 <h2>From Graphics to General Purpose</h2>
 <ul>
-<li>GPUs were originally built to shade millions of pixels in parallel — each pixel computed by the same shader program, independent of its neighbors</li>
-<li>Around 2006, researchers noticed: “shading a pixel” and “processing one element of a large independent array” are the same computational shape</li>
-<li>Any <strong>“embarrassingly parallel”</strong> problem (independent, identical per-element work) could, in principle, be reframed as a graphics-shader-style workload</li>
-<li>NVIDIA formalized this with <strong>CUDA</strong> (released 2007) — a way to write general-purpose parallel code for the GPU without pretending it’s a graphics shader</li>
+<li class="fragment">GPUs were originally built to shade millions of pixels in parallel — each pixel computed by the same shader program, independent of its neighbors</li>
+<li class="fragment">Around 2006, researchers noticed: “shading a pixel” and “processing one element of a large independent array” are the same computational shape</li>
+<li class="fragment">Any <strong>“embarrassingly parallel”</strong> problem (independent, identical per-element work) could, in principle, be reframed as a graphics-shader-style workload</li>
+<li class="fragment">NVIDIA formalized this with <strong>CUDA</strong> (released 2007) — a way to write general-purpose parallel code for the GPU without pretending it’s a graphics shader</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Brief history slide — the point is the conceptual leap (fixed-function graphics chip → general-purpose parallel computer), not a detailed timeline.</p>
@@ -723,15 +737,15 @@ matching the pattern in every other promoted module.
 <section id="nvidias-cuda-model" class="slide level2">
 <h2>NVIDIA’s CUDA Model</h2>
 <ul>
-<li>The programmer writes a <strong>kernel</strong> — the code for what <em>one</em> thread does</li>
-<li>The programmer specifies how many threads to launch (the <strong>grid</strong>); the hardware creates and schedules all of them</li>
-<li>The same kernel code runs on every thread, simultaneously, each operating on a different piece of data (SIMT, from earlier this session)</li>
+<li class="fragment">The programmer writes a <strong>kernel</strong> — the code for what <em>one</em> thread does</li>
+<li class="fragment">The programmer specifies how many threads to launch (the <strong>grid</strong>); the hardware creates and schedules all of them</li>
+<li class="fragment">The same kernel code runs on every thread, simultaneously, each operating on a different piece of data (SIMT, from earlier this session)</li>
 </ul>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="co"># Conceptually — not real syntax yet, that's Module 2:</span></span>
 <span id="cb1-2"><a></a><span class="co"># "Run compute_similarity for every (query, database_item) pair — simultaneously"</span></span>
 <span id="cb1-3"><a></a>sim_kernel[grid, threads](Q_gpu, D_gpu, sim_gpu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>The programmer <em>declares</em> the parallelism; the hardware <em>executes</em> it — you never write a loop that says “now do item 2”</li>
+<li class="fragment">The programmer <em>declares</em> the parallelism; the hardware <em>executes</em> it — you never write a loop that says “now do item 2”</li>
 </ul>
 <aside class="notes">
 <p>~3 min. We are not writing CUDA syntax yet — Module 2 (starting Sep 21) teaches <code>@cuda.jit</code>, thread indexing, and launch configuration in full. This slide is purely the mental model: kernel = one thread’s code, grid = how many copies.</p>
@@ -750,10 +764,10 @@ matching the pattern in every other promoted module.
 <section id="the-scale-of-modern-gpu-computing" class="slide level2">
 <h2>The Scale of Modern GPU Computing</h2>
 <ul>
-<li>A single high-end datacenter GPU (H100-class): on the order of <strong>2,000 TFLOPS</strong> at reduced precision (FP16) — roughly 1,000× a high-end CPU’s FLOPS</li>
-<li>A single training run for a large AI model can use <strong>thousands of GPUs, continuously, for weeks</strong></li>
-<li>Serving inference (e.g.&nbsp;a chatbot) to millions of users means continuous, ongoing GPU demand, not a one-time cost</li>
-<li>This scale is <em>why</em> GPU programming skill is in high demand — the compute budget of modern computing runs through chips like the ones in this table</li>
+<li class="fragment">A single high-end datacenter GPU (H100-class): on the order of <strong>2,000 TFLOPS</strong> at reduced precision (FP16) — roughly 1,000× a high-end CPU’s FLOPS</li>
+<li class="fragment">A single training run for a large AI model can use <strong>thousands of GPUs, continuously, for weeks</strong></li>
+<li class="fragment">Serving inference (e.g.&nbsp;a chatbot) to millions of users means continuous, ongoing GPU demand, not a one-time cost</li>
+<li class="fragment">This scale is <em>why</em> GPU programming skill is in high demand — the compute budget of modern computing runs through chips like the ones in this table</li>
 </ul>
 <aside class="notes">
 <p>~2 min. EL-05 (energy and ethics, later in the course) reads the Strubell paper on the energy cost of training large NLP models. Plant the question here without answering it: this throughput is not free, environmentally or economically.</p>
@@ -775,12 +789,12 @@ matching the pattern in every other promoted module.
 <p>Given a problem and a GPU with thousands of cores, how do you structure the code so that all of them are doing useful work simultaneously, and waiting as little as possible?</p>
 </blockquote>
 <ul>
-<li>Every module this semester answers one piece of this question:
+<li class="fragment">Every module this semester answers one piece of this question:
 <ul>
-<li>Module 2: how to launch and index threads correctly</li>
-<li>Module 3–4: how to keep memory from being the bottleneck</li>
-<li>Module 5: how threads cooperate when the answer isn’t purely independent per-element</li>
-<li>Module 6+: when to use a library instead of writing the kernel yourself</li>
+<li class="fragment">Module 2: how to launch and index threads correctly</li>
+<li class="fragment">Module 3–4: how to keep memory from being the bottleneck</li>
+<li class="fragment">Module 5: how threads cooperate when the answer isn’t purely independent per-element</li>
+<li class="fragment">Module 6+: when to use a library instead of writing the kernel yourself</li>
 </ul></li>
 </ul>
 <aside class="notes">
@@ -801,9 +815,9 @@ matching the pattern in every other promoted module.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-03 will ask you to:</p>
 <ul>
-<li>Implement the same computation as a Python loop <em>and</em> a vectorized NumPy call</li>
-<li>Time both and compute the speedup ratio</li>
-<li>Reflect on how that speedup motivates moving to a GPU with thousands of cores</li>
+<li class="fragment">Implement the same computation as a Python loop <em>and</em> a vectorized NumPy call</li>
+<li class="fragment">Time both and compute the speedup ratio</li>
+<li class="fragment">Reflect on how that speedup motivates moving to a GPU with thousands of cores</li>
 </ul>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 03 (Sep 18). The graded output is the NumPy result only — the loop is a sanity check, not part of the checksum.</p>
@@ -822,9 +836,9 @@ matching the pattern in every other promoted module.
 <section id="most-of-this-module-isnt-checkpointed-by-design" class="slide level2">
 <h2>Most of This Module Isn’t Checkpointed — By Design</h2>
 <ul>
-<li>CK-03 covers the loop-vs-vectorized timing skill</li>
-<li>The <em>conceptual</em> heart of this module — the CPU-vs-GPU latency/throughput tradeoff and which problems suit GPU acceleration — has no single auto-gradable “correct answer,” the way a kernel’s numeric output can be checked</li>
-<li>You’re still tested on this material: <strong>Quiz 02</strong> and both exams cover it, just not via a Blackboard-graded notebook</li>
+<li class="fragment">CK-03 covers the loop-vs-vectorized timing skill</li>
+<li class="fragment">The <em>conceptual</em> heart of this module — the CPU-vs-GPU latency/throughput tradeoff and which problems suit GPU acceleration — has no single auto-gradable “correct answer,” the way a kernel’s numeric output can be checked</li>
+<li class="fragment">You’re still tested on this material: <strong>Quiz 02</strong> and both exams cover it, just not via a Blackboard-graded notebook</li>
 </ul>
 <aside class="notes">
 <p>~1 min. What’s genuinely checkpoint-free: the thread/warp/block execution model (assessed via Quiz 03 + exams — that’s Module 2’s territory) and problem-suitability judgment (assessed via Quiz 02 + Midterm A3). See checkpoints/checkpoint-competency-map.md’s gap-analysis note for the full breakdown.</p>
@@ -843,10 +857,10 @@ matching the pattern in every other promoted module.
 <section id="looking-ahead" class="slide level2">
 <h2>Looking Ahead</h2>
 <ul>
-<li><strong>Lab 03 (Fri, Sep 18):</strong> Benchmark loop vs.&nbsp;vectorized NumPy; plot speedup; compute achieved GFLOP/s — directly uses this session’s FLOPS definition</li>
-<li><strong>CK-03</strong> (same day, 20 min): timing + speedup checkpoint</li>
-<li><strong>EL-02</strong> (due Sun Oct 4): GPU architecture video — builds the physical picture for Module 2’s kernels</li>
-<li><strong>Module 2 starts Mon, Sep 21:</strong> Streaming Multiprocessors, CUDA cores, and — Wed Sep 23 — the thread/warp/block/grid execution model, with <strong>Quiz 2</strong> that same day covering this module</li>
+<li class="fragment"><strong>Lab 03 (Fri, Sep 18):</strong> Benchmark loop vs.&nbsp;vectorized NumPy; plot speedup; compute achieved GFLOP/s — directly uses this session’s FLOPS definition</li>
+<li class="fragment"><strong>CK-03</strong> (same day, 20 min): timing + speedup checkpoint</li>
+<li class="fragment"><strong>EL-02</strong> (due Sun Oct 4): GPU architecture video — builds the physical picture for Module 2’s kernels</li>
+<li class="fragment"><strong>Module 2 starts Mon, Sep 21:</strong> Streaming Multiprocessors, CUDA cores, and — Wed Sep 23 — the thread/warp/block/grid execution model, with <strong>Quiz 2</strong> that same day covering this module</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Closing orientation slide — confirm dates against schedule.md before each offering, since holiday shifts can move these.</p>

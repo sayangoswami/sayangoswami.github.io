@@ -513,19 +513,11 @@
 </table>
 <div class="fragment">
 <p>Only 2 tasks ever run at the literal same instant — the other 3 wait their turn in the queue, picked up by whichever worker finishes first. This is exactly the “fixed staff, shared queue” picture from three slides ago, now traced step by step.</p>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>A horizontal queue of 5 numbered ticket icons ([1][2][3][4][5]) feeding into two cook icons labeled “Worker 1” and “Worker 2,” each cook shown next to a small stove. Show it as a 2-frame progression: frame 1 has Workers 1 and 2 holding tickets 1 and 2, queue shows [3][4][5]; frame 2 (after either finishes) shows one worker now holding ticket 3, queue shrunk to [4][5]. Caption: “Tasks don’t get their own cook — they wait for whichever cook is free next.” This is the visual companion to the trace table above; the table gives the precise timing, the diagram gives the at-a-glance shape.</p>
-</div>
-</div>
-</div>
+<p><img data-src="images/worker-queue.png" alt="A diagram showing two cooks (Worker 1 and Worker 2) each holding a ticket from a queue of five tickets. As tasks finish, the next ticket in the queue is picked up by whichever cook is free."></p>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+A horizontal queue of 5 numbered ticket icons ([1][2][3][4][5]) feeding into two cook icons labeled "Worker 1" and "Worker 2," each cook shown next to a small stove. Show it as a 2-frame progression: frame 1 has Workers 1 and 2 holding tickets 1 and 2, queue shows [3][4][5]; frame 2 (after either finishes) shows one worker now holding ticket 3, queue shrunk to [4][5]. Caption: "Tasks don't get their own cook — they wait for whichever cook is free next." This is the visual companion to the trace table above; the table gives the precise timing, the diagram gives the at-a-glance shape.
+::: -->
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Walk this row by row on the board — the point students need to take away is that task-to-worker assignment isn’t fixed in advance (Task 3 could just as easily have gone to Worker 2, depending on which finishes first); it’s whichever worker becomes free first.</p>
 <style type="text/css">

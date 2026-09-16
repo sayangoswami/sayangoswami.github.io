@@ -157,3 +157,13 @@
   border-top: 1px solid #ccc;
   margin-top: 2em;
 }
+
+/* left-align stacked fragments instead of r-stack's default centering */
+.reveal .r-stack {
+  justify-items: start;   /* horizontal */
+  align-items: start;     /* vertical, if you don't want it vertically centered either */
+}
+.reveal .r-stack > * {
+  text-align: left;
+  width: 100%;
+}
