@@ -3406,14 +3406,14 @@
     "href": "cosc420/slides/module_1.html#practice-1-spot-the-race-condition",
     "title": "Module 1: Concurrency",
     "section": "Practice 1: Spot the Race Condition",
-    "text": "Practice 1: Spot the Race Condition\nclass Counter {\n    private int total = 0;\n\n    public void add(int amount) {\n        total = total + amount;   // is this line safe?\n    }\n\n    public int getTotal() {\n        return total;\n    }\n}\nTwo threads both call add(5) on the same Counter object, 1,000 times each, at the same time.\n\nWith a partner (2–3 min): is add() safe to call from multiple threads at once? If not, name the exact three-step breakdown (Session 3) that causes the problem here.\n\nTiming: 4 min including pair discussion. Don’t reveal the answer yet — let pairs actually argue about it first."
+    "text": "Practice 1: Spot the Race Condition\nclass Counter {\n    private int total = 0;\n\n    public void add(int amount) {\n        total = total + amount; \n    }\n\n    public int getTotal() {\n        return total;\n    }\n}\n\n\nWith a partner (2–3 min): Name the exact three-step breakdown (Session 3) that causes the problem here.\n\nTiming: 4 min including pair discussion. Don’t reveal the answer yet — let pairs actually argue about it first."
   },
   {
     "objectID": "cosc420/slides/module_1.html#practice-1-solution",
     "href": "cosc420/slides/module_1.html#practice-1-solution",
     "title": "Module 1: Concurrency",
     "section": "Practice 1: Solution",
-    "text": "Practice 1: Solution\nNo — add() is not thread-safe. total = total + amount is a read-modify-write, exactly like counter++ in Session 3:\n\nRead the current value of total.\nModify it — compute total + amount.\nWrite the new value back to total.\n\n\nIf Thread A and Thread B both read total before either writes back, one of their additions is lost — identical shape to the lost-update table from Session 3, just with += amount instead of ++.\n\n\nThe fix: mark add() (and, for consistency, getTotal()) synchronized, so the whole read-modify-write sequence completes on one thread before another can begin it.\n\nTiming: 4 min. Worth noting getTotal() in the fix — students often synchronize only the method that writes and forget that an unsynchronized read can still observe a half-updated or stale value."
+    "text": "Practice 1: Solution\nadd() is not thread-safe. total = total + amount is a read-modify-write, exactly like counter++ in Session 3:\n\nRead the current value of total.\nModify it — compute total + amount.\nWrite the new value back to total.\n\n\nIf Thread A and Thread B both read total before either writes back, one of their additions is lost — identical shape to the lost-update table from Session 3, just with += amount instead of ++.\n\n\nThe fix: mark add() (and, for consistency, getTotal()) synchronized, so the whole read-modify-write sequence completes on one thread before another can begin it.\n\nTiming: 4 min. Worth noting getTotal() in the fix — students often synchronize only the method that writes and forget that an unsynchronized read can still observe a half-updated or stale value."
   },
   {
     "objectID": "cosc420/slides/module_1.html#practice-2-trace-the-interleaving",
@@ -3448,7 +3448,98 @@
     "href": "cosc420/slides/module_1.html#quiz-1",
     "title": "Module 1: Concurrency",
     "section": "Quiz 1",
-    "text": "Quiz 1\nQuiz 1 — Module 1: Concurrency is now open on Blackboard.\n\nMultiple choice / true-false, covering Sessions 1–5\nYou have the remainder of class time\nEverything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready\n\nConnects to: Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12\n\nTiming: 2 min transition, then hand off to Blackboard for the remaining ~12 min. Don’t linger — direct them to Blackboard and let the quiz run."
+    "text": "Quiz 1\nQuiz 1 — Module 1: Concurrency is now open on Blackboard.\n\nMultiple choice / true-false, covering Sessions 1–5\nClosed book, closed notes, no collaboration - Honor Code applies\nEverything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready\n\nConnects to: Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12\n\nTiming: 2 min transition, then hand off to Blackboard for the remaining ~12 min. Don’t linger — direct them to Blackboard and let the quiz run."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#what-makes-distributed-systems-hard",
+    "href": "cosc420/notes/11.html#what-makes-distributed-systems-hard",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "What Makes Distributed Systems Hard",
+    "text": "What Makes Distributed Systems Hard\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: One Kitchen, Many Kitchens\n3 min\n\n\nWhat Is a Distributed System?\n4 min\n\n\nWhy Distribute?\n4 min\n\n\nThe Catch\n3 min\n\n\nMessages Get Lost, Delayed, or Reordered\n5 min\n\n\nPartial Failures\n4 min\n\n\nThe Timeout Problem: Dead or Just Slow?\n5 min\n\n\nNo Global Clock\n5 min\n\n\nOrdering Without a Shared Clock\n5 min\n\n\nFour Ways a Node Can Fail\n5 min\n\n\nThe Fallacies of Distributed Computing\n4 min\n\n\nBridge: These Problems Don’t Go Away\n3 min\n\n\n\n12 slides, ~50 min. This session is the foundation the entire module rests on — every later session (CAP, REST, the case study) is really “here’s one specific way people manage these exact problems.” Say that explicitly at the start."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#recap-one-kitchen-many-kitchens",
+    "href": "cosc420/notes/11.html#recap-one-kitchen-many-kitchens",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Recap: One Kitchen, Many Kitchens",
+    "text": "Recap: One Kitchen, Many Kitchens\nModule 1 ended on this picture: parallel = one kitchen, many cooks sharing the same counters. Distributed = many separate kitchens, coordinating over the phone, sharing nothing directly.\nModule 2 is entirely about that second picture — and about one hard truth: the phone line between kitchens is not reliable.\n\nEach kitchen (a node) has its own memory, its own state, its own clock on the wall.\nThe only way one kitchen learns anything about another is by sending a message — a phone call, a courier — across a network that can be slow, or drop the call, or deliver things out of order.\nEverything in this session is a consequence of that one fact.\n\n\nTiming: 3 min. Just re-anchor the picture from Module 1’s last slide — don’t re-derive it. This slide’s whole job is continuity."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#what-is-a-distributed-system",
+    "href": "cosc420/notes/11.html#what-is-a-distributed-system",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "What Is a Distributed System?",
+    "text": "What Is a Distributed System?\nA distributed system is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.\n\nGoogle Search — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.\nNetflix — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.\nYour bank’s ATM network — every ATM is a separate machine, but they all need to agree on your account balance.\n\n\n\n\n\n\n\n\nThink about it\n\n\nName one app or service you used this morning that you’d guess is a distributed system. What tipped you off — was it the scale, or something about how it behaved?\n\n\n\n\nTiming: 4 min. Let 2–3 students answer the callout question out loud before moving on — email, maps, any app with a login are all fair answers, and hearing several examples cements the definition better than the definition alone."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#why-distribute",
+    "href": "cosc420/notes/11.html#why-distribute",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Why Distribute?",
+    "text": "Why Distribute?\nThree genuine reasons, not just “because it’s trendy”:\n\nScale — one machine has a ceiling (recall Module 1, Session 1: one machine can’t hold 80 billion rows). A distributed system grows by adding more machines, not by buying an impossibly bigger one.\nAvailability — if one server goes down, others can keep serving requests. A single machine has no backup; if it fails, the whole service fails with it.\nGeography — serving a user in Tokyo from a datacenter in Tokyo is faster than serving them from Virginia. Distributing lets you put copies of your system physically close to your users.\n\n\nTiming: 4 min. Keep this brisk and positive — it’s the sales pitch. The very next slide is the catch, and the contrast lands better if this slide doesn’t undercut itself early."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#the-catch",
+    "href": "cosc420/notes/11.html#the-catch",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "The Catch",
+    "text": "The Catch\nEvery benefit on the last slide comes at a cost: you now have more than one machine that has to agree with itself.\n\nNetworks are unreliable — messages get lost, delayed, or corrupted.\nMachines fail independently — one kitchen can go dark while the others keep cooking.\nClocks drift — there is no single, shared notion of “now” across separate machines.\n\n\n\n\n\n\n\n\nImportant\n\n\nNone of this is a bug you can fix once. It’s a permanent property of having more than one computer. The rest of this module — CAP, replication, consistency — is the industry’s answer to “given that these problems never fully go away, how do we build systems that are still useful?”\n\n\n\n\nTiming: 3 min. This is a framing slide — its only job is to set up the next four slides as elaborations of these three bullets, in order."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#messages-get-lost-delayed-or-reordered",
+    "href": "cosc420/notes/11.html#messages-get-lost-delayed-or-reordered",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Messages Get Lost, Delayed, or Reordered",
+    "text": "Messages Get Lost, Delayed, or Reordered\nPicture one kitchen calling another to relay three orders, one after another. On a single machine, “one after another” is guaranteed. Across a network, it is not.\n\nA message can be lost entirely — the call drops, nobody at either end knows for sure it happened.\nA message can be delayed — it arrives seconds, or minutes, later than sent, for reasons neither side controls.\nMessages can arrive out of order — the second order can reach the kitchen before the first one, even though they were sent in sequence."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#partial-failures",
+    "href": "cosc420/notes/11.html#partial-failures",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Partial Failures",
+    "text": "Partial Failures\n\nOn a single machine, if the CPU fails, everything fails together — one clean, total failure.\nIn a distributed system, some machines can fail while others keep running perfectly. The system is never simply “up” or “down” — it can be up for some users and down for others, at the same instant.\nThis asymmetry is what makes distributed systems fundamentally harder to reason about than single-machine programs: you can no longer assume “the program” is in one consistent state.\n\n\n\n\n\n\n\n\nThink about it\n\n\nThree of a bank’s ten ATMs go offline for an hour. Is the ATM network “working” or “broken”? Who gets to decide — the bank, or each individual customer trying to use it?\n\n\n\n\nTiming: 4 min. There’s no clean right answer to the callout — that’s the point. “Working for some, broken for others” is a genuinely uncomfortable middle ground that single-machine thinking doesn’t prepare you for."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#the-timeout-problem-dead-or-just-slow",
+    "href": "cosc420/notes/11.html#the-timeout-problem-dead-or-just-slow",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "The Timeout Problem: Dead or Just Slow?",
+    "text": "The Timeout Problem: Dead or Just Slow?\nHere is the single hardest consequence of network unreliability: from the outside, a crashed node and a slow node look identical.\n\nKitchen A calls Kitchen B and gets no answer. Is Kitchen B’s phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?\nKitchen A cannot tell the difference. All it knows is: no response yet.\nThe only tool available is a timeout — waiting some fixed amount of time, then assuming failure. But there’s no “correct” amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that’s truly gone.\n\n\n\n\n\n\n\n\nThink about it\n\n\nYou’re designing the timeout for a payment system. What happens if you set it too short? What happens if you set it too long? Which mistake would you rather make, and why?\n\n\n\n\nTiming: 5 min. This is a genuinely famous, unsolved-in-general problem in distributed systems — resist the urge to present a “correct” timeout value, because there isn’t one; the tradeoff itself is the content."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#no-global-clock",
+    "href": "cosc420/notes/11.html#no-global-clock",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "No Global Clock",
+    "text": "No Global Clock\nEvery kitchen has a wall clock. None of them are perfectly synchronized — each one drifts a little, faster or slower, for entirely mundane reasons (temperature, manufacturing tolerance, when it was last set).\n\nOn a single machine, “what time is it” has one unambiguous answer, from one clock.\nAcross machines, each one has its own clock, and they disagree — usually by milliseconds, but disagree nonetheless. This is called clock drift.\nWorse: even the rate at which each clock runs is slightly different, so the disagreement keeps changing over time, not staying fixed.\n\n\n\n\n\n\n\n\nImportant\n\n\nThis means you cannot simply timestamp two events on two different machines and trust the timestamps to tell you which one happened first. A “later” timestamp might actually describe an earlier event, if that machine’s clock is running fast.\n\n\n\n\nTiming: 5 min. This is likely the most surprising idea in the session for students — most have never had reason to doubt that “5:00:03pm” means the same instant everywhere. Give it room; don’t rush past the callout."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#ordering-without-a-shared-clock",
+    "href": "cosc420/notes/11.html#ordering-without-a-shared-clock",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Ordering Without a Shared Clock",
+    "text": "Ordering Without a Shared Clock\nIf you can’t trust timestamps to order events, how do you know which of two things happened first?\n\nThe puzzle: Kitchen A and Kitchen B both claim they received the same customer’s order “first.” Neither trusts the other’s wall clock. How do you settle it?\nA partial answer: instead of asking “what time did this happen,” ask “what did this event depend on knowing about?” If Kitchen B’s order explicitly referenced information from Kitchen A’s order (e.g., “adding to the order Kitchen A just confirmed”), then A’s event must have happened first — regardless of what either clock says.\nThis idea — ordering by cause-and-effect instead of by clock — is called a logical clock, and it’s a real, used solution to exactly this problem. We won’t build one in this course, but the puzzle itself is worth sitting with.\n\n\n\n\n\n\n\n\nThink about it\n\n\nTwo students submit an assignment through two different servers, one second apart by each server’s own clock — but the servers’ clocks are known to disagree by up to five seconds. Can you say for certain who submitted first? What evidence would settle it?\n\n\n\n\nTiming: 5 min. Keep the logical-clocks mention brief and conceptual — the goal is “this is a real, solvable problem with real solutions,” not to teach vector clocks in a 50-minute session. The callout question is the actual payload of this slide."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#four-ways-a-node-can-fail",
+    "href": "cosc420/notes/11.html#four-ways-a-node-can-fail",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Four Ways a Node Can Fail",
+    "text": "Four Ways a Node Can Fail\nNot all failures look the same. It’s worth naming the shapes:\n\n\n\n\n\n\n\n\nFailure type\nWhat it looks like\nKitchen picture\n\n\n\n\nCrash\nThe node stops entirely — cleanest and easiest to detect (eventually)\nThe kitchen goes completely dark, no lights, no phone\n\n\nOmission\nThe node is alive but drops some messages — receives but doesn’t respond, or vice versa\nThe phone rings but nobody picks up some of the time\n\n\nTiming\nThe node responds, but too slowly to be useful\nThe kitchen answers the order an hour after it was needed\n\n\nByzantine\nThe node responds with incorrect data — hardware fault, corruption, or a malicious actor\nThe kitchen confirms an order it never actually received\n\n\n\nMost real systems are designed to tolerate crash and omission failures. Byzantine failures — where a node actively lies — are far harder to defend against, and are mostly a concern in specialized settings (e.g., systems that must tolerate malicious participants).\n\nTiming: 5 min. Byzantine failures are the one row worth pausing on — ask “why would this be so much harder to detect than a crash?” A crashed node is silent; a Byzantine node looks completely normal while being wrong, which is what makes it dangerous."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#the-fallacies-of-distributed-computing",
+    "href": "cosc420/notes/11.html#the-fallacies-of-distributed-computing",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "The Fallacies of Distributed Computing",
+    "text": "The Fallacies of Distributed Computing\nIn the 1990s, engineers at Sun Microsystems (Peter Deutsch and colleagues) wrote down eight assumptions that programmers new to distributed systems make — and every one of them is false:\n\nThe network is reliable\nLatency is zero\nBandwidth is infinite\nThe network is secure\nTopology doesn’t change\nThere is one administrator\nTransport cost is zero\nThe network is homogeneous\n\n\n\n\n\n\n\n\nThink about it\n\n\nPick one of the eight. Describe a concrete way a program would break if a developer believed it was true. (Fallacy 2 — zero latency — is a good one to start with: what breaks if your code assumes a network call returns instantly?)\n\n\n\n\nTiming: 4 min. You don’t need to cover all eight in equal depth — 1 (reliability) and 2 (zero latency) are the two most directly relevant to everything else in this session, so weight discussion toward those if time is short."
+  },
+  {
+    "objectID": "cosc420/notes/11.html#bridge-these-problems-dont-go-away",
+    "href": "cosc420/notes/11.html#bridge-these-problems-dont-go-away",
+    "title": "What Makes Distributed Systems Hard",
+    "section": "Bridge: These Problems Don’t Go Away",
+    "text": "Bridge: These Problems Don’t Go Away\nEverything in this session — lost messages, partial failures, the timeout problem, clock drift — is permanent. No clever engineering makes any of it disappear.\nWhat engineering can do is make explicit, principled choices about which problems to tolerate and how. Next session: the most famous framework for making exactly that choice — the CAP theorem.\n\nTiming: 3 min. End on this forward-reference. Don’t preview CAP’s content, just the fact that it’s coming and why it matters given everything just covered."
   },
   {
     "objectID": "cosc420/notes/09.html",
@@ -3829,6 +3920,13 @@
     "text": "Your turn (before class)\nIn the bouncing-circle sketch, add a dy field and make move() bounce vertically too, not just horizontally. In the array sketch, change what Blob.count controls — for example, tint the background based on it instead of a bar’s length."
   },
   {
+    "objectID": "cosc120/creative-coding/cc-10-objects-move.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-10-objects-move.html#submit-before-class-completion-only",
+    "title": "Creative Coding 10 — Objects That Move",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC10 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
+  },
+  {
     "objectID": "cosc120/creative-coding/cc-08-arrays-methods.html#before-class",
     "href": "cosc120/creative-coding/cc-08-arrays-methods.html#before-class",
     "title": "Creative Coding 8 — Mutating Arrays in Methods",
@@ -3876,6 +3974,13 @@
     "title": "Creative Coding 8 — Mutating Arrays in Methods",
     "section": "Your turn (before class)",
     "text": "Your turn (before class)\nWrite a second method, shrinkAll(int[] arr), that does the opposite of growAll (subtract instead of add), and swap which method mousePressed() calls to confirm it works the same way in reverse."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-08-arrays-methods.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-08-arrays-methods.html#submit-before-class-completion-only",
+    "title": "Creative Coding 8 — Mutating Arrays in Methods",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC8 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/creative-coding/cc-06-grids-arrays.html#before-class",
@@ -3941,6 +4046,13 @@
     "text": "Your turn (before class)\nIn the grid sketch, change cols/rows/cell and predict the new grid shape before running. In the array sketch, add an eighth value to heights and change one existing value — confirm the loop picks up the new bar automatically."
   },
   {
+    "objectID": "cosc120/creative-coding/cc-06-grids-arrays.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-06-grids-arrays.html#submit-before-class-completion-only",
+    "title": "Creative Coding 6 — Grids & Arrays",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC6 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
+  },
+  {
     "objectID": "cosc120/creative-coding/cc-04-methods-params.html#before-class",
     "href": "cosc120/creative-coding/cc-04-methods-params.html#before-class",
     "title": "Creative Coding 4 — Methods & Parameters",
@@ -4002,6 +4114,13 @@
     "title": "Creative Coding 4 — Methods & Parameters",
     "section": "Your turn (before class)",
     "text": "Your turn (before class)\nAdd a fourth call to star(...) (or triangleAt(...)) with your own arguments. Then give the method a new parameter of your own — for example, a flicker amount that nudges r up or down inside the method body — and pass a different value for it at each call site."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-04-methods-params.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-04-methods-params.html#submit-before-class-completion-only",
+    "title": "Creative Coding 4 — Methods & Parameters",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC4 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/creative-coding/cc-02-color-conditionals.html#before-class",
@@ -4072,6 +4191,13 @@
     "title": "Creative Coding 2 — Color & Conditionals",
     "section": "Your turn (before class)",
     "text": "Your turn (before class)\nTake the mouse-branching circle sketch and add a second condition of your own — for example, also change the shape (not just the color) when mouseY &lt; height / 2. You haven’t learned else if chains yet, so don’t reach for one — either nest a second if inside the first, or write a second, independent if, and see which matches what you’re picturing."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-02-color-conditionals.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-02-color-conditionals.html#submit-before-class-completion-only",
+    "title": "Creative Coding 2 — Color & Conditionals",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC2 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/slides/24-review.html#what-we-have-covered",
@@ -4956,46 +5082,11 @@
     "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-3 are prediction/translation — paper first. Problems 4-6 are write-the-code. Problem 7 is the synthesis problem with a full else if chain. Watch for: missing parentheses in compound conditions; wrong ordering in else if; using == instead of .equals() on Strings; deep nesting when else if would be cleaner.\n\nProblem 1 — Evaluate. What does each expression produce — true or false? Work through them without running.\nint x = 5;\nint y = 10;\nboolean isOn = true;\n\nx &gt; 3 && y &lt; 20\nx &gt; 3 && y &gt; 20\nx &gt; 3 || y &gt; 20\n!(x == 5)\n!(x == 5) || isOn\nx &gt; 0 && x &lt; 10\nProblem 2 — English to Java. Translate each condition into a Java boolean expression. Use variables age, hasTicket, isMember, score, isWeekend.\n\n“18 or older and has a ticket”\n“A member or the score is above 90”\n“Not a weekend”\n“Score is between 70 and 89 (inclusive)”\n“A member and not a weekend, or score is above 95”\n\nProblem 3 — Spot the bug. Each snippet has one mistake. Identify and fix it.\n// Snippet A\nint score = 95;\nif (score &gt;= 60) {\n    IO.println(\"D\");\n} else if (score &gt;= 90) {\n    IO.println(\"A\");   // student expected \"A\" but got \"D\"\n}\n// Snippet B — intended: (isMember || isGuest) && hasId\nif (isMember || isGuest && hasId) {\n    IO.println(\"Allowed\");\n}\nProblem 4 — Write it. Write a program that asks for a temperature in Fahrenheit and prints one of: - \"Freezing\" — below 32 - \"Cold\" — 32 to 59 - \"Comfortable\" — 60 to 79 - \"Hot\" — 80 and above\nProblem 5 — Write it. Ask the user for two numbers and a choice of operation (+, -, *). Print the result. If the operation is not recognized, print \"Unknown operation\".\nProblem 6 — Write it. Ask for a user’s age and whether they have a student ID (yes/no). Print \"Full price\", \"Student discount\" (age 13–25 with ID), \"Child\" (under 13), or \"Senior discount\" (65 and above).\nProblem 7 — Trace it. What does this print for score = 85? For score = 60? For score = 59?\nvoid main() {\n    int score = 85;\n\n    if (score &gt;= 90) {\n        IO.println(\"A\");\n    } else if (score &gt;= 80) {\n        IO.println(\"B\");\n    } else if (score &gt;= 70) {\n        IO.println(\"C\");\n    } else if (score &gt;= 60) {\n        IO.println(\"D\");\n    } else {\n        IO.println(\"F\");\n    }\n\n    IO.println(\"Grade assigned.\");\n}"
   },
   {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "Learning Outcomes",
-    "text": "Learning Outcomes\n\nIdentify the input, processing, and output stages in a program’s description before writing any code\nRead one or more values with IO.readln, convert numeric input with Integer.parseInt\nCompute a result using arithmetic operators (+, -, *, /, %)\nPrint a labeled result using IO.println and String concatenation\nExplain, for a program that fails, which of the three stages is broken\nExplain why a silent IO.readln() is confusing to a user, and fix it with a printed prompt — either as a separate IO.println/IO.print or built into IO.readln(\"...\")"
-  },
-  {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "Why New Programmers Hit a Wall Here",
-    "text": "Why New Programmers Hit a Wall Here\n\nThis deck is a remediation/consolidation session, not new content — everything here uses only what lecture 2 (variables, IO.readln, IO.println) and lecture 3 (arithmetic, Integer.parseInt) already covered. The wall students hit is usually not syntax, it’s not having a plan before they start typing. They stare at a word problem and don’t know where to begin because they’re trying to write the whole program in one motion. The fix is a habit: before touching the keyboard, name the three stages out loud (or in a comment). Use this slide to diagnose that out loud with the class — ask “when a program you wrote doesn’t work, do you know if the input is wrong, the math is wrong, or the print statement is wrong?” Most say no. That’s the gap this worksheet closes.\n\nYou already know IO.readln, IO.println, variables, and arithmetic.\nYou must have a plan before you start typing.\nEvery program you’ve written so far, no matter how small, does the same three things:\n\nGet some data in\nDo something with it\nShow a result"
-  },
-  {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "The Pattern: Input → Processing → Output",
-    "text": "The Pattern: Input → Processing → Output\n\nName the pattern explicitly and give it an acronym (IPO) so students have a label to reach for. Map each stage directly onto the Java constructs they already know — this is not new material, it’s a lens for organizing material they have. Emphasize that not every program has all three (a program can print a fixed message with zero input or processing), but almost every interesting program does.\n\n\n\n\n\n\n\n\n\nStage\nQuestion to ask\nJava tools you already know\n\n\n\n\nInput\nWhat data does the program need, and where does it come from?\nIO.readln(), IO.readln(\"prompt: \")\n\n\nProcessing\nWhat computation turns that data into the answer?\n+ - * / %, Integer.parseInt(...)\n\n\nOutput\nWhat exactly should be printed, and in what format?\nIO.println(...), + for concatenation\n\n\n\n\n\n\n\n\n\nNote\n\n\nNot every program needs all three. A program that just prints a message has output only — zero input, zero processing. But most real programs use all three, in that order."
-  },
-  {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "Worked Example — Labeling the Stages",
-    "text": "Worked Example — Labeling the Stages\n\nWalk through this once, slowly, before turning students loose. The point of the //INPUT, //PROCESSING, //OUTPUT comments is not that real programs need these comments forever — it’s training wheels. Have students write these three comments in their code for every problem on this worksheet, in order, before writing any other code. It forces them to plan the shape of the program before worrying about syntax. Trace through the example with a concrete input (say, 45 minutes studied) before running it.\n\nProblem: Ask the user how many minutes they studied. Print how many full hours that is, and how many minutes are left over.\n\nvoid main() {\n    // INPUT\n    int minutes = Integer.parseInt(IO.readln(\"Minutes studied: \"));\n\n    // PROCESSING\n    int hours = minutes / 60;\n    int leftover = minutes % 60;\n\n    // OUTPUT\n    IO.println(\"Hours: \" + hours);\n    IO.println(\"Leftover minutes: \" + leftover);\n}\n\n\nNotice the shape: one block to get data, one block to compute, one block to print. That order almost never changes.\n\n\n\n\n\n\nTip\n\n\nBefore you write any code on this worksheet, write the three comments //INPUT, //PROCESSING, //OUTPUT in your file first. Then fill in each block one at a time.\n\n\n\n\n\n\n\n\n\nNote\n\n\nThis worked example uses IO.readln(\"Minutes studied: \") — a prompt built right into the read. The worksheet below builds up to that style in stages; you’ll see why it’s the one worth defaulting to."
-  },
-  {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "Prompts: Three Ways to Ask",
-    "text": "Prompts: Three Ways to Ask\n\nThis is the second confusion point layered on top of IPO, and it deserves its own slide before students hit the worksheet. A silent IO.readln() is technically correct Java but a terrible user experience — the cursor just blinks and the student (or grader) doesn’t know the program is waiting for anything. Walk through all three versions live: run the silent one first and let the awkward silence land, then show the two fixes. The IO.println + IO.readln() version matters because it’s the one students reach for instinctively once they realize they need to say something before reading — but it puts the prompt on its own line, and the input the user types appears on the next line, which looks different from the inline-prompt version. Point that out explicitly: same information reaches the program either way, but the on-screen layout differs. IO.readln(\"prompt: \") is the idiomatic one-line version and should become the default once it’s introduced.\n\nIO.readln doesn’t require a prompt — but leaving one out makes the program confusing to use.\n\n\nNo prompt\nString name = IO.readln();\nThe program just waits. The user has no idea what to type. \n\n\nSeparate print, then read\nIO.println(\"Enter your name:\");\nString name = IO.readln();\nThe prompt appears on its own line; the user’s answer appears on the next line. \n\n\nPrompt built into readln\nString name =\n    IO.readln(\"Enter your name: \");\nPrompt and answer share one line — the style you should default to from here on."
-  },
-  {
-    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
-    "href": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
-    "title": "Worksheet: Input → Processing → Output",
-    "section": "Worksheet",
-    "text": "Worksheet\n\nReserve the last 20-30 minutes, or use as a standalone remediation session. Require the // INPUT / // PROCESSING / // OUTPUT comment scaffold on every problem, even the trivial ones — the habit is the point, not the code. Problem 1 is intentionally degenerate (missing a stage) so students see that the pattern is a lens, not a rigid template. On top of the IPO progression, prompts are layered in gradually: Problems 2-4 read with no prompt at all (let them feel the confusion), Problems 5-7 print a prompt separately with IO.println/IO.print before calling IO.readln(), and Problems 8-10 fold the prompt into IO.readln(\"...\"), which should become the default from here on. Problems 7-9 also require two or more processing steps in sequence, and Problem 10 is the synthesis problem. Common failure: students try to read all inputs, then do all processing, then print — which is actually correct and is exactly the pattern; the more common bug is interleaving a println into the middle of processing and getting confused about what’s been computed yet. Watch for forgotten Integer.parseInt, and for / vs % confusion.\n\nFor every problem below, start by writing // INPUT, // PROCESSING, and // OUTPUT as comments in your file, in that order. Then fill in the code under each one. If a problem has no input or no processing, leave that comment in place with nothing under it — that’s fine, and worth noticing.\n\n\n\n\n\n\nImportant\n\n\nWatch the prompt style change as you go: Problems 2-4 use no prompt at all (read silently), Problems 5-7 print a prompt with IO.println/IO.print before reading, and Problems 8-10 build the prompt into IO.readln(\"...\")."
+    "objectID": "cosc120/notes/index.html",
+    "href": "cosc120/notes/index.html",
+    "title": "COSC120 — Slides and Notes",
+    "section": "",
+    "text": "Lecture slide decks and notes for COSC120.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nWhat Is a Program?\n\n\n\n\n\n\n\n\n\nVariables and Data Types\n\n\n\n\n\n\n\n\n\nArithmetic Expressions\n\n\n\n\n\n\n\n\n\nType Conversion and Casting\n\n\n\n\n\n\n\n\n\nConditionals: if and else\n\n\n\n\n\n\n\n\n\nWorksheet: Input → Processing → Output\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc120/notes/04-type-conversion.html#learning-outcomes",
@@ -5677,88 +5768,116 @@
     "text": "Practice problems\n\nReserve the last 20-30 minutes. Problems 1-3 are prediction/tracing — students work on paper first, then verify in the IDE. Problems 4-5 require writing code. Problem 6 is the synthesis problem that combines everything from today with IO.readln. Common things to watch for: integer division surprises, concatenation vs addition confusion, forgetting Integer.parseInt."
   },
   {
-    "objectID": "cosc120/notes/index.html",
-    "href": "cosc120/notes/index.html",
-    "title": "COSC120 — Slides and Notes",
-    "section": "",
-    "text": "Lecture slide decks and notes for COSC120.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nWhat Is a Program?\n\n\n\n\n\n\n\n\n\nVariables and Data Types\n\n\n\n\n\n\n\n\n\nArithmetic Expressions\n\n\n\n\n\n\n\n\n\nType Conversion and Casting\n\n\n\n\n\n\n\n\n\nWorksheet: Input → Processing → Output\n\n\n\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "cosc120/slides/05-conditionals.html#learning-outcomes",
-    "href": "cosc120/slides/05-conditionals.html#learning-outcomes",
+    "objectID": "cosc120/notes/05-conditionals.html#learning-outcomes",
+    "href": "cosc120/notes/05-conditionals.html#learning-outcomes",
     "title": "Conditionals: if and else",
     "section": "Learning Outcomes",
-    "text": "Learning Outcomes\n\nExplain why programs need conditionals and how they change the flow of execution\nWrite if and if/else statements to control which code runs based on a condition\nConstruct conditions using relational operators (&lt;, &gt;, &lt;=, &gt;=, ==, !=)\nTrace the execution path of a conditional given a specific input value\nCompare Strings with .equals() and explain why == does not work for Strings"
+    "text": "Learning Outcomes\nBy the end of this lecture, you’ll be able to:\n\nExplain why programs sometimes need to make decisions instead of just running top to bottom\nWrite if and if/else statements to control what code runs\nBuild conditions using relational operators (&lt;, &gt;, &lt;=, &gt;=, ==, !=)\nTrace through a conditional by hand and predict what it will print\nCompare Strings correctly with .equals() — and know why == doesn’t do the job"
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#programs-dont-always-go-straight",
-    "href": "cosc120/slides/05-conditionals.html#programs-dont-always-go-straight",
+    "objectID": "cosc120/notes/05-conditionals.html#programs-dont-always-go-straight",
+    "href": "cosc120/notes/05-conditionals.html#programs-dont-always-go-straight",
     "title": "Conditionals: if and else",
     "section": "Programs Don’t Always Go Straight",
     "text": "Programs Don’t Always Go Straight\n\nEvery program written so far runs the same way every time: top to bottom, one line after another, no detours. That is a straight line. But real useful programs need to make decisions — do this in one situation, do something else in another. That is a branch. The visual of a straight line versus a Y-shaped split is the central image of this lecture. The humor slide is the hook: students already know “If you are happy and you know it, clap your hands.” Java says the same thing. Show the Java version first for laughs, then use it to introduce the real syntax.\n\nEvery program we have written so far does the same thing every run — top to bottom, no detours.\n\nBut most programs need to make decisions."
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#conditionals-in-everyday-english",
-    "href": "cosc120/slides/05-conditionals.html#conditionals-in-everyday-english",
+    "objectID": "cosc120/notes/05-conditionals.html#conditionals-in-everyday-english",
+    "href": "cosc120/notes/05-conditionals.html#conditionals-in-everyday-english",
     "title": "Conditionals: if and else",
     "section": "Conditionals in Everyday English",
     "text": "Conditionals in Everyday English\n\nBefore showing any more Java syntax, ground the idea in language students already use. Conditionals are not a computer science invention — they are a feature of every human language. We navigate our entire lives using if/else logic. Java just requires us to be more precise about it: the condition must be something that is either true or false, and the body must be inside braces. Show the English-to-Java translation side by side. This makes the syntax feel like a formality rather than something alien.\n\nWe use conditionals constantly — in language, in decisions, in instructions.\n\n\nIn English:\n\nIf it is raining, take an umbrella.\nIf the light is red, stop.\nIf you are hungry, eat something.\nIf the tank is empty, get gas.\n\n\nThe structure is always the same:\nif [some condition is true]\n    then do [something]"
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#relational-operators",
-    "href": "cosc120/slides/05-conditionals.html#relational-operators",
+    "objectID": "cosc120/notes/05-conditionals.html#relational-operators",
+    "href": "cosc120/notes/05-conditionals.html#relational-operators",
     "title": "Conditionals: if and else",
     "section": "Relational Operators",
-    "text": "Relational Operators\n\nRelational operators produce a boolean — true or false. Students have seen these symbols in math class; the only ones that look different are == (equality, not assignment) and != (not equal). Spend a moment on == vs = — this is the most common mistake in this entire unit. In math, = means equality. In Java, = means assignment and == means equality. They are completely different. Mention this now, and it will appear again in common mistakes.\n\nA condition is built from a relational operator — a comparison that produces true or false.\n\n\n\nOperator\nMeaning\nExample\nResult\n\n\n\n\n&lt;\nless than\n3 &lt; 5\ntrue\n\n\n&gt;\ngreater than\n3 &gt; 5\nfalse\n\n\n&lt;=\nless than or equal to\n5 &lt;= 5\ntrue\n\n\n&gt;=\ngreater than or equal to\n6 &gt;= 10\nfalse\n\n\n==\nequal to\n4 == 4\ntrue\n\n\n!=\nnot equal to\n4 != 5\ntrue"
+    "text": "Relational Operators\n\nRelational operators produce a boolean — true or false. Students have seen these symbols in math class; the only ones that look different are == (equality, not assignment) and != (not equal). This is the first time == shows up, so a light heads-up is enough here — it will come back as a “common mistake” slide later, so there’s no need to over-warn now. Keep the tone matter-of-fact rather than alarmed.\n\nA condition is built from a relational operator — a comparison that produces true or false.\n\n\n\nOperator\nMeaning\nExample\nResult\n\n\n\n\n&lt;\nless than\n3 &lt; 5\ntrue\n\n\n&gt;\ngreater than\n3 &gt; 5\nfalse\n\n\n&lt;=\nless than or equal to\n5 &lt;= 5\ntrue\n\n\n&gt;=\ngreater than or equal to\n6 &gt;= 10\nfalse\n\n\n==\nequal to\n4 == 4\ntrue\n\n\n!=\nnot equal to\n4 != 5\ntrue\n\n\n\n\nOne thing worth clocking now, since it trips up almost everyone at least once: == (two signs) checks equality, while = (one sign) stores a value. They look similar but do very different jobs — we’ll come back to this.\nint score = 85;\nIO.println(score &gt; 60);    // true\nIO.println(score == 100);  // false\nIO.println(score != 85);   // false\nIO.println(score &gt;= 85);   // true"
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#the-if-statement",
-    "href": "cosc120/slides/05-conditionals.html#the-if-statement",
+    "objectID": "cosc120/notes/05-conditionals.html#the-if-statement",
+    "href": "cosc120/notes/05-conditionals.html#the-if-statement",
     "title": "Conditionals: if and else",
     "section": "The if Statement",
-    "text": "The if Statement\n\nWalk through the syntax carefully: the keyword if, the condition in parentheses, the body in braces. The body is the code that only runs when the condition is true. When the condition is false, the entire body is skipped and execution continues with whatever comes after the closing brace. Use the figure to make the two possible paths concrete. The indentation inside the braces is convention — Java does not require it, but every professional programmer uses it because it makes the structure visible at a glance.\n\nif (condition) {\n    // this code only runs when the condition is true\n}\nThe pieces:\n\nif — the keyword\n(condition) — something that is true or false, in parentheses\n{ } — the body: the code that runs when the condition is true"
+    "text": "The if Statement\n\nWalk through the syntax carefully: the keyword if, the condition in parentheses, the body in braces. The body is the code that only runs when the condition is true. When the condition is false, the entire body is skipped and execution continues with whatever comes after the closing brace. Use the figure to make the two possible paths concrete. The indentation inside the braces is convention — Java does not require it, but every professional programmer uses it because it makes the structure visible at a glance. This introduces the temperature example that carries through the next few slides.\n\nif (condition) {\n    // this code only runs when the condition is true\n}\n\nThe pieces:\n\nif — the keyword\n(condition) — something that is true or false, in parentheses\n{ } — the body: the code that runs when the condition is true"
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#the-ifelse-statement",
-    "href": "cosc120/slides/05-conditionals.html#the-ifelse-statement",
+    "objectID": "cosc120/notes/05-conditionals.html#the-ifelse-statement",
+    "href": "cosc120/notes/05-conditionals.html#the-ifelse-statement",
     "title": "Conditionals: if and else",
     "section": "The if/else Statement",
-    "text": "The if/else Statement\n\nWith a plain if, the body either runs or is skipped. With if/else, exactly one of the two branches always runs — never both, never neither. The else branch is the default: it runs when the condition is false. The figure here is the classic Y-split: the program arrives at a fork, takes one path or the other, and both paths lead to the same place afterward. Stress “exactly one” — this is different from two separate if statements, which could both run or both be skipped.\n\nSometimes you want to do one thing if a condition is true, and something different if it is false.\nif (condition) {\n    // runs when condition is true\n} else {\n    // runs when condition is false\n}\nExactly one branch always runs — never both, never neither."
+    "text": "The if/else Statement\n\nWith a plain if, the body either runs or is skipped. With if/else, exactly one of the two branches always runs — never both, never neither. The else branch is the default: it runs when the condition is false. The figure here is the classic Y-split: the program arrives at a fork, takes one path or the other, and both paths lead to the same place afterward. Stress “exactly one” — this is different from two separate if statements, which could both run or both be skipped. This continues the same temperature example from the previous slide, now with an else branch added.\n\nSometimes you want to do one thing if a condition is true, and something different if it is false.\nif (condition) {\n    // runs when condition is true\n} else {\n    // runs when condition is false\n}\nExactly one branch always runs — never both, never neither."
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#tracing-a-conditional",
-    "href": "cosc120/slides/05-conditionals.html#tracing-a-conditional",
+    "objectID": "cosc120/notes/05-conditionals.html#tracing-a-conditional",
+    "href": "cosc120/notes/05-conditionals.html#tracing-a-conditional",
     "title": "Conditionals: if and else",
     "section": "Tracing a Conditional",
-    "text": "Tracing a Conditional\n\nTracing means following exactly what the computer does, step by step. The key habit to build: before running the program, ask “what will the condition evaluate to for this input?” That tells you which branch runs. Show both scenarios and ask students to predict before revealing. The figure — two colored paths through the same flowchart shape — makes the two possible executions concrete without needing a dense table.\n\nvoid main() {\n    int temperature = Integer.parseInt(IO.readln(\"Temperature (°F): \"));\n\n    if (temperature &gt;= 70) {\n        IO.println(\"It is warm outside.\");\n    } else {\n        IO.println(\"It is cold outside.\");\n    }\n\n    IO.println(\"Have a nice day.\");\n}\n\n\nUser types 85\n85 &gt;= 70 → true\n✓ runs: “It is warm outside.” ✗ skips: else branch\n→ “Have a nice day.”\n\nUser types 50\n50 &gt;= 70 → false\n✗ skips: if branch ✓ runs: “It is cold outside.”\n→ “Have a nice day.”"
+    "text": "Tracing a Conditional\n\nTracing means following exactly what the computer does, step by step. The key habit to build: before running the program, ask “what will the condition evaluate to for this input?” That tells you which branch runs. This is the same temperature program students have now seen twice, upgraded to read a real value from the user instead of having it fixed in the code — so the “problem statement” framing here is new even though the if/else logic is familiar. Show the sample runs first, then ask students to predict the trace columns before revealing them.\n\nProblem: Ask the user for the current temperature. If it’s 65°F or above, say it’s a good day to be outside. Otherwise, suggest a jacket.\n\nvoid main() {\n    int temperature = Integer.parseInt(IO.readln(\"Temperature (°F): \"));\n\n    if (temperature &gt;= 65) {\n        IO.println(\"Great day to be outside!\");\n    } else {\n        IO.println(\"You might want a jacket.\");\n    }\n\n    IO.println(\"Have a nice day.\");\n}\n\n\nSample run 1:\nTemperature (°F): 85\nGreat day to be outside!\nHave a nice day.\n\n\nSample run 2:\nTemperature (°F): 50\nYou might want a jacket.\nHave a nice day."
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#comparing-strings-.equals",
-    "href": "cosc120/slides/05-conditionals.html#comparing-strings-.equals",
+    "objectID": "cosc120/notes/05-conditionals.html#comparing-strings-.equals",
+    "href": "cosc120/notes/05-conditionals.html#comparing-strings-.equals",
     "title": "Conditionals: if and else",
     "section": "Comparing Strings — .equals()",
-    "text": "Comparing Strings — .equals()\n\nThis is one of the most important things to get right before students write any programs that read String input. == on Strings does not check whether they have the same content — it checks whether they are literally the same object in memory. For beginners, this distinction does not need to be explained deeply; just give the rule and the reason why: for Strings, always use .equals(). Show the bug that == produces and why .equals() fixes it. The sticky note analogy works well: == asks “are these the same sticky note?” (same physical piece of paper); .equals() asks “do these sticky notes say the same thing?” Students comparing user input to a String literal must always use .equals().\n\nYou know that == compares two values. For numbers, this works perfectly:\nint score = 85;\nIO.println(score == 85);   // true ✓\nFor Strings, == does not work the way you expect:\nString answer = IO.readln(\"Type yes: \");\n\nif (answer == \"yes\") {          // ✗ — this may not work!\n    IO.println(\"You said yes.\");\n}\nEven if the user types yes, this condition may be false."
+    "text": "Comparing Strings — .equals()\n\nThis is one of the most important things to get right before students write any programs that read String input. == on Strings does not check whether they have the same content — it checks whether they are literally the same object in memory. For beginners, this distinction does not need to be explained deeply; just give the rule and the reason why: for Strings, always use .equals(). Show the bug that == produces and why .equals() fixes it. The sticky note analogy works well: == asks “are these the same sticky note?” (same physical piece of paper); .equals() asks “do these sticky notes say the same thing?” Students comparing user input to a String literal must always use .equals().\n\nYou know that == compares two values. For numbers, this works perfectly:\nint score = 85;\nIO.println(score == 85);   // true ✓\n\nFor Strings, == doesn’t quite behave the way you’d expect:\nString answer = IO.readln(\"Type yes: \");\n\nif (answer == \"yes\") {          // this may not work the way you'd guess!\n    IO.println(\"You said yes.\");\n}\nEven if the user types yes, this condition may be false."
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#code-example-is-it-warm-enough",
-    "href": "cosc120/slides/05-conditionals.html#code-example-is-it-warm-enough",
-    "title": "Conditionals: if and else",
-    "section": "Code Example — Is It Warm Enough?",
-    "text": "Code Example — Is It Warm Enough?\n\nA complete program that uses if/else, a relational operator, and String comparison — all in one. Walk through the flowchart, then the code, then trace through with two inputs. The program asks for a temperature and whether the person wants to go outside, then gives advice. Keep the logic simple — this deck only covers plain if/else, not boolean logic or else if.\n\nProblem: Ask the user for the current temperature. If it is 65°F or above, tell them it is a good day to go outside. Otherwise, suggest they stay in.\n\nvoid main() {\n    int temperature = Integer.parseInt(IO.readln(\"Current temperature (°F): \"));\n\n    if (temperature &gt;= 65) {\n        IO.println(\"Great day to go outside!\");\n    } else {\n        IO.println(\"Maybe stay in today.\");\n    }\n}\nSample run 1:\nCurrent temperature (°F): 72\nGreat day to go outside!\nSample run 2:\nCurrent temperature (°F): 48\nMaybe stay in today."
-  },
-  {
-    "objectID": "cosc120/slides/05-conditionals.html#common-mistakes",
-    "href": "cosc120/slides/05-conditionals.html#common-mistakes",
+    "objectID": "cosc120/notes/05-conditionals.html#common-mistakes",
+    "href": "cosc120/notes/05-conditionals.html#common-mistakes",
     "title": "Conditionals: if and else",
     "section": "Common Mistakes",
-    "text": "Common Mistakes\n\nThree mistakes that will show up in almost every student’s code this week. The = vs == mistake is the most frequent and the hardest to spot because the program compiles — it just does the wrong thing. Missing braces is dangerous because removing braces from a multi-line body silently changes which lines are inside the if. Using == on Strings compiles and runs but produces wrong results with user input. Go through each one slowly.\n\n1. Using = instead of == in a condition\nint score = 85;\nif (score = 100) {    // ERROR — this is assignment, not comparison\n    IO.println(\"Perfect score!\");\n}\n= stores a value. == compares values. In a condition, you always want ==."
+    "text": "Common Mistakes\n\nThree mistakes that will show up in almost every student’s code this week. The = vs == mistake is the most frequent and the hardest to spot because the program compiles — it just does the wrong thing. Missing braces is dangerous because removing braces from a multi-line body silently changes which lines are inside the if. Using == on Strings compiles and runs but produces wrong results with user input. These are all worth a slow walkthrough, but frame them as “things everyone runs into” rather than failures — every one of these is a normal, expected speed bump.\n\nThese three come up in almost everyone’s code at some point — nothing to worry about, just good to recognize on sight.\n\n\n1. Using = instead of == in a condition\nint score = 85;\nif (score = 100) {    // compiles, but this isn't a comparison — it assigns 100 to score\n    IO.println(\"Perfect score!\");\n}\n= stores a value. == compares values. Inside a condition, you always want ==.\n\n\n2. Missing braces — only the first line is inside the if\nif (score &gt;= 60)\n    IO.println(\"Passing\");\n    IO.println(\"Congratulations\");   // always runs — NOT inside the if\nWithout braces, only the very next line belongs to the if. It’s an easy one to miss, so make a habit of always using braces.\nif (score &gt;= 60) {\n    IO.println(\"Passing\");\n    IO.println(\"Congratulations\");   // now both lines are inside the if ✓\n}\n\n\n3. Using == to compare Strings\nString name = IO.readln(\"Your name: \");\nif (name == \"Alice\") {      // may always be false\n    IO.println(\"Hello, Alice!\");\n}\nif (name.equals(\"Alice\")) { // compares the content\n    IO.println(\"Hello, Alice!\");\n}"
   },
   {
-    "objectID": "cosc120/slides/05-conditionals.html#worksheet",
-    "href": "cosc120/slides/05-conditionals.html#worksheet",
+    "objectID": "cosc120/notes/05-conditionals.html#worksheet",
+    "href": "cosc120/notes/05-conditionals.html#worksheet",
     "title": "Conditionals: if and else",
     "section": "Worksheet",
-    "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-2 are tracing — students work on paper. Problems 3-4 are write-the-code. Problem 5 is the synthesis problem. Watch for: = vs ==; missing braces; students who use == on Strings; students who write two separate if statements when they need if/else.\n\nProblem 1 — Trace it. What does this program print when x is 10? When x is 3?\nvoid main() {\n    int x = 10;   // try with 3 as well\n\n    if (x &gt; 5) {\n        IO.println(\"Big\");\n    } else {\n        IO.println(\"Small\");\n    }\n\n    IO.println(\"Done\");\n}\nProblem 2 — Trace it. What does this program print for each value of score? Try score = 100, score = 60, score = 59.\nvoid main() {\n    int score = 100;   // try 60 and 59 as well\n\n    if (score &gt;= 60) {\n        IO.println(\"Passing\");\n    }\n\n    IO.println(\"Score checked.\");\n}\n(Note: there is no else here. How does the output differ from an if/else?)\nProblem 3 — Spot the bugs. Fix every mistake:\nvoid main() {\n    int age = Integer.parseInt(IO.readln(\"Your age: \"));\n\n    if (age = 18)\n        IO.println(\"You are exactly 18.\");\n        IO.println(\"Welcome!\");\n    else\n        IO.println(\"You are not 18.\");\n}\nProblem 4 — Write it. Write a program that asks the user for a number. If the number is negative, print \"Negative\". Otherwise print \"Non-negative\".\nProblem 5 — Write it. Ask the user to enter a password. If the password is \"open sesame\", print \"Access granted.\" Otherwise print \"Access denied.\".\n(Hint: what operator should you use to compare two Strings?)\nProblem 6 — Write it. Ask the user for two integers. Print the larger one. If they are equal, print \"Equal\"."
+    "text": "Worksheet\n\nReserve the last 20-30 minutes. Problems 1-2 are tracing — students work on paper. Problems 3-4 are write-the-code. Problem 5 is the synthesis problem. Watch for: = vs ==; missing braces; students who use == on Strings; students who write two separate if statements when they need if/else.\n\nProblem 1 — Trace it. What does this program print when x is 10? When x is 3?\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    void main() {\n    int x = 10;   // try with 3 as well\n\n    if (x &gt; 5) {\n        IO.println(\"Big\");\n    } else {\n        IO.println(\"Small\");\n    }\n\n    IO.println(\"Done\");\n}\n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#learning-outcomes",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Learning Outcomes",
+    "text": "Learning Outcomes\n\nIdentify the input, processing, and output stages in a program’s description before writing any code\nRead one or more values with IO.readln, convert numeric input with Integer.parseInt\nCompute a result using arithmetic operators (+, -, *, /, %)\nPrint a labeled result using IO.println and String concatenation\nExplain, for a program that fails, which of the three stages is broken\nExplain why a silent IO.readln() is confusing to a user, and fix it with a printed prompt — either as a separate IO.println/IO.print or built into IO.readln(\"...\")"
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#why-new-programmers-hit-a-wall-here",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Why New Programmers Hit a Wall Here",
+    "text": "Why New Programmers Hit a Wall Here\n\nThis deck is a remediation/consolidation session, not new content — everything here uses only what lecture 2 (variables, IO.readln, IO.println) and lecture 3 (arithmetic, Integer.parseInt) already covered. The wall students hit is usually not syntax, it’s not having a plan before they start typing. They stare at a word problem and don’t know where to begin because they’re trying to write the whole program in one motion. The fix is a habit: before touching the keyboard, name the three stages out loud (or in a comment). Use this slide to diagnose that out loud with the class — ask “when a program you wrote doesn’t work, do you know if the input is wrong, the math is wrong, or the print statement is wrong?” Most say no. That’s the gap this worksheet closes.\n\nYou already know IO.readln, IO.println, variables, and arithmetic.\nYou must have a plan before you start typing.\nEvery program you’ve written so far, no matter how small, does the same three things:\n\nGet some data in\nDo something with it\nShow a result"
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#the-pattern-input-processing-output",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "The Pattern: Input → Processing → Output",
+    "text": "The Pattern: Input → Processing → Output\n\nName the pattern explicitly and give it an acronym (IPO) so students have a label to reach for. Map each stage directly onto the Java constructs they already know — this is not new material, it’s a lens for organizing material they have. Emphasize that not every program has all three (a program can print a fixed message with zero input or processing), but almost every interesting program does.\n\n\n\n\n\n\n\n\n\nStage\nQuestion to ask\nJava tools you already know\n\n\n\n\nInput\nWhat data does the program need, and where does it come from?\nIO.readln(), IO.readln(\"prompt: \")\n\n\nProcessing\nWhat computation turns that data into the answer?\n+ - * / %, Integer.parseInt(...)\n\n\nOutput\nWhat exactly should be printed, and in what format?\nIO.println(...), + for concatenation\n\n\n\n\n\n\n\n\n\nNote\n\n\nNot every program needs all three. A program that just prints a message has output only — zero input, zero processing. But most real programs use all three, in that order."
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#worked-example-labeling-the-stages",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Worked Example — Labeling the Stages",
+    "text": "Worked Example — Labeling the Stages\n\nWalk through this once, slowly, before turning students loose. The point of the //INPUT, //PROCESSING, //OUTPUT comments is not that real programs need these comments forever — it’s training wheels. Have students write these three comments in their code for every problem on this worksheet, in order, before writing any other code. It forces them to plan the shape of the program before worrying about syntax. Trace through the example with a concrete input (say, 45 minutes studied) before running it.\n\nProblem: Ask the user how many minutes they studied. Print how many full hours that is, and how many minutes are left over.\n\nvoid main() {\n    // INPUT\n    int minutes = Integer.parseInt(IO.readln(\"Minutes studied: \"));\n\n    // PROCESSING\n    int hours = minutes / 60;\n    int leftover = minutes % 60;\n\n    // OUTPUT\n    IO.println(\"Hours: \" + hours);\n    IO.println(\"Leftover minutes: \" + leftover);\n}\n\n\nNotice the shape: one block to get data, one block to compute, one block to print. That order almost never changes.\n\n\n\n\n\n\nTip\n\n\nBefore you write any code on this worksheet, write the three comments //INPUT, //PROCESSING, //OUTPUT in your file first. Then fill in each block one at a time.\n\n\n\n\n\n\n\n\n\nNote\n\n\nThis worked example uses IO.readln(\"Minutes studied: \") — a prompt built right into the read. The worksheet below builds up to that style in stages; you’ll see why it’s the one worth defaulting to."
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#prompts-three-ways-to-ask",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Prompts: Three Ways to Ask",
+    "text": "Prompts: Three Ways to Ask\n\nThis is the second confusion point layered on top of IPO, and it deserves its own slide before students hit the worksheet. A silent IO.readln() is technically correct Java but a terrible user experience — the cursor just blinks and the student (or grader) doesn’t know the program is waiting for anything. Walk through all three versions live: run the silent one first and let the awkward silence land, then show the two fixes. The IO.println + IO.readln() version matters because it’s the one students reach for instinctively once they realize they need to say something before reading — but it puts the prompt on its own line, and the input the user types appears on the next line, which looks different from the inline-prompt version. Point that out explicitly: same information reaches the program either way, but the on-screen layout differs. IO.readln(\"prompt: \") is the idiomatic one-line version and should become the default once it’s introduced.\n\nIO.readln doesn’t require a prompt — but leaving one out makes the program confusing to use.\n\n\nNo prompt\nString name = IO.readln();\nThe program just waits. The user has no idea what to type. \n\n\nSeparate print, then read\nIO.println(\"Enter your name:\");\nString name = IO.readln();\nThe prompt appears on its own line; the user’s answer appears on the next line. \n\n\nPrompt built into readln\nString name =\n    IO.readln(\"Enter your name: \");\nPrompt and answer share one line — the style you should default to from here on."
+  },
+  {
+    "objectID": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
+    "href": "cosc120/notes/worksheet-input-processing-output.html#worksheet",
+    "title": "Worksheet: Input → Processing → Output",
+    "section": "Worksheet",
+    "text": "Worksheet\n\nReserve the last 20-30 minutes, or use as a standalone remediation session. Require the // INPUT / // PROCESSING / // OUTPUT comment scaffold on every problem, even the trivial ones — the habit is the point, not the code. Problem 1 is intentionally degenerate (missing a stage) so students see that the pattern is a lens, not a rigid template. On top of the IPO progression, prompts are layered in gradually: Problems 2-4 read with no prompt at all (let them feel the confusion), Problems 5-7 print a prompt separately with IO.println/IO.print before calling IO.readln(), and Problems 8-10 fold the prompt into IO.readln(\"...\"), which should become the default from here on. Problems 7-9 also require two or more processing steps in sequence, and Problem 10 is the synthesis problem. Common failure: students try to read all inputs, then do all processing, then print — which is actually correct and is exactly the pattern; the more common bug is interleaving a println into the middle of processing and getting confused about what’s been computed yet. Watch for forgotten Integer.parseInt, and for / vs % confusion.\n\nFor every problem below, start by writing // INPUT, // PROCESSING, and // OUTPUT as comments in your file, in that order. Then fill in the code under each one. If a problem has no input or no processing, leave that comment in place with nothing under it — that’s fine, and worth noticing.\n\n\n\n\n\n\nImportant\n\n\nWatch the prompt style change as you go: Problems 2-4 use no prompt at all (read silently), Problems 5-7 print a prompt with IO.println/IO.print before reading, and Problems 8-10 build the prompt into IO.readln(\"...\")."
   },
   {
     "objectID": "cosc120/slides/07-strings.html#learning-outcomes",
@@ -6710,7 +6829,14 @@
     "href": "cosc120/creative-coding/cc-01-shapes-arithmetic.html#try-it-yourself-before-class",
     "title": "Creative Coding 1 — Shapes & Coordinates",
     "section": "Try it yourself (before class)",
-    "text": "Try it yourself (before class)\nPick one sketch above. Change:\n\nOne number that controls position.\nOne number that controls size.\nOne number inside a % expression, if the sketch has one.\n\nPredict what will change before you hit Run. We’ll compare what everyone tried in class."
+    "text": "Try it yourself (before class)\nPick one sketch above. Change:\n\nOne number that controls position.\nOne number that controls size.\nOne number inside a % expression, if the sketch has one.\n\nPredict what will change before you hit Run. We’ll compare what everyone tried in class.\n\n  \n    Processing\n    \n      ▶ Run\n      ⏸ Pause\n    \n  \n  \n    \n  \n  \n    \n  \n  \n    Errors"
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-01-shapes-arithmetic.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-01-shapes-arithmetic.html#submit-before-class-completion-only",
+    "title": "Creative Coding 1 — Shapes & Coordinates",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC1 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/creative-coding/cc-03-boolean-hit-test.html#before-class",
@@ -6781,6 +6907,13 @@
     "title": "Creative Coding 3 — Boolean Hit-Testing",
     "section": "Your turn (before class)",
     "text": "Your turn (before class)\nAdd a third box to the sketch above and extend the || chain so the shape turns green when the mouse is in any of the three."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-03-boolean-hit-test.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-03-boolean-hit-test.html#submit-before-class-completion-only",
+    "title": "Creative Coding 3 — Boolean Hit-Testing",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC3 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/creative-coding/cc-05-loops-patterns.html#before-class",
@@ -6867,6 +7000,13 @@
     "text": "What’s next\nThe graded Programming Project (see project/README.md) picks up from here with its own in-class Processing demo. Everything above — computed coordinates, conditionals on color, boolean hit-tests, parameterized methods, and loops calling methods that return values — is exactly the toolbox the project rubric later asks you to demonstrate."
   },
   {
+    "objectID": "cosc120/creative-coding/cc-05-loops-patterns.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-05-loops-patterns.html#submit-before-class-completion-only",
+    "title": "Creative Coding 5 — Return Values & Loops",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC5 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
+  },
+  {
     "objectID": "cosc120/creative-coding/cc-07-arrays-motion.html#before-class",
     "href": "cosc120/creative-coding/cc-07-arrays-motion.html#before-class",
     "title": "Creative Coding 7 — Arrays Driving Motion",
@@ -6928,6 +7068,13 @@
     "title": "Creative Coding 7 — Arrays Driving Motion",
     "section": "Your turn (before class)",
     "text": "Your turn (before class)\nChange reverseArray() into a rotate: shift every value one slot to the left, with the first value wrapping around to the last slot. (Hint: you’ll need one temp variable to hold the value that’s about to be overwritten, saved before the loop starts — not swapped pairwise like the reverse.) Watch the bars shift by one on every click instead of flipping."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-07-arrays-motion.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-07-arrays-motion.html#submit-before-class-completion-only",
+    "title": "Creative Coding 7 — Arrays Driving Motion",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC7 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc120/creative-coding/cc-09-first-class.html#before-class",
@@ -6993,6 +7140,13 @@
     "text": "Your turn (before class)\nAdd a color c field to Blob, set it in the constructor (give the constructor a fourth parameter for it), and pass a different color(...) value to each of the three new Blob(...) calls. Then use b1.c/b2.c/b3.c in fill(...) instead of one shared color for all three."
   },
   {
+    "objectID": "cosc120/creative-coding/cc-09-first-class.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-09-first-class.html#submit-before-class-completion-only",
+    "title": "Creative Coding 9 — Your First Class",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC9 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
+  },
+  {
     "objectID": "cosc120/creative-coding/cc-11-particle-system.html#before-class",
     "href": "cosc120/creative-coding/cc-11-particle-system.html#before-class",
     "title": "Creative Coding 11 — Mini Particle System",
@@ -7047,6 +7201,13 @@
     "title": "Creative Coding 11 — Mini Particle System",
     "section": "From here",
     "text": "From here\nThis small sketch already hits several items on the Programming Project’s rubric checklist: variables and arithmetic, the draw loop combined with an explicit for loop over repeated elements, an array holding the visual data, and a student-written class instantiated into multiple objects. The project (project/README.md) is where you take an idea shaped like this one and make it entirely your own."
+  },
+  {
+    "objectID": "cosc120/creative-coding/cc-11-particle-system.html#submit-before-class-completion-only",
+    "href": "cosc120/creative-coding/cc-11-particle-system.html#submit-before-class-completion-only",
+    "title": "Creative Coding 11 — Mini Particle System",
+    "section": "Submit (before class) — completion only",
+    "text": "Submit (before class) — completion only\nCopy the code you ended up with for the exercise above and paste it into the CC11 completion check before class.\nThis isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading."
   },
   {
     "objectID": "cosc420/syllabus.html",
@@ -7581,11 +7742,88 @@
     "text": "Quiz 1\nQuiz 1 — Module 1: Concurrency is now open on Blackboard.\n\nMultiple choice / true-false, covering Sessions 1–5\nYou have the remainder of class time\nEverything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready\n\nConnects to: Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12\n\nTiming: 2 min transition, then hand off to Blackboard for the remaining ~12 min. Don’t linger — direct them to Blackboard and let the quiz run."
   },
   {
+    "objectID": "cosc420/notes/10.html#practice-quiz-1",
+    "href": "cosc420/notes/10.html#practice-quiz-1",
+    "title": "Review",
+    "section": "Practice + Quiz 1",
+    "text": "Practice + Quiz 1\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nWelcome to Review Day\n2 min\n\n\nWhen Do You Need Concurrency?\n4 min\n\n\nModule 1 Summary Table\n6 min\n\n\nPractice 1 Prompt: Spot the Race Condition\n4 min\n\n\nPractice 1 Solution\n4 min\n\n\nPractice 2 Prompt: Trace the Interleaving\n4 min\n\n\nPractice 2 Solution\n4 min\n\n\nPractice 3 Prompt: Will This Fix Work?\n4 min\n\n\nPractice 3 Solution\n4 min\n\n\nQuiz 1 transition\n2 min\n\n\n\nThat’s ~38 min of slide content; the remaining ~12 min is Quiz 1 itself on Blackboard (last 10–15 min of the session per the syllabus), not slide-driven. For each practice problem, give students 2–3 min to work in pairs before revealing the solution slide — don’t reveal immediately. Prompt slides pause (. . .) right before the “with a partner” question, and solution slides step through their reasoning as fragments — advance with arrow/space; the full text is kept for the study export."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#welcome-to-review-day",
+    "href": "cosc420/notes/10.html#welcome-to-review-day",
+    "title": "Review",
+    "section": "Welcome to Review Day",
+    "text": "Welcome to Review Day\nNo new concepts today — three things happen this session:\n\nA fast recap of everything Module 1 covered (Sessions 1–5)\nThree practice problems, worked in pairs, in the same style as Checkpoint 1 and Quiz 1\nQuiz 1 itself, on Blackboard, in the last part of class\n\n\nTiming: 2 min. Keep this genuinely brief — it’s a transition slide, not content."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#when-do-you-need-concurrency",
+    "href": "cosc420/notes/10.html#when-do-you-need-concurrency",
+    "title": "Review",
+    "section": "When Do You Need Concurrency?",
+    "text": "When Do You Need Concurrency?\nBack in Session 2 you saw two plain-language reasons to use threads: “waiting on something” and “more hands, more work.” Those have formal names, worth knowing precisely:\n\nI/O-bound tasks — the program spends most of its time waiting: for a network reply, a disk read, a database query. Threads let other work happen during that wait instead of the CPU sitting idle. (“Waiting on something,” Session 2.)\nCPU-bound tasks — the program spends most of its time computing. Splitting the computation across multiple cores gives genuine speed-up. (“More hands, more work,” Session 2.)\nEvent handling — a web server fielding many simultaneous requests is a common real-world mix of both: mostly waiting on each individual request, but needing to handle many at once.\n\n\n\n\n\n\n\n\nWarning\n\n\nConcurrency is not free — it’s the entire subject of Sessions 3 and 4 that sharing state across threads introduces race conditions, deadlock, livelock, and starvation. Only reach for it when the performance benefit is clear and measurable, and only protect the shared state that actually needs it.\n\n\n\n\nTiming: 4 min. This is the payoff of a deliberate choice made back in Session 2: the informal “waiting vs. more hands” framing was taught first, precisely so this slide could attach the formal vocabulary to an idea students already have, instead of introducing both at once."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#module-1-summary-table",
+    "href": "cosc420/notes/10.html#module-1-summary-table",
+    "title": "Review",
+    "section": "Module 1 Summary Table",
+    "text": "Module 1 Summary Table\n\n\n\n\n\n\n\n\nConcept\nKey idea\nFrom\n\n\n\n\nProcess / Thread\nA process is its own memory space; threads inside it share the heap but each get a private stack\nSession 2\n\n\nRace condition\nResult depends on unpredictable thread timing — same code, different outcomes across runs\nSession 3\n\n\nHeisenbug\nA timing-dependent bug that can change or vanish when you try to observe it\nSession 3\n\n\nsynchronized\nMutual exclusion — only one thread may hold a given object’s lock at a time\nSession 4\n\n\nDeadlock\nCircular lock dependency — every thread involved waits forever\nSession 4\n\n\nLivelock\nThreads stay active but repeatedly block each other — busy, no progress\nSession 4\n\n\nStarvation\nA thread is technically runnable but never actually gets its turn\nSession 4\n\n\nThread pool / ExecutorService\nA fixed set of reusable worker threads pulling tasks from a shared queue\nSession 5\n\n\nFuture\nA placeholder for a result, returned immediately, redeemed later via .get()\nSession 5\n\n\nI/O-bound vs. CPU-bound\nWaiting-dominated vs. computation-dominated — the two reasons to use threads\nThis slide\n\n\n\n\nTiming: 6 min. This is the single highest-value slide of the module for exam review — walk it row by row, and explicitly say “this table is a good thing to have memorized before the quiz and before the midterm.”"
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-1-spot-the-race-condition",
+    "href": "cosc420/notes/10.html#practice-1-spot-the-race-condition",
+    "title": "Review",
+    "section": "Practice 1: Spot the Race Condition",
+    "text": "Practice 1: Spot the Race Condition\nclass Counter {\n    private int total = 0;\n\n    public void add(int amount) {\n        total = total + amount; \n    }\n\n    public int getTotal() {\n        return total;\n    }\n}\n\n\nWith a partner (2–3 min): Name the exact three-step breakdown (Session 3) that causes the problem here.\n\nTiming: 4 min including pair discussion. Don’t reveal the answer yet — let pairs actually argue about it first."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-1-solution",
+    "href": "cosc420/notes/10.html#practice-1-solution",
+    "title": "Review",
+    "section": "Practice 1: Solution",
+    "text": "Practice 1: Solution\nadd() is not thread-safe. total = total + amount is a read-modify-write, exactly like counter++ in Session 3:\n\nRead the current value of total.\nModify it — compute total + amount.\nWrite the new value back to total.\n\n\nIf Thread A and Thread B both read total before either writes back, one of their additions is lost — identical shape to the lost-update table from Session 3, just with += amount instead of ++.\n\n\nThe fix: mark add() (and, for consistency, getTotal()) synchronized, so the whole read-modify-write sequence completes on one thread before another can begin it.\n\nTiming: 4 min. Worth noting getTotal() in the fix — students often synchronize only the method that writes and forget that an unsynchronized read can still observe a half-updated or stale value."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-2-trace-the-interleaving",
+    "href": "cosc420/notes/10.html#practice-2-trace-the-interleaving",
+    "title": "Review",
+    "section": "Practice 2: Trace the Interleaving",
+    "text": "Practice 2: Trace the Interleaving\nstatic int balance = 100;\n\n// Thread A: withdraw(30)     // Thread B: withdraw(50)\nint b = balance;               int b = balance;\nb = b - 30;                    b = b - 50;\nbalance = b;                   balance = b;\nBoth threads run withdraw on the same balance, unsynchronized, starting at balance = 100.\n\nWith a partner (2–3 min): find an interleaving of these six lines that leaves balance at an incorrect value. Write out the timeline, the way Session 3 did for the counter example.\n\nTiming: 4 min including pair discussion. If pairs finish early, ask them to also find an interleaving that happens to produce the correct result — reinforcing Session 3’s “same code, different outcomes” point."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-2-solution",
+    "href": "cosc420/notes/10.html#practice-2-solution",
+    "title": "Review",
+    "section": "Practice 2: Solution",
+    "text": "Practice 2: Solution\nOne possible wrong interleaving:\n\n\n\n\nTime\nThread A\nThread B\nbalance\n\n\n\n\nt1\nb = balance → 100\n\n100\n\n\nt2\n\nb = balance → 100\n100\n\n\nt3\nb = b - 30 → 70\n\n100\n\n\nt4\nbalance = b → 70\n\n70\n\n\nt5\n\nb = b - 50 → 50\n70\n\n\nt6\n\nbalance = b → 50\n50 ← wrong!\n\n\n\n\n\nTwo withdrawals totaling $80 should leave balance = 20. Instead it’s 50 — Thread B’s withdrawal overwrote Thread A’s, because Thread B read the stale balance = 100 before Thread A’s write ever happened. This is the exact bank-account failure mode from Session 3, traced line by line.\n\nTiming: 4 min. If a pair found a correct-outcome interleaving too, have them share it briefly — it’s a good live reminder that the bug is non-deterministic, not guaranteed to trigger."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-3-will-this-fix-work",
+    "href": "cosc420/notes/10.html#practice-3-will-this-fix-work",
+    "title": "Review",
+    "section": "Practice 3: Will This Fix Work?",
+    "text": "Practice 3: Will This Fix Work?\nA student “fixes” the Counter from Practice 1 like this:\nclass Counter {\n    private int total = 0;\n\n    public void add(int amount) {\n        synchronized (new Object()) {   // ← added this\n            total = total + amount;\n        }\n    }\n}\n\nWith a partner (2–3 min): does wrapping the line in synchronized (new Object()) actually fix the race condition? Why or why not?\n\nTiming: 4 min including pair discussion. This is the trickiest of the three problems — expect some pairs to say “yes, it’s synchronized now” without noticing the new keyword. That’s exactly the misconception this problem is designed to surface."
+  },
+  {
+    "objectID": "cosc420/notes/10.html#practice-3-solution",
+    "href": "cosc420/notes/10.html#practice-3-solution",
+    "title": "Review",
+    "section": "Practice 3: Solution",
+    "text": "Practice 3: Solution\nNo — this does not fix anything. Recall from Session 4: the lock is attached to a specific object, and only protects threads that are trying to acquire the lock on that same object.\n\nnew Object() creates a brand-new object every single time add() is called.\nThread A and Thread B each get their own new lock object — they’re never competing for the same lock, so synchronized here provides no mutual exclusion at all. The race condition is completely unaffected.\nThe real fix: lock on an object that’s shared and stable across all calls — e.g., this (method-level synchronized, Practice 1’s solution), or a single lock field created once, like private final Object lock = new Object();, referenced by every call.\n\n\n\n\n\n\n\n\nTip\n\n\nRule to carry into the exam: synchronized (X) only protects against other threads also trying to synchronize on that same X. If every thread gets a different X, you have the syntax of locking with none of the effect.\n\n\n\n\nTiming: 4 min. This is worth calling out as checkpoint/exam-relevant — “synchronized but on the wrong object” is a realistic, subtle bug, distinct from “forgot to synchronize at all.”"
+  },
+  {
+    "objectID": "cosc420/notes/10.html#quiz-1",
+    "href": "cosc420/notes/10.html#quiz-1",
+    "title": "Review",
+    "section": "Quiz 1",
+    "text": "Quiz 1\nQuiz 1 — Module 1: Concurrency is now open on Blackboard.\n\nMultiple choice / true-false, covering Sessions 1–5\nClosed book, closed notes, no collaboration - Honor Code applies\nEverything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready\n\nConnects to: Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12\n\nTiming: 2 min transition, then hand off to Blackboard for the remaining ~12 min. Don’t linger — direct them to Blackboard and let the quiz run."
+  },
+  {
     "objectID": "cosc420/notes/index.html",
     "href": "cosc420/notes/index.html",
     "title": "COSC420 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc420/slides/module_2.html#what-makes-distributed-systems-hard",
@@ -7606,7 +7844,7 @@
     "href": "cosc420/slides/module_2.html#what-is-a-distributed-system",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "What Is a Distributed System?",
-    "text": "What Is a Distributed System?\nA distributed system is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.\n\nGoogle Search — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.\nNetflix — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.\nYour bank’s ATM network — every ATM is a separate machine, but they all need to agree on your account balance.\n\n\n\n\n\n\n\nThink about it\n\n\nName one app or service you used this morning that you’d guess is a distributed system. What tipped you off — was it the scale, or something about how it behaved?\n\n\n\n\nTiming: 4 min. Let 2–3 students answer the callout question out loud before moving on — email, maps, any app with a login are all fair answers, and hearing several examples cements the definition better than the definition alone."
+    "text": "What Is a Distributed System?\nA distributed system is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.\n\nGoogle Search — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.\nNetflix — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.\nYour bank’s ATM network — every ATM is a separate machine, but they all need to agree on your account balance.\n\n\n\n\n\n\n\n\nThink about it\n\n\nName one app or service you used this morning that you’d guess is a distributed system. What tipped you off — was it the scale, or something about how it behaved?\n\n\n\n\nTiming: 4 min. Let 2–3 students answer the callout question out loud before moving on — email, maps, any app with a login are all fair answers, and hearing several examples cements the definition better than the definition alone."
   },
   {
     "objectID": "cosc420/slides/module_2.html#why-distribute",
@@ -7620,7 +7858,7 @@
     "href": "cosc420/slides/module_2.html#the-catch",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "The Catch",
-    "text": "The Catch\nEvery benefit on the last slide comes at a cost: you now have more than one machine that has to agree with itself.\n\nNetworks are unreliable — messages get lost, delayed, or corrupted.\nMachines fail independently — one kitchen can go dark while the others keep cooking.\nClocks drift — there is no single, shared notion of “now” across separate machines.\n\n\n\n\n\n\n\nImportant\n\n\nNone of this is a bug you can fix once. It’s a permanent property of having more than one computer. The rest of this module — CAP, replication, consistency — is the industry’s answer to “given that these problems never fully go away, how do we build systems that are still useful?”\n\n\n\n\nTiming: 3 min. This is a framing slide — its only job is to set up the next four slides as elaborations of these three bullets, in order."
+    "text": "The Catch\nEvery benefit on the last slide comes at a cost: you now have more than one machine that has to agree with itself.\n\nNetworks are unreliable — messages get lost, delayed, or corrupted.\nMachines fail independently — one kitchen can go dark while the others keep cooking.\nClocks drift — there is no single, shared notion of “now” across separate machines.\n\n\n\n\n\n\n\n\nImportant\n\n\nNone of this is a bug you can fix once. It’s a permanent property of having more than one computer. The rest of this module — CAP, replication, consistency — is the industry’s answer to “given that these problems never fully go away, how do we build systems that are still useful?”\n\n\n\n\nTiming: 3 min. This is a framing slide — its only job is to set up the next four slides as elaborations of these three bullets, in order."
   },
   {
     "objectID": "cosc420/slides/module_2.html#messages-get-lost-delayed-or-reordered",

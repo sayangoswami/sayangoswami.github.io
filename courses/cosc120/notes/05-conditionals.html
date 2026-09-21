@@ -10,7 +10,7 @@
 <script src="../../site_libs/quarto-contrib/codemirror6-1.0.0/codemirror.bundle.js"></script><meta charset="utf-8">
   <meta name="generator" content="quarto-1.9.36">
 
-  <title>Class Notes – Creative Coding 1 — Shapes &amp; Coordinates</title>
+  <title>Class Notes – Conditionals: if and else</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -399,7 +399,6 @@
   div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
 
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="quarto-light">
 <script type="module">
@@ -800,467 +799,644 @@ if (document.readyState === 'loading') {
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Creative Coding 1 — Shapes &amp; Coordinates</h1>
-  <p class="subtitle">COSC120 — ungraded warm-up</p>
+  <h1 class="title">Conditionals: <code>if</code> and <code>else</code></h1>
+  <p class="subtitle">COSC120: Introduction to Computer Science I</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="before-class" class="slide level2">
-<h2>Before class</h2>
-<p>Read through this whole deck on your own and try running every sketch (click <strong>Run</strong> on each code block). You don’t need to get everything working perfectly — just get a feel for it. We’ll pick this back up together in class to finish the exercises and look at what everyone made.</p>
-</section>
 <section id="learning-outcomes" class="slide level2">
 <h2>Learning Outcomes</h2>
+<p>By the end of this lecture, you’ll be able to:</p>
 <ul>
-<li>Explain what <code>setup()</code> and <code>draw()</code> each do</li>
-<li>Read Processing’s coordinate system: where <code>(0, 0)</code> is, and which way <code>x</code> and <code>y</code> increase</li>
-<li>Use <code>ellipse()</code>, <code>rect()</code>, and <code>fill()</code> to place and color shapes</li>
-<li>Reuse the arithmetic you already know (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>) to compute <em>where</em> a shape goes, instead of typing raw numbers</li>
+<li>Explain why programs sometimes need to make decisions instead of just running top to bottom</li>
+<li>Write <code>if</code> and <code>if</code>/<code>else</code> statements to control what code runs</li>
+<li>Build conditions using relational operators (<code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code>)</li>
+<li>Trace through a conditional by hand and predict what it will print</li>
+<li>Compare Strings correctly with <code>.equals()</code> — and know why <code>==</code> doesn’t do the job</li>
 </ul>
 </section>
-<section id="what-is-processing" class="slide level2">
-<h2>What is Processing?</h2>
-<p>Processing is still Java — the same variables and arithmetic you’ve been writing already.</p>
-<p>What’s new: instead of printing text with <code>IO.println</code>, you’re drawing shapes onto a small rectangular canvas.</p>
-<p>Every sketch on this page runs live in your browser — no installation needed.</p>
+<section id="programs-dont-always-go-straight" class="slide level2">
+<h2>Programs Don’t Always Go Straight</h2>
+<aside class="notes">
+<p>Every program written so far runs the same way every time: top to bottom, one line after another, no detours. That is a straight line. But real useful programs need to make decisions — do this in one situation, do something else in another. That is a branch. The visual of a straight line versus a Y-shaped split is the central image of this lecture. The humor slide is the hook: students already know “If you are happy and you know it, clap your hands.” Java says the same thing. Show the Java version first for laughs, then use it to introduce the real syntax.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Every program we have written so far does the same thing every run — top to bottom, no detours.</p>
+<!-- FIGURE [draw.io or excalidraw]: A vertical sequence of three rounded rectangles connected by downward arrows, labeled "Step 1", "Step 2", "Step 3". Label the whole thing "Every program so far." Clean, simple, straight vertical line. -->
+<p>But most programs need to <strong>make decisions.</strong></p>
 </section>
-<section id="two-blocks-instead-of-one-main" class="slide level2">
-<h2>Two blocks instead of one <code>main</code></h2>
-<p>A picture isn’t printed once and done — it needs to be drawn, and often <em>redrawn</em>, to animate.</p>
-<p>So a Processing sketch is split into two named blocks of code:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb1-2"><a></a>  <span class="co">// runs ONCE, when the sketch starts</span></span>
-<span id="cb1-3"><a></a><span class="op">}</span></span>
-<span id="cb1-4"><a></a></span>
-<span id="cb1-5"><a></a><span class="dt">void</span> <span class="fu">draw</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb1-6"><a></a>  <span class="co">// runs OVER AND OVER, automatically, about 60 times every second</span></span>
+<section class="slide level2">
+
+<p>You already know how this works. You have known since kindergarten:</p>
+<blockquote>
+<p><em>“If you’re happy and you know it, clap your hands.”</em></p>
+</blockquote>
+<p>In Java:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>    <span class="bu">String</span> mood <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Are you happy? (yes/no) "</span><span class="op">);</span></span>
+<span id="cb1-3"><a></a>    <span class="cf">if</span> <span class="op">(</span>mood<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb1-4"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Clap your hands!"</span><span class="op">);</span></span>
+<span id="cb1-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"(stomp your feet — coming in a future lecture)"</span><span class="op">);</span></span>
+<span id="cb1-6"><a></a>    <span class="op">}</span></span>
 <span id="cb1-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>IO.println</code> inside only runs <strong>if</strong> the condition is true. That is a conditional.</p>
+<!-- FIGURE [draw.io or excalidraw]: Same vertical sequence of rectangles from above, but now one of the boxes has a diamond branching off to the right labeled "condition?". From the diamond: a path going right labeled "true" leads to a box "Clap your hands!", then rejoins the main path. A path going straight down labeled "false" skips the box entirely. The contrast with the straight-line figure above should be immediate and clear. -->
 </section>
-<section id="reading-setup-and-draw" class="slide level2">
-<h2>Reading <code>setup()</code> and <code>draw()</code></h2>
+<section id="conditionals-in-everyday-english" class="slide level2">
+<h2>Conditionals in Everyday English</h2>
+<aside class="notes">
+<p>Before showing any more Java syntax, ground the idea in language students already use. Conditionals are not a computer science invention — they are a feature of every human language. We navigate our entire lives using if/else logic. Java just requires us to be more precise about it: the condition must be something that is either true or false, and the body must be inside braces. Show the English-to-Java translation side by side. This makes the syntax feel like a formality rather than something alien.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>We use conditionals constantly — in language, in decisions, in instructions.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>In English:</strong></p>
 <ul>
-<li><code>setup()</code> — “things I only need to do once.” Mainly, telling Processing how big the canvas should be.</li>
-<li><code>draw()</code> — “the current frame of a flipbook.” Processing calls it again and again, and whatever you draw inside becomes the picture for that instant.</li>
+<li>If it is raining, take an umbrella.</li>
+<li>If the light is red, stop.</li>
+<li>If you are hungry, eat something.</li>
+<li>If the tank is empty, get gas.</li>
 </ul>
-<p>You never call <code>draw()</code> yourself — Processing does that automatically, forever, once the sketch starts.</p>
+</div><div class="column" style="width:50%;">
+<p><strong>The structure is always the same:</strong></p>
+<pre><code>if [some condition is true]
+    then do [something]</code></pre>
+</div></div>
 </section>
-<section id="two-things-to-file-away-for-later" class="slide level2">
-<h2>Two things to file away for later</h2>
+<section class="slide level2">
+
+<p>Java uses the same structure — just written more precisely:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="cf">if</span> <span class="op">(</span>condition<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a></a>    <span class="co">// do something</span></span>
+<span id="cb3-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The condition must be something that is either <strong>true</strong> or <strong>false</strong> — nothing in between.</p>
+<p>The code inside the braces only runs when the condition is true. Otherwise, it is skipped entirely.</p>
+<!-- FIGURE [draw.io or excalidraw]: A two-column figure. Left column: three English sentences each starting with "If..." — written in a casual handwritten style. Right column: the same three sentences translated into Java if-statements with simple conditions and IO.println bodies. Connecting arrows from each English sentence to its Java translation. The visual point: it is the same logic, just a different syntax. -->
+</section>
+<section id="relational-operators" class="slide level2">
+<h2>Relational Operators</h2>
+<aside class="notes">
+<p>Relational operators produce a boolean — true or false. Students have seen these symbols in math class; the only ones that look different are == (equality, not assignment) and != (not equal). This is the first time == shows up, so a light heads-up is enough here — it will come back as a “common mistake” slide later, so there’s no need to over-warn now. Keep the tone matter-of-fact rather than alarmed.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A condition is built from a <strong>relational operator</strong> — a comparison that produces <code>true</code> or <code>false</code>.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Operator</th>
+<th>Meaning</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&lt;</code></td>
+<td>less than</td>
+<td><code>3 &lt; 5</code></td>
+<td><code>true</code></td>
+</tr>
+<tr class="even">
+<td><code>&gt;</code></td>
+<td>greater than</td>
+<td><code>3 &gt; 5</code></td>
+<td><code>false</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;=</code></td>
+<td>less than or equal to</td>
+<td><code>5 &lt;= 5</code></td>
+<td><code>true</code></td>
+</tr>
+<tr class="even">
+<td><code>&gt;=</code></td>
+<td>greater than or equal to</td>
+<td><code>6 &gt;= 10</code></td>
+<td><code>false</code></td>
+</tr>
+<tr class="odd">
+<td><code>==</code></td>
+<td>equal to</td>
+<td><code>4 == 4</code></td>
+<td><code>true</code></td>
+</tr>
+<tr class="even">
+<td><code>!=</code></td>
+<td>not equal to</td>
+<td><code>4 != 5</code></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>One thing worth clocking now, since it trips up almost everyone at least once: <code>==</code> (two signs) checks equality, while <code>=</code> (one sign) stores a value. They look similar but do very different jobs — we’ll come back to this.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="dt">int</span> score <span class="op">=</span> <span class="dv">85</span><span class="op">;</span></span>
+<span id="cb4-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">&gt;</span> <span class="dv">60</span><span class="op">);</span>    <span class="co">// true</span></span>
+<span id="cb4-3"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">==</span> <span class="dv">100</span><span class="op">);</span>  <span class="co">// false</span></span>
+<span id="cb4-4"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">!=</span> <span class="dv">85</span><span class="op">);</span>   <span class="co">// false</span></span>
+<span id="cb4-5"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">&gt;=</span> <span class="dv">85</span><span class="op">);</span>   <span class="co">// true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="the-if-statement" class="slide level2">
+<h2>The <code>if</code> Statement</h2>
+<aside class="notes">
+<p>Walk through the syntax carefully: the keyword if, the condition in parentheses, the body in braces. The body is the code that only runs when the condition is true. When the condition is false, the entire body is skipped and execution continues with whatever comes after the closing brace. Use the figure to make the two possible paths concrete. The indentation inside the braces is convention — Java does not require it, but every professional programmer uses it because it makes the structure visible at a glance. This introduces the temperature example that carries through the next few slides.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a></a><span class="cf">if</span> <span class="op">(</span>condition<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-2"><a></a>    <span class="co">// this code only runs when the condition is true</span></span>
+<span id="cb5-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>The pieces:</p>
 <ul>
-<li>These named blocks are called <strong>methods</strong> — you’ll learn to write your own soon. For now, just copy the <code>void setup() { ... }</code> / <code>void draw() { ... }</code> shape exactly and put your code inside the braces.</li>
-<li>You’ll see <code>float</code> below where you might expect <code>double</code>. <code>float</code> is just another type for decimal numbers, a little less precise than <code>double</code>. Processing uses it everywhere, so read <code>float</code> as “a number that can have a decimal point.”</li>
+<li><code>if</code> — the keyword</li>
+<li><code>(condition)</code> — something that is <code>true</code> or <code>false</code>, in parentheses</li>
+<li><code>{ }</code> — the <strong>body</strong>: the code that runs when the condition is true</li>
 </ul>
-</section>
-<section id="an-empty-sketch" class="slide level2">
-<h2>An empty sketch</h2>
-<div class="jr-block" id="jr-1" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
-
-void draw() {
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
-  </div>
 </div>
-<p><code>size(400, 300)</code> tells Processing the canvas is 400 pixels wide, 300 pixels tall. <code>draw()</code> is empty, so nothing happens yet — click <strong>Run</strong> and you’ll just see a blank canvas.</p>
 </section>
-<section id="the-coordinate-system" class="slide level2">
-<h2>The coordinate system</h2>
-<p>Before drawing anything, you need to know how Processing measures position. It is <strong>not</strong> the x/y grid from math class.</p>
+<section class="slide level2">
+
+<p><strong>Example:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">int</span> temperature <span class="op">=</span> <span class="dv">72</span><span class="op">;</span></span>
+<span id="cb6-2"><a></a></span>
+<span id="cb6-3"><a></a><span class="cf">if</span> <span class="op">(</span>temperature <span class="op">&gt;=</span> <span class="dv">65</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Nice day for a walk!"</span><span class="op">);</span></span>
+<span id="cb6-5"><a></a><span class="op">}</span></span>
+<span id="cb6-6"><a></a></span>
+<span id="cb6-7"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Done."</span><span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>When <code>temperature</code> is <code>72</code>:</p>
 <ul>
-<li><code>(0, 0)</code> is the <strong>top-left corner</strong>, not the center and not the bottom-left.</li>
-<li><code>x</code> increases as you move <strong>right</strong> — as you’d expect.</li>
-<li><code>y</code> increases as you move <strong>down</strong> — the <em>opposite</em> of a math-class graph. This trips almost everyone up at least once.</li>
+<li><code>72 &gt;= 65</code> is <code>true</code></li>
+<li><code>"Nice day for a walk!"</code> is printed</li>
+<li><code>"Done."</code> is printed</li>
 </ul>
+</div>
+<div class="fragment">
+<p>When <code>temperature</code> is <code>50</code>:</p>
+<ul>
+<li><code>50 &gt;= 65</code> is <code>false</code></li>
+<li>The body is <strong>skipped entirely</strong></li>
+<li><code>"Done."</code> is still printed</li>
+</ul>
+</div>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: A flowchart-style figure (hand-drawn, no Mermaid). A rectangle at top: "temperature = 72". Arrow down to a diamond: "temperature >= 65 ?". From the diamond: right arrow labeled "true" → rectangle "Print: Nice day for a walk!" → arrow rejoining the main path. Down arrow from diamond labeled "false" → skips directly to rejoining point. From the rejoining point: rectangle "Print: Done." The two paths (true takes a detour, false goes straight down) should be visually clear. -->
 </section>
-<section id="width-and-height" class="slide level2">
-<h2><code>width</code> and <code>height</code></h2>
-<p><code>width</code> and <code>height</code> are two variables Processing fills in for you automatically, based on whatever you passed to <code>size(...)</code>.</p>
-<p>So <code>width / 2</code> always means “the horizontal middle of the canvas,” no matter what size you chose.</p>
+<section id="the-ifelse-statement" class="slide level2">
+<h2>The <code>if</code>/<code>else</code> Statement</h2>
+<aside class="notes">
+<p>With a plain if, the body either runs or is skipped. With if/else, exactly one of the two branches always runs — never both, never neither. The else branch is the default: it runs when the condition is false. The figure here is the classic Y-split: the program arrives at a fork, takes one path or the other, and both paths lead to the same place afterward. Stress “exactly one” — this is different from two separate if statements, which could both run or both be skipped. This continues the same temperature example from the previous slide, now with an else branch added.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Sometimes you want to do one thing if a condition is true, and something <strong>different</strong> if it is false.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="cf">if</span> <span class="op">(</span>condition<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-2"><a></a>    <span class="co">// runs when condition is true</span></span>
+<span id="cb7-3"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-4"><a></a>    <span class="co">// runs when condition is false</span></span>
+<span id="cb7-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Exactly one branch always runs</strong> — never both, never neither.</p>
 </section>
-<section id="step-1-paint-the-background" class="slide level2">
-<h2>Step 1 — paint the background</h2>
-<div class="jr-block" id="jr-2" data-type="processing">
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="dt">int</span> temperature <span class="op">=</span> <span class="dv">50</span><span class="op">;</span></span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a><span class="cf">if</span> <span class="op">(</span>temperature <span class="op">&gt;=</span> <span class="dv">65</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Nice day for a walk!"</span><span class="op">);</span></span>
+<span id="cb8-5"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb8-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Maybe grab a jacket."</span><span class="op">);</span></span>
+<span id="cb8-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When <code>temperature</code> is <code>72</code> → prints <code>"Nice day for a walk!"</code> When <code>temperature</code> is <code>50</code> → prints <code>"Maybe grab a jacket."</code></p>
+<!-- FIGURE [draw.io or excalidraw]: A Y-shaped flowchart. At the top: a single rectangle "Arrive at condition". Below it: a diamond "temperature >= 65 ?". Left branch from diamond labeled "false" → rectangle "Print: Maybe grab a jacket." Right branch labeled "true" → rectangle "Print: Nice day for a walk!" Both branches rejoin at a single point at the bottom with a rectangle "Continue...". The visual emphasis should be on the two branches always rejoining — exactly one runs, and then execution continues normally. -->
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Two separate <code>if</code> statements are <strong>not</strong> the same as <code>if</code>/<code>else</code>. With two <code>if</code> statements, both conditions are checked independently and both bodies could run. With <code>if</code>/<code>else</code>, only one branch runs.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tracing-a-conditional" class="slide level2">
+<h2>Tracing a Conditional</h2>
+<aside class="notes">
+<p>Tracing means following exactly what the computer does, step by step. The key habit to build: before running the program, ask “what will the condition evaluate to for this input?” That tells you which branch runs. This is the same temperature program students have now seen twice, upgraded to read a real value from the user instead of having it fixed in the code — so the “problem statement” framing here is new even though the if/else logic is familiar. Show the sample runs first, then ask students to predict the trace columns before revealing them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><strong>Problem:</strong> Ask the user for the current temperature. If it’s 65°F or above, say it’s a good day to be outside. Otherwise, suggest a jacket.</p>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-2"><a></a>    <span class="dt">int</span> temperature <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Temperature (°F): "</span><span class="op">));</span></span>
+<span id="cb9-3"><a></a></span>
+<span id="cb9-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>temperature <span class="op">&gt;=</span> <span class="dv">65</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Great day to be outside!"</span><span class="op">);</span></span>
+<span id="cb9-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb9-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"You might want a jacket."</span><span class="op">);</span></span>
+<span id="cb9-8"><a></a>    <span class="op">}</span></span>
+<span id="cb9-9"><a></a></span>
+<span id="cb9-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Have a nice day."</span><span class="op">);</span></span>
+<span id="cb9-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Sample run 1:</strong></p>
+<pre><code>Temperature (°F): 85
+Great day to be outside!
+Have a nice day.</code></pre>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Sample run 2:</strong></p>
+<pre><code>Temperature (°F): 50
+You might want a jacket.
+Have a nice day.</code></pre>
+</div>
+</div>
+<!-- FIGURE [draw.io or excalidraw]: A hand-drawn flowchart (no Mermaid). Top rectangle: "Read temperature from user". Arrow down to diamond: "temperature >= 65 ?". Right branch labeled "true" → rectangle "Print: Great day to be outside!" → rejoins. Left branch labeled "false" → rectangle "Print: You might want a jacket." → rejoins. Bottom rectangle: "Print: Have a nice day." -->
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Tracing it by hand — before running anything, ask: what will the condition evaluate to?</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-2"><a></a>    <span class="dt">int</span> temperature <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Temperature (°F): "</span><span class="op">));</span></span>
+<span id="cb12-3"><a></a></span>
+<span id="cb12-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>temperature <span class="op">&gt;=</span> <span class="dv">65</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Great day to be outside!"</span><span class="op">);</span></span>
+<span id="cb12-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"You might want a jacket."</span><span class="op">);</span></span>
+<span id="cb12-8"><a></a>    <span class="op">}</span></span>
+<span id="cb12-9"><a></a></span>
+<span id="cb12-10"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Have a nice day."</span><span class="op">);</span></span>
+<span id="cb12-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Input: <code>85</code></strong></p>
+<p><code>85 &gt;= 65</code> → <strong>true</strong></p>
+<p>✓ runs: <em>“Great day to be outside!”</em> ✗ skips: else branch</p>
+<p>→ <em>“Have a nice day.”</em></p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Input: <code>50</code></strong></p>
+<p><code>50 &gt;= 65</code> → <strong>false</strong></p>
+<p>✗ skips: if branch ✓ runs: <em>“You might want a jacket.”</em></p>
+<p>→ <em>“Have a nice day.”</em></p>
+</div>
+</div>
+</section>
+<section id="comparing-strings-.equals" class="slide level2">
+<h2>Comparing Strings — <code>.equals()</code></h2>
+<aside class="notes">
+<p>This is one of the most important things to get right before students write any programs that read String input. == on Strings does not check whether they have the same content — it checks whether they are literally the same object in memory. For beginners, this distinction does not need to be explained deeply; just give the rule and the reason why: for Strings, always use .equals(). Show the bug that == produces and why .equals() fixes it. The sticky note analogy works well: == asks “are these the same sticky note?” (same physical piece of paper); .equals() asks “do these sticky notes say the same thing?” Students comparing user input to a String literal must always use .equals().</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>You know that <code>==</code> compares two values. For numbers, this works perfectly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="dt">int</span> score <span class="op">=</span> <span class="dv">85</span><span class="op">;</span></span>
+<span id="cb13-2"><a></a>IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>score <span class="op">==</span> <span class="dv">85</span><span class="op">);</span>   <span class="co">// true ✓</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>For Strings, <code>==</code> doesn’t quite behave the way you’d expect:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="bu">String</span> answer <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Type yes: "</span><span class="op">);</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a><span class="cf">if</span> <span class="op">(</span>answer <span class="op">==</span> <span class="st">"yes"</span><span class="op">)</span> <span class="op">{</span>          <span class="co">// this may not work the way you'd guess!</span></span>
+<span id="cb14-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"You said yes."</span><span class="op">);</span></span>
+<span id="cb14-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Even if the user types <code>yes</code>, this condition may be <code>false</code>.</p>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>The rule: always use <code>.equals()</code> to compare Strings.</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="bu">String</span> answer <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Type yes: "</span><span class="op">);</span></span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a><span class="cf">if</span> <span class="op">(</span>answer<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span>     <span class="co">// this always works</span></span>
+<span id="cb15-4"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"You said yes."</span><span class="op">);</span></span>
+<span id="cb15-5"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<!-- Think of it like two sticky notes that both say `"yes"`. `==` asks *"are these physically the same sticky note?"* — almost never what you want. `.equals()` asks *"do they say the same thing?"* — which is what you actually care about. -->
+<p>The full explanation for why <code>==</code> behaves this way on Strings is coming later in the course. For now, the rule alone will serve you well.</p>
+<!-- FIGURE [draw.io or excalidraw]: Two sticky notes side by side, both with "yes" written on them. Arrow labeled "==" with a red X: "Same sticky note? NO." Arrow labeled ".equals()" with a green check: "Same words? YES." Below: two code snippets, one with == (marked wrong), one with .equals() (marked correct). -->
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Golden rule for Strings:</strong> compare them with <code>.equals()</code>, not <code>==</code>. We’ll explain exactly why later in the course.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="common-mistakes" class="slide level2">
+<h2>Common Mistakes</h2>
+<aside class="notes">
+<p>Three mistakes that will show up in almost every student’s code this week. The = vs == mistake is the most frequent and the hardest to spot because the program compiles — it just does the wrong thing. Missing braces is dangerous because removing braces from a multi-line body silently changes which lines are inside the if. Using == on Strings compiles and runs but produces wrong results with user input. These are all worth a slow walkthrough, but frame them as “things everyone runs into” rather than failures — every one of these is a normal, expected speed bump.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>These three come up in almost everyone’s code at some point — nothing to worry about, just good to recognize on sight.</p>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>1. Using <code>=</code> instead of <code>==</code> in a condition</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a></a><span class="dt">int</span> score <span class="op">=</span> <span class="dv">85</span><span class="op">;</span></span>
+<span id="cb16-2"><a></a><span class="cf">if</span> <span class="op">(</span>score <span class="op">=</span> <span class="dv">100</span><span class="op">)</span> <span class="op">{</span>    <span class="co">// compiles, but this isn't a comparison — it assigns 100 to score</span></span>
+<span id="cb16-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Perfect score!"</span><span class="op">);</span></span>
+<span id="cb16-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>=</code> stores a value. <code>==</code> compares values. Inside a condition, you always want <code>==</code>.</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>2. Missing braces — only the first line is inside the <code>if</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="cf">if</span> <span class="op">(</span>score <span class="op">&gt;=</span> <span class="dv">60</span><span class="op">)</span></span>
+<span id="cb17-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Passing"</span><span class="op">);</span></span>
+<span id="cb17-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Congratulations"</span><span class="op">);</span>   <span class="co">// always runs — NOT inside the if</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Without braces, only the very next line belongs to the <code>if</code>. It’s an easy one to miss, so make a habit of always using braces.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb18-1"><a></a><span class="cf">if</span> <span class="op">(</span>score <span class="op">&gt;=</span> <span class="dv">60</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-2"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Passing"</span><span class="op">);</span></span>
+<span id="cb18-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Congratulations"</span><span class="op">);</span>   <span class="co">// now both lines are inside the if ✓</span></span>
+<span id="cb18-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>3. Using <code>==</code> to compare Strings</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb19-1"><a></a><span class="bu">String</span> name <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">(</span><span class="st">"Your name: "</span><span class="op">);</span></span>
+<span id="cb19-2"><a></a><span class="cf">if</span> <span class="op">(</span>name <span class="op">==</span> <span class="st">"Alice"</span><span class="op">)</span> <span class="op">{</span>      <span class="co">// may always be false</span></span>
+<span id="cb19-3"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, Alice!"</span><span class="op">);</span></span>
+<span id="cb19-4"><a></a><span class="op">}</span></span>
+<span id="cb19-5"><a></a><span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"Alice"</span><span class="op">))</span> <span class="op">{</span> <span class="co">// compares the content</span></span>
+<span id="cb19-6"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello, Alice!"</span><span class="op">);</span></span>
+<span id="cb19-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</section>
+<section id="worksheet" class="slide level2">
+<h2>Worksheet</h2>
+<aside class="notes">
+<p>Reserve the last 20-30 minutes. Problems 1-2 are tracing — students work on paper. Problems 3-4 are write-the-code. Problem 5 is the synthesis problem. Watch for: = vs ==; missing braces; students who use == on Strings; students who write two separate if statements when they need if/else.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p><strong>Problem 1 — Trace it.</strong> What does this program print when <code>x</code> is <code>10</code>? When <code>x</code> is <code>3</code>?</p>
+<div class="jr-block" id="jr-1" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    int x = 10;   // try with 3 as well
 
-void draw() {
-  background(230);
+    if (x &gt; 5) {
+        IO.println("Big");
+    } else {
+        IO.println("Small");
+    }
+
+    IO.println("Done");
 }</div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p><code>background(230)</code> repaints the whole canvas a light gray — <strong>every single frame</strong>. Without this line, every shape you ever draw would stay on screen forever, since <code>draw()</code> never automatically clears anything; it just paints on top of whatever was there before.</p>
 </section>
-<section id="step-2-pick-a-color" class="slide level2">
-<h2>Step 2 — pick a color</h2>
-<div class="jr-block" id="jr-3" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 2 — Trace it.</strong> What does this program print for each value of <code>score</code>? Try <code>score = 100</code>, <code>score = 60</code>, <code>score = 59</code>.</p>
+<div class="jr-block" id="jr-2" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    int score = 100;   // try 60 and 59 as well
 
-void draw() {
-  background(230);
-  fill(80, 160, 220);
+    if (score &gt;= 60) {
+        IO.println("Passing");
+    }
+
+    IO.println("Score checked.");
 }</div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p><code>fill(80, 160, 220)</code> sets the color used to fill the <em>next</em> shape you draw — three numbers for red, green, and blue, each from 0 to 255. Like a paint bucket: it stays “loaded” with that color until you call <code>fill(...)</code> again. Nothing visibly changes yet — we haven’t drawn a shape.</p>
+<p><em>(Note: there is no <code>else</code> here. How does the output differ from an <code>if</code>/<code>else</code>?)</em></p>
 </section>
-<section id="step-3-draw-a-shape" class="slide level2">
-<h2>Step 3 — draw a shape</h2>
-<div class="jr-block" id="jr-4" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 3 — Spot the bugs.</strong> Fix every mistake:</p>
+<div class="jr-block" id="jr-3" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Java source code editor">void main() {
+    int age = Integer.parseInt(IO.readln("Your age: "));
 
-void draw() {
-  background(230);
-  fill(80, 160, 220);
-  noStroke();
-  ellipse(200, 150, 80, 80);
+    if (age = 18)
+        IO.println("You are exactly 18.");
+        IO.println("Welcome!");
+    else
+        IO.println("You are not 18.");
 }</div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p><code>noStroke()</code> turns off the shape’s outline. <code>ellipse(x, y, w, h)</code> draws an ellipse <strong>centered</strong> at <code>(x, y)</code>, <code>w</code> pixels wide, <code>h</code> pixels tall — equal width and height makes it a circle.</p>
-<p>Unlike <code>rect()</code>, which positions from a corner, <code>ellipse()</code> positions from the <strong>center</strong> — worth remembering, it’s a common mix-up.</p>
 </section>
-<section id="try-it-before-class" class="slide level2 scrollable">
-<h2>Try it (before class)</h2>
-<p>Run the sketch above. Then:</p>
-<ol type="1">
-<li>Delete <code>noStroke();</code> and re-run — notice the thin black outline appear.</li>
-<li>Change <code>200, 150</code> to <code>100, 50</code>.</li>
-<li>Change <code>80, 80</code> to <code>200, 60</code>.</li>
-</ol>
-<p>Predict what will change <em>before</em> you click Run each time.</p>
-</section>
-<section id="step-4-use-arithmetic-instead-of-raw-numbers" class="slide level2">
-<h2>Step 4 — use arithmetic instead of raw numbers</h2>
-<div class="jr-block" id="jr-5" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 4 — Write it.</strong> Write a program that asks the user for a number. If the number is negative, print <code>"Negative"</code>. Otherwise print <code>"Non-negative"</code>.</p>
+<div class="jr-block" id="jr-4" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
-
-void draw() {
-  background(230);
-
-  float cx = width / 2;
-  float cy = height / 2;
-
-  fill(80, 160, 220);
-  noStroke();
-  ellipse(cx, cy, 80, 80);
-}</div>
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p>Same picture as before, but <code>200, 150</code> became <code>width / 2, height / 2</code>. Now the circle stays centered no matter what size the canvas is — that’s the whole reason to compute a position instead of typing a fixed number.</p>
 </section>
-<section id="building-a-face-the-head" class="slide level2">
-<h2>Building a face — the head</h2>
-<div class="jr-block" id="jr-6" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 5 — Write it.</strong> Ask the user to enter a password. If the password is <code>"open sesame"</code>, print <code>"Access granted."</code> Otherwise print <code>"Access denied."</code>.</p>
+<p><em>(Hint: what operator should you use to compare two Strings?)</em></p>
+<div class="jr-block" id="jr-5" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
-
-void draw() {
-  background(255, 240, 200);
-
-  float cx = width / 2;
-  float cy = height / 2;
-  float r  = 100;
-
-  fill(255, 220, 150);
-  ellipse(cx, cy, r * 2, r * 2);   // head
-}</div>
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p>One new variable, <code>r</code>, holds the head’s radius. The head’s <em>width</em> and <em>height</em> are both <code>r * 2</code> — written in terms of <code>r</code>, not as a raw number like <code>200</code>.</p>
 </section>
-<section id="adding-the-eyes" class="slide level2">
-<h2>Adding the eyes</h2>
-<div class="jr-block" id="jr-7" data-type="processing">
+<section class="slide level2">
+
+<p><strong>Problem 6 — Write it.</strong> Ask the user for two integers. Print the larger one. If they are equal, print <code>"Equal"</code>.</p>
+<div class="jr-block" id="jr-6" data-type="java">
   <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
     <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
-
-void draw() {
-  background(255, 240, 200);
-
-  float cx = width / 2;
-  float cy = height / 2;
-  float r  = 100;
-
-  fill(255, 220, 150);
-  ellipse(cx, cy, r * 2, r * 2);         // head
-
-  fill(255);
-  ellipse(cx - r / 3, cy - r / 4, 30, 30);  // left eye white
-  ellipse(cx + r / 3, cy - r / 4, 30, 30);  // right eye white
-}</div>
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>Each eye’s position is <code>cx</code>/<code>cy</code> plus or minus an expression built from <code>r</code> — not a fixed pixel number. Try changing <code>r</code> from <code>100</code> to <code>60</code> and re-run: the whole face shrinks and everything stays in the right place, because the <em>relationships</em> were written in arithmetic.</p>
-</section>
-<section id="adding-the-pupils-and-a-smile" class="slide level2">
-<h2>Adding the pupils and a smile</h2>
-<div class="jr-block" id="jr-8" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
     </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 300);
-}
-
-void draw() {
-  background(255, 240, 200);
-
-  float cx = width / 2;
-  float cy = height / 2;
-  float r  = 100;
-
-  fill(255, 220, 150);
-  ellipse(cx, cy, r * 2, r * 2);         // head
-
-  fill(255);
-  ellipse(cx - r / 3, cy - r / 4, 30, 30);  // left eye white
-  ellipse(cx + r / 3, cy - r / 4, 30, 30);  // right eye white
-
-  fill(0);
-  ellipse(cx - r / 3, cy - r / 4, 10, 10);  // left pupil
-  ellipse(cx + r / 3, cy - r / 4, 10, 10);  // right pupil
-
-  noFill();
-  stroke(0);
-  arc(cx, cy + r / 4, r, r / 2, 0, PI);     // smile
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
-<p><code>arc(x, y, w, h, start, stop)</code> draws part of an ellipse’s outline, from angle <code>start</code> to angle <code>stop</code>, measured in radians — <code>0</code> to <code>PI</code> sweeps the bottom half, which is why it reads as a smile. You don’t need to understand radians yet; just know <code>PI</code> is a built-in constant holding the value of π, ready to use without declaring it.</p>
-</section>
-<section id="a-repeating-pattern-one-circle-in-a-loop" class="slide level2">
-<h2>A repeating pattern — one circle in a loop</h2>
-<div class="jr-block" id="jr-9" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(20);
-
-  for (int i = 0; i &lt; 8; i++) {
-    int x = i * 50 + 25;
-    fill(200);
-    ellipse(x, 100, 40, 40);
-  }
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>You haven’t been taught <code>for</code> loops yet — for now, just trust that this repeats the block inside it 8 times, with <code>i</code> counting <code>0, 1, 2, ..., 7</code> each time through. Watch what it draws: eight identical gray circles, evenly spaced, because <code>x</code> is computed fresh from <code>i</code> on each repeat.</p>
-</section>
-<section id="cycles-the-color" class="slide level2">
-<h2><code>%</code> cycles the color</h2>
-<div class="jr-block" id="jr-10" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(20);
-
-  for (int i = 0; i &lt; 8; i++) {
-    int x = i * 50 + 25;
-    int colorLevel = (i % 3) * 100;   // cycles 0, 100, 200, 0, 100, 200, ...
-    fill(colorLevel, 255 - colorLevel, 200);
-    ellipse(x, 100, 40, 40);
-  }
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>You have learned that <code>%</code> gives the <strong>remainder</strong> of a division. That has a useful side effect: <code>i % 3</code> can only ever produce <code>0</code>, <code>1</code>, or <code>2</code> — it cycles no matter how large <code>i</code> gets. Here those three values become three different colors, repeating across the row.</p>
-</section>
-<section id="try-it-yourself-before-class" class="slide level2 scrollable">
-<h2>Try it yourself (before class)</h2>
-<p>Pick one sketch above. Change:</p>
-<ol type="1">
-<li>One number that controls <strong>position</strong>.</li>
-<li>One number that controls <strong>size</strong>.</li>
-<li>One number inside a <code>%</code> expression, if the sketch has one.</li>
-</ol>
-<p>Predict what will change <em>before</em> you hit Run. We’ll compare what everyone tried in class.</p>
-<div class="jr-block" id="jr-11" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-11-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-11-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-11-lbl" tabindex="0"></pre>
-  </div>
-</div>
-</section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC1 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
 
 
 </section>

@@ -296,9 +296,9 @@ SI
 <p>Module 1 ended on this picture: <strong>parallel</strong> = one kitchen, many cooks sharing the same counters. <strong>Distributed</strong> = many separate kitchens, coordinating over the phone, sharing nothing directly.</p>
 <p>Module 2 is entirely about that second picture — and about one hard truth: <strong>the phone line between kitchens is not reliable.</strong></p>
 <ul>
-<li>Each kitchen (a <strong>node</strong>) has its own memory, its own state, its own clock on the wall.</li>
-<li>The only way one kitchen learns anything about another is by <strong>sending a message</strong> — a phone call, a courier — across a network that can be slow, or drop the call, or deliver things out of order.</li>
-<li>Everything in this session is a consequence of that one fact.</li>
+<li class="fragment">Each kitchen (a <strong>node</strong>) has its own memory, its own state, its own clock on the wall.</li>
+<li class="fragment">The only way one kitchen learns anything about another is by <strong>sending a message</strong> — a phone call, a courier — across a network that can be slow, or drop the call, or deliver things out of order.</li>
+<li class="fragment">Everything in this session is a consequence of that one fact.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Just re-anchor the picture from Module 1’s last slide — don’t re-derive it. This slide’s whole job is continuity.</p>
@@ -318,10 +318,11 @@ SI
 <h2>What Is a Distributed System?</h2>
 <p>A <strong>distributed system</strong> is multiple independent computers that communicate over a network and present themselves to a user as a single, coherent system.</p>
 <ul>
-<li><strong>Google Search</strong> — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.</li>
-<li><strong>Netflix</strong> — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.</li>
-<li><strong>Your bank’s ATM network</strong> — every ATM is a separate machine, but they all need to agree on your account balance.</li>
+<li class="fragment"><strong>Google Search</strong> — your query is answered by coordinating across thousands of machines, but it looks like one search box to you.</li>
+<li class="fragment"><strong>Netflix</strong> — video encoding, recommendations, billing, and streaming all run on physically separate machines, often in different countries, working together to serve one app.</li>
+<li class="fragment"><strong>Your bank’s ATM network</strong> — every ATM is a separate machine, but they all need to agree on your account balance.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -348,14 +349,15 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="why-distribute" class="slide level2">
 <h2>Why Distribute?</h2>
 <p>Three genuine reasons, not just “because it’s trendy”:</p>
 <ul>
-<li><strong>Scale</strong> — one machine has a ceiling (recall Module 1, Session 1: one machine can’t hold 80 billion rows). A distributed system grows by adding more machines, not by buying an impossibly bigger one.</li>
-<li><strong>Availability</strong> — if one server goes down, others can keep serving requests. A single machine has no backup; if it fails, the whole service fails with it.</li>
-<li><strong>Geography</strong> — serving a user in Tokyo from a datacenter in Tokyo is faster than serving them from Virginia. Distributing lets you put copies of your system physically close to your users.</li>
+<li class="fragment"><strong>Scale</strong> — one machine has a ceiling (recall Module 1, Session 1: one machine can’t hold 80 billion rows). A distributed system grows by adding more machines, not by buying an impossibly bigger one.</li>
+<li class="fragment"><strong>Availability</strong> — if one server goes down, others can keep serving requests. A single machine has no backup; if it fails, the whole service fails with it.</li>
+<li class="fragment"><strong>Geography</strong> — serving a user in Tokyo from a datacenter in Tokyo is faster than serving them from Virginia. Distributing lets you put copies of your system physically close to your users.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep this brisk and positive — it’s the sales pitch. The very next slide is the catch, and the contrast lands better if this slide doesn’t undercut itself early.</p>
@@ -375,10 +377,11 @@ SI
 <h2>The Catch</h2>
 <p>Every benefit on the last slide comes at a cost: <strong>you now have more than one machine that has to agree with itself.</strong></p>
 <ul>
-<li>Networks are unreliable — messages get lost, delayed, or corrupted.</li>
-<li>Machines fail independently — one kitchen can go dark while the others keep cooking.</li>
-<li>Clocks drift — there is no single, shared notion of “now” across separate machines.</li>
+<li class="fragment">Networks are unreliable — messages get lost, delayed, or corrupted.</li>
+<li class="fragment">Machines fail independently — one kitchen can go dark while the others keep cooking.</li>
+<li class="fragment">Clocks drift — there is no single, shared notion of “now” across separate machines.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -405,14 +408,15 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="messages-get-lost-delayed-or-reordered" class="slide level2">
 <h2>Messages Get Lost, Delayed, or Reordered</h2>
 <p>Picture one kitchen calling another to relay three orders, one after another. On a single machine, “one after another” is guaranteed. Across a network, it is not.</p>
 <ul>
-<li>A message can be <strong>lost entirely</strong> — the call drops, nobody at either end knows for sure it happened.</li>
-<li>A message can be <strong>delayed</strong> — it arrives seconds, or minutes, later than sent, for reasons neither side controls.</li>
-<li>Messages can <strong>arrive out of order</strong> — the second order can reach the kitchen before the first one, even though they were sent in sequence.</li>
+<li class="fragment">A message can be <strong>lost entirely</strong> — the call drops, nobody at either end knows for sure it happened.</li>
+<li class="fragment">A message can be <strong>delayed</strong> — it arrives seconds, or minutes, later than sent, for reasons neither side controls.</li>
+<li class="fragment">Messages can <strong>arrive out of order</strong> — the second order can reach the kitchen before the first one, even though they were sent in sequence.</li>
 </ul>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -457,9 +461,9 @@ SI
 <section id="partial-failures" class="slide level2">
 <h2>Partial Failures</h2>
 <ul>
-<li>On a <strong>single machine</strong>, if the CPU fails, everything fails together — one clean, total failure.</li>
-<li>In a <strong>distributed system</strong>, some machines can fail while others keep running perfectly. The system is never simply “up” or “down” — it can be up for some users and down for others, at the same instant.</li>
-<li>This asymmetry is what makes distributed systems fundamentally harder to reason about than single-machine programs: you can no longer assume “the program” is in one consistent state.</li>
+<li class="fragment">On a <strong>single machine</strong>, if the CPU fails, everything fails together — one clean, total failure.</li>
+<li class="fragment">In a <strong>distributed system</strong>, some machines can fail while others keep running perfectly. The system is never simply “up” or “down” — it can be up for some users and down for others, at the same instant.</li>
+<li class="fragment">This asymmetry is what makes distributed systems fundamentally harder to reason about than single-machine programs: you can no longer assume “the program” is in one consistent state.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -492,9 +496,9 @@ SI
 <h2>The Timeout Problem: Dead or Just Slow?</h2>
 <p>Here is the single hardest consequence of network unreliability: <strong>from the outside, a crashed node and a slow node look identical.</strong></p>
 <ul>
-<li>Kitchen A calls Kitchen B and gets no answer. Is Kitchen B’s phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?</li>
-<li>Kitchen A cannot tell the difference. All it knows is: <em>no response yet.</em></li>
-<li>The only tool available is a <strong>timeout</strong> — waiting some fixed amount of time, then assuming failure. But there’s no “correct” amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that’s truly gone.</li>
+<li class="fragment">Kitchen A calls Kitchen B and gets no answer. Is Kitchen B’s phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?</li>
+<li class="fragment">Kitchen A cannot tell the difference. All it knows is: <em>no response yet.</em></li>
+<li class="fragment">The only tool available is a <strong>timeout</strong> — waiting some fixed amount of time, then assuming failure. But there’s no “correct” amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that’s truly gone.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -527,9 +531,9 @@ SI
 <h2>No Global Clock</h2>
 <p>Every kitchen has a wall clock. None of them are perfectly synchronized — each one drifts a little, faster or slower, for entirely mundane reasons (temperature, manufacturing tolerance, when it was last set).</p>
 <ul>
-<li>On a single machine, “what time is it” has one unambiguous answer, from one clock.</li>
-<li>Across machines, <strong>each one has its own clock, and they disagree</strong> — usually by milliseconds, but disagree nonetheless. This is called <strong>clock drift</strong>.</li>
-<li>Worse: even the <em>rate</em> at which each clock runs is slightly different, so the disagreement keeps changing over time, not staying fixed.</li>
+<li class="fragment">On a single machine, “what time is it” has one unambiguous answer, from one clock.</li>
+<li class="fragment">Across machines, <strong>each one has its own clock, and they disagree</strong> — usually by milliseconds, but disagree nonetheless. This is called <strong>clock drift</strong>.</li>
+<li class="fragment">Worse: even the <em>rate</em> at which each clock runs is slightly different, so the disagreement keeps changing over time, not staying fixed.</li>
 </ul>
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
@@ -562,9 +566,9 @@ SI
 <h2>Ordering Without a Shared Clock</h2>
 <p>If you can’t trust timestamps to order events, how do you know which of two things happened first?</p>
 <ul>
-<li><strong>The puzzle:</strong> Kitchen A and Kitchen B both claim they received the same customer’s order “first.” Neither trusts the other’s wall clock. How do you settle it?</li>
-<li><strong>A partial answer:</strong> instead of asking “what time did this happen,” ask “what did this event depend on knowing about?” If Kitchen B’s order explicitly referenced information from Kitchen A’s order (e.g., “adding to the order Kitchen A just confirmed”), then A’s event must have happened first — <em>regardless</em> of what either clock says.</li>
-<li>This idea — ordering by cause-and-effect instead of by clock — is called a <strong>logical clock</strong>, and it’s a real, used solution to exactly this problem. We won’t build one in this course, but the puzzle itself is worth sitting with.</li>
+<li class="fragment"><strong>The puzzle:</strong> Kitchen A and Kitchen B both claim they received the same customer’s order “first.” Neither trusts the other’s wall clock. How do you settle it?</li>
+<li class="fragment"><strong>A partial answer:</strong> instead of asking “what time did this happen,” ask “what did this event depend on knowing about?” If Kitchen B’s order explicitly referenced information from Kitchen A’s order (e.g., “adding to the order Kitchen A just confirmed”), then A’s event must have happened first — <em>regardless</em> of what either clock says.</li>
+<li class="fragment">This idea — ordering by cause-and-effect instead of by clock — is called a <strong>logical clock</strong>, and it’s a real, used solution to exactly this problem. We won’t build one in this course, but the puzzle itself is worth sitting with.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -651,14 +655,14 @@ SI
 <h2>The Fallacies of Distributed Computing</h2>
 <p>In the 1990s, engineers at Sun Microsystems (Peter Deutsch and colleagues) wrote down eight assumptions that programmers new to distributed systems make — and every one of them is false:</p>
 <ol type="1">
-<li>The network is reliable</li>
-<li>Latency is zero</li>
-<li>Bandwidth is infinite</li>
-<li>The network is secure</li>
-<li>Topology doesn’t change</li>
-<li>There is one administrator</li>
-<li>Transport cost is zero</li>
-<li>The network is homogeneous</li>
+<li class="fragment">The network is reliable</li>
+<li class="fragment">Latency is zero</li>
+<li class="fragment">Bandwidth is infinite</li>
+<li class="fragment">The network is secure</li>
+<li class="fragment">Topology doesn’t change</li>
+<li class="fragment">There is one administrator</li>
+<li class="fragment">Transport cost is zero</li>
+<li class="fragment">The network is homogeneous</li>
 </ol>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -810,9 +814,9 @@ SI
 <h2>Three Things You’d Want From Any System</h2>
 <p>Before the acronym, the plain-language wants:</p>
 <ul>
-<li><strong>“Give me correct, up-to-date data.”</strong> — you don’t want a system that tells you your bank balance is $500 when it’s actually $0.</li>
-<li><strong>“Always give me <em>an</em> answer.”</strong> — you don’t want a system that just hangs, refusing to respond at all.</li>
-<li><strong>“Keep working even when part of the network breaks.”</strong> — you don’t want the whole system to go down just because two datacenters temporarily can’t talk to each other.</li>
+<li class="fragment"><strong>“Give me correct, up-to-date data.”</strong> — you don’t want a system that tells you your bank balance is $500 when it’s actually $0.</li>
+<li class="fragment"><strong>“Always give me <em>an</em> answer.”</strong> — you don’t want a system that just hangs, refusing to respond at all.</li>
+<li class="fragment"><strong>“Keep working even when part of the network breaks.”</strong> — you don’t want the whole system to go down just because two datacenters temporarily can’t talk to each other.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -845,8 +849,8 @@ SI
 <h2>Consistency, Defined Precisely</h2>
 <p><strong>Consistency</strong> (in CAP): every read returns the most recent successfully written value — or an error. No client ever sees stale or conflicting data.</p>
 <ul>
-<li>Picture every kitchen branch sharing one single, authoritative order book. The instant one branch writes an update, every other branch reading that book sees the update too — instantly, with no lag.</li>
-<li>This is a <strong>strong</strong> guarantee. It is not “eventually correct” — it is “correct right now, every single time you look.”</li>
+<li class="fragment">Picture every kitchen branch sharing one single, authoritative order book. The instant one branch writes an update, every other branch reading that book sees the update too — instantly, with no lag.</li>
+<li class="fragment">This is a <strong>strong</strong> guarantee. It is not “eventually correct” — it is “correct right now, every single time you look.”</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Emphasize “or an error” — a consistent system is allowed to refuse to answer rather than answer with stale data; that detail is exactly what makes consistency-favoring systems (two slides ahead) make sense.</p>
@@ -866,8 +870,8 @@ SI
 <h2>Availability, Defined Precisely</h2>
 <p><strong>Availability</strong> (in CAP): every request to a working node receives a response — the system never simply times out or refuses. That response is <strong>not guaranteed</strong> to reflect the most recent write.</p>
 <ul>
-<li>Picture every kitchen branch always answering the phone and giving <em>some</em> answer to “what’s in my order” — even if that branch hasn’t heard about a change another branch just made.</li>
-<li>This is a weaker promise than it sounds: <strong>“always answers” is not the same as “always answers correctly.”</strong> An available system can be wrong and still be available, as long as it responds.</li>
+<li class="fragment">Picture every kitchen branch always answering the phone and giving <em>some</em> answer to “what’s in my order” — even if that branch hasn’t heard about a change another branch just made.</li>
+<li class="fragment">This is a weaker promise than it sounds: <strong>“always answers” is not the same as “always answers correctly.”</strong> An available system can be wrong and still be available, as long as it responds.</li>
 </ul>
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
@@ -900,8 +904,8 @@ SI
 <h2>Partition Tolerance, Defined Precisely</h2>
 <p><strong>Partition tolerance:</strong> the system continues to operate even when the network splits it into groups that cannot communicate with each other.</p>
 <ul>
-<li>A <strong>network partition</strong> is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.</li>
-<li>“Tolerating” a partition doesn’t mean the partition doesn’t happen — it means the system keeps doing <em>something</em> useful on both sides of the split, rather than simply freezing entirely.</li>
+<li class="fragment">A <strong>network partition</strong> is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.</li>
+<li class="fragment">“Tolerating” a partition doesn’t mean the partition doesn’t happen — it means the system keeps doing <em>something</em> useful on both sides of the split, rather than simply freezing entirely.</li>
 </ul>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -984,9 +988,9 @@ SI
 <h2>Why “CA” Isn’t Really an Option</h2>
 <p>The theorem is often summarized as “pick two of three” — implying CA (Consistency + Availability, no Partition tolerance) is a valid third choice. In practice, it mostly isn’t.</p>
 <ul>
-<li>Choosing “no partition tolerance” means promising the network will never split. At internet scale — many machines, many datacenters, the public internet in between — that promise <strong>will</strong> be broken eventually.</li>
-<li>When it is, a CA system has no principled answer: it wasn’t designed to handle the partition at all.</li>
-<li><strong>In practice, you choose to favor consistency or favor availability</strong> — the real design decision is what happens <em>during</em> a partition, not whether you can avoid partitions altogether.</li>
+<li class="fragment">Choosing “no partition tolerance” means promising the network will never split. At internet scale — many machines, many datacenters, the public internet in between — that promise <strong>will</strong> be broken eventually.</li>
+<li class="fragment">When it is, a CA system has no principled answer: it wasn’t designed to handle the partition at all.</li>
+<li class="fragment"><strong>In practice, you choose to favor consistency or favor availability</strong> — the real design decision is what happens <em>during</em> a partition, not whether you can avoid partitions altogether.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -1020,8 +1024,8 @@ SI
 <p>A distributed order-tracking system has two datacenters, East and West, normally kept in sync. The network between them just went down — a partition.</p>
 <p>A customer in the East datacenter’s region asks: <strong>“What’s the status of my order?”</strong></p>
 <ul>
-<li><strong>Option 1 (favor Consistency):</strong> East checks whether it can confirm its data matches West’s latest state. It can’t — West is unreachable. East returns an error: “Unable to confirm latest status, try again later.”</li>
-<li><strong>Option 2 (favor Availability):</strong> East answers immediately with whatever it has locally — which might be a minute out of date if West processed an update East hasn’t heard about yet.</li>
+<li class="fragment"><strong>Option 1 (favor Consistency):</strong> East checks whether it can confirm its data matches West’s latest state. It can’t — West is unreachable. East returns an error: “Unable to confirm latest status, try again later.”</li>
+<li class="fragment"><strong>Option 2 (favor Availability):</strong> East answers immediately with whatever it has locally — which might be a minute out of date if West processed an update East hasn’t heard about yet.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -1054,9 +1058,9 @@ SI
 <h2>Consistency-Favoring Systems: When in Doubt, Refuse to Answer</h2>
 <p><strong>Consistency-favoring systems</strong> sacrifice availability during a partition — they’d rather give no answer than a possibly-wrong one.</p>
 <ul>
-<li>Traditional relational databases (PostgreSQL, MySQL, in their typical single-primary configurations)</li>
-<li>HBase, ZooKeeper</li>
-<li>Anywhere being <em>wrong</em> is worse than being <em>unavailable</em> — financial transactions, inventory counts that must never oversell, coordination systems other services depend on for correctness</li>
+<li class="fragment">Traditional relational databases (PostgreSQL, MySQL, in their typical single-primary configurations)</li>
+<li class="fragment">HBase, ZooKeeper</li>
+<li class="fragment">Anywhere being <em>wrong</em> is worse than being <em>unavailable</em> — financial transactions, inventory counts that must never oversell, coordination systems other services depend on for correctness</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Tie directly back to the hospital half of the previous slide’s callout — “refuse to answer” is the right instinct exactly when a wrong answer could cause real harm.</p>
@@ -1076,9 +1080,9 @@ SI
 <h2>Availability-Favoring Systems: When in Doubt, Answer Anyway</h2>
 <p><strong>Availability-favoring systems</strong> sacrifice strict consistency during a partition — they’d rather give a possibly-stale answer than no answer at all.</p>
 <ul>
-<li>Cassandra, DynamoDB, CouchDB</li>
-<li>DNS — described further in Session 4</li>
-<li>Anywhere being <em>unavailable</em> is worse than being briefly <em>out of date</em> — a shopping cart, a social media feed, a “likes” counter</li>
+<li class="fragment">Cassandra, DynamoDB, CouchDB</li>
+<li class="fragment">DNS — described further in Session 4</li>
+<li class="fragment">Anywhere being <em>unavailable</em> is worse than being briefly <em>out of date</em> — a shopping cart, a social media feed, a “likes” counter</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Tie back to the social-media half of the previous slide’s callout — nobody is harmed if a like count is off by a few for a minute, but a shopping cart that refuses to load loses the sale outright.</p>
@@ -1289,9 +1293,9 @@ SI
 <h2>The Incident: Setting the Scene</h2>
 <p>In October 2018, GitHub — a service used by millions of developers daily — experienced a major outage affecting the accuracy and availability of data for roughly 24 hours.</p>
 <ul>
-<li>GitHub’s database infrastructure spans multiple physical datacenters on the US East and West coasts, kept in sync so that any datacenter can serve requests with up-to-date data.</li>
-<li>The trigger was small: a routine piece of network maintenance caused a <strong>brief network partition</strong> — on the order of tens of seconds — between two of their East Coast facilities.</li>
-<li>A partition lasting under a minute ended up causing a day-long incident. That gap between cause and consequence is exactly what today is about.</li>
+<li class="fragment">GitHub’s database infrastructure spans multiple physical datacenters on the US East and West coasts, kept in sync so that any datacenter can serve requests with up-to-date data.</li>
+<li class="fragment">The trigger was small: a routine piece of network maintenance caused a <strong>brief network partition</strong> — on the order of tens of seconds — between two of their East Coast facilities.</li>
+<li class="fragment">A partition lasting under a minute ended up causing a day-long incident. That gap between cause and consequence is exactly what today is about.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Don’t reveal the split-brain mechanism yet — the whole point of the next few slides is to have students reason toward it themselves.</p>
@@ -1311,9 +1315,9 @@ SI
 <h2>The Trigger: A Brief Network Partition</h2>
 <p>For those tens of seconds, part of GitHub’s database cluster on the East Coast could not communicate with the rest of the cluster.</p>
 <ul>
-<li>GitHub’s database system is designed with automatic failover: if the primary database (the one accepting writes) becomes unreachable, the system can automatically promote a different copy to become the new primary.</li>
-<li>That’s a reasonable design — it’s meant to preserve availability during exactly this kind of network hiccup.</li>
-<li>But automatic failover during a partition is precisely the scenario Session 2 warned about: <strong>both sides of a partition might independently believe they are now in charge.</strong></li>
+<li class="fragment">GitHub’s database system is designed with automatic failover: if the primary database (the one accepting writes) becomes unreachable, the system can automatically promote a different copy to become the new primary.</li>
+<li class="fragment">That’s a reasonable design — it’s meant to preserve availability during exactly this kind of network hiccup.</li>
+<li class="fragment">But automatic failover during a partition is precisely the scenario Session 2 warned about: <strong>both sides of a partition might independently believe they are now in charge.</strong></li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Let this slide’s last line sit — it’s a direct setup for the next discussion prompt.</p>
@@ -1363,9 +1367,9 @@ SI
 <h2>What Actually Happened: Split-Brain</h2>
 <p>This exact scenario is called <strong>split-brain</strong>: two nodes, each convinced it is the sole authority, both accepting writes independently.</p>
 <ul>
-<li>During those tens of seconds, a small number of writes were accepted by <strong>both</strong> the original primary and the newly promoted one — each unaware of the other’s writes.</li>
-<li>When the partition healed, GitHub’s systems had <strong>two divergent versions of recent data</strong>, and no automatic way to know which write in each conflicting pair was the “real” one.</li>
-<li>This is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.</li>
+<li class="fragment">During those tens of seconds, a small number of writes were accepted by <strong>both</strong> the original primary and the newly promoted one — each unaware of the other’s writes.</li>
+<li class="fragment">When the partition healed, GitHub’s systems had <strong>two divergent versions of recent data</strong>, and no automatic way to know which write in each conflicting pair was the “real” one.</li>
+<li class="fragment">This is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.</li>
 </ul>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -1427,8 +1431,8 @@ SI
 <h2>The Recovery: Choosing Consistency</h2>
 <p>Once GitHub discovered the divergent data, they faced the same fork in the road as Session 2’s worked scenario — except now with real, already-written, conflicting data.</p>
 <ul>
-<li>They chose <strong>consistency over availability</strong> for the recovery: rather than guess which conflicting writes were correct (or serve stale/wrong data), they took the affected systems partially offline and manually reconciled the data.</li>
-<li>This is why a network issue lasting under a minute produced an outage lasting <strong>around 24 hours</strong> — the partition itself was brief, but restoring a trustworthy, consistent state took far longer than the failure that caused the mess.</li>
+<li class="fragment">They chose <strong>consistency over availability</strong> for the recovery: rather than guess which conflicting writes were correct (or serve stale/wrong data), they took the affected systems partially offline and manually reconciled the data.</li>
+<li class="fragment">This is why a network issue lasting under a minute produced an outage lasting <strong>around 24 hours</strong> — the partition itself was brief, but restoring a trustworthy, consistent state took far longer than the failure that caused the mess.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> Emphasize the asymmetry: the trigger was seconds, the consequence was a day. That gap is the single most important fact of the whole case study to remember.</p>
@@ -1477,8 +1481,8 @@ SI
 <h2>Connecting to the Fallacies</h2>
 <p>Look back at Session 1’s eight fallacies of distributed computing. Which ones does this incident illustrate?</p>
 <ul>
-<li><strong>“The network is reliable”</strong> — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.</li>
-<li><strong>“Topology doesn’t change”</strong> — the automatic failover mechanism existed <em>because</em> the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.</li>
+<li class="fragment"><strong>“The network is reliable”</strong> — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.</li>
+<li class="fragment"><strong>“Topology doesn’t change”</strong> — the automatic failover mechanism existed <em>because</em> the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -1511,9 +1515,9 @@ SI
 <h2>Small-Group Exercise: Diagnose Your Own Scenario</h2>
 <p>In groups of 3–4, pick <strong>one</strong> of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?</p>
 <ol type="1">
-<li><strong>A ride-sharing app’s driver-location service</strong> loses connection between two regional servers for 30 seconds.</li>
-<li><strong>A university’s course-registration system</strong> briefly can’t confirm seat counts are in sync across two servers during peak registration.</li>
-<li><strong>A multiplayer game’s leaderboard</strong> can’t sync scores between two regions for a few minutes during a network blip.</li>
+<li class="fragment"><strong>A ride-sharing app’s driver-location service</strong> loses connection between two regional servers for 30 seconds.</li>
+<li class="fragment"><strong>A university’s course-registration system</strong> briefly can’t confirm seat counts are in sync across two servers during peak registration.</li>
+<li class="fragment"><strong>A multiplayer game’s leaderboard</strong> can’t sync scores between two regions for a few minutes during a network blip.</li>
 </ol>
 <p>Be ready to defend your choice to the class — including what you’d do differently from GitHub’s approach, if anything.</p>
 <aside class="notes">
@@ -1653,9 +1657,9 @@ SI
 <h2>The Client-Server Model</h2>
 <p>The most common shape of communication between two machines: one asks, one answers.</p>
 <ul>
-<li>The <strong>client</strong> initiates a request. Your laptop’s browser, your phone’s app — these are clients.</li>
-<li>The <strong>server</strong> receives the request, does whatever work is needed, and sends back a response. A kitchen branch answering the phone is the server; the customer calling in is the client.</li>
-<li>Crucially: <strong>the client always initiates.</strong> A server doesn’t call you out of the blue to tell you your order is ready — you have to ask.</li>
+<li class="fragment">The <strong>client</strong> initiates a request. Your laptop’s browser, your phone’s app — these are clients.</li>
+<li class="fragment">The <strong>server</strong> receives the request, does whatever work is needed, and sends back a response. A kitchen branch answering the phone is the server; the customer calling in is the client.</li>
+<li class="fragment">Crucially: <strong>the client always initiates.</strong> A server doesn’t call you out of the blue to tell you your order is ready — you have to ask.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -1688,9 +1692,9 @@ SI
 <h2>Not Every Server Is Only a Server</h2>
 <p>Real systems are rarely just “one client, one server” — they’re chains.</p>
 <ul>
-<li>When your browser asks a web server for a page, that web server might itself act as a <strong>client</strong> to a database server, asking it for the data needed to build the page.</li>
-<li>Distributed systems are often long chains of client-server relationships: browser → web server → application server → database — each link in the chain plays “client” to the one after it, and “server” to the one before it.</li>
-<li>This is why “client” and “server” describe a <strong>role in a specific interaction</strong>, not a permanent label on a machine.</li>
+<li class="fragment">When your browser asks a web server for a page, that web server might itself act as a <strong>client</strong> to a database server, asking it for the data needed to build the page.</li>
+<li class="fragment">Distributed systems are often long chains of client-server relationships: browser → web server → application server → database — each link in the chain plays “client” to the one after it, and “server” to the one before it.</li>
+<li class="fragment">This is why “client” and “server” describe a <strong>role in a specific interaction</strong>, not a permanent label on a machine.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Worth a quick concrete trace: “when you load Netflix’s homepage, how many client-server hops do you think happen before you see a single thumbnail?” — no need for a precise answer, just to loosen the assumption that it’s always exactly one hop.</p>
@@ -1710,9 +1714,9 @@ SI
 <h2>The Journey of a URL — Step 1: The Address Book (DNS)</h2>
 <p>You type <code>www.example.com</code> into your browser. The very first problem: <strong>that’s a name, not an address.</strong> Computers on a network find each other using numeric addresses (IP addresses), not human-friendly names.</p>
 <ul>
-<li><strong>DNS (Domain Name System)</strong> is the internet’s address book — it translates a human-readable name like <code>www.example.com</code> into a numeric address like <code>93.184.216.34</code>.</li>
-<li>Kitchen picture: you know the <em>name</em> of a restaurant branch, not its phone number. DNS is the phone directory you look the name up in before you can actually call.</li>
-<li>This lookup happens automatically, in milliseconds, before your browser can even attempt to contact the server.</li>
+<li class="fragment"><strong>DNS (Domain Name System)</strong> is the internet’s address book — it translates a human-readable name like <code>www.example.com</code> into a numeric address like <code>93.184.216.34</code>.</li>
+<li class="fragment">Kitchen picture: you know the <em>name</em> of a restaurant branch, not its phone number. DNS is the phone directory you look the name up in before you can actually call.</li>
+<li class="fragment">This lookup happens automatically, in milliseconds, before your browser can even attempt to contact the server.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> No need to go deep into DNS internals (recursive resolvers, caching, etc.) — the one idea to land is “names have to be translated to addresses before anything else can happen.”</p>
@@ -1732,8 +1736,8 @@ SI
 <h2>Step 2: Opening the Line (TCP Connection)</h2>
 <p>With the numeric address in hand, your browser opens a connection to that machine.</p>
 <ul>
-<li>This is like the phone actually starting to ring at the other end — a <strong>connection</strong> is established between your machine and the server, over which data can now flow in both directions.</li>
-<li>We won’t go deep into how this connection is established (that’s networking-course territory) — the one thing to know is that it happens <strong>before</strong> any actual request is sent, and it can itself fail (recall Session 1: the line can be slow to open, or fail to open at all).</li>
+<li class="fragment">This is like the phone actually starting to ring at the other end — a <strong>connection</strong> is established between your machine and the server, over which data can now flow in both directions.</li>
+<li class="fragment">We won’t go deep into how this connection is established (that’s networking-course territory) — the one thing to know is that it happens <strong>before</strong> any actual request is sent, and it can itself fail (recall Session 1: the line can be slow to open, or fail to open at all).</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Deliberately light-touch — no TCP handshake details, no OS/networking vocabulary. The goal is just to have a named step between “found the address” and “sent the request,” not to teach networking.</p>
@@ -1753,9 +1757,9 @@ SI
 <h2>Step 3: Sending the Request</h2>
 <p>With the line open, your browser sends an actual <strong>request</strong> — a structured message asking for something specific.</p>
 <ul>
-<li>The request names what’s being asked for (which page, which resource) and how (more on this in a moment).</li>
-<li>Kitchen picture: the call has connected, and now you actually place your order — not just “hello,” but “I’d like the Tuesday special, extra large.”</li>
-<li>The request travels across the network to the server — and, as Session 1 established, that trip is not instant and not guaranteed.</li>
+<li class="fragment">The request names what’s being asked for (which page, which resource) and how (more on this in a moment).</li>
+<li class="fragment">Kitchen picture: the call has connected, and now you actually place your order — not just “hello,” but “I’d like the Tuesday special, extra large.”</li>
+<li class="fragment">The request travels across the network to the server — and, as Session 1 established, that trip is not instant and not guaranteed.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This is the natural moment to plant “the request has a <em>format</em>” without fully teaching HTTP yet — that’s two slides away, after the response side of the story is told first.</p>
@@ -1775,9 +1779,9 @@ SI
 <h2>Step 4: The Server Does the Work</h2>
 <p>The server receives the request and does whatever is needed to fulfill it.</p>
 <ul>
-<li>This might be as simple as reading a file off disk, or as complex as querying a database, running a computation, or — per the previous slide’s chain idea — becoming a <em>client</em> itself to another server.</li>
-<li>How long this takes varies enormously: a cached, simple page might take milliseconds; a page that requires a complex database query might take much longer.</li>
-<li>Kitchen picture: the branch has your order, and is now actually cooking it — this is the part of the phone call where you’re on hold.</li>
+<li class="fragment">This might be as simple as reading a file off disk, or as complex as querying a database, running a computation, or — per the previous slide’s chain idea — becoming a <em>client</em> itself to another server.</li>
+<li class="fragment">How long this takes varies enormously: a cached, simple page might take milliseconds; a page that requires a complex database query might take much longer.</li>
+<li class="fragment">Kitchen picture: the branch has your order, and is now actually cooking it — this is the part of the phone call where you’re on hold.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Brief — the mechanics of server-side processing aren’t this course’s focus; the point is just naming this as a distinct step with its own variable duration.</p>
@@ -1797,9 +1801,9 @@ SI
 <h2>Step 5: The Response Comes Back</h2>
 <p>Once the work is done, the server sends a <strong>response</strong> back across the same connection — the requested data, plus information about whether the request succeeded.</p>
 <ul>
-<li>Kitchen picture: the branch calls back with your order — “here it is,” or “sorry, we’re out of that.”</li>
-<li>Your browser receives the response and <strong>renders</strong> it — turning the raw data into the page you actually see.</li>
-<li>This is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.</li>
+<li class="fragment">Kitchen picture: the branch calls back with your order — “here it is,” or “sorry, we’re out of that.”</li>
+<li class="fragment">Your browser receives the response and <strong>renders</strong> it — turning the raw data into the page you actually see.</li>
+<li class="fragment">This is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1’s failure catalogue.</p>
@@ -1862,8 +1866,8 @@ SI
 <h2>HTTP: The Standard Order Form</h2>
 <p>Step 4 (sending a request) and step 6 (sending a response) both need to happen in a format <strong>both sides agree on</strong> — otherwise the server couldn’t understand the request, or the browser couldn’t understand the response.</p>
 <ul>
-<li><strong>HTTP (HyperText Transfer Protocol)</strong> is that agreed-upon format. It’s a set of rules both client and server follow for how requests and responses are structured.</li>
-<li>Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.</li>
+<li class="fragment"><strong>HTTP (HyperText Transfer Protocol)</strong> is that agreed-upon format. It’s a set of rules both client and server follow for how requests and responses are structured.</li>
+<li class="fragment">Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -2068,9 +2072,9 @@ SI
 <section id="what-makes-an-api-restful" class="slide level2">
 <h2>What Makes an API “RESTful”?</h2>
 <ul>
-<li><strong>Resources have URLs.</strong> Every “thing” the API exposes — a user, an order, a book — is identified by a URL, e.g.&nbsp;<code>/users/42</code> or <code>/orders/17</code>.</li>
-<li><strong>The verb says what to do; the URL says what to do it to.</strong> <code>GET /users/42</code> reads user 42. <code>DELETE /orders/17</code> removes order 17. Same verbs from Session 4, now paired with specific resource URLs.</li>
-<li><strong>One API, many endpoints.</strong> A single REST API commonly exposes many different URLs for different resources — <code>/users</code>, <code>/orders</code>, <code>/products</code> might all live under the same API.</li>
+<li class="fragment"><strong>Resources have URLs.</strong> Every “thing” the API exposes — a user, an order, a book — is identified by a URL, e.g.&nbsp;<code>/users/42</code> or <code>/orders/17</code>.</li>
+<li class="fragment"><strong>The verb says what to do; the URL says what to do it to.</strong> <code>GET /users/42</code> reads user 42. <code>DELETE /orders/17</code> removes order 17. Same verbs from Session 4, now paired with specific resource URLs.</li>
+<li class="fragment"><strong>One API, many endpoints.</strong> A single REST API commonly exposes many different URLs for different resources — <code>/users</code>, <code>/orders</code>, <code>/products</code> might all live under the same API.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> This slide directly matches Quiz 2’s REST-structure question — “identified by a URL and an HTTP method” and “a single API can expose multiple endpoints” are both verbatim-testable ideas here.</p>
@@ -2090,8 +2094,8 @@ SI
 <h2>Statelessness</h2>
 <p><strong>REST is stateless:</strong> each request must contain everything the server needs to understand and fulfill it. The server does not remember anything about you between requests.</p>
 <ul>
-<li>Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
-<li>This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
+<li class="fragment">Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
+<li class="fragment">This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
@@ -2126,9 +2130,9 @@ SI
 Host: api.example.com
 Accept: application/json</code></pre>
 <ul>
-<li><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
-<li><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
-<li>Some requests (like <code>POST</code> or <code>PUT</code>) also include a <strong>body</strong> — the actual data being sent, e.g.&nbsp;the details of a new order to create.</li>
+<li class="fragment"><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
+<li class="fragment"><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
+<li class="fragment">Some requests (like <code>POST</code> or <code>PUT</code>) also include a <strong>body</strong> — the actual data being sent, e.g.&nbsp;the details of a new order to create.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep headers light — <code>Host</code> and <code>Accept</code> are enough to establish “headers carry metadata,” without a full catalogue of HTTP headers.</p>
@@ -2151,9 +2155,9 @@ Content-Type: application/json
 
 {"id": 42, "name": "Alice", "email": "alice@example.com"}</code></pre>
 <ul>
-<li><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
-<li><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
-<li><strong>Body:</strong> the actual data requested.</li>
+<li class="fragment"><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
+<li class="fragment"><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
+<li class="fragment"><strong>Body:</strong> the actual data requested.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Point out explicitly: <code>Content-Type</code> is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers.</p>
@@ -2246,9 +2250,9 @@ Content-Type: application/json
 <span id="cb4-8"><a></a>  <span class="fu">}</span></span>
 <span id="cb4-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
-<li>Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
-<li>This is the near-universal body format for REST API responses, which is exactly why <code>Content-Type: application/json</code> matters — it tells you this is the format to expect.</li>
+<li class="fragment"><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
+<li class="fragment">Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
+<li class="fragment">This is the near-universal body format for REST API responses, which is exactly why <code>Content-Type: application/json</code> matters — it tells you this is the format to expect.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Point out the nesting explicitly — <code>tags</code> is an array <em>inside</em> an object, which is itself the value of <code>"book"</code> — reading nested JSON correctly is exactly what Checkpoint 2 requires.</p>
@@ -2295,9 +2299,9 @@ Content-Type: application/json
 <section id="why-industry-uses-rest-everywhere" class="slide level2">
 <h2>Why Industry Uses REST Everywhere</h2>
 <ul>
-<li><strong>Universality:</strong> any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.</li>
-<li><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
-<li><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
+<li class="fragment"><strong>Universality:</strong> any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.</li>
+<li class="fragment"><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
+<li class="fragment"><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
 </ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">

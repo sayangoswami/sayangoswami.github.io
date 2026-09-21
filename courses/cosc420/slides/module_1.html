@@ -2654,16 +2654,16 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <span id="cb13-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb13-3"><a></a></span>
 <span id="cb13-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb13-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span>   <span class="co">// is this line safe?</span></span>
+<span id="cb13-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span> </span>
 <span id="cb13-6"><a></a>    <span class="op">}</span></span>
 <span id="cb13-7"><a></a></span>
 <span id="cb13-8"><a></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getTotal</span><span class="op">()</span> <span class="op">{</span></span>
 <span id="cb13-9"><a></a>        <span class="cf">return</span> total<span class="op">;</span></span>
 <span id="cb13-10"><a></a>    <span class="op">}</span></span>
 <span id="cb13-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Two threads both call <code>add(5)</code> on the <strong>same</strong> <code>Counter</code> object, 1,000 times each, at the same time.</p>
+<!-- Two threads both call `add(5)` on the **same** `Counter` object, 1,000 times each, at the same time. -->
 <div class="fragment">
-<p><strong>With a partner (2–3 min):</strong> is <code>add()</code> safe to call from multiple threads at once? If not, name the exact three-step breakdown (Session 3) that causes the problem here.</p>
+<p><strong>With a partner (2–3 min):</strong> Name the exact three-step breakdown (Session 3) that causes the problem here.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min including pair discussion.</strong> Don’t reveal the answer yet — let pairs actually argue about it first.</p>
 <style type="text/css">
@@ -2681,7 +2681,7 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 </section>
 <section id="practice-1-solution" class="slide level2">
 <h2>Practice 1: Solution</h2>
-<p><strong>No — <code>add()</code> is not thread-safe.</strong> <code>total = total + amount</code> is a read-modify-write, exactly like <code>counter++</code> in Session 3:</p>
+<p><strong><code>add()</code> is not thread-safe.</strong> <code>total = total + amount</code> is a read-modify-write, exactly like <code>counter++</code> in Session 3:</p>
 <ol type="1">
 <li class="fragment"><strong>Read</strong> the current value of <code>total</code>.</li>
 <li class="fragment"><strong>Modify</strong> it — compute <code>total + amount</code>.</li>
@@ -2874,7 +2874,7 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <p><strong>Quiz 1 — Module 1: Concurrency</strong> is now open on Blackboard.</p>
 <ul>
 <li>Multiple choice / true-false, covering Sessions 1–5</li>
-<li>You have the remainder of class time</li>
+<li><em>Closed book, closed notes, no collaboration</em> - <strong>Honor Code applies</strong></li>
 <li>Everything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready</li>
 </ul>
 <p><strong>Connects to:</strong> Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12</p>
