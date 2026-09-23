@@ -548,6 +548,116 @@ function initBlock(block) {
   let processingInstance = null;
   let looping = true;
 
+  // Processing.js derives mouseX/mouseY from pageX minus the offsetLeft/offsetTop
+  // chain, which ignores CSS transforms (reveal.js scales every slide) and the
+  // CSS resize of the canvas below — so the coordinates drift. Record the pointer
+  // in the capture phase (before Processing's own canvas handlers run), then remap
+  // Processing's writes to mouseX/mouseY into sketch coordinates.
+  let lastPointer = null;
+  const canvasWrap = block.querySelector('.jr-canvas-wrap');
+  if (canvasWrap) {
+    ['mousemove', 'mouseover', 'mousedown', 'mouseup', 'touchstart', 'touchmove'].forEach(evt => {
+      canvasWrap.addEventListener(evt, e => {
+        lastPointer = e.touches ? (e.touches[0] || lastPointer) : e;
+      }, { capture: true, passive: true });
+    });
+  }
+
+  // Processing.js drops Java's static types, so `int n = mouseX / 100;` keeps
+  // the fraction (0.5 instead of 0). Restore Java's truncation for values
+  // stored in `int` variables by wrapping their initialisers/assignments in
+  // (int)(...), which Processing.js compiles to __int_cast (0|x, like Java).
+  // Division used directly inside a larger expression is not covered.
+  function javaIntSemantics(src) {
+    // Blank out comments and string/char literals so they are never rewritten.
+    let masked = '';
+    for (let i = 0; i < src.length; ) {
+      const two = src.slice(i, i + 2);
+      let end = i + 1;
+      if (two === '//') { end = src.indexOf('\n', i); if (end < 0) end = src.length; }
+      else if (two === '/*') { end = src.indexOf('*/', i + 2); end = end < 0 ? src.length : end + 2; }
+      else if (src[i] === '"' || src[i] === "'") {
+        while (end < src.length && src[end] !== src[i] && src[end] !== '\n') end += src[end] === '\\' ? 2 : 1;
+        end = Math.min(end + 1, src.length);
+      } else { masked += src[i++]; continue; }
+      masked += src.slice(i, end).replace(/[^\n]/g, ' ');
+      i = end;
+    }
+
+    // End of an expression: the first , ; or unmatched closing bracket.
+    const exprEnd = from => {
+      let depth = 0, i = from;
+      for (; i < masked.length; i++) {
+        const c = masked[i];
+        if ('([{'.includes(c)) depth++;
+        else if (')]}'.includes(c)) { if (depth-- === 0) break; }
+        else if ((c === ',' || c === ';') && depth === 0) break;
+      }
+      return i;
+    };
+
+    const edits = [];
+    const intNames = new Set(), otherNames = new Set();
+    const ident = /\s*([A-Za-z_]\w*)\s*(=(?!=))?/y;
+
+    // int declarations, including lists like `int a = x / 2, b;`
+    const declRe = /\bint\s+(?=[A-Za-z_])/g;
+    for (let m; (m = declRe.exec(masked)); ) {
+      let pos = m.index + m[0].length;
+      for (;;) {
+        ident.lastIndex = pos;
+        const d = ident.exec(masked);
+        if (!d || !/^\s*[=,;)]/.test(masked.slice(d.index + d[0].length - (d[2] ? 1 : 0)))) break;
+        intNames.add(d[1]);
+        pos = d.index + d[0].length;
+        if (d[2]) {
+          const end = exprEnd(pos);
+          if (masked.slice(pos, end).includes('/')) edits.push({ start: pos, end, text: '(int)(' + src.slice(pos, end) + ')' });
+          pos = end;
+        }
+        if (masked[pos] !== ',') break;
+        pos++;
+      }
+    }
+    const otherRe = /\b(?:float|double|long|short|byte|char|boolean|color|String)\s+([A-Za-z_]\w*)/g;
+    for (let m; (m = otherRe.exec(masked)); ) otherNames.add(m[1]);
+
+    // Later assignments to those int variables: `n = expr;` and `n op= expr;`
+    const assignRe = /(^|[^\w.$])([A-Za-z_]\w*)\s*([-+*\/%]?)=(?!=)/g;
+    for (let m; (m = assignRe.exec(masked)); ) {
+      const name = m[2], op = m[3];
+      if (!intNames.has(name) || otherNames.has(name)) continue;
+      const start = m.index + m[1].length, rhs = m.index + m[0].length;
+      if (edits.some(e => start < e.end && rhs >= e.start)) continue; // already a declaration
+      const end = exprEnd(rhs);
+      if (op) edits.push({ start, end, text: name + ' = (int)(' + name + ' ' + op + ' (' + src.slice(rhs, end) + '))' });
+      else if (masked.slice(rhs, end).includes('/')) edits.push({ start: rhs, end, text: '(int)(' + src.slice(rhs, end) + ')' });
+    }
+
+    edits.sort((a, b) => b.start - a.start);
+    let out = src;
+    for (const e of edits) out = out.slice(0, e.start) + e.text + out.slice(e.end);
+    return out;
+  }
+
+  function fixMouseCoords(p, canvas) {
+    ['mouseX', 'mouseY'].forEach(prop => {
+      const isX = prop === 'mouseX';
+      let value = p[prop];
+      Object.defineProperty(p, prop, {
+        configurable: true, enumerable: true,
+        get: () => value,
+        set: raw => {
+          const r = canvas.getBoundingClientRect();
+          if (!lastPointer || !r.width || !r.height) { value = raw; return; }
+          value = isX
+            ? Math.floor((lastPointer.clientX - r.left) * p.width  / r.width)
+            : Math.floor((lastPointer.clientY - r.top)  * p.height / r.height);
+        }
+      });
+    });
+  }
+
   runBtn.addEventListener('click', async () => {
     const code = editor ? editor.state.doc.toString().trim() : '';
     if (!code) return;
@@ -569,9 +679,9 @@ function initBlock(block) {
       if (pauseBtn) { pauseBtn.disabled = true; pauseBtn.textContent = '⏸ Pause'; pauseBtn.setAttribute('aria-pressed','false'); }
 
       const canvas     = block.querySelector('canvas');
-      const canvasWrap = block.querySelector('.jr-canvas-wrap');
       try {
-        processingInstance = new Processing(canvas, code);
+        processingInstance = new Processing(canvas, javaIntSemantics(code));
+        fixMouseCoords(processingInstance, canvas);
         canvasWrap.style.display = 'flex';
 
         // After Processing runs size(), fit canvas width to the container

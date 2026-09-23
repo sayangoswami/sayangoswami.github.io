@@ -795,6 +795,7 @@ SI
 <section id="recap-last-time-we-broke-everything" class="slide level2">
 <h2>Recap: Last Time We Broke Everything</h2>
 <p>Session 1’s punchline: networks are unreliable, nodes fail independently, and there’s no shared clock. None of that is fixable.</p>
+<div class="fragment">
 <p>Given all of that is permanently true, a real system still has to make <em>some</em> promise to its users. The CAP theorem is a precise statement about exactly which promises you can make <strong>at the same time</strong> — and which you can’t.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Brief bridge — the whole session is really “here’s the formal shape of the tradeoff Session 1 kept gesturing at.”</p>
@@ -809,6 +810,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="three-things-youd-want-from-any-system" class="slide level2">
 <h2>Three Things You’d Want From Any System</h2>
@@ -818,6 +820,7 @@ SI
 <li class="fragment"><strong>“Always give me <em>an</em> answer.”</strong> — you don’t want a system that just hangs, refusing to respond at all.</li>
 <li class="fragment"><strong>“Keep working even when part of the network breaks.”</strong> — you don’t want the whole system to go down just because two datacenters temporarily can’t talk to each other.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -844,6 +847,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="consistency-defined-precisely" class="slide level2">
 <h2>Consistency, Defined Precisely</h2>
@@ -873,6 +877,7 @@ SI
 <li class="fragment">Picture every kitchen branch always answering the phone and giving <em>some</em> answer to “what’s in my order” — even if that branch hasn’t heard about a change another branch just made.</li>
 <li class="fragment">This is a weaker promise than it sounds: <strong>“always answers” is not the same as “always answers correctly.”</strong> An available system can be wrong and still be available, as long as it responds.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -899,27 +904,24 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="partition-tolerance-defined-precisely" class="slide level2">
 <h2>Partition Tolerance, Defined Precisely</h2>
 <p><strong>Partition tolerance:</strong> the system continues to operate even when the network splits it into groups that cannot communicate with each other.</p>
-<ul>
-<li class="fragment">A <strong>network partition</strong> is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.</li>
-<li class="fragment">“Tolerating” a partition doesn’t mean the partition doesn’t happen — it means the system keeps doing <em>something</em> useful on both sides of the split, rather than simply freezing entirely.</li>
-</ul>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+
+<img data-src="diags/network-partition.svg" alt="Two clusters of kitchen-branch icons, separated by a jagged lightning-bolt break across a dashed line labeled 'Network Partition.' Each cluster has solid lines connecting its branches internally, but no lines cross the break." class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>A <strong>network partition</strong> is what happens when the phone lines between two groups of kitchen branches go dead — branches within a group can still talk to each other, but the two groups are cut off from one another.</p>
 </div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt break drawn across a dashed line separating the two clusters, labeled “Network Partition.” Within each cluster, branches are still connected to each other by solid lines (they can talk internally); no lines cross the break. Caption: “Both sides are still alive. Neither side can hear the other.”</p>
+<div class="fragment fade-in-then-out">
+<p>“Tolerating” a partition doesn’t mean the partition doesn’t happen — it means the system keeps doing <em>something</em> useful on both sides of the split, rather than simply freezing entirely.</p>
 </div>
 </div>
-</div>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt break drawn across a dashed line separating the two clusters, labeled "Network Partition." Within each cluster, branches are still connected to each other by solid lines (they can talk internally); no lines cross the break. Caption: "Both sides are still alive. Neither side can hear the other."
+::: -->
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Get the diagram description across verbally even without the drawn version yet — “two groups, each internally fine, cut off from each other” is the exact picture the CAP theorem’s “P” is about.</p>
 <style type="text/css">
@@ -957,6 +959,7 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -983,6 +986,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="why-ca-isnt-really-an-option" class="slide level2">
 <h2>Why “CA” Isn’t Really an Option</h2>
@@ -992,6 +996,7 @@ SI
 <li class="fragment">When it is, a CA system has no principled answer: it wasn’t designed to handle the partition at all.</li>
 <li class="fragment"><strong>In practice, you choose to favor consistency or favor availability</strong> — the real design decision is what happens <em>during</em> a partition, not whether you can avoid partitions altogether.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1018,6 +1023,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="worked-scenario-a-partition-happens" class="slide level2">
 <h2>Worked Scenario: A Partition Happens</h2>
@@ -1027,6 +1033,7 @@ SI
 <li class="fragment"><strong>Option 1 (favor Consistency):</strong> East checks whether it can confirm its data matches West’s latest state. It can’t — West is unreachable. East returns an error: “Unable to confirm latest status, try again later.”</li>
 <li class="fragment"><strong>Option 2 (favor Availability):</strong> East answers immediately with whatever it has locally — which might be a minute out of date if West processed an update East hasn’t heard about yet.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1053,6 +1060,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="consistency-favoring-systems-when-in-doubt-refuse-to-answer" class="slide level2">
 <h2>Consistency-Favoring Systems: When in Doubt, Refuse to Answer</h2>
@@ -1143,6 +1151,7 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1169,6 +1178,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="wrap-bridge-to-the-case-study" class="slide level2">
 <h2>Wrap: Bridge to the Case Study</h2>
