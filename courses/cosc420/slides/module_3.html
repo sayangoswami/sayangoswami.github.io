@@ -604,18 +604,22 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="odd">
-<td>Why This Scales</td>
+<td>Pause &amp; Discuss: Average, Not Count</td>
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Why This Scales</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>What the Framework Handles For You</td>
 <td>2 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Checkpoint 3 Preview</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Lab 4 Preview</td>
 <td>2 min</td>
 </tr>
@@ -848,6 +852,47 @@ the fox jumped over the lazy dog</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-average-not-count" class="slide level2">
+<h2>Pause &amp; Discuss: Average, Not Count</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>The capstone’s ratings data has one line per rating:</p>
+<pre><code>userId,movieId,rating
+1,31,2.5
+1,1029,3.0
+7,31,4.0</code></pre>
+<p>You want the <strong>average rating for each movie</strong>. What should <code>map()</code> emit? What does <code>reduce()</code> do with each movie’s list of values?</p>
+<p><strong>Harder follow-up:</strong> to cut shuffle traffic, a teammate suggests that each machine first computes a <em>local</em> average per movie, and then the reducer averages those averages. Does that give the right answer?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><code>map</code>: <code>emit(movieId, rating)</code>. Same shape as word count and sales-per-region.</li>
+<li><code>reduce</code>: <code>emit(movieId, sum(values) / len(values))</code>. In the example, movie 31 gets <code>[2.5, 4.0]</code> → <code>3.25</code>.</li>
+<li><strong>Follow-up: no.</strong> Averaging averages is wrong whenever the groups are different sizes. Say machine 1 has movie 31’s ratings <code>[5, 5, 5, 5]</code> (average 5) and machine 2 has <code>[1]</code> (average 1). The average of averages is 3, but the true average is 16 / 5 = 3.2. <strong>Fix:</strong> each machine sends a <code>(sum, count)</code> pair per movie, and the reducer adds up the sums and counts and divides once at the end. Sums and counts can be combined early; averages can’t. Spark’s <code>avg()</code> (Module 4) does exactly this for you.</li>
+</ul>
+<p>This sets up the next slide: the teammate’s instinct (shrink what crosses the network) is right. Only the math was wrong.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="why-this-scales" class="slide level2">
 <h2>Why This Scales</h2>
 <p>Module 2 put it this way: <em>“a distributed system grows by adding more machines, not by buying an impossibly bigger one.”</em> That’s called <strong>scaling out</strong> (add more machines) as opposed to <strong>scaling up</strong> (buy one bigger machine) — MapReduce is the mechanism that makes scaling out actually work for processing, not just storage.</p>
@@ -989,26 +1034,30 @@ the fox jumped over the lazy dog</code></pre>
 <td>3 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: What Happens When a Machine Dies?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>YARN: Who Actually Runs the Job?</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>A MapReduce Job in Practice</td>
 <td>3 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>From MapReduce to Spark</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Lab 5 Preview</td>
 <td>2 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Midterm Exam Preview</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Module 3 Summary</td>
 <td>3 min</td>
 </tr>
@@ -1164,6 +1213,44 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> HDFS was designed for exactly the workload MapReduce produces — large, sequential reads of immutable files. It’s a poor choice for transactional workloads (that’s what Module 5’s databases are for) — worth saying explicitly, since students may otherwise wonder why the capstone uses <em>both</em> HDFS and MongoDB instead of just one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-what-happens-when-a-machine-dies" class="slide level2">
+<h2>Pause &amp; Discuss: What Happens When a Machine Dies?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>You <code>-put</code> a 1 GB file into HDFS (128 MB blocks, replication factor 3) on a cluster with 10 DataNodes.</p>
+<p><strong>(a)</strong> How many blocks is the file split into? How much total disk space does it take up across the cluster?</p>
+<p><strong>(b)</strong> One DataNode’s disk dies. Is any part of the file lost? What does HDFS do next?</p>
+<p><strong>(c)</strong> Instead, the <strong>NameNode</strong> dies, and every DataNode is fine. Can you still read the file?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a)</strong> 1024 / 128 = <strong>8 blocks</strong>. With 3 copies each, that’s 24 block copies, about <strong>3 GB</strong> of raw disk.</li>
+<li><strong>(b)</strong> Nothing is lost. Every block on the dead node still has 2 copies elsewhere. HDFS notices the node has gone silent and re-replicates its blocks from the surviving copies until each block is back to 3 (the Design Principles slide). Data is only lost if all 3 holders of the same block die before re-replication finishes.</li>
+<li><strong>(c)</strong> No.&nbsp;Every byte is still on the DataNodes, but nothing knows which blocks make up which file, or where they are. The address book is gone. In a basic setup that makes the NameNode a <strong>single point of failure</strong>, and production clusters run a standby NameNode to take over. Compare DNS: when DNS is down, every website still exists, but you can’t find any of them.</li>
+</ul>
+<p>Part (c) sets up Module 5 Session 1’s single-point-of-failure slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

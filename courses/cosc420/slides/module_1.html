@@ -662,18 +662,22 @@ Two panels side by side.
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: What If We Skip <code>join()</code>?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>The <code>run()</code> vs.&nbsp;<code>start()</code> Bug</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>The Thread Lifecycle</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Who Decides When a Thread Runs?</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Lab 1 Preview</td>
 <td>3 min</td>
 </tr>
@@ -928,6 +932,42 @@ One process boundary box, labeled "Process." Inside it: a single shared region a
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-what-if-we-skip-join" class="slide level2">
+<h2>Pause &amp; Discuss: What If We Skip <code>join()</code>?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>Take the code from the trace slide and <strong>delete the <code>t.join()</code> line</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a></a><span class="bu">Thread</span> t <span class="op">=</span> <span class="kw">new</span> <span class="bu">Thread</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb4-2"><a></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Hello from lambda"</span><span class="op">);</span></span>
+<span id="cb4-3"><a></a><span class="op">});</span></span>
+<span id="cb4-4"><a></a>t<span class="op">.</span><span class="fu">start</span><span class="op">();</span></span>
+<span id="cb4-5"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Main thread continues"</span><span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What will this print? Is there more than one possible answer? If you ran it 100 times, would you always see the same output?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Take a quick show of hands — “Hello always first,” “Main always first,” “it depends” — before giving the answer.</p>
+<p><strong>Answer:</strong> both lines always print, but <strong>in either order</strong>. Without <code>join()</code>, nothing makes <code>main</code> wait: once <code>start()</code> returns, the two threads race to their <code>println</code>. “Main thread continues” often wins (main is already running; <code>t</code> still has to get its turn), but “Hello from lambda” first is also possible, and it can change from run to run. The program still doesn’t exit until <code>t</code> finishes. The point to land: <strong>the order of your source lines does not decide the order two threads run in.</strong> That’s “Who Decides When a Thread Runs?” (two slides ahead) in miniature, and it’s the seed of Session 3’s race conditions.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="the-run-vs.-start-bug" class="slide level2">
 <h2>The <code>run()</code> vs.&nbsp;<code>start()</code> Bug</h2>
 <div class="callout callout-important callout-titled callout-style-default">
@@ -1126,18 +1166,22 @@ A left-to-right state diagram with 5 nodes, each a labeled box paired with a sma
 <td>3 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: How Wrong Can It Get?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>Real-World Stakes: The Bank Account</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Real-World Stakes: The Last Item in Stock</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge: We Need “One Cook at a Time”</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Lab 2 Preview</td>
 <td>3 min</td>
 </tr>
@@ -1381,6 +1425,43 @@ STORE R1 → counter      // write step: copy the register back to memory</code>
       }</style></aside>
 </div>
 </section>
+<section id="pause-discuss-how-wrong-can-it-get" class="slide level2">
+<h2>Pause &amp; Discuss: How Wrong Can It Get?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>Back to Lab 1: two threads each run <code>counter++</code> 10,000 times, starting from <code>counter = 0</code>.</p>
+<p>Could the final value ever be <strong>more than 20,000</strong>? Could it ever be <strong>less than 10,000</strong>?</p>
+<p>Use the read → increment → write steps to justify your answer. Don’t just guess.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Most students get the “more than 20,000” half quickly. The “less than 10,000” half is where the good arguments happen. Don’t insist on the exact minimum.</p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>More than 20,000: impossible.</strong> Every write stores <em>(a value some thread read) + 1</em>. A lost update can only throw increments away. It can never create extra ones, so 20,000 is the ceiling.</li>
+<li><strong>Less than 10,000: possible in principle, though very rare in practice.</strong> A thread can <code>LOAD</code> a value, get paused for a long time while the other thread does thousands of increments, then wake up and <code>STORE</code> its stale value + 1. That one write erases all the work done in between. Repeat the pattern and the total can drop far below 10,000 (the theoretical minimum is 2). The idea to land: <strong>one stale write can erase many increments at once, not just one.</strong></li>
+</ul>
+<p>This ties back to the Heisenbug slide: a test that always shows ~19,000 tells you nothing about the worst case.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="real-world-stakes-the-bank-account" class="slide level2">
 <h2>Real-World Stakes: The Bank Account</h2>
 <p>Picture a joint bank account with a $1,000 balance, and two people withdraw $700 each, at two different ATMs, at nearly the same instant.</p>
@@ -1514,30 +1595,34 @@ STORE R1 → counter      // write step: copy the register back to memory</code>
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Whose Lock Is It?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>Deadlock: The Circular Wait</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Deadlock: The Picture and How to Prevent It</td>
 <td>3 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Livelock</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Starvation</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>The Three Failure Modes, Side by Side</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Threads Cost Something to Create</td>
 <td>3 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>A First Look at Pools (from Lab 2)</td>
 <td>3 min</td>
 </tr>
@@ -1581,9 +1666,9 @@ STORE R1 → counter      // write step: copy the register back to memory</code>
 <section id="the-synchronized-keyword-the-lock" class="slide level2">
 <h2>The <code>synchronized</code> Keyword: The Lock</h2>
 <p>Every object in Java has an invisible <strong>lock</strong> attached to it (called a <strong>monitor lock</strong>, or <strong>intrinsic lock</strong>). <code>synchronized</code> is how you use it.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb6-2"><a></a>    counter<span class="op">++;</span>  <span class="co">// only one thread at a time can be inside here</span></span>
-<span id="cb6-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-2"><a></a>    counter<span class="op">++;</span>  <span class="co">// only one thread at a time can be inside here</span></span>
+<span id="cb7-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p>Marking a method <code>synchronized</code> means: <strong>before any thread can run this method, it must first acquire the lock on the object the method belongs to</strong> (<code>this</code>, for an instance method).</p>
 <aside class="notes">
@@ -1627,17 +1712,17 @@ STORE R1 → counter      // write step: copy the register back to memory</code>
 <section id="method-level-vs.-block-level-locking" class="slide level2">
 <h2>Method-Level vs.&nbsp;Block-Level Locking</h2>
 <p><code>synchronized</code> can mark a whole method, or wrap just part of one:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="co">// Method-level: the entire method body is protected</span></span>
-<span id="cb7-2"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb7-3"><a></a>    counter<span class="op">++;</span></span>
-<span id="cb7-4"><a></a><span class="op">}</span></span>
-<span id="cb7-5"><a></a></span>
-<span id="cb7-6"><a></a><span class="co">// Block-level: only the marked block is protected, on a chosen lock object</span></span>
-<span id="cb7-7"><a></a><span class="dt">static</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb7-8"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockObject<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-9"><a></a>        counter<span class="op">++;</span></span>
-<span id="cb7-10"><a></a>    <span class="op">}</span></span>
-<span id="cb7-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="co">// Method-level: the entire method body is protected</span></span>
+<span id="cb8-2"><a></a><span class="dt">static</span> <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-3"><a></a>    counter<span class="op">++;</span></span>
+<span id="cb8-4"><a></a><span class="op">}</span></span>
+<span id="cb8-5"><a></a></span>
+<span id="cb8-6"><a></a><span class="co">// Block-level: only the marked block is protected, on a chosen lock object</span></span>
+<span id="cb8-7"><a></a><span class="dt">static</span> <span class="dt">void</span> <span class="fu">increment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-8"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockObject<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-9"><a></a>        counter<span class="op">++;</span></span>
+<span id="cb8-10"><a></a>    <span class="op">}</span></span>
+<span id="cb8-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><strong>Method-level</strong> is shorthand for “lock on <code>this</code> (or the class, for <code>static</code> methods), for the whole method body.”</li>
 <li class="fragment"><strong>Block-level</strong> lets you (a) lock on a <em>specific</em> object rather than always <code>this</code>, and (b) protect only the few lines that actually touch shared data, leaving the rest of the method free to run unsynchronized.</li>
@@ -1757,13 +1842,59 @@ STORE R1 → counter      // write step: copy the register back to memory</code>
       }</style></aside>
 </div>
 </section>
+<section id="pause-discuss-whose-lock-is-it" class="slide level2">
+<h2>Pause &amp; Discuss: Whose Lock Is It?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="kw">class</span> Account <span class="op">{</span></span>
+<span id="cb9-2"><a></a>    <span class="dt">static</span> <span class="dt">int</span> totalDeposits <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>   <span class="co">// ONE variable, shared by every Account</span></span>
+<span id="cb9-3"><a></a>    <span class="dt">int</span> balance <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>                <span class="co">// one per Account object</span></span>
+<span id="cb9-4"><a></a></span>
+<span id="cb9-5"><a></a>    <span class="kw">synchronized</span> <span class="dt">void</span> <span class="fu">deposit</span><span class="op">(</span><span class="dt">int</span> amt<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-6"><a></a>        balance <span class="op">+=</span> amt<span class="op">;</span></span>
+<span id="cb9-7"><a></a>        totalDeposits <span class="op">+=</span> amt<span class="op">;</span></span>
+<span id="cb9-8"><a></a>    <span class="op">}</span></span>
+<span id="cb9-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Thread A calls <code>acct1.deposit(50)</code> while Thread B calls <code>acct2.deposit(50)</code>. These are two <strong>different</strong> <code>Account</code> objects.</p>
+<p>Does Thread B have to wait for Thread A? Is <code>balance</code> safe? Is <code>totalDeposits</code> safe? If not, how would you fix it?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>No waiting.</strong> A <code>synchronized</code> instance method locks <code>this</code>, and <code>acct1</code> and <code>acct2</code> are different objects with different locks.</li>
+<li><strong><code>balance</code> is safe.</strong> Each thread only touches its own account’s field, and two threads on the <em>same</em> account would share that account’s lock.</li>
+<li><strong><code>totalDeposits</code> is not safe.</strong> It’s <code>static</code>, so there is one copy shared by every account, but each account guards it with its own lock. Two threads on different accounts can both be inside <code>deposit()</code> at once and race on it exactly like Session 3’s counter.</li>
+<li><strong>Fix:</strong> guard it with a lock every thread shares, e.g. <code>synchronized (Account.class) { totalDeposits += amt; }</code>, or move it into a <code>static synchronized</code> helper (which locks the class).</li>
+</ul>
+<p>The lesson: a lock only protects data if <strong>every</strong> thread touching that data uses <strong>the same</strong> lock object. That’s the “every object has its own lock” point from earlier in the session.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="deadlock-the-circular-wait" class="slide level2">
 <h2>Deadlock: The Circular Wait</h2>
 <p>Locking introduces a new failure mode that didn’t exist before: two threads can each be waiting for a lock the <em>other</em> one holds, forever.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="co">// Thread A                      // Thread B</span></span>
-<span id="cb8-2"><a></a><span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span>           <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-3"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>         <span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>  <span class="co">// ← DEADLOCK</span></span>
-<span id="cb8-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="co">// Thread A                      // Thread B</span></span>
+<span id="cb10-2"><a></a><span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span>           <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-3"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>lockB<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>         <span class="kw">synchronized</span> <span class="op">(</span>lockA<span class="op">)</span> <span class="op">{</span> <span class="op">}</span>  <span class="co">// ← DEADLOCK</span></span>
+<span id="cb10-4"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment">Thread A grabs <code>lockA</code>, then tries to grab <code>lockB</code> — but Thread B already holds <code>lockB</code> and is trying to grab <code>lockA</code>.</li>
 <li class="fragment">Neither thread will ever release the lock it holds, because both are stuck waiting for the <em>other</em> lock first. Both threads freeze permanently.</li>
@@ -1945,9 +2076,9 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <section id="a-first-look-at-pools-from-lab-2" class="slide level2">
 <h2>A First Look at Pools (from Lab 2)</h2>
 <p>You already used a thread pool in <strong>Lab 2</strong>. The three pieces you touched there:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span>  <span class="co">// fixed staff of 2</span></span>
-<span id="cb9-2"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"A"</span><span class="op">));</span>                          <span class="co">// hand a task to the queue</span></span>
-<span id="cb9-3"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>                                          <span class="co">// no new tasks; finish what's queued</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span>  <span class="co">// fixed staff of 2</span></span>
+<span id="cb11-2"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(</span><span class="kw">new</span> <span class="fu">PrintTask</span><span class="op">(</span><span class="st">"A"</span><span class="op">));</span>                          <span class="co">// hand a task to the queue</span></span>
+<span id="cb11-3"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>                                          <span class="co">// no new tasks; finish what's queued</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment">With 3 tasks and a pool of 2, the third waits until a thread is free — the behavior you observed in Lab 2 Task 2.</li>
 <li class="fragment"><strong>Next session (Sep 16):</strong> how the queue actually works, getting results back with <code>Future</code>, <code>Callable</code> vs <code>Runnable</code>, and where industry uses pools — then Checkpoint 1.</li>
@@ -2015,18 +2146,22 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: A Task That Never Finishes</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td><code>Future</code> — Getting Results Back</td>
 <td>6 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>Callable</code> vs.&nbsp;<code>Runnable</code></td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Industry Patterns: Pools Everywhere</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Checkpoint 1 Preview &amp; Review</td>
 <td>4 min</td>
 </tr>
@@ -2119,13 +2254,13 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <section id="executorservice-submitting-tasks" class="slide level2">
 <h2><code>ExecutorService</code> — Submitting Tasks</h2>
 <p>Java’s <code>ExecutorService</code> is the built-in thread pool manager.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">4</span><span class="op">);</span>  <span class="co">// 4 cooks, fixed staff</span></span>
-<span id="cb10-2"><a></a></span>
-<span id="cb10-3"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 1"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
-<span id="cb10-4"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 2"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
-<span id="cb10-5"><a></a></span>
-<span id="cb10-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>               <span class="co">// stop accepting new tasks</span></span>
-<span id="cb10-7"><a></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span>   <span class="co">// wait for queued/running tasks to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">4</span><span class="op">);</span>  <span class="co">// 4 cooks, fixed staff</span></span>
+<span id="cb12-2"><a></a></span>
+<span id="cb12-3"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 1"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
+<span id="cb12-4"><a></a>pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Task 2"</span><span class="op">));</span>  <span class="co">// dropped on the queue</span></span>
+<span id="cb12-5"><a></a></span>
+<span id="cb12-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span>               <span class="co">// stop accepting new tasks</span></span>
+<span id="cb12-7"><a></a>pool<span class="op">.</span><span class="fu">awaitTermination</span><span class="op">(</span><span class="dv">10</span><span class="op">,</span> <span class="bu">TimeUnit</span><span class="op">.</span><span class="fu">SECONDS</span><span class="op">);</span>   <span class="co">// wait for queued/running tasks to finish</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><code>Executors.newFixedThreadPool(4)</code> creates the pool with exactly 4 worker threads — they’re created once, here, not per task.</li>
 <li class="fragment"><code>submit(...)</code> adds a task to the shared queue; it does <strong>not</strong> create a new thread. One of the 4 existing workers will pick it up when free.</li>
@@ -2201,12 +2336,12 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <section id="tracing-the-queue-the-setup" class="slide level2">
 <h2>Tracing the Queue: The Setup</h2>
 <p>Pool of 2 worker threads, 5 tasks submitted at once:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
-<span id="cb11-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb11-3"><a></a>    <span class="dt">int</span> taskId <span class="op">=</span> i<span class="op">;</span></span>
-<span id="cb11-4"><a></a>    pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Running task "</span> <span class="op">+</span> taskId<span class="op">));</span></span>
-<span id="cb11-5"><a></a><span class="op">}</span></span>
-<span id="cb11-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb13-2"><a></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a></a>    <span class="dt">int</span> taskId <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb13-4"><a></a>    pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Running task "</span> <span class="op">+</span> taskId<span class="op">));</span></span>
+<span id="cb13-5"><a></a><span class="op">}</span></span>
+<span id="cb13-6"><a></a>pool<span class="op">.</span><span class="fu">shutdown</span><span class="op">();</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p>Five tasks, two workers. Before we trace it: how many of the five do you expect to run at the <em>literal same instant</em>?</p>
 <aside class="notes">
@@ -2304,19 +2439,55 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
       }</style></aside>
 </div>
 </section>
+<section id="pause-discuss-a-task-that-never-finishes" class="slide level2">
+<h2>Pause &amp; Discuss: A Task That Never Finishes</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>Same setup as the trace: a pool of 2 workers and 5 submitted tasks. This time <strong>Task 1 has a bug: an infinite loop.</strong> It never finishes.</p>
+<p>Do Tasks 2–5 still run? What if Tasks 1 <strong>and</strong> 2 both loop forever? Will the program ever exit after <code>pool.shutdown()</code>?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>Only Task 1 stuck:</strong> Tasks 2–5 still run. Worker 1 is trapped on Task 1 forever, but Worker 2 keeps pulling from the queue and works through Tasks 2, 3, 4, 5 alone, just more slowly.</li>
+<li><strong>Tasks 1 and 2 both stuck:</strong> both workers are trapped, so Tasks 3–5 sit in the queue forever. They never fail and never run. That’s Session 4’s <strong>starvation</strong> in a new form: no lock is involved, the tasks are just never given a worker.</li>
+<li><strong>The program never exits.</strong> <code>shutdown()</code> only stops <em>new</em> submissions and then waits for running tasks to finish. It doesn’t kill them. (<code>shutdownNow()</code> only <em>asks</em> running tasks to stop, and a tight loop that never checks for interruption ignores the request.)</li>
+</ul>
+<p>Real-world version: a web server whose pool threads all get stuck waiting on a hung database stops answering everyone, even for pages that never touch the database. That’s why real systems put timeouts on anything a pool thread waits for. Module 6 comes back to this with microservices.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="future-getting-results-back" class="slide level2">
 <h2><code>Future</code> — Getting Results Back</h2>
 <p>So far, tasks just print something and finish. What if a task needs to <strong>return a value</strong>?</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
-<span id="cb12-2"><a></a></span>
-<span id="cb12-3"><a></a><span class="bu">Future</span><span class="op">&lt;</span><span class="bu">Integer</span><span class="op">&gt;</span> future <span class="op">=</span> pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
-<span id="cb12-4"><a></a>    <span class="bu">Thread</span><span class="op">.</span><span class="fu">sleep</span><span class="op">(</span><span class="dv">1000</span><span class="op">);</span>   <span class="co">// simulate work that takes time</span></span>
-<span id="cb12-5"><a></a>    <span class="cf">return</span> <span class="dv">42</span><span class="op">;</span></span>
-<span id="cb12-6"><a></a><span class="op">});</span></span>
-<span id="cb12-7"><a></a></span>
-<span id="cb12-8"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Waiting..."</span><span class="op">);</span></span>
-<span id="cb12-9"><a></a><span class="dt">int</span> result <span class="op">=</span> future<span class="op">.</span><span class="fu">get</span><span class="op">();</span>  <span class="co">// blocks here until the task finishes</span></span>
-<span id="cb12-10"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Result: "</span> <span class="op">+</span> result<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="bu">ExecutorService</span> pool <span class="op">=</span> <span class="bu">Executors</span><span class="op">.</span><span class="fu">newFixedThreadPool</span><span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a><span class="bu">Future</span><span class="op">&lt;</span><span class="bu">Integer</span><span class="op">&gt;</span> future <span class="op">=</span> pool<span class="op">.</span><span class="fu">submit</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb14-4"><a></a>    <span class="bu">Thread</span><span class="op">.</span><span class="fu">sleep</span><span class="op">(</span><span class="dv">1000</span><span class="op">);</span>   <span class="co">// simulate work that takes time</span></span>
+<span id="cb14-5"><a></a>    <span class="cf">return</span> <span class="dv">42</span><span class="op">;</span></span>
+<span id="cb14-6"><a></a><span class="op">});</span></span>
+<span id="cb14-7"><a></a></span>
+<span id="cb14-8"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Waiting..."</span><span class="op">);</span></span>
+<span id="cb14-9"><a></a><span class="dt">int</span> result <span class="op">=</span> future<span class="op">.</span><span class="fu">get</span><span class="op">();</span>  <span class="co">// blocks here until the task finishes</span></span>
+<span id="cb14-10"><a></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Result: "</span> <span class="op">+</span> result<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><code>submit(...)</code> returns immediately with a <strong><code>Future</code></strong> — think of it as an order ticket or a buzzer: you’re handed it right away, but the actual result isn’t ready yet.</li>
 <li class="fragment"><code>future.get()</code> is “go back to the counter and wait for your buzzer to light up” — it <strong>blocks</strong> the calling thread until the task’s result is ready, then returns it.</li>
@@ -2650,17 +2821,17 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 </section>
 <section id="practice-1-spot-the-race-condition" class="slide level2">
 <h2>Practice 1: Spot the Race Condition</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
-<span id="cb13-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb13-3"><a></a></span>
-<span id="cb13-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb13-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span> </span>
-<span id="cb13-6"><a></a>    <span class="op">}</span></span>
-<span id="cb13-7"><a></a></span>
-<span id="cb13-8"><a></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getTotal</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb13-9"><a></a>        <span class="cf">return</span> total<span class="op">;</span></span>
-<span id="cb13-10"><a></a>    <span class="op">}</span></span>
-<span id="cb13-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
+<span id="cb15-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-3"><a></a></span>
+<span id="cb15-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span> </span>
+<span id="cb15-6"><a></a>    <span class="op">}</span></span>
+<span id="cb15-7"><a></a></span>
+<span id="cb15-8"><a></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getTotal</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-9"><a></a>        <span class="cf">return</span> total<span class="op">;</span></span>
+<span id="cb15-10"><a></a>    <span class="op">}</span></span>
+<span id="cb15-11"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <!-- Two threads both call `add(5)` on the **same** `Counter` object, 1,000 times each, at the same time. -->
 <div class="fragment">
 <p><strong>With a partner (2–3 min):</strong> Name the exact three-step breakdown (Session 3) that causes the problem here.</p>
@@ -2709,12 +2880,12 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 </section>
 <section id="practice-2-trace-the-interleaving" class="slide level2">
 <h2>Practice 2: Trace the Interleaving</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="dt">static</span> <span class="dt">int</span> balance <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
-<span id="cb14-2"><a></a></span>
-<span id="cb14-3"><a></a><span class="co">// Thread A: withdraw(30)     // Thread B: withdraw(50)</span></span>
-<span id="cb14-4"><a></a><span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span>               <span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span></span>
-<span id="cb14-5"><a></a>b <span class="op">=</span> b <span class="op">-</span> <span class="dv">30</span><span class="op">;</span>                    b <span class="op">=</span> b <span class="op">-</span> <span class="dv">50</span><span class="op">;</span></span>
-<span id="cb14-6"><a></a>balance <span class="op">=</span> b<span class="op">;</span>                   balance <span class="op">=</span> b<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a></a><span class="dt">static</span> <span class="dt">int</span> balance <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb16-2"><a></a></span>
+<span id="cb16-3"><a></a><span class="co">// Thread A: withdraw(30)     // Thread B: withdraw(50)</span></span>
+<span id="cb16-4"><a></a><span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span>               <span class="dt">int</span> b <span class="op">=</span> balance<span class="op">;</span></span>
+<span id="cb16-5"><a></a>b <span class="op">=</span> b <span class="op">-</span> <span class="dv">30</span><span class="op">;</span>                    b <span class="op">=</span> b <span class="op">-</span> <span class="dv">50</span><span class="op">;</span></span>
+<span id="cb16-6"><a></a>balance <span class="op">=</span> b<span class="op">;</span>                   balance <span class="op">=</span> b<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Both threads run <code>withdraw</code> on the same <code>balance</code>, unsynchronized, starting at <code>balance = 100</code>.</p>
 <div class="fragment">
 <p><strong>With a partner (2–3 min):</strong> find an interleaving of these six lines that leaves <code>balance</code> at an incorrect value. Write out the timeline, the way Session 3 did for the counter example.</p>
@@ -2806,15 +2977,15 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 <section id="practice-3-will-this-fix-work" class="slide level2">
 <h2>Practice 3: Will This Fix Work?</h2>
 <p>A student “fixes” the <code>Counter</code> from Practice 1 like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
-<span id="cb15-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb15-3"><a></a></span>
-<span id="cb15-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb15-5"><a></a>        <span class="kw">synchronized</span> <span class="op">(</span><span class="kw">new</span> <span class="bu">Object</span><span class="op">())</span> <span class="op">{</span>   <span class="co">// ← added this</span></span>
-<span id="cb15-6"><a></a>            total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span></span>
-<span id="cb15-7"><a></a>        <span class="op">}</span></span>
-<span id="cb15-8"><a></a>    <span class="op">}</span></span>
-<span id="cb15-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="kw">class</span> Counter <span class="op">{</span></span>
+<span id="cb17-2"><a></a>    <span class="kw">private</span> <span class="dt">int</span> total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-3"><a></a></span>
+<span id="cb17-4"><a></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">add</span><span class="op">(</span><span class="dt">int</span> amount<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-5"><a></a>        <span class="kw">synchronized</span> <span class="op">(</span><span class="kw">new</span> <span class="bu">Object</span><span class="op">())</span> <span class="op">{</span>   <span class="co">// ← added this</span></span>
+<span id="cb17-6"><a></a>            total <span class="op">=</span> total <span class="op">+</span> amount<span class="op">;</span></span>
+<span id="cb17-7"><a></a>        <span class="op">}</span></span>
+<span id="cb17-8"><a></a>    <span class="op">}</span></span>
+<span id="cb17-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p><strong>With a partner (2–3 min):</strong> does wrapping the line in <code>synchronized (new Object())</code> actually fix the race condition? Why or why not?</p>
 <aside class="notes">

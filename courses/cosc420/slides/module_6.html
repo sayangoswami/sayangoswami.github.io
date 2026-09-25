@@ -245,22 +245,26 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Who Gets Paged at 2 a.m.?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>The Major Cloud Providers</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Cloud-Native Data Services</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Scaling Out, Someone Else’s Problem</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>EL5 Preview: When the Cloud Breaks</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Bridge to Nov 30</td>
 <td>2 min</td>
 </tr>
@@ -421,6 +425,46 @@ SI
 </div>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This table plus the diagram are Quiz 8 Q1/Q3/Q4 and Final Q46/Q48/Q49/Q50’s entire content — spend real time here, it’s the most directly tested slide in the module.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-who-gets-paged-at-2-a.m." class="slide level2">
+<h2>Pause &amp; Discuss: Who Gets Paged at 2 a.m.?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>A critical security patch for the operating system is released on Friday night. Nobody on your team does anything all weekend. Who was responsible for applying it, if your app ran on:</p>
+<p><strong>(a)</strong> an AWS EC2 virtual machine you set up yourself?</p>
+<p><strong>(b)</strong> Heroku or Google App Engine?</p>
+<p><strong>(c)</strong> MongoDB Atlas (for your database)?</p>
+<p>And if handing off more work is so convenient, why would anyone still choose IaaS?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) You.</strong> With IaaS the provider owns the hardware and networking, but the OS on your VM is yours to patch. If it’s unpatched, that’s on you.</li>
+<li><strong>(b) The provider.</strong> PaaS manages the OS and runtime; you only manage your code and data.</li>
+<li><strong>(c) The provider.</strong> Atlas is SaaS-like, and you never even see the database server’s OS.</li>
+<li><strong>Why choose IaaS anyway:</strong> control. You might need a specific OS, custom software, or settings a platform won’t let you change. This course’s own classroom setup (a custom Hadoop/Spark/Livy container) needs a whole machine to configure, and a PaaS wouldn’t let you install and wire all of that up. At large, steady scale, IaaS can also be cheaper.</li>
+</ul>
+<p>This is the previous slide’s callout made concrete: the more “as a service,” the less responsibility and the less control.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -645,10 +689,14 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: One Slow Branch</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>When to Use Which</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Checkpoint 8 Preview</td>
 <td>3 min</td>
 </tr>
@@ -833,6 +881,45 @@ API Gateway
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-one-slow-branch" class="slide level2">
+<h2>Pause &amp; Discuss: One Slow Branch</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>It’s a big sale, and the <strong>Payment</strong> service starts taking 10 seconds per request instead of 0.1.</p>
+<p>The <strong>Order</strong> service calls Payment on every checkout. It handles requests with a fixed pool of 50 worker threads, and it sets <strong>no timeout</strong> on the Payment call.</p>
+<p>What happens to the Order service over the next minute, including for users who are only <em>viewing</em> their past orders, not checking out? What would you change?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong> every checkout ties up an Order thread for 10 s while it waits on Payment. Once 50 checkouts are waiting, the pool is used up. That’s Module 1 Session 5’s “tasks that never finish” break slide, now across a network. From then on, <strong>every</strong> Order request waits in the queue, even “view my past orders,” which never touches Payment. The Order service looks down, the gateway backs up, and the whole site appears down. This is a <strong>cascading failure</strong> (the EL5 slide): one slow service took down a healthy one.</p>
+<p>Fixes students might suggest:</p>
+<ul>
+<li><strong>Put a timeout on calls to Payment</strong> (Module 2 Session 1’s timeout problem): fail fast instead of waiting forever.</li>
+<li><strong>Degrade gracefully:</strong> reply “payment pending, we’ll email you,” or queue checkouts to finish later.</li>
+<li><strong>Use separate thread pools</strong> so checkouts can’t starve every other kind of request.</li>
+<li><strong>Autoscale Payment</strong> (today’s first topic).</li>
+</ul>
+<p>In a monolith, this would just be a slow function call. This is the “every call is now a network call” bullet made concrete.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="when-to-use-which" class="slide level2">
 <h2>When to Use Which</h2>
 <table class="caption-top">
@@ -951,22 +1038,26 @@ API Gateway
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: Why Does This Route Fail?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>The Full Pipeline — End to End</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Lab 10 Preview</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Quiz 8 Preview</td>
 <td>2 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Remember Day One?</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Course Wrap-Up</td>
 <td>3 min</td>
 </tr>
@@ -1147,6 +1238,48 @@ API Gateway
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Say plainly: “this slide is the shape of five of your capstone’s endpoints, just with different collection names and filters.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-why-does-this-route-fail" class="slide level2">
+<h2>Pause &amp; Discuss: Why Does This Route Fail?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>A classmate writes this capstone endpoint:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="at">@app.route</span>(<span class="st">"/top-movies"</span>)</span>
+<span id="cb6-2"><a></a><span class="kw">def</span> top_movies():</span>
+<span id="cb6-3"><a></a>    docs <span class="op">=</span> db[<span class="st">"top_movies"</span>].find({}, {<span class="st">"_id"</span>: <span class="dv">0</span>})</span>
+<span id="cb6-4"><a></a>    <span class="cf">return</span> jsonify(docs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It crashes when you open it in a browser. Why?</p>
+<p>Once that’s fixed, a teammate sends it a <code>POST</code> request instead of a <code>GET</code>. What status code comes back, and which range is it in?</p>
+<p>Last one: what goes wrong if you remove <code>{"_id": 0}</code>?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>The crash:</strong> <code>list(...)</code> is missing. <code>find()</code> returns a lazy cursor, not a list, and <code>jsonify</code> can’t turn a cursor into JSON, so the request fails with a <code>500</code>. Fix: <code>docs = list(db["top_movies"].find({}, {"_id": 0}))</code>. This is the <code>list(...)</code> bullet on the previous slide.</li>
+<li><strong><code>POST</code>:</strong> the route only accepts <code>GET</code> by default, so Flask returns <strong><code>405 Method Not Allowed</code></strong>. That’s a <strong>4xx</strong>: the client asked the wrong way, and retrying won’t help (Module 2 Session 5’s 4xx-vs-5xx callout).</li>
+<li><strong>Without <code>{"_id": 0}</code>:</strong> every document includes MongoDB’s auto-generated <code>_id</code>, an <code>ObjectId</code> that <code>jsonify</code> can’t serialize, so it errors again.</li>
+</ul>
+<p>Students hit all three of these in real capstone endpoints, so this also works as debugging practice for Dec 7/9.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

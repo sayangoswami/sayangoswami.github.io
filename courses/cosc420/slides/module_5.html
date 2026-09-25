@@ -257,14 +257,18 @@ SI
 <td>3 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: Pick a Shard Key</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>Single Points of Failure, Revisited</td>
 <td>3 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Checkpoint 6</td>
 <td>15 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge to Wednesday</td>
 <td>2 min</td>
 </tr>
@@ -509,6 +513,44 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-pick-a-shard-key" class="slide level2">
+<h2>Pause &amp; Discuss: Pick a Shard Key</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>An online store’s <code>orders</code> collection has outgrown one machine and is being sharded across 4 shards. Three shard keys have been proposed:</p>
+<p><strong>(a)</strong> <code>order_date</code> <strong>(b)</strong> <code>customer_country</code> <strong>(c)</strong> <code>customer_id</code></p>
+<p>On Black Friday, which key would pile almost every new write onto a single shard? Which key lets “show me my order history” go to just one shard? Is there a query that key (c) makes <em>slower</em>?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) <code>order_date</code></strong> is the hot-spot trap. Every order placed today has today’s date, so every Black Friday write lands on the one shard that holds the newest dates, while the other three sit idle. It’s the “sharding by signup date” example from the previous slide.</li>
+<li><strong>(b) <code>customer_country</code></strong> has few distinct values and is heavily skewed (a US store’s orders are mostly US), so you get one giant shard that can’t be split any further.</li>
+<li><strong>(c) <code>customer_id</code></strong> has many values spread evenly, so writes spread out. All of one customer’s orders share the same key, so “my order history” is a single-shard query.</li>
+<li><strong>What (c) makes slower:</strong> any query that isn’t by customer, like “total sales today” or “all orders for product X.” Those now have to ask all 4 shards and merge the answers (the cross-shard cost from the previous slide).</li>
+</ul>
+<p>No shard key makes every query cheap. Choose it for the queries you run most.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="single-points-of-failure-revisited" class="slide level2">
 <h2>Single Points of Failure, Revisited</h2>
 <p>Tie this back to Module 2: a <strong>single point of failure (SPOF)</strong> is any one component whose failure takes down the whole system. An un-replicated database is a textbook SPOF.</p>
@@ -611,18 +653,22 @@ Shard 3: user_id 20,000,000+</code></pre>
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Where Did My Comment Go?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>A Worked Scenario: Checking Your Bank Balance</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Read Preference: Choosing Where to Read From</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Consistency Is a Spectrum, Not a Switch</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge to Friday’s Worksheet</td>
 <td>3 min</td>
 </tr>
@@ -837,6 +883,42 @@ Shard 3: user_id 20,000,000+</code></pre>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-where-did-my-comment-go" class="slide level2">
+<h2>Pause &amp; Discuss: Where Did My Comment Go?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>A site stores comments in a replica set (1 primary, 2 replicas). It uses <strong>asynchronous</strong> replication and reads from any replica.</p>
+<p><strong>(a)</strong> You post a comment and see <em>“Saved!”</em> You refresh, and your comment is missing. You refresh again, and it’s back. What happened?</p>
+<p><strong>(b)</strong> On a different day, the primary crashes 50 ms after telling you <em>“Saved!”</em>, and a replica is promoted to primary. Could your comment be gone for good?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a)</strong> The first refresh was served by a replica that hadn’t received the write yet (replication lag). The second was served by the primary or by a replica that had caught up. Nothing was lost; that replica was just behind. This is eventual consistency showing a stale read. (Its name, if a student asks: a <em>read-your-own-writes</em> violation. Common fix: read your own data from the primary.)</li>
+<li><strong>(b)</strong> Yes. With async replication the primary says “done” as soon as <em>it</em> has the write. If it crashes before copying the write to any replica, the new primary never had it, so the write is gone even though the user was told it succeeded. That’s the last row of the sync/async table. Prevention: synchronous replication (or waiting for a majority of replicas), paying extra write latency so that “Saved!” really means saved.</li>
+</ul>
+<p>This sets up the next slide: comments can live with (a), but a bank can’t live with (b).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1164,22 +1246,26 @@ Shard 3: user_id 20,000,000+</code></pre>
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: A Shopping Cart in a Key-Value Store?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>Column-Family Stores</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Graph Databases</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Choosing the Right Type</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>NoSQL vs.&nbsp;Relational — The Real Trade-off</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge: MongoDB, Specifically</td>
 <td>3 min</td>
 </tr>
@@ -1348,6 +1434,43 @@ GET session:abc123</code></pre>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-a-shopping-cart-in-a-key-value-store" class="slide level2">
+<h2>Pause &amp; Discuss: A Shopping Cart in a Key-Value Store?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>You’re storing shopping carts. Two options:</p>
+<p><strong>Option 1: Redis</strong> (key-value). Key <code>cart:user42</code>, and the value is the whole cart as one blob.</p>
+<p><strong>Option 2: MongoDB</strong> (document). One document per cart, with an <code>items</code> array inside it.</p>
+<p>For showing a user their own cart, which works better? Then marketing asks: <em>“How many carts right now contain the new headphones?”</em> Which option makes you regret your choice, and why?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>A user’s own cart:</strong> both work. Redis is likely faster, because it’s in memory and this is an exact-key lookup, which is exactly its sweet spot. Carts and sessions are a classic Redis use.</li>
+<li><strong>Marketing’s question:</strong> this is where you regret Redis. The value is an opaque blob and Redis can’t search inside it, so you’d have to fetch every cart and scan them in your own code. MongoDB can query fields <em>inside</em> documents, so this becomes a single query (Wednesday shows the syntax).</li>
+<li><strong>Principle:</strong> key-value wins when you <em>always</em> look things up by the exact key. As soon as you need to query by what’s <em>inside</em> the value, you want a store that understands the value’s structure. Real systems often use both: Redis for fast per-user reads, and a queryable store as the system of record.</li>
+</ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1595,26 +1718,30 @@ GET session:abc123</code></pre>
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: Predict the Query Results</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>Replication in MongoDB</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Sharding in MongoDB</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Beyond CRUD: Counting for the Capstone</td>
 <td>3 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>MongoDB Atlas</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Checkpoint 7</td>
 <td>15 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Module 5 Summary + Bridge</td>
 <td>2 min</td>
 </tr>
@@ -1827,6 +1954,50 @@ GET session:abc123</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-predict-the-query-results" class="slide level2">
+<h2>Pause &amp; Discuss: Predict the Query Results</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>A <code>products</code> collection holds exactly these four documents:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>{<span class="st">"name"</span>: <span class="st">"A"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">12</span>}</span>
+<span id="cb8-2"><a></a>{<span class="st">"name"</span>: <span class="st">"B"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">30</span>}</span>
+<span id="cb8-3"><a></a>{<span class="st">"name"</span>: <span class="st">"C"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>, <span class="st">"price"</span>: <span class="dv">45</span>}</span>
+<span id="cb8-4"><a></a>{<span class="st">"name"</span>: <span class="st">"D"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>}              <span class="co"># no price field at all</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These run in order:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>col.update_one({<span class="st">"category"</span>: <span class="st">"books"</span>}, {<span class="st">"$mul"</span>: {<span class="st">"price"</span>: <span class="fl">0.5</span>}})</span>
+<span id="cb9-2"><a></a>col.find({<span class="st">"price"</span>: {<span class="st">"$lt"</span>: <span class="dv">20</span>}})</span>
+<span id="cb9-3"><a></a>col.delete_many({<span class="st">"price"</span>: {<span class="st">"$gt"</span>: <span class="dv">100</span>}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What does the <code>find</code> return? How many documents does <code>delete_many</code> remove?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong><code>update_one</code></strong> changes only the <em>first</em> match, so A becomes 6 and B stays 30. (<code>update_many</code> would have halved both, giving 6 and 15.)</li>
+<li><strong><code>find</code></strong> returns <strong>only A</strong> (price 6). B is 30. D has no <code>price</code> field at all, so a comparison on <code>price</code> never matches it. A missing field is not “less than 20.” This is Monday’s flexible-schema point in action.</li>
+<li><strong><code>delete_many</code></strong> removes <strong>0 documents</strong>. A filter that matches nothing is not an error.</li>
+</ul>
+<p>Side note if asked: “first match” means first in the collection’s stored order. Real code shouldn’t depend on which document that is. If you mean one specific document, filter on something unique, like <code>_id</code>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="replication-in-mongodb" class="slide level2">
 <h2>Replication in MongoDB</h2>
 <p>Session 1’s general replication concept, applied concretely: MongoDB uses <strong>replica sets</strong> — typically 3 nodes, 1 primary + 2 secondaries.</p>
@@ -1882,14 +2053,14 @@ Shard 3: user_id 20,000,000+</code></pre>
 <section id="beyond-crud-counting-for-the-capstone" class="slide level2">
 <h2>Beyond CRUD: Counting for the Capstone</h2>
 <p>One operation beyond plain CRUD is worth knowing now, because the capstone’s <code>flask_app.py</code> needs it for its dashboard’s stat cards:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="co"># Count documents matching a filter</span></span>
-<span id="cb10-2"><a></a>col.count_documents({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
-<span id="cb10-3"><a></a></span>
-<span id="cb10-4"><a></a><span class="co"># A simple aggregation: average salary</span></span>
-<span id="cb10-5"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
-<span id="cb10-6"><a></a>col.aggregate([</span>
-<span id="cb10-7"><a></a>    {<span class="st">"$group"</span>: {<span class="st">"_id"</span>: <span class="va">None</span>, <span class="st">"avg_salary"</span>: {<span class="st">"$avg"</span>: <span class="st">"$salary"</span>}}}</span>
-<span id="cb10-8"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="co"># Count documents matching a filter</span></span>
+<span id="cb12-2"><a></a>col.count_documents({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
+<span id="cb12-3"><a></a></span>
+<span id="cb12-4"><a></a><span class="co"># A simple aggregation: average salary</span></span>
+<span id="cb12-5"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
+<span id="cb12-6"><a></a>col.aggregate([</span>
+<span id="cb12-7"><a></a>    {<span class="st">"$group"</span>: {<span class="st">"_id"</span>: <span class="va">None</span>, <span class="st">"avg_salary"</span>: {<span class="st">"$avg"</span>: <span class="st">"$salary"</span>}}}</span>
+<span id="cb12-8"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>count_documents(filter)</code> — how many documents match, without fetching them.</li>
 <li>MongoDB’s full <strong>aggregation pipeline</strong> (multi-stage <code>$match</code>/<code>$group</code>/<code>$sort</code> chains) is more than this course goes deep on — the capstone only needs simple counts and averages like the example above, not the full pipeline syntax.</li>

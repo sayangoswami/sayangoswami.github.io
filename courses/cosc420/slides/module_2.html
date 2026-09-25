@@ -117,6 +117,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -257,22 +258,26 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: Did I Just Pay Twice?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>No Global Clock</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Ordering Without a Shared Clock</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Four Ways a Node Can Fail</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>The Fallacies of Distributed Computing</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge: These Problems Don’t Go Away</td>
 <td>3 min</td>
 </tr>
@@ -527,6 +532,44 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-did-i-just-pay-twice" class="slide level2">
+<h2>Pause &amp; Discuss: Did I Just Pay Twice?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>You click <strong>Pay $50</strong> in a shopping app. The spinner runs, and after 30 seconds the app says <em>“Request timed out.”</em></p>
+<p>Were you charged? Should the app retry the payment automatically? What could go wrong if it does, and what could go wrong if it doesn’t?</p>
+<p>What could the <em>server</em> do to make retrying safe?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong> the client can’t know. This is the dead-or-slow problem from the previous slide, with money attached. Three possibilities look exactly the same from the client’s side:</p>
+<ul>
+<li>the request was lost before it reached the server (not charged);</li>
+<li>the server charged you and the <strong>response</strong> was lost (charged);</li>
+<li>the server is still working on it (about to charge you).</li>
+</ul>
+<p>If the app retries blindly, you might be charged twice. If it doesn’t retry, the payment might never happen. The standard fix: the client attaches a <strong>unique ID</strong> to the payment request (often called an <em>idempotency key</em>) and reuses the same ID on every retry. The server remembers IDs it has already processed. When it sees a repeat, it returns the original result instead of charging again, and that makes retrying safe. Real payment APIs (e.g.&nbsp;Stripe) work this way.</p>
+<p>If a student asks: Session 4’s HTTP verbs preview this. <code>PUT</code> and <code>DELETE</code> are meant to be safe to repeat, and <code>POST</code> is not.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="no-global-clock" class="slide level2">
 <h2>No Global Clock</h2>
 <p>Every kitchen has a wall clock. None of them are perfectly synchronized — each one drifts a little, faster or slower, for entirely mundane reasons (temperature, manufacturing tolerance, when it was last set).</p>
@@ -651,7 +694,7 @@ SI
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-fallacies-of-distributed-computing" class="slide level2">
+<section id="the-fallacies-of-distributed-computing" class="slide level2 scrollable">
 <h2>The Fallacies of Distributed Computing</h2>
 <p>In the 1990s, engineers at Sun Microsystems (Peter Deutsch and colleagues) wrote down eight assumptions that programmers new to distributed systems make — and every one of them is false:</p>
 <ol type="1">
@@ -754,26 +797,30 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Which Letter Did It Give Up?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>Why “CA” Isn’t Really an Option</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Worked Scenario: A Partition Happens</td>
 <td>6 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Consistency-Favoring Systems: When in Doubt, Refuse</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Availability-Favoring Systems: When in Doubt, Answer Anyway</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Choosing Consistency vs.&nbsp;Availability</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Wrap: Bridge to the Case Study</td>
 <td>3 min</td>
 </tr>
@@ -987,6 +1034,45 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           display:block!important;
       }</style></aside>
 </div>
+</section>
+<section id="pause-discuss-which-letter-did-it-give-up" class="slide level2">
+<h2>Pause &amp; Discuss: Which Letter Did It Give Up?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>A partition cuts one replica off from the rest of its cluster. A client asks that replica for the current price of an item. Here are three ways the replica could behave:</p>
+<p><strong>(a)</strong> It returns <em>“Error: can’t confirm latest data, try again later.”</em></p>
+<p><strong>(b)</strong> It returns the last price it heard, which may be out of date.</p>
+<p><strong>(c)</strong> It never responds, and the client’s request just hangs.</p>
+<p>Using today’s <strong>precise</strong> definitions: which of these keep Consistency? Which keep Availability? Which is the worst design?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) keeps C, gives up A.</strong> The definition of Consistency explicitly allows “or an error.” Refusing is how a consistency-favoring system stays correct. Make students say why this <em>isn’t</em> a Consistency violation even though no data comes back.</li>
+<li><strong>(b) keeps A, gives up C.</strong> “Always answers” is not “always answers correctly” (the callout from the Availability slide).</li>
+<li><strong>(c) gives up A and gets nothing in return.</strong> It’s technically never <em>wrong</em>, but the client can’t tell it apart from a crashed node (Session 1’s timeout problem), and it wastes the client’s time. <strong>(c) is the worst design:</strong> (a) refuses honestly and on purpose, while (c) refuses by accident and never says so.</li>
+</ul>
+<p>This is exactly the quiz-level precision the definition slides were building toward.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
 <section id="why-ca-isnt-really-an-option" class="slide level2">
 <h2>Why “CA” Isn’t Really an Option</h2>
@@ -1345,19 +1431,8 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 </section>
 <section id="discussion-predict-what-should-happen" class="slide level2">
 <h2>Discussion: Predict What Should Happen</h2>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
 <p><strong>Think about it — discuss in pairs (2 min), then share</strong></p>
-</div>
-<div class="callout-content">
 <p>Given everything from Session 2: if a network partition briefly separates a database’s primary copy from the rest of the cluster, and the rest of the cluster automatically promotes a new primary to keep serving requests — what happens when the partition heals a few seconds later and <strong>both</strong> copies think they’re the real primary?</p>
-</div>
-</div>
-</div>
 <p>Write down your prediction before the next slide reveals what actually happened.</p>
 <aside class="notes">
 <p><strong>Timing: 5 min including discussion.</strong> Circulate and listen for the phrase “which one is right” or “conflicting data” — that’s the answer the class needs to arrive at collectively before the reveal.</p>
@@ -1376,23 +1451,16 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <section id="what-actually-happened-split-brain" class="slide level2">
 <h2>What Actually Happened: Split-Brain</h2>
 <p>This exact scenario is called <strong>split-brain</strong>: two nodes, each convinced it is the sole authority, both accepting writes independently.</p>
-<ul>
-<li class="fragment">During those tens of seconds, a small number of writes were accepted by <strong>both</strong> the original primary and the newly promoted one — each unaware of the other’s writes.</li>
-<li class="fragment">When the partition healed, GitHub’s systems had <strong>two divergent versions of recent data</strong>, and no automatic way to know which write in each conflicting pair was the “real” one.</li>
-<li class="fragment">This is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.</li>
-</ul>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<div class="fragment">
+<p><img data-src="diags/split-brain.svg" alt="Two database cylinders side by side, labeled 'Original Primary' and 'Newly Promoted Primary,' separated by a dashed red line and a lightning bolt labeled 'Network Partition.' Under each cylinder, a stack of different writes flows in: 'push → main (v1),' 'close issue #57,' 'comment #881' on the left; 'push → main (v2),' 'reopen issue #57,' 'new PR #12' on the right. Arrows from both sides, each marked with a question mark, converge on a box labeled 'Reconciliation (~24 hours).' Caption: 'Both sides kept working. That's the problem.'" width="600"></p>
+<div class="fragment fade-in-then-out absolute" style="top: 200px; left: 630px; width: 400px; ">
+<p>During those tens of seconds, a small number of writes were accepted by <strong>both</strong> the original primary and the newly promoted one — each unaware of the other’s writes.</p>
 </div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+<div class="fragment fade-in-then-out absolute" style="top: 200px; left: 630px; width: 400px; ">
+<p>When the partition healed, GitHub’s systems had <strong>two divergent versions of recent data</strong>, and no automatic way to know which write in each conflicting pair was the “real” one.</p>
 </div>
-<div class="callout-content">
-<p>Two database-cylinder icons labeled “Original Primary” and “Newly Promoted Primary,” side by side with a jagged break between them (reuse the partition-break style from Session 2’s diagram). Under each cylinder, draw a small stack of write-icons flowing in — different writes on each side — to show both accepting writes independently during the split. Below, a merge arrow pointing from both cylinders down into one box labeled “Reconciliation (~24 hours)” with a question mark on the two divergent write-stacks feeding into it. Caption: “Both sides kept working. That’s the problem.”</p>
-</div>
-</div>
+<div class="fragment fade-in-then-out absolute" style="top: 200px; left: 630px; width: 400px; ">
+<p>This is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.</p>
 </div>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> If a group’s earlier prediction named “conflicting data” or similar, credit it explicitly before revealing this slide’s framing — it reinforces that the reasoning, not just the fact, is the point.</p>
@@ -1407,22 +1475,12 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="discussion-consistency-problem-availability-problem-or-both" class="slide level2">
 <h2>Discussion: Consistency Problem, Availability Problem, or Both?</h2>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
 <p><strong>Think about it — discuss in pairs (3 min), then share</strong></p>
-</div>
-<div class="callout-content">
-<p>Using Session 2’s precise definitions: was the <em>root cause</em> of this incident a Consistency failure, an Availability failure, or something else entirely? (Hint: was the system actually unavailable during those tens of seconds — or did trying too hard to stay available cause the real damage?)</p>
-</div>
-</div>
-</div>
+<p>Using Session 2’s precise definitions: was the <em>root cause</em> of this incident a Consistency failure, an Availability failure, or something else entirely?</p>
 <aside class="notes">
 <p><strong>Timing: 6 min including discussion.</strong> The intended insight: the partition itself briefly threatened availability, but the automatic-failover mechanism’s attempt to <em>preserve</em> availability is what created the consistency violation. It’s a case where optimizing for one side of CAP directly caused the failure on the other side — a subtler lesson than “pick consistency or availability” makes it sound.</p>
 <style type="text/css">
@@ -1458,21 +1516,15 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           display:block!important;
       }</style></aside>
 </section>
-<section id="discussion-was-that-the-right-call" class="slide level2">
+<section id="discussion-was-that-the-right-call" class="slide level2 scrollable">
 <h2>Discussion: Was That the Right Call?</h2>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Think about it — small groups (3–4 students), 4 min, then share</strong></p>
-</div>
-<div class="callout-content">
-<p>GitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data. Do you agree with that choice, for a code-hosting platform specifically? Would your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system? What’s the actual variable that should decide this, in general?</p>
-</div>
-</div>
-</div>
+<p><strong>Think about it — pair, 4 min, then share</strong></p>
+<p>GitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data.</p>
+<ol type="1">
+<li class="fragment">Do you agree with that choice, for a code-hosting platform specifically?</li>
+<li class="fragment">Would your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system?</li>
+<li class="fragment">What’s the actual variable that should decide this, in general?</li>
+</ol>
 <aside class="notes">
 <p><strong>Timing: 6 min including discussion.</strong> Push groups toward naming “the cost of being wrong vs.&nbsp;the cost of being unavailable” explicitly — that’s the same axis from Session 2’s consistency-vs-availability table, now applied to a real, harder case where the “right” answer is genuinely debatable.</p>
 <style type="text/css">
@@ -1494,19 +1546,9 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <li class="fragment"><strong>“The network is reliable”</strong> — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.</li>
 <li class="fragment"><strong>“Topology doesn’t change”</strong> — the automatic failover mechanism existed <em>because</em> the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.</li>
 </ul>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
+<div class="fragment">
 <p><strong>Think about it</strong></p>
-</div>
-<div class="callout-content">
 <p>Can you connect a third fallacy from Session 1’s list to some part of this incident?</p>
-</div>
-</div>
-</div>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Leave the third fallacy genuinely open — several are defensible (e.g., “there is one administrator” relates to coordinating a fix across a large engineering org during an active incident).</p>
 <style type="text/css">
@@ -1520,8 +1562,9 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="small-group-exercise-diagnose-your-own-scenario" class="slide level2">
+<section id="small-group-exercise-diagnose-your-own-scenario" class="slide level2 scrollable">
 <h2>Small-Group Exercise: Diagnose Your Own Scenario</h2>
 <p>In groups of 3–4, pick <strong>one</strong> of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?</p>
 <ol type="1">
@@ -1529,6 +1572,7 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <li class="fragment"><strong>A university’s course-registration system</strong> briefly can’t confirm seat counts are in sync across two servers during peak registration.</li>
 <li class="fragment"><strong>A multiplayer game’s leaderboard</strong> can’t sync scores between two regions for a few minutes during a network blip.</li>
 </ol>
+<div class="fragment">
 <p>Be ready to defend your choice to the class — including what you’d do differently from GitHub’s approach, if anything.</p>
 <aside class="notes">
 <p><strong>Timing: 7 min, including a couple of groups reporting back.</strong> If time is short, cut to 2 scenarios rather than rushing all 3 — depth of discussion matters more than covering everything.</p>
@@ -1543,11 +1587,15 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="wrap-up" class="slide level2">
 <h2>Wrap-Up</h2>
 <p>Today’s takeaway isn’t “GitHub made a mistake” — their recovery choice was defensible and matches the consistency-favoring reasoning from Session 2. The real lesson is narrower and more useful:</p>
+<div class="fragment">
 <p><strong>A partition lasting seconds can create a consequence lasting a day, and the choice of how to respond to it is a design decision made in advance, not improvised during the incident.</strong></p>
+</div>
+<div class="fragment">
 <p>Monday: back to new material — the client-server model, and what actually happens when you type a URL into a browser.</p>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Close on the forward-reference to keep momentum into Session 4.</p>
@@ -1562,6 +1610,7 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section class="slide level2">
 
@@ -1616,18 +1665,22 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <td>4 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Where Did It Break?</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>The Whole Journey, Start to Finish</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>HTTP: The Standard Order Form</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>HTTP Verbs</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Wrap: Bridge to REST</td>
 <td>3 min</td>
 </tr>
@@ -1817,6 +1870,44 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1’s failure catalogue.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-where-did-it-break" class="slide level2">
+<h2>Pause &amp; Discuss: Where Did It Break?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>You type a URL, press Enter, and the page doesn’t load.</p>
+<p>Using the five steps so far (DNS, connection, request, server work, response), name <strong>three different steps</strong> where it could have failed. For each one: what would you actually <em>see</em> in the browser? Could you tell them apart?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Don’t insist on exact browser error wording. Aim for this rough mapping:</p>
+<ul>
+<li><strong>DNS:</strong> the name can’t be translated. You get a fast “server not found” / “site can’t be reached” error.</li>
+<li><strong>Connection:</strong> the address was found but nothing answers. You get “can’t connect,” “connection refused,” or a timeout.</li>
+<li><strong>Request lost, or server slow</strong> (including a slow hop further down the chain, from the “Not Every Server Is Only a Server” slide): the spinner keeps going until it times out.</li>
+<li><strong>Server breaks while doing the work:</strong> a response <em>does</em> come back, but it’s an error page (Wednesday names this: <code>500</code>).</li>
+<li><strong>Response lost or cut off:</strong> the spinner keeps going, or the page loads halfway.</li>
+</ul>
+<p><strong>Can you tell them apart?</strong> Some, yes: DNS failures and error pages show up quickly and look distinct. But “request lost,” “server slow,” and “response lost” all look the same from the browser: a spinner, then a timeout. That’s Session 1’s dead-or-slow problem inside an everyday action, and it’s the point the next slide makes.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2023,26 +2114,30 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <td>4 min</td>
 </tr>
 <tr class="even">
+<td>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
 <td>HTTP Status Codes</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>JSON: The Language of REST Responses</td>
 <td>4 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Worked Example: Reading a Real Response</td>
 <td>6 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Why Industry Uses REST Everywhere</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Lab 3 Preview</td>
 <td>2 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Checkpoint 2 Preview &amp; Review</td>
 <td>4 min</td>
 </tr>
@@ -2171,6 +2266,43 @@ Content-Type: application/json
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Point out explicitly: <code>Content-Type</code> is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-stateless-but-it-remembers-my-cart" class="slide level2">
+<h2>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>REST servers are stateless: they remember nothing about you between requests.</p>
+<p>Yet you add a book to your cart on a shopping site, click through three other pages, and the book is still in your cart. Some of those requests may even have been handled by different machines.</p>
+<p>Is the site breaking the stateless rule? If not, where does your cart actually live, and how does each request find it? (Hint: look back at what a request carries besides the verb and path.)</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong> the site isn’t breaking the rule. “Stateless” means the <em>server process</em> keeps no memory of you between requests. It doesn’t mean no state exists anywhere.</p>
+<ul>
+<li>Every request carries an identifier, usually a session token or cookie in a <strong>header</strong>, e.g. <code>Cookie: session=abc123</code> or <code>Authorization: Bearer ...</code>.</li>
+<li>The cart itself lives either in a <strong>shared database or cache</strong> that every server machine can look up by that ID (Module 5 names this: a key-value store is a classic session store), or on the client.</li>
+<li>Because each request brings its own ID, <strong>any</strong> machine can handle it. That’s the scaling benefit from the Statelessness slide.</li>
+</ul>
+<p>This leads into the next slide: a missing or expired token is exactly when you get <code>401 Unauthorized</code>.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

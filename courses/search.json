@@ -1978,7 +1978,105 @@
     "href": "cosc435/notes/index.html",
     "title": "COSC435 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nThe End of Free Lunch\n\n\n\n\n\n\n\n\n\nCPU vs. GPU Design Philosophy\n\n\n\n\n\n\n\n\n\nEL-01: The Shape of a Dot Product\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nThe End of Free Lunch\n\n\n\n\n\n\n\n\n\nCPU vs. GPU Design Philosophy\n\n\n\n\n\n\n\n\n\nInside a GPU\n\n\n\n\n\n\n\n\n\nThe Execution Model\n\n\n\n\n\n\n\n\n\nEL-01: The Shape of a Dot Product\n\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "cosc435/notes/08.html#todays-plan",
+    "href": "cosc435/notes/08.html#todays-plan",
+    "title": "The Execution Model",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\n\nThen: what a CUDA kernel actually is, and how to launch one\nThe thread/block/grid indexing hierarchy — in 1D, then 2D\nTwo worked example kernels, and a preview of the capstone’s kernel\n\n\n~1 min. ~35 min of lecture time after the quiz, same structure as Module 1 Session 1. This is a dense, code-heavy session — keep momentum, save discussion for Lab 04."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#what-a-kernel-is",
+    "href": "cosc435/notes/08.html#what-a-kernel-is",
+    "title": "The Execution Model",
+    "section": "What a Kernel Is",
+    "text": "What a Kernel Is\n\nA kernel is a function that runs on the GPU — you write it once, and the GPU runs that same code for every thread, simultaneously\nEach thread automatically knows its own position in the grid of threads — that position is how a thread figures out which piece of data it’s responsible for\nMarked with the @cuda.jit decorator, which compiles ordinary-looking Python into GPU machine code\n\n\nfrom numba import cuda\n\n@cuda.jit\ndef my_kernel(arr):\n    i = cuda.grid(1)          # this thread's global index\n    if i &lt; arr.shape[0]:      # bounds guard — always required (next slide)\n        arr[i] = arr[i] * 2.0\n\nThree parts every kernel has: the decorator, a position calculation, and a bounds guard\n\n\n~3 min. Students will forget the bounds guard constantly in early labs — flag it now as “always required” so it’s not a surprise two slides from now."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#the-thread-grid",
+    "href": "cosc435/notes/08.html#the-thread-grid",
+    "title": "The Execution Model",
+    "section": "The Thread Grid",
+    "text": "The Thread Grid\n\n\nblockIdx.x — which block is this thread in?\nthreadIdx.x — where is this thread within its block?\nblockDim.x — how many threads are in each block?\nGlobal index = blockIdx.x * blockDim.x + threadIdx.x — cuda.grid(1) computes exactly this in one call\nThis global index is what a thread uses to know which array element is “its” element\n\n\n~4 min. This is the single mental model students need for the rest of the course — worth having them compute the global index for 2-3 different (blockIdx, threadIdx, blockDim) combinations out loud before moving on."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#launching-a-kernel",
+    "href": "cosc435/notes/08.html#launching-a-kernel",
+    "title": "The Execution Model",
+    "section": "Launching a Kernel",
+    "text": "Launching a Kernel\nimport numpy as np\nfrom numba import cuda\n\nN = 1_000_000\narr = np.ones(N, dtype=np.float32)\narr_gpu = cuda.to_device(arr)          # host → device transfer\n\nTHREADS = 256\nBLOCKS  = (N + THREADS - 1) // THREADS   # ceiling division — see below\n\nmy_kernel[BLOCKS, THREADS](arr_gpu)    # launch: BLOCKS × THREADS total threads\ncuda.synchronize()                     # wait for the GPU to finish\n\nresult = arr_gpu.copy_to_host()        # device → host transfer\n\n(N + THREADS - 1) // THREADS is ceiling division — the standard way to compute “enough blocks to cover N, rounding up” using only integer arithmetic\nYou will write this exact five-line pattern (transfer, configure, launch, synchronize, transfer back) in nearly every lab this semester\n\n\n~3 min. Walk through each line out loud. Ceiling division specifically is worth a plain-integer example: N=1000, THREADS=256 → (1000+255)//256 = 4 blocks = 1024 threads launched, 24 wasted (caught by the bounds guard)."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#the-bounds-guard",
+    "href": "cosc435/notes/08.html#the-bounds-guard",
+    "title": "The Execution Model",
+    "section": "The Bounds Guard",
+    "text": "The Bounds Guard\n@cuda.jit\ndef my_kernel(arr):\n    i = cuda.grid(1)\n    # Without this line: threads with i &gt;= arr.shape[0] write out of bounds\n    if i &lt; arr.shape[0]:\n        arr[i] = arr[i] * 2.0\n\nBLOCKS × THREADS is a ceiling, computed by rounding up — so there are almost always a few extra threads beyond the last real array element\nThose extra threads still run the kernel body — without the guard, they read/write memory past the end of the array\nConsequence: undefined behavior — sometimes a crash, sometimes silent data corruption that produces a wrong answer with no error message at all\n\n\n~2 min. Silent corruption is the scarier failure mode to emphasize — a crash at least tells you something’s wrong. Lab 04 Exercise 4 has students remove the guard intentionally on a small array so they can see the effect directly."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#worked-example-scalar-multiply",
+    "href": "cosc435/notes/08.html#worked-example-scalar-multiply",
+    "title": "The Execution Model",
+    "section": "Worked Example: Scalar Multiply",
+    "text": "Worked Example: Scalar Multiply\n@cuda.jit\ndef multiply_scalar(arr, scalar):\n    i = cuda.grid(1)\n    if i &lt; arr.shape[0]:\n        arr[i] = arr[i] * scalar\n\nOne thread per array element — for N = 500,000 elements, the GPU launches 500,000 threads\nNo thread needs any other thread’s result — this is the “embarrassingly parallel” shape from Module 1\nThis is Lab 04 Exercise 1’s pattern; you’ll write the launch configuration yourself in lab\n\n\n~2 min. Deliberately simple — the goal here is the launch pattern sinking in, not the arithmetic."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#worked-example-add-two-arrays",
+    "href": "cosc435/notes/08.html#worked-example-add-two-arrays",
+    "title": "The Execution Model",
+    "section": "Worked Example: Add Two Arrays",
+    "text": "Worked Example: Add Two Arrays\n@cuda.jit\ndef add_arrays(a, b, out):\n    i = cuda.grid(1)\n    if i &lt; out.shape[0]:\n        out[i] = a[i] + b[i]\n\nThree arrays now live on the device: two inputs, one output\nStill no dependencies between elements — output[i] only ever needs input[i], never any other index\nAsk yourself: if N doubles, what (if anything) changes in the launch configuration? (Answer: BLOCKS recomputes via the same ceiling-division formula — THREADS usually stays fixed)\n\n\n~2 min. Lab 04 Exercise 2’s pattern. The “what changes when N doubles” question is worth pausing on — it’s testing whether students actually understand ceiling division rather than having memorized a specific number."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#thread-count-intuition",
+    "href": "cosc435/notes/08.html#thread-count-intuition",
+    "title": "The Execution Model",
+    "section": "Thread Count Intuition",
+    "text": "Thread Count Intuition\n\n\nStudents who can draw this diagram from scratch can debug almost any 1D kernel launch-configuration bug\nThe gray/crossed-out threads in the N=14 case are exactly why the bounds guard exists — they’re real threads that ran, just with nothing valid to do\n\n\n~2 min. Worth having students redraw this for N=13 themselves as a quick check before moving to 2D."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#from-1d-to-2d",
+    "href": "cosc435/notes/08.html#from-1d-to-2d",
+    "title": "The Execution Model",
+    "section": "From 1D to 2D",
+    "text": "From 1D to 2D\n\nImages, matrices, and (soon) the capstone’s similarity table are inherently two-dimensional\nSame idea as 1D, doubled: one thread per (row, col) pair instead of one thread per index\ncuda.grid(2) returns a (row, col) tuple directly — you don’t need to compute it by hand from blockIdx/threadIdx (though you still can, next slide shows the underlying formula)\n\n\n@cuda.jit\ndef add_matrices(A, B, C):\n    row, col = cuda.grid(2)\n    if row &lt; C.shape[0] and col &lt; C.shape[1]:\n        C[row, col] = A[row, col] + B[row, col]\n\nThe bounds guard is now two conditions ANDed together — a thread must be in-bounds on both axes to do useful work\n\n\n~3 min. cuda.grid(2) returning (row, col) directly is the convention used in every 2D checkpoint and lab this semester (CK-05, Lab 05) — always unpack it as row, col = cuda.grid(2), never reorder it."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#d-launch-configuration",
+    "href": "cosc435/notes/08.html#d-launch-configuration",
+    "title": "The Execution Model",
+    "section": "2D Launch Configuration",
+    "text": "2D Launch Configuration\nM, N = 300, 400     # matrix shape\n\nTHREADS = (16, 16)  # 256 threads per block — a 16×16 tile\nBLOCKS  = (\n    (M + THREADS[0] - 1) // THREADS[0],   # ceiling in the row dimension\n    (N + THREADS[1] - 1) // THREADS[1],   # ceiling in the col dimension\n)\n\nadd_matrices[BLOCKS, THREADS](A_gpu, B_gpu, C_gpu)\n\n\n\n\n\n\n16×16 = 256 threads per block is a common convention — a power-of-two total that divides evenly into full warps (32 threads each, from Sep 30’s content)\n\n\n300 is not a multiple of 16 → the last block in each row/column has extra threads; the bounds guard filters them exactly as in 1D\n\n\n\n\n~3 min. Point out the 256 = 8 warps connection explicitly if Sep 30 has already happened when this is taught in a future offering — for this semester’s ordering it’s a forward reference, mention it as “you’ll see exactly why 256 is a friendly number in a week and a half.”"
+  },
+  {
+    "objectID": "cosc435/notes/08.html#thread-index-in-2d",
+    "href": "cosc435/notes/08.html#thread-index-in-2d",
+    "title": "The Execution Model",
+    "section": "Thread Index in 2D",
+    "text": "Thread Index in 2D\n\n\n\n\n\nThis is the formula cuda.grid(2) computes internally — same ceiling-division logic as 1D, just applied on both axes independently\nA thread that can correctly compute its own (row, col) here has mastered 2D kernels — everything else (2D bounds checks, 2D array indexing) follows directly\n\n\nglobal_row = blockIdx.x * blockDim.x + threadIdx.x\nglobal_col = blockIdx.y * blockDim.y + threadIdx.y\n\n~3 min. Have students label the global index for a thread you point to at random in the diagram — this is the practical skill CK-05 tests directly."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#preview-the-capstones-kernel",
+    "href": "cosc435/notes/08.html#preview-the-capstones-kernel",
+    "title": "The Execution Model",
+    "section": "Preview: The Capstone’s Kernel",
+    "text": "Preview: The Capstone’s Kernel\n@cuda.jit\ndef similarity_naive(Q, D, sim):\n    row, col = cuda.grid(2)          # row = query index, col = database index\n    if row &lt; Q.shape[0] and col &lt; D.shape[0]:\n        acc = 0.0\n        for k in range(Q.shape[1]):  # over the embedding dimension (64)\n            acc += Q[row, k] * D[col, k]\n        sim[row, col] = acc\n\nThis is the heart of the semester-long capstone, in outline form — one thread per (query, database-item) pair\nAt capstone scale (1,000 queries × 100,000 database items) that’s 100 million threads, each running this exact loop independently\nYou’ll fill in a version of this kernel’s gaps at CK-13; Module 4 will later replace the inner loop with tiled shared-memory access for a major speedup\n\n\n~2 min. This is purely a preview — students are not expected to write this today. The point is recognition: “oh, that’s just a 2D kernel with an extra loop inside,” which is exactly true."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#looking-ahead",
+    "href": "cosc435/notes/08.html#looking-ahead",
+    "title": "The Execution Model",
+    "section": "Looking Ahead",
+    "text": "Looking Ahead\n\nLab 04 (Fri, Sep 25): Write three kernels — scalar multiply, array add, one of your own design. Observe what happens with a missing bounds guard.\nLab 05 (Fri, Oct 2): Naive matrix multiplication — implement, time, and verify against NumPy’s reference (2D kernel skills applied at full scale)\nSep 28 (next lecture): GPU memory hierarchy — where data actually lives, and what it costs to access each kind\n\n\n~1 min. Confirm students have GPU runtime configured before Friday — should already be habit from Labs 1-2."
+  },
+  {
+    "objectID": "cosc435/notes/08.html#checkpoint-preview",
+    "href": "cosc435/notes/08.html#checkpoint-preview",
+    "title": "The Execution Model",
+    "section": "Checkpoint Preview",
+    "text": "Checkpoint Preview\nCheckpoint CK-04 will ask you to:\n\nWrite a 1D kernel with a correct bounds guard, given a word description of the computation\nGive the launch configuration for a specified N and thread-block size\nTrace through a 2D thread index calculation by hand\n\n\n~1 min. 20-minute timed, paired with Lab 04 (Sep 25). One code cell, one launch-configuration problem, one short-answer trace."
   },
   {
     "objectID": "cosc435/notes/06.html#todays-plan",
@@ -2328,7 +2426,7 @@
     "href": "cosc420/slides/module_5.html#why-distribute-data-replication-sharding-and-single-points-of-failure",
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
-    "text": "Why Distribute Data? Replication, Sharding, and Single Points of Failure\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 6 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Compute to Storage\n3 min\n\n\nThe Problem: One Machine, Too Much Load\n4 min\n\n\nReplication: Many Copies of the Same Data\n4 min\n\n\nSharding: Splitting the Data Itself\n4 min\n\n\nReplication vs. Sharding — Choosing Between Them\n5 min\n\n\nThe Cost of Replication\n3 min\n\n\nThe Cost of Sharding\n3 min\n\n\nSingle Points of Failure, Revisited\n3 min\n\n\nCheckpoint 6\n15 min\n\n\nBridge to Wednesday\n2 min\n\n\n\n9 content slides (~31 min) + Checkpoint 6. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”"
+    "text": "Why Distribute Data? Replication, Sharding, and Single Points of Failure\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 6 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Compute to Storage\n3 min\n\n\nThe Problem: One Machine, Too Much Load\n4 min\n\n\nReplication: Many Copies of the Same Data\n4 min\n\n\nSharding: Splitting the Data Itself\n4 min\n\n\nReplication vs. Sharding — Choosing Between Them\n5 min\n\n\nThe Cost of Replication\n3 min\n\n\nThe Cost of Sharding\n3 min\n\n\nPause & Discuss: Pick a Shard Key\n4 min\n\n\nSingle Points of Failure, Revisited\n3 min\n\n\nCheckpoint 6\n15 min\n\n\nBridge to Wednesday\n2 min\n\n\n\n9 content slides (~31 min) + Checkpoint 6. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”"
   },
   {
     "objectID": "cosc420/slides/module_5.html#recap-from-compute-to-storage",
@@ -2380,6 +2478,13 @@
     "text": "The Cost of Sharding\nSharding isn’t free either — it trades query simplicity for scale.\n\nCross-shard queries are expensive: “find everyone named Alice” now has to ask every shard and merge the results, instead of asking one machine.\nA bad shard key creates hot spots: if your shard key clusters too much traffic onto one shard (e.g., sharding by signup date when everyone signs up “today”), that one shard becomes the new single overloaded machine — sharding stops helping.\nResharding is hard: once data is split across shards, changing the shard key later means physically moving large amounts of data between machines.\n\n\nTiming: 3 min. The hot-spot point is the one worth emphasizing if time is short — it’s the most common real mistake, and it directly explains why choosing a good shard key matters, not just that one is required."
   },
   {
+    "objectID": "cosc420/slides/module_5.html#pause-discuss-pick-a-shard-key",
+    "href": "cosc420/slides/module_5.html#pause-discuss-pick-a-shard-key",
+    "title": "Module 5: Distributed Storage & NoSQL",
+    "section": "Pause & Discuss: Pick a Shard Key",
+    "text": "Pause & Discuss: Pick a Shard Key\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nAn online store’s orders collection has outgrown one machine and is being sharded across 4 shards. Three shard keys have been proposed:\n(a) order_date (b) customer_country (c) customer_id\nOn Black Friday, which key would pile almost every new write onto a single shard? Which key lets “show me my order history” go to just one shard? Is there a query that key (c) makes slower?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) order_date is the hot-spot trap. Every order placed today has today’s date, so every Black Friday write lands on the one shard that holds the newest dates, while the other three sit idle. It’s the “sharding by signup date” example from the previous slide.\n(b) customer_country has few distinct values and is heavily skewed (a US store’s orders are mostly US), so you get one giant shard that can’t be split any further.\n(c) customer_id has many values spread evenly, so writes spread out. All of one customer’s orders share the same key, so “my order history” is a single-shard query.\nWhat (c) makes slower: any query that isn’t by customer, like “total sales today” or “all orders for product X.” Those now have to ask all 4 shards and merge the answers (the cross-shard cost from the previous slide).\n\nNo shard key makes every query cheap. Choose it for the queries you run most."
+  },
+  {
     "objectID": "cosc420/slides/module_5.html#single-points-of-failure-revisited",
     "href": "cosc420/slides/module_5.html#single-points-of-failure-revisited",
     "title": "Module 5: Distributed Storage & NoSQL",
@@ -2405,7 +2510,7 @@
     "href": "cosc420/slides/module_5.html#the-cap-theorem-revisited-for-storage",
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "The CAP Theorem, Revisited for Storage",
-    "text": "The CAP Theorem, Revisited for Storage\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Replication’s Loose Thread\n3 min\n\n\nRecap: The CAP Theorem (from Module 2)\n3 min\n\n\nApplying CAP to a Replicated Database\n5 min\n\n\nStrong Consistency\n4 min\n\n\nEventual Consistency\n4 min\n\n\nSynchronous vs. Asynchronous Replication\n5 min\n\n\nA Worked Scenario: Checking Your Bank Balance\n5 min\n\n\nRead Preference: Choosing Where to Read From\n4 min\n\n\nConsistency Is a Spectrum, Not a Switch\n4 min\n\n\nBridge to Friday’s Worksheet\n3 min\n\n\n\n10 slides, ~40 min. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it."
+    "text": "The CAP Theorem, Revisited for Storage\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Replication’s Loose Thread\n3 min\n\n\nRecap: The CAP Theorem (from Module 2)\n3 min\n\n\nApplying CAP to a Replicated Database\n5 min\n\n\nStrong Consistency\n4 min\n\n\nEventual Consistency\n4 min\n\n\nSynchronous vs. Asynchronous Replication\n5 min\n\n\nPause & Discuss: Where Did My Comment Go?\n4 min\n\n\nA Worked Scenario: Checking Your Bank Balance\n5 min\n\n\nRead Preference: Choosing Where to Read From\n4 min\n\n\nConsistency Is a Spectrum, Not a Switch\n4 min\n\n\nBridge to Friday’s Worksheet\n3 min\n\n\n\n10 slides, ~40 min. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it."
   },
   {
     "objectID": "cosc420/slides/module_5.html#recap-replications-loose-thread",
@@ -2448,6 +2553,13 @@
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "Synchronous vs. Asynchronous Replication",
     "text": "Synchronous vs. Asynchronous Replication\nThis is the actual mechanism behind the strong/eventual distinction:\n\n\n\n\n\n\n\n\n\nSynchronous replication\nAsynchronous replication\n\n\n\n\nPrimary waits for replicas before confirming write?\nYes\nNo\n\n\nWrite speed\nSlower\nFaster\n\n\nConsistency\nStrong\nEventual\n\n\nRisk if primary crashes right after a write\nNone — replicas already have it\nReplicas may be missing the most recent write(s)\n\n\n\n\nSynchronous = strong consistency’s mechanism: the primary refuses to say “done” until replicas confirm.\nAsynchronous = eventual consistency’s mechanism: the primary says “done” immediately and copies the change out afterward.\n\n\nTiming: 5 min. This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation."
+  },
+  {
+    "objectID": "cosc420/slides/module_5.html#pause-discuss-where-did-my-comment-go",
+    "href": "cosc420/slides/module_5.html#pause-discuss-where-did-my-comment-go",
+    "title": "Module 5: Distributed Storage & NoSQL",
+    "section": "Pause & Discuss: Where Did My Comment Go?",
+    "text": "Pause & Discuss: Where Did My Comment Go?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA site stores comments in a replica set (1 primary, 2 replicas). It uses asynchronous replication and reads from any replica.\n(a) You post a comment and see “Saved!” You refresh, and your comment is missing. You refresh again, and it’s back. What happened?\n(b) On a different day, the primary crashes 50 ms after telling you “Saved!”, and a replica is promoted to primary. Could your comment be gone for good?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) The first refresh was served by a replica that hadn’t received the write yet (replication lag). The second was served by the primary or by a replica that had caught up. Nothing was lost; that replica was just behind. This is eventual consistency showing a stale read. (Its name, if a student asks: a read-your-own-writes violation. Common fix: read your own data from the primary.)\n(b) Yes. With async replication the primary says “done” as soon as it has the write. If it crashes before copying the write to any replica, the new primary never had it, so the write is gone even though the user was told it succeeded. That’s the last row of the sync/async table. Prevention: synchronous replication (or waiting for a majority of replicas), paying extra write latency so that “Saved!” really means saved.\n\nThis sets up the next slide: comments can live with (a), but a bank can’t live with (b)."
   },
   {
     "objectID": "cosc420/slides/module_5.html#a-worked-scenario-checking-your-bank-balance",
@@ -2531,7 +2643,7 @@
     "href": "cosc420/slides/module_5.html#the-nosql-landscape",
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "The NoSQL Landscape",
-    "text": "The NoSQL Landscape\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Storage Design Is Solved — Now, What Software?\n3 min\n\n\nWhy Not Just a Relational Database?\n4 min\n\n\nThe NoSQL Landscape\n4 min\n\n\nDocument Stores\n4 min\n\n\nKey-Value Stores\n4 min\n\n\nColumn-Family Stores\n4 min\n\n\nGraph Databases\n4 min\n\n\nChoosing the Right Type\n5 min\n\n\nNoSQL vs. Relational — The Real Trade-off\n4 min\n\n\nBridge: MongoDB, Specifically\n3 min\n\n\n\n11 slides, ~39 min."
+    "text": "The NoSQL Landscape\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Storage Design Is Solved — Now, What Software?\n3 min\n\n\nWhy Not Just a Relational Database?\n4 min\n\n\nThe NoSQL Landscape\n4 min\n\n\nDocument Stores\n4 min\n\n\nKey-Value Stores\n4 min\n\n\nPause & Discuss: A Shopping Cart in a Key-Value Store?\n4 min\n\n\nColumn-Family Stores\n4 min\n\n\nGraph Databases\n4 min\n\n\nChoosing the Right Type\n5 min\n\n\nNoSQL vs. Relational — The Real Trade-off\n4 min\n\n\nBridge: MongoDB, Specifically\n3 min\n\n\n\n11 slides, ~39 min."
   },
   {
     "objectID": "cosc420/slides/module_5.html#recap-storage-design-is-solved-now-what-software",
@@ -2567,6 +2679,13 @@
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "Key-Value Stores",
     "text": "Key-Value Stores\nThe simplest possible model: every value is stored under a unique key, and that’s it.\nSET session:abc123 \"user_id=42,expires=...\"\nGET session:abc123\n\nThe database treats the value as an opaque blob — it doesn’t know or care what’s inside.\nExtremely fast, often in-memory (Redis) — ideal when you always look things up by one exact key and don’t need to query by the value’s contents.\nCommon uses: caching, session storage, rate limiting, real-time leaderboards.\n\n\nTiming: 4 min. Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it."
+  },
+  {
+    "objectID": "cosc420/slides/module_5.html#pause-discuss-a-shopping-cart-in-a-key-value-store",
+    "href": "cosc420/slides/module_5.html#pause-discuss-a-shopping-cart-in-a-key-value-store",
+    "title": "Module 5: Distributed Storage & NoSQL",
+    "section": "Pause & Discuss: A Shopping Cart in a Key-Value Store?",
+    "text": "Pause & Discuss: A Shopping Cart in a Key-Value Store?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nYou’re storing shopping carts. Two options:\nOption 1: Redis (key-value). Key cart:user42, and the value is the whole cart as one blob.\nOption 2: MongoDB (document). One document per cart, with an items array inside it.\nFor showing a user their own cart, which works better? Then marketing asks: “How many carts right now contain the new headphones?” Which option makes you regret your choice, and why?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nA user’s own cart: both work. Redis is likely faster, because it’s in memory and this is an exact-key lookup, which is exactly its sweet spot. Carts and sessions are a classic Redis use.\nMarketing’s question: this is where you regret Redis. The value is an opaque blob and Redis can’t search inside it, so you’d have to fetch every cart and scan them in your own code. MongoDB can query fields inside documents, so this becomes a single query (Wednesday shows the syntax).\nPrinciple: key-value wins when you always look things up by the exact key. As soon as you need to query by what’s inside the value, you want a store that understands the value’s structure. Real systems often use both: Redis for fast per-user reads, and a queryable store as the system of record."
   },
   {
     "objectID": "cosc420/slides/module_5.html#column-family-stores",
@@ -2608,7 +2727,7 @@
     "href": "cosc420/slides/module_5.html#mongodb-collections-documents-and-crud-checkpoint-7",
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "MongoDB: Collections, Documents, and CRUD + Checkpoint 7",
-    "text": "MongoDB: Collections, Documents, and CRUD + Checkpoint 7\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 7 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap + Today’s Plan\n3 min\n\n\nMongoDB Concepts\n3 min\n\n\nCRUD — Create\n4 min\n\n\nCRUD — Read, and Query Operators\n5 min\n\n\nCRUD — Update and Delete\n4 min\n\n\nReplication in MongoDB\n4 min\n\n\nSharding in MongoDB\n4 min\n\n\nBeyond CRUD: Counting for the Capstone\n3 min\n\n\nMongoDB Atlas\n3 min\n\n\nCheckpoint 7\n15 min\n\n\nModule 5 Summary + Bridge\n2 min\n\n\n\n10 content slides (~33 min) + Checkpoint 7. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory."
+    "text": "MongoDB: Collections, Documents, and CRUD + Checkpoint 7\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 7 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap + Today’s Plan\n3 min\n\n\nMongoDB Concepts\n3 min\n\n\nCRUD — Create\n4 min\n\n\nCRUD — Read, and Query Operators\n5 min\n\n\nCRUD — Update and Delete\n4 min\n\n\nPause & Discuss: Predict the Query Results\n4 min\n\n\nReplication in MongoDB\n4 min\n\n\nSharding in MongoDB\n4 min\n\n\nBeyond CRUD: Counting for the Capstone\n3 min\n\n\nMongoDB Atlas\n3 min\n\n\nCheckpoint 7\n15 min\n\n\nModule 5 Summary + Bridge\n2 min\n\n\n\n10 content slides (~33 min) + Checkpoint 7. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory."
   },
   {
     "objectID": "cosc420/slides/module_5.html#recap-todays-plan",
@@ -2644,6 +2763,13 @@
     "title": "Module 5: Distributed Storage & NoSQL",
     "section": "CRUD — Update and Delete",
     "text": "CRUD — Update and Delete\n# Update ONE matching document\ncol.update_one(\n    {\"name\": \"Alice\"},\n    {\"$set\": {\"salary\": 100000}}\n)\n\n# Update ALL matching documents\ncol.update_many(\n    {\"dept\": \"Engineering\"},\n    {\"$mul\": {\"salary\": 1.10}}   # 10% raise for everyone matched\n)\n\n# Delete\ncol.delete_one({\"name\": \"Bob\"})\ncol.delete_many({\"active\": False})\n\n$set replaces a field’s value outright; $mul multiplies a numeric field by a factor.\nupdate_one/delete_one affect only the first match; update_many/delete_many affect every match.\n\n\nTiming: 4 min. This maps almost exactly onto Checkpoint 7’s Task 3 (updateOne + $set) and Task 4 (deleteMany) — don’t use the checkpoint’s own active/department fields as the live example here if you want to avoid spoiling it outright, though the operators themselves obviously must be taught plainly."
+  },
+  {
+    "objectID": "cosc420/slides/module_5.html#pause-discuss-predict-the-query-results",
+    "href": "cosc420/slides/module_5.html#pause-discuss-predict-the-query-results",
+    "title": "Module 5: Distributed Storage & NoSQL",
+    "section": "Pause & Discuss: Predict the Query Results",
+    "text": "Pause & Discuss: Predict the Query Results\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA products collection holds exactly these four documents:\n{\"name\": \"A\", \"category\": \"books\", \"price\": 12}\n{\"name\": \"B\", \"category\": \"books\", \"price\": 30}\n{\"name\": \"C\", \"category\": \"games\", \"price\": 45}\n{\"name\": \"D\", \"category\": \"games\"}              # no price field at all\nThese run in order:\ncol.update_one({\"category\": \"books\"}, {\"$mul\": {\"price\": 0.5}})\ncol.find({\"price\": {\"$lt\": 20}})\ncol.delete_many({\"price\": {\"$gt\": 100}})\nWhat does the find return? How many documents does delete_many remove?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nupdate_one changes only the first match, so A becomes 6 and B stays 30. (update_many would have halved both, giving 6 and 15.)\nfind returns only A (price 6). B is 30. D has no price field at all, so a comparison on price never matches it. A missing field is not “less than 20.” This is Monday’s flexible-schema point in action.\ndelete_many removes 0 documents. A filter that matches nothing is not an error.\n\nSide note if asked: “first match” means first in the collection’s stored order. Real code shouldn’t depend on which document that is. If you mean one specific document, filter on something unique, like _id."
   },
   {
     "objectID": "cosc420/slides/module_5.html#replication-in-mongodb",
@@ -2776,7 +2902,7 @@
     "href": "cosc420/slides/module_3.html#the-mapreduce-paradigm-checkpoint-3",
     "title": "Module 3: Big Data & MapReduce",
     "section": "The MapReduce Paradigm + Checkpoint 3",
-    "text": "The MapReduce Paradigm + Checkpoint 3\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 3 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: What You Did Monday\n3 min\n\n\nMeet Map, Shuffle, Reduce\n4 min\n\n\nThe Map Phase\n5 min\n\n\nThe Shuffle/Sort Phase\n4 min\n\n\nThe Reduce Phase\n3 min\n\n\nWord Count Walkthrough\n5 min\n\n\nWhy This Scales\n4 min\n\n\nWhat the Framework Handles For You\n2 min\n\n\nCheckpoint 3 Preview\n3 min\n\n\nLab 4 Preview\n2 min\n\n\n\n10 slides (~35 min) + Checkpoint 3. Every one of today’s ideas already has a physical version from Monday’s activity — lean on it constantly rather than introducing the material as if it’s brand new."
+    "text": "The MapReduce Paradigm + Checkpoint 3\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 3 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: What You Did Monday\n3 min\n\n\nMeet Map, Shuffle, Reduce\n4 min\n\n\nThe Map Phase\n5 min\n\n\nThe Shuffle/Sort Phase\n4 min\n\n\nThe Reduce Phase\n3 min\n\n\nWord Count Walkthrough\n5 min\n\n\nPause & Discuss: Average, Not Count\n4 min\n\n\nWhy This Scales\n4 min\n\n\nWhat the Framework Handles For You\n2 min\n\n\nCheckpoint 3 Preview\n3 min\n\n\nLab 4 Preview\n2 min\n\n\n\n10 slides (~35 min) + Checkpoint 3. Every one of today’s ideas already has a physical version from Monday’s activity — lean on it constantly rather than introducing the material as if it’s brand new."
   },
   {
     "objectID": "cosc420/slides/module_3.html#recap-what-you-did-monday",
@@ -2821,6 +2947,13 @@
     "text": "Word Count Walkthrough\nThe classic “Hello World” of MapReduce — structurally identical to Monday’s activity, just counting words instead of suits or menu items.\nInput:\nthe quick brown fox\nthe fox jumped over the lazy dog\nMap phase (one mapper per line):\n(the,1) (quick,1) (brown,1) (fox,1)\n(the,1) (fox,1) (jumped,1) (over,1) (the,1) (lazy,1) (dog,1)\nShuffle/Sort (grouped by key — the framework’s work, not yours):\n(brown,[1])  (dog,[1])  (fox,[1,1])  (jumped,[1])\n(lazy,[1])   (over,[1]) (quick,[1])  (the,[1,1,1])\nReduce phase (sum each list):\n(brown,1) (dog,1) (fox,2) (jumped,1) (lazy,1) (over,1) (quick,1) (the,3)\n\nTiming: 5 min. Walk this top to bottom, pointing explicitly at which line is Map, which is Shuffle, which is Reduce — this is the exact shape CP3 and Lab 4’s email-domain problem reuse."
   },
   {
+    "objectID": "cosc420/slides/module_3.html#pause-discuss-average-not-count",
+    "href": "cosc420/slides/module_3.html#pause-discuss-average-not-count",
+    "title": "Module 3: Big Data & MapReduce",
+    "section": "Pause & Discuss: Average, Not Count",
+    "text": "Pause & Discuss: Average, Not Count\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nThe capstone’s ratings data has one line per rating:\nuserId,movieId,rating\n1,31,2.5\n1,1029,3.0\n7,31,4.0\nYou want the average rating for each movie. What should map() emit? What does reduce() do with each movie’s list of values?\nHarder follow-up: to cut shuffle traffic, a teammate suggests that each machine first computes a local average per movie, and then the reducer averages those averages. Does that give the right answer?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nmap: emit(movieId, rating). Same shape as word count and sales-per-region.\nreduce: emit(movieId, sum(values) / len(values)). In the example, movie 31 gets [2.5, 4.0] → 3.25.\nFollow-up: no. Averaging averages is wrong whenever the groups are different sizes. Say machine 1 has movie 31’s ratings [5, 5, 5, 5] (average 5) and machine 2 has [1] (average 1). The average of averages is 3, but the true average is 16 / 5 = 3.2. Fix: each machine sends a (sum, count) pair per movie, and the reducer adds up the sums and counts and divides once at the end. Sums and counts can be combined early; averages can’t. Spark’s avg() (Module 4) does exactly this for you.\n\nThis sets up the next slide: the teammate’s instinct (shrink what crosses the network) is right. Only the math was wrong."
+  },
+  {
     "objectID": "cosc420/slides/module_3.html#why-this-scales",
     "href": "cosc420/slides/module_3.html#why-this-scales",
     "title": "Module 3: Big Data & MapReduce",
@@ -2853,7 +2986,7 @@
     "href": "cosc420/slides/module_3.html#hadoop-hdfs-yarn-mapreduce-architecture-midterm-review",
     "title": "Module 3: Big Data & MapReduce",
     "section": "Hadoop: HDFS, YARN & MapReduce Architecture + Midterm Review",
-    "text": "Hadoop: HDFS, YARN & MapReduce Architecture + Midterm Review\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From “How” to “Where”\n3 min\n\n\nWhy Not Just a Regular File System?\n4 min\n\n\nHDFS Blocks + Replication\n4 min\n\n\nHDFS Architecture: The Address Book, Again\n4 min\n\n\nHDFS Commands Demo\n5 min\n\n\nHDFS Design Principles\n3 min\n\n\nYARN: Who Actually Runs the Job?\n4 min\n\n\nA MapReduce Job in Practice\n3 min\n\n\nFrom MapReduce to Spark\n3 min\n\n\nLab 5 Preview\n2 min\n\n\nMidterm Exam Preview\n4 min\n\n\nModule 3 Summary\n3 min\n\n\n\n12 slides, ~42 min, with room to spare — there’s no timed checkpoint today, so let discussion run a little if a good question comes up. Oct 12 (the Monday before this) is Fall Reading Days — this is the only session that covers HDFS, YARN, and midterm review, since there’s no other lecture day this week. Don’t let YARN eat time meant for HDFS or the midterm checklist: only C3.3 (“use HDFS commands… run a job on a Hadoop cluster”) is competency-tested — YARN internals are context, not a graded target, so keep that slide brief on purpose."
+    "text": "Hadoop: HDFS, YARN & MapReduce Architecture + Midterm Review\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From “How” to “Where”\n3 min\n\n\nWhy Not Just a Regular File System?\n4 min\n\n\nHDFS Blocks + Replication\n4 min\n\n\nHDFS Architecture: The Address Book, Again\n4 min\n\n\nHDFS Commands Demo\n5 min\n\n\nHDFS Design Principles\n3 min\n\n\nPause & Discuss: What Happens When a Machine Dies?\n4 min\n\n\nYARN: Who Actually Runs the Job?\n4 min\n\n\nA MapReduce Job in Practice\n3 min\n\n\nFrom MapReduce to Spark\n3 min\n\n\nLab 5 Preview\n2 min\n\n\nMidterm Exam Preview\n4 min\n\n\nModule 3 Summary\n3 min\n\n\n\n12 slides, ~42 min, with room to spare — there’s no timed checkpoint today, so let discussion run a little if a good question comes up. Oct 12 (the Monday before this) is Fall Reading Days — this is the only session that covers HDFS, YARN, and midterm review, since there’s no other lecture day this week. Don’t let YARN eat time meant for HDFS or the midterm checklist: only C3.3 (“use HDFS commands… run a job on a Hadoop cluster”) is competency-tested — YARN internals are context, not a graded target, so keep that slide brief on purpose."
   },
   {
     "objectID": "cosc420/slides/module_3.html#recap-from-how-to-where",
@@ -2896,6 +3029,13 @@
     "title": "Module 3: Big Data & MapReduce",
     "section": "HDFS Design Principles",
     "text": "HDFS Design Principles\n\nWrite once, read many — files aren’t modified after writing; you write a file once, then only ever read it (or replace it entirely) afterward.\nData locality — the same idea from Wednesday: MapReduce runs map tasks on the same machine that already holds the data block being processed.\nFault tolerance — if a DataNode fails, its blocks are automatically re-replicated elsewhere from the remaining copies, restoring the replication factor of 3.\nNot good for: small files (overhead per file is high), low-latency access (built for throughput, not speed-of-single-lookup), or random writes (write-once-read-many, remember).\n\n\nTiming: 3 min. HDFS was designed for exactly the workload MapReduce produces — large, sequential reads of immutable files. It’s a poor choice for transactional workloads (that’s what Module 5’s databases are for) — worth saying explicitly, since students may otherwise wonder why the capstone uses both HDFS and MongoDB instead of just one."
+  },
+  {
+    "objectID": "cosc420/slides/module_3.html#pause-discuss-what-happens-when-a-machine-dies",
+    "href": "cosc420/slides/module_3.html#pause-discuss-what-happens-when-a-machine-dies",
+    "title": "Module 3: Big Data & MapReduce",
+    "section": "Pause & Discuss: What Happens When a Machine Dies?",
+    "text": "Pause & Discuss: What Happens When a Machine Dies?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nYou -put a 1 GB file into HDFS (128 MB blocks, replication factor 3) on a cluster with 10 DataNodes.\n(a) How many blocks is the file split into? How much total disk space does it take up across the cluster?\n(b) One DataNode’s disk dies. Is any part of the file lost? What does HDFS do next?\n(c) Instead, the NameNode dies, and every DataNode is fine. Can you still read the file?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) 1024 / 128 = 8 blocks. With 3 copies each, that’s 24 block copies, about 3 GB of raw disk.\n(b) Nothing is lost. Every block on the dead node still has 2 copies elsewhere. HDFS notices the node has gone silent and re-replicates its blocks from the surviving copies until each block is back to 3 (the Design Principles slide). Data is only lost if all 3 holders of the same block die before re-replication finishes.\n(c) No. Every byte is still on the DataNodes, but nothing knows which blocks make up which file, or where they are. The address book is gone. In a basic setup that makes the NameNode a single point of failure, and production clusters run a standby NameNode to take over. Compare DNS: when DNS is down, every website still exists, but you can’t find any of them.\n\nPart (c) sets up Module 5 Session 1’s single-point-of-failure slide."
   },
   {
     "objectID": "cosc420/slides/module_3.html#yarn-who-actually-runs-the-job",
@@ -3035,7 +3175,7 @@
     "href": "cosc420/slides/module_1.html#processes-vs.-threads",
     "title": "Module 1: Concurrency",
     "section": "Processes vs. Threads",
-    "text": "Processes vs. Threads\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: One Kitchen, Many Cooks\n3 min\n\n\nProcesses vs. Threads\n4 min\n\n\nConnecting to Computer Organization\n5 min\n\n\nWhy Bother With Threads?\n5 min\n\n\nThreads in Java\n5 min\n\n\nTracing It: What Actually Happens\n5 min\n\n\nThe run() vs. start() Bug\n5 min\n\n\nThe Thread Lifecycle\n5 min\n\n\nWho Decides When a Thread Runs?\n3 min\n\n\nLab 1 Preview\n3 min\n\n\n\n10 slides, ~50 min. If you’re behind after the Java trace slide, compress “Who Decides” into a single sentence read off “The Thread Lifecycle” slide rather than presenting it separately — it’s recapped again in Session 3’s opener either way."
+    "text": "Processes vs. Threads\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: One Kitchen, Many Cooks\n3 min\n\n\nProcesses vs. Threads\n4 min\n\n\nConnecting to Computer Organization\n5 min\n\n\nWhy Bother With Threads?\n5 min\n\n\nThreads in Java\n5 min\n\n\nTracing It: What Actually Happens\n5 min\n\n\nPause & Discuss: What If We Skip join()?\n4 min\n\n\nThe run() vs. start() Bug\n5 min\n\n\nThe Thread Lifecycle\n5 min\n\n\nWho Decides When a Thread Runs?\n3 min\n\n\nLab 1 Preview\n3 min\n\n\n\n10 slides, ~50 min. If you’re behind after the Java trace slide, compress “Who Decides” into a single sentence read off “The Thread Lifecycle” slide rather than presenting it separately — it’s recapped again in Session 3’s opener either way."
   },
   {
     "objectID": "cosc420/slides/module_1.html#recap-one-kitchen-many-cooks",
@@ -3080,6 +3220,13 @@
     "text": "Tracing It: What Actually Happens\nThread t = new Thread(() -&gt; {\n    System.out.println(\"Hello from lambda\");\n});\nt.start();\nt.join();\nSystem.out.println(\"Main thread continues\");\n\n\n\n\n\n\n\n\nStep\nMain thread\nNew thread t\n\n\n\n\n1\nnew Thread(...) creates t, not yet running\ndoesn’t exist yet\n\n\n2\nt.start() launches t, returns immediately\nstarts running, prints “Hello from lambda”\n\n\n3\nt.join() — main pauses here and waits\nkeeps running to completion\n\n\n4\nt finishes → main resumes\nterminated\n\n\n5\nprints “Main thread continues”\n—\n\n\n\nNotice step 2: start() doesn’t wait for the new thread to do anything — it hands off the work and returns control to main immediately. The two threads are now running at the same time, until join() in step 3 forces main to pause and wait.\n\nTiming: 5 min. Walk this table row by row rather than presenting it all at once — reveal incrementally if your slide tool supports it, or just point and narrate row by row on the static table."
   },
   {
+    "objectID": "cosc420/slides/module_1.html#pause-discuss-what-if-we-skip-join",
+    "href": "cosc420/slides/module_1.html#pause-discuss-what-if-we-skip-join",
+    "title": "Module 1: Concurrency",
+    "section": "Pause & Discuss: What If We Skip join()?",
+    "text": "Pause & Discuss: What If We Skip join()?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nTake the code from the trace slide and delete the t.join() line:\nThread t = new Thread(() -&gt; {\n    System.out.println(\"Hello from lambda\");\n});\nt.start();\nSystem.out.println(\"Main thread continues\");\nWhat will this print? Is there more than one possible answer? If you ran it 100 times, would you always see the same output?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Take a quick show of hands — “Hello always first,” “Main always first,” “it depends” — before giving the answer.\nAnswer: both lines always print, but in either order. Without join(), nothing makes main wait: once start() returns, the two threads race to their println. “Main thread continues” often wins (main is already running; t still has to get its turn), but “Hello from lambda” first is also possible, and it can change from run to run. The program still doesn’t exit until t finishes. The point to land: the order of your source lines does not decide the order two threads run in. That’s “Who Decides When a Thread Runs?” (two slides ahead) in miniature, and it’s the seed of Session 3’s race conditions."
+  },
+  {
     "objectID": "cosc420/slides/module_1.html#the-run-vs.-start-bug",
     "href": "cosc420/slides/module_1.html#the-run-vs.-start-bug",
     "title": "Module 1: Concurrency",
@@ -3112,7 +3259,7 @@
     "href": "cosc420/slides/module_1.html#race-conditions-in-depth",
     "title": "Module 1: Concurrency",
     "section": "Race Conditions In Depth",
-    "text": "Race Conditions In Depth\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: What You Saw in Lab 1\n6 min\n\n\ncounter++ Isn’t One Step\n4 min\n\n\nDown to the Registers\n6 min\n\n\nVisualizing a Race Condition: The Wrong Interleaving\n5 min\n\n\nThe Same Code, the Right Interleaving\n5 min\n\n\nWhy This Is a “Heisenbug”\n3 min\n\n\nWhy the Timing Is Unpredictable\n3 min\n\n\nReal-World Stakes: The Bank Account\n5 min\n\n\nReal-World Stakes: The Last Item in Stock\n5 min\n\n\nBridge: We Need “One Cook at a Time”\n5 min\n\n\nLab 2 Preview\n3 min\n\n\n\nSlides use reveal.js fragments (. . . pauses and incremental lists) so each point lands before the next appears — advance with the arrow/space key. Nothing is hidden from the study export; fragments just control pacing in the live deck.\nStudents have already applied synchronized in Lab 1 Part 2 — but only mechanically (“add this keyword, the number comes out right”). This session is the other half: why the race happens, down to the register level. Session 4 (Sep 14) then explains why that one keyword was enough, and what it costs (tradeoffs, deadlock/livelock/starvation). So when a student asks “isn’t this the thing we fixed in Lab 1?” — yes, and today plus Sep 14 are about understanding the fix you already used, not discovering it."
+    "text": "Race Conditions In Depth\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: What You Saw in Lab 1\n6 min\n\n\ncounter++ Isn’t One Step\n4 min\n\n\nDown to the Registers\n6 min\n\n\nVisualizing a Race Condition: The Wrong Interleaving\n5 min\n\n\nThe Same Code, the Right Interleaving\n5 min\n\n\nWhy This Is a “Heisenbug”\n3 min\n\n\nWhy the Timing Is Unpredictable\n3 min\n\n\nPause & Discuss: How Wrong Can It Get?\n4 min\n\n\nReal-World Stakes: The Bank Account\n5 min\n\n\nReal-World Stakes: The Last Item in Stock\n5 min\n\n\nBridge: We Need “One Cook at a Time”\n5 min\n\n\nLab 2 Preview\n3 min\n\n\n\nSlides use reveal.js fragments (. . . pauses and incremental lists) so each point lands before the next appears — advance with the arrow/space key. Nothing is hidden from the study export; fragments just control pacing in the live deck.\nStudents have already applied synchronized in Lab 1 Part 2 — but only mechanically (“add this keyword, the number comes out right”). This session is the other half: why the race happens, down to the register level. Session 4 (Sep 14) then explains why that one keyword was enough, and what it costs (tradeoffs, deadlock/livelock/starvation). So when a student asks “isn’t this the thing we fixed in Lab 1?” — yes, and today plus Sep 14 are about understanding the fix you already used, not discovering it."
   },
   {
     "objectID": "cosc420/slides/module_1.html#recap-what-you-saw-in-lab-1",
@@ -3164,6 +3311,13 @@
     "text": "Why the Timing Is Unpredictable\nThe same variability you already know from computer organization — cache hits vs. misses, branch prediction guessing right or wrong — means even identical code run twice rarely takes the exact same number of CPU cycles.\n\nMultiply that natural per-run variability across multiple threads, and the interleaving order becomes essentially unpredictable without an explicit mechanism forcing it.\n\nTiming: 3 min. This is the “why” under the Heisenbug slide — students have seen cache/branch-prediction variability in computer organization; the new point is that it compounds across threads into unpredictable interleaving. Keep it tight; it sets up the need for synchronized."
   },
   {
+    "objectID": "cosc420/slides/module_1.html#pause-discuss-how-wrong-can-it-get",
+    "href": "cosc420/slides/module_1.html#pause-discuss-how-wrong-can-it-get",
+    "title": "Module 1: Concurrency",
+    "section": "Pause & Discuss: How Wrong Can It Get?",
+    "text": "Pause & Discuss: How Wrong Can It Get?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nBack to Lab 1: two threads each run counter++ 10,000 times, starting from counter = 0.\nCould the final value ever be more than 20,000? Could it ever be less than 10,000?\nUse the read → increment → write steps to justify your answer. Don’t just guess.\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Most students get the “more than 20,000” half quickly. The “less than 10,000” half is where the good arguments happen. Don’t insist on the exact minimum.\nAnswer:\n\nMore than 20,000: impossible. Every write stores (a value some thread read) + 1. A lost update can only throw increments away. It can never create extra ones, so 20,000 is the ceiling.\nLess than 10,000: possible in principle, though very rare in practice. A thread can LOAD a value, get paused for a long time while the other thread does thousands of increments, then wake up and STORE its stale value + 1. That one write erases all the work done in between. Repeat the pattern and the total can drop far below 10,000 (the theoretical minimum is 2). The idea to land: one stale write can erase many increments at once, not just one.\n\nThis ties back to the Heisenbug slide: a test that always shows ~19,000 tells you nothing about the worst case."
+  },
+  {
     "objectID": "cosc420/slides/module_1.html#real-world-stakes-the-bank-account",
     "href": "cosc420/slides/module_1.html#real-world-stakes-the-bank-account",
     "title": "Module 1: Concurrency",
@@ -3196,7 +3350,7 @@
     "href": "cosc420/slides/module_1.html#synchronization-locks-and-their-failure-modes",
     "title": "Module 1: Concurrency",
     "section": "Synchronization, Locks, and Their Failure Modes",
-    "text": "Synchronization, Locks, and Their Failure Modes\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: The synchronized You’ve Already Used\n3 min\n\n\nThe synchronized Keyword: The Lock\n3 min\n\n\nsynchronized: Acquiring and Releasing\n3 min\n\n\nMethod-Level vs. Block-Level Locking\n5 min\n\n\nWorked Fix: Closing the Loop on Session 3\n6 min\n\n\nsynchronized — Tradeoffs\n5 min\n\n\nDeadlock: The Circular Wait\n4 min\n\n\nDeadlock: The Picture and How to Prevent It\n3 min\n\n\nLivelock\n4 min\n\n\nStarvation\n4 min\n\n\nThe Three Failure Modes, Side by Side\n4 min\n\n\nThreads Cost Something to Create\n3 min\n\n\nA First Look at Pools (from Lab 2)\n3 min\n\n\n\nSlides use reveal.js fragments (. . . pauses, incremental lists) for pacing — advance with arrow/space. The full text is retained for the study export.\nStudents have used synchronized in Lab 1 and a thread pool in Lab 2 — both mechanically, without the underlying explanation. This session explains the first one fully and closes with a real (not just teaser) intro to the second, so Session 5’s deep dive isn’t cold. Open by reading back Session 3’s last line (“you already know the tool — do you know why it works, or what it breaks?”)."
+    "text": "Synchronization, Locks, and Their Failure Modes\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: The synchronized You’ve Already Used\n3 min\n\n\nThe synchronized Keyword: The Lock\n3 min\n\n\nsynchronized: Acquiring and Releasing\n3 min\n\n\nMethod-Level vs. Block-Level Locking\n5 min\n\n\nWorked Fix: Closing the Loop on Session 3\n6 min\n\n\nsynchronized — Tradeoffs\n5 min\n\n\nPause & Discuss: Whose Lock Is It?\n4 min\n\n\nDeadlock: The Circular Wait\n4 min\n\n\nDeadlock: The Picture and How to Prevent It\n3 min\n\n\nLivelock\n4 min\n\n\nStarvation\n4 min\n\n\nThe Three Failure Modes, Side by Side\n4 min\n\n\nThreads Cost Something to Create\n3 min\n\n\nA First Look at Pools (from Lab 2)\n3 min\n\n\n\nSlides use reveal.js fragments (. . . pauses, incremental lists) for pacing — advance with arrow/space. The full text is retained for the study export.\nStudents have used synchronized in Lab 1 and a thread pool in Lab 2 — both mechanically, without the underlying explanation. This session explains the first one fully and closes with a real (not just teaser) intro to the second, so Session 5’s deep dive isn’t cold. Open by reading back Session 3’s last line (“you already know the tool — do you know why it works, or what it breaks?”)."
   },
   {
     "objectID": "cosc420/slides/module_1.html#recap-the-synchronized-youve-already-used",
@@ -3239,6 +3393,13 @@
     "title": "Module 1: Concurrency",
     "section": "synchronized — Tradeoffs",
     "text": "synchronized — Tradeoffs\n\n✅ Correctness: eliminates this entire class of race condition.\n❌ Performance: threads that would have run simultaneously now wait in line — the protected section runs one-at-a-time no matter how many CPU cores you have. This is called serializing execution.\nKitchen picture: one claim ticket for the stove means every cook who needs the stove queues up, even if only one of them is actually using it at any instant. If ten cooks all need the stove for one second each, the kitchen just spent ten seconds on stove work that could have taken one second with ten stoves.\n\n\n\n\n\n\n\n\nTip\n\n\nRule of thumb: lock the minimum amount of code needed for correctness. Every line inside a synchronized block is a line no other thread can run concurrently with it — block-level locking (previous slide) exists specifically so you can keep that minimum small.\n\n\n\n\nTiming: 5 min. Tie directly back to the block-level slide — “this is why you’d choose block-level over method-level,” not just a syntax option."
+  },
+  {
+    "objectID": "cosc420/slides/module_1.html#pause-discuss-whose-lock-is-it",
+    "href": "cosc420/slides/module_1.html#pause-discuss-whose-lock-is-it",
+    "title": "Module 1: Concurrency",
+    "section": "Pause & Discuss: Whose Lock Is It?",
+    "text": "Pause & Discuss: Whose Lock Is It?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nclass Account {\n    static int totalDeposits = 0;   // ONE variable, shared by every Account\n    int balance = 0;                // one per Account object\n\n    synchronized void deposit(int amt) {\n        balance += amt;\n        totalDeposits += amt;\n    }\n}\nThread A calls acct1.deposit(50) while Thread B calls acct2.deposit(50). These are two different Account objects.\nDoes Thread B have to wait for Thread A? Is balance safe? Is totalDeposits safe? If not, how would you fix it?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nNo waiting. A synchronized instance method locks this, and acct1 and acct2 are different objects with different locks.\nbalance is safe. Each thread only touches its own account’s field, and two threads on the same account would share that account’s lock.\ntotalDeposits is not safe. It’s static, so there is one copy shared by every account, but each account guards it with its own lock. Two threads on different accounts can both be inside deposit() at once and race on it exactly like Session 3’s counter.\nFix: guard it with a lock every thread shares, e.g. synchronized (Account.class) { totalDeposits += amt; }, or move it into a static synchronized helper (which locks the class).\n\nThe lesson: a lock only protects data if every thread touching that data uses the same lock object. That’s the “every object has its own lock” point from earlier in the session."
   },
   {
     "objectID": "cosc420/slides/module_1.html#deadlock-the-circular-wait",
@@ -3294,7 +3455,7 @@
     "href": "cosc420/slides/module_1.html#thread-pools-executorservice-checkpoint-1",
     "title": "Module 1: Concurrency",
     "section": "Thread Pools, ExecutorService & Checkpoint 1",
-    "text": "Thread Pools, ExecutorService & Checkpoint 1\n\nFull-session timing plan (50 min total, then the actual 15-min Checkpoint 1 runs separately after these slides — see syllabus: “last 15 min” of this session):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Why Pools?\n5 min\n\n\nThe Cost of Creating a Thread\n5 min\n\n\nA Thread Pool: Fixed Staff, Shared Queue\n5 min\n\n\nExecutorService — Submitting Tasks\n6 min\n\n\nExecutorService — Key Methods\n4 min\n\n\nTracing the Queue: The Setup\n3 min\n\n\nTracing the Queue: Step by Step\n4 min\n\n\nFuture — Getting Results Back\n6 min\n\n\nCallable vs. Runnable\n3 min\n\n\nIndustry Patterns: Pools Everywhere\n5 min\n\n\nCheckpoint 1 Preview & Review\n4 min\n\n\n\nThese slides are the ~35-minute lecture portion; the graded 15-minute Checkpoint 1 exercise happens live afterward and isn’t slide content. Slides use reveal.js fragments (. . ., incremental lists) for pacing — advance with arrow/space; the full text is kept for the study export."
+    "text": "Thread Pools, ExecutorService & Checkpoint 1\n\nFull-session timing plan (50 min total, then the actual 15-min Checkpoint 1 runs separately after these slides — see syllabus: “last 15 min” of this session):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Why Pools?\n5 min\n\n\nThe Cost of Creating a Thread\n5 min\n\n\nA Thread Pool: Fixed Staff, Shared Queue\n5 min\n\n\nExecutorService — Submitting Tasks\n6 min\n\n\nExecutorService — Key Methods\n4 min\n\n\nTracing the Queue: The Setup\n3 min\n\n\nTracing the Queue: Step by Step\n4 min\n\n\nPause & Discuss: A Task That Never Finishes\n4 min\n\n\nFuture — Getting Results Back\n6 min\n\n\nCallable vs. Runnable\n3 min\n\n\nIndustry Patterns: Pools Everywhere\n5 min\n\n\nCheckpoint 1 Preview & Review\n4 min\n\n\n\nThese slides are the ~35-minute lecture portion; the graded 15-minute Checkpoint 1 exercise happens live afterward and isn’t slide content. Slides use reveal.js fragments (. . ., incremental lists) for pacing — advance with arrow/space; the full text is kept for the study export."
   },
   {
     "objectID": "cosc420/slides/module_1.html#recap-why-pools",
@@ -3344,6 +3505,13 @@
     "title": "Module 1: Concurrency",
     "section": "Tracing the Queue: Step by Step",
     "text": "Tracing the Queue: Step by Step\n\n\n\nTime\nWorker 1\nWorker 2\nQueue\n\n\n\n\nt0\nidle\nidle\n[1, 2, 3, 4, 5]\n\n\nt1\nrunning Task 1\nrunning Task 2\n[3, 4, 5]\n\n\nt2\nrunning Task 3 (finished 1)\nstill on Task 2\n[4, 5]\n\n\nt3\nstill on Task 3\nrunning Task 4 (finished 2)\n[5]\n\n\nt4\nrunning Task 5 (finished 3)\nidle (waiting, queue empty)\n[]\n\n\nt5\nidle (finished 5)\nidle\n[]\n\n\n\n\nOnly 2 tasks ever run at the literal same instant — the other 3 wait their turn in the queue, picked up by whichever worker finishes first. This is exactly the “fixed staff, shared queue” picture from three slides ago, now traced step by step.\n\n\n\n\n\n\nDiagram to add later (Excalidraw / pyxcd / draw.io)\n\n\nA horizontal queue of 5 numbered ticket icons ([1][2][3][4][5]) feeding into two cook icons labeled “Worker 1” and “Worker 2,” each cook shown next to a small stove. Show it as a 2-frame progression: frame 1 has Workers 1 and 2 holding tickets 1 and 2, queue shows [3][4][5]; frame 2 (after either finishes) shows one worker now holding ticket 3, queue shrunk to [4][5]. Caption: “Tasks don’t get their own cook — they wait for whichever cook is free next.” This is the visual companion to the trace table above; the table gives the precise timing, the diagram gives the at-a-glance shape.\n\n\n\n\nTiming: 4 min. Walk this row by row on the board — the point students need to take away is that task-to-worker assignment isn’t fixed in advance (Task 3 could just as easily have gone to Worker 2, depending on which finishes first); it’s whichever worker becomes free first."
+  },
+  {
+    "objectID": "cosc420/slides/module_1.html#pause-discuss-a-task-that-never-finishes",
+    "href": "cosc420/slides/module_1.html#pause-discuss-a-task-that-never-finishes",
+    "title": "Module 1: Concurrency",
+    "section": "Pause & Discuss: A Task That Never Finishes",
+    "text": "Pause & Discuss: A Task That Never Finishes\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nSame setup as the trace: a pool of 2 workers and 5 submitted tasks. This time Task 1 has a bug: an infinite loop. It never finishes.\nDo Tasks 2–5 still run? What if Tasks 1 and 2 both loop forever? Will the program ever exit after pool.shutdown()?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nOnly Task 1 stuck: Tasks 2–5 still run. Worker 1 is trapped on Task 1 forever, but Worker 2 keeps pulling from the queue and works through Tasks 2, 3, 4, 5 alone, just more slowly.\nTasks 1 and 2 both stuck: both workers are trapped, so Tasks 3–5 sit in the queue forever. They never fail and never run. That’s Session 4’s starvation in a new form: no lock is involved, the tasks are just never given a worker.\nThe program never exits. shutdown() only stops new submissions and then waits for running tasks to finish. It doesn’t kill them. (shutdownNow() only asks running tasks to stop, and a tight loop that never checks for interruption ignores the request.)\n\nReal-world version: a web server whose pool threads all get stuck waiting on a hung database stops answering everyone, even for pages that never touch the database. That’s why real systems put timeouts on anything a pool thread waits for. Module 6 comes back to this with microservices."
   },
   {
     "objectID": "cosc420/slides/module_1.html#future-getting-results-back",
@@ -7907,7 +8075,7 @@
     "href": "cosc420/slides/module_2.html#what-makes-distributed-systems-hard",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "What Makes Distributed Systems Hard",
-    "text": "What Makes Distributed Systems Hard\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: One Kitchen, Many Kitchens\n3 min\n\n\nWhat Is a Distributed System?\n4 min\n\n\nWhy Distribute?\n4 min\n\n\nThe Catch\n3 min\n\n\nMessages Get Lost, Delayed, or Reordered\n5 min\n\n\nPartial Failures\n4 min\n\n\nThe Timeout Problem: Dead or Just Slow?\n5 min\n\n\nNo Global Clock\n5 min\n\n\nOrdering Without a Shared Clock\n5 min\n\n\nFour Ways a Node Can Fail\n5 min\n\n\nThe Fallacies of Distributed Computing\n4 min\n\n\nBridge: These Problems Don’t Go Away\n3 min\n\n\n\n12 slides, ~50 min. This session is the foundation the entire module rests on — every later session (CAP, REST, the case study) is really “here’s one specific way people manage these exact problems.” Say that explicitly at the start."
+    "text": "What Makes Distributed Systems Hard\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: One Kitchen, Many Kitchens\n3 min\n\n\nWhat Is a Distributed System?\n4 min\n\n\nWhy Distribute?\n4 min\n\n\nThe Catch\n3 min\n\n\nMessages Get Lost, Delayed, or Reordered\n5 min\n\n\nPartial Failures\n4 min\n\n\nThe Timeout Problem: Dead or Just Slow?\n5 min\n\n\nPause & Discuss: Did I Just Pay Twice?\n4 min\n\n\nNo Global Clock\n5 min\n\n\nOrdering Without a Shared Clock\n5 min\n\n\nFour Ways a Node Can Fail\n5 min\n\n\nThe Fallacies of Distributed Computing\n4 min\n\n\nBridge: These Problems Don’t Go Away\n3 min\n\n\n\n12 slides, ~50 min. This session is the foundation the entire module rests on — every later session (CAP, REST, the case study) is really “here’s one specific way people manage these exact problems.” Say that explicitly at the start."
   },
   {
     "objectID": "cosc420/slides/module_2.html#recap-one-kitchen-many-kitchens",
@@ -7959,6 +8127,13 @@
     "text": "The Timeout Problem: Dead or Just Slow?\nHere is the single hardest consequence of network unreliability: from the outside, a crashed node and a slow node look identical.\n\nKitchen A calls Kitchen B and gets no answer. Is Kitchen B’s phone line down? Is the kitchen on fire? Or is Kitchen B just extremely busy and will answer in ten more seconds?\nKitchen A cannot tell the difference. All it knows is: no response yet.\nThe only tool available is a timeout — waiting some fixed amount of time, then assuming failure. But there’s no “correct” amount of time to wait: too short, and you declare a merely-slow node dead; too long, and you waste time waiting on a node that’s truly gone.\n\n\n\n\n\n\n\nThink about it\n\n\nYou’re designing the timeout for a payment system. What happens if you set it too short? What happens if you set it too long? Which mistake would you rather make, and why?\n\n\n\n\nTiming: 5 min. This is a genuinely famous, unsolved-in-general problem in distributed systems — resist the urge to present a “correct” timeout value, because there isn’t one; the tradeoff itself is the content."
   },
   {
+    "objectID": "cosc420/slides/module_2.html#pause-discuss-did-i-just-pay-twice",
+    "href": "cosc420/slides/module_2.html#pause-discuss-did-i-just-pay-twice",
+    "title": "Module 2: Distributed Systems Concepts",
+    "section": "Pause & Discuss: Did I Just Pay Twice?",
+    "text": "Pause & Discuss: Did I Just Pay Twice?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nYou click Pay $50 in a shopping app. The spinner runs, and after 30 seconds the app says “Request timed out.”\nWere you charged? Should the app retry the payment automatically? What could go wrong if it does, and what could go wrong if it doesn’t?\nWhat could the server do to make retrying safe?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer: the client can’t know. This is the dead-or-slow problem from the previous slide, with money attached. Three possibilities look exactly the same from the client’s side:\n\nthe request was lost before it reached the server (not charged);\nthe server charged you and the response was lost (charged);\nthe server is still working on it (about to charge you).\n\nIf the app retries blindly, you might be charged twice. If it doesn’t retry, the payment might never happen. The standard fix: the client attaches a unique ID to the payment request (often called an idempotency key) and reuses the same ID on every retry. The server remembers IDs it has already processed. When it sees a repeat, it returns the original result instead of charging again, and that makes retrying safe. Real payment APIs (e.g. Stripe) work this way.\nIf a student asks: Session 4’s HTTP verbs preview this. PUT and DELETE are meant to be safe to repeat, and POST is not."
+  },
+  {
     "objectID": "cosc420/slides/module_2.html#no-global-clock",
     "href": "cosc420/slides/module_2.html#no-global-clock",
     "title": "Module 2: Distributed Systems Concepts",
@@ -7998,7 +8173,7 @@
     "href": "cosc420/slides/module_2.html#the-cap-theorem",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "The CAP Theorem",
-    "text": "The CAP Theorem\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Last Time We Broke Everything\n3 min\n\n\nThree Things You’d Want From Any System\n4 min\n\n\nConsistency, Defined Precisely\n4 min\n\n\nAvailability, Defined Precisely\n4 min\n\n\nPartition Tolerance, Defined Precisely\n4 min\n\n\nThe Theorem: Pick Two, Not Three\n5 min\n\n\nWhy “CA” Isn’t Really an Option\n5 min\n\n\nWorked Scenario: A Partition Happens\n6 min\n\n\nConsistency-Favoring Systems: When in Doubt, Refuse\n4 min\n\n\nAvailability-Favoring Systems: When in Doubt, Answer Anyway\n4 min\n\n\nChoosing Consistency vs. Availability\n4 min\n\n\nWrap: Bridge to the Case Study\n3 min\n\n\n\n12 slides, ~50 min. The definitions slides (Consistency/Availability/Partition Tolerance) need to match Quiz 2’s precise wording — don’t let the informal “pick two” framing on the next slide replace the careful definitions given first."
+    "text": "The CAP Theorem\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Last Time We Broke Everything\n3 min\n\n\nThree Things You’d Want From Any System\n4 min\n\n\nConsistency, Defined Precisely\n4 min\n\n\nAvailability, Defined Precisely\n4 min\n\n\nPartition Tolerance, Defined Precisely\n4 min\n\n\nThe Theorem: Pick Two, Not Three\n5 min\n\n\nPause & Discuss: Which Letter Did It Give Up?\n4 min\n\n\nWhy “CA” Isn’t Really an Option\n5 min\n\n\nWorked Scenario: A Partition Happens\n6 min\n\n\nConsistency-Favoring Systems: When in Doubt, Refuse\n4 min\n\n\nAvailability-Favoring Systems: When in Doubt, Answer Anyway\n4 min\n\n\nChoosing Consistency vs. Availability\n4 min\n\n\nWrap: Bridge to the Case Study\n3 min\n\n\n\n12 slides, ~50 min. The definitions slides (Consistency/Availability/Partition Tolerance) need to match Quiz 2’s precise wording — don’t let the informal “pick two” framing on the next slide replace the careful definitions given first."
   },
   {
     "objectID": "cosc420/slides/module_2.html#recap-last-time-we-broke-everything",
@@ -8041,6 +8216,13 @@
     "title": "Module 2: Distributed Systems Concepts",
     "section": "The Theorem: Pick Two, Not Three",
     "text": "The Theorem: Pick Two, Not Three\nThe CAP theorem: when a network partition occurs, a distributed system must choose between Consistency and Availability. It cannot have both, at the same time, during the partition.\n\n\n\n\n\n\n\nConsistency\nEvery read gets the latest write, or an error\n\n\nAvailability\nEvery request gets a response\n\n\nPartition tolerance\nThe system keeps working despite a network split\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\nWhy can’t you have all three? During a partition, one side of the split cannot reach the other. If it wants to stay available (answer requests), it must answer using only what it locally knows — which might be stale, violating consistency. If it wants to stay consistent, it must refuse to answer until it can confirm it has the latest data — violating availability. There is no third option once the partition has actually happened.\n\n\n\n\nTiming: 5 min. Walk the callout’s logic slowly, out loud — this is the actual proof sketch of the theorem in plain language, and it’s worth more time than the table itself."
+  },
+  {
+    "objectID": "cosc420/slides/module_2.html#pause-discuss-which-letter-did-it-give-up",
+    "href": "cosc420/slides/module_2.html#pause-discuss-which-letter-did-it-give-up",
+    "title": "Module 2: Distributed Systems Concepts",
+    "section": "Pause & Discuss: Which Letter Did It Give Up?",
+    "text": "Pause & Discuss: Which Letter Did It Give Up?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA partition cuts one replica off from the rest of its cluster. A client asks that replica for the current price of an item. Here are three ways the replica could behave:\n(a) It returns “Error: can’t confirm latest data, try again later.”\n(b) It returns the last price it heard, which may be out of date.\n(c) It never responds, and the client’s request just hangs.\nUsing today’s precise definitions: which of these keep Consistency? Which keep Availability? Which is the worst design?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) keeps C, gives up A. The definition of Consistency explicitly allows “or an error.” Refusing is how a consistency-favoring system stays correct. Make students say why this isn’t a Consistency violation even though no data comes back.\n(b) keeps A, gives up C. “Always answers” is not “always answers correctly” (the callout from the Availability slide).\n(c) gives up A and gets nothing in return. It’s technically never wrong, but the client can’t tell it apart from a crashed node (Session 1’s timeout problem), and it wastes the client’s time. (c) is the worst design: (a) refuses honestly and on purpose, while (c) refuses by accident and never says so.\n\nThis is exactly the quiz-level precision the definition slides were building toward."
   },
   {
     "objectID": "cosc420/slides/module_2.html#why-ca-isnt-really-an-option",
@@ -8117,21 +8299,21 @@
     "href": "cosc420/slides/module_2.html#discussion-predict-what-should-happen",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Discussion: Predict What Should Happen",
-    "text": "Discussion: Predict What Should Happen\n\n\n\n\n\n\nThink about it — discuss in pairs (2 min), then share\n\n\nGiven everything from Session 2: if a network partition briefly separates a database’s primary copy from the rest of the cluster, and the rest of the cluster automatically promotes a new primary to keep serving requests — what happens when the partition heals a few seconds later and both copies think they’re the real primary?\n\n\n\nWrite down your prediction before the next slide reveals what actually happened.\n\nTiming: 5 min including discussion. Circulate and listen for the phrase “which one is right” or “conflicting data” — that’s the answer the class needs to arrive at collectively before the reveal."
+    "text": "Discussion: Predict What Should Happen\nThink about it — discuss in pairs (2 min), then share\nGiven everything from Session 2: if a network partition briefly separates a database’s primary copy from the rest of the cluster, and the rest of the cluster automatically promotes a new primary to keep serving requests — what happens when the partition heals a few seconds later and both copies think they’re the real primary?\nWrite down your prediction before the next slide reveals what actually happened.\n\nTiming: 5 min including discussion. Circulate and listen for the phrase “which one is right” or “conflicting data” — that’s the answer the class needs to arrive at collectively before the reveal."
   },
   {
     "objectID": "cosc420/slides/module_2.html#what-actually-happened-split-brain",
     "href": "cosc420/slides/module_2.html#what-actually-happened-split-brain",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "What Actually Happened: Split-Brain",
-    "text": "What Actually Happened: Split-Brain\nThis exact scenario is called split-brain: two nodes, each convinced it is the sole authority, both accepting writes independently.\n\nDuring those tens of seconds, a small number of writes were accepted by both the original primary and the newly promoted one — each unaware of the other’s writes.\nWhen the partition healed, GitHub’s systems had two divergent versions of recent data, and no automatic way to know which write in each conflicting pair was the “real” one.\nThis is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.\n\n\n\n\n\n\n\nDiagram to add later (Excalidraw / pyxcd / draw.io)\n\n\nTwo database-cylinder icons labeled “Original Primary” and “Newly Promoted Primary,” side by side with a jagged break between them (reuse the partition-break style from Session 2’s diagram). Under each cylinder, draw a small stack of write-icons flowing in — different writes on each side — to show both accepting writes independently during the split. Below, a merge arrow pointing from both cylinders down into one box labeled “Reconciliation (~24 hours)” with a question mark on the two divergent write-stacks feeding into it. Caption: “Both sides kept working. That’s the problem.”\n\n\n\n\nTiming: 5 min. If a group’s earlier prediction named “conflicting data” or similar, credit it explicitly before revealing this slide’s framing — it reinforces that the reasoning, not just the fact, is the point."
+    "text": "What Actually Happened: Split-Brain\nThis exact scenario is called split-brain: two nodes, each convinced it is the sole authority, both accepting writes independently.\n\n\n\nDuring those tens of seconds, a small number of writes were accepted by both the original primary and the newly promoted one — each unaware of the other’s writes.\n\n\nWhen the partition healed, GitHub’s systems had two divergent versions of recent data, and no automatic way to know which write in each conflicting pair was the “real” one.\n\n\nThis is Session 1’s “no global clock, no reliable ordering” problem, made concrete: there was no trustworthy way to say which of two conflicting writes happened first.\n\n\nTiming: 5 min. If a group’s earlier prediction named “conflicting data” or similar, credit it explicitly before revealing this slide’s framing — it reinforces that the reasoning, not just the fact, is the point."
   },
   {
     "objectID": "cosc420/slides/module_2.html#discussion-consistency-problem-availability-problem-or-both",
     "href": "cosc420/slides/module_2.html#discussion-consistency-problem-availability-problem-or-both",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Discussion: Consistency Problem, Availability Problem, or Both?",
-    "text": "Discussion: Consistency Problem, Availability Problem, or Both?\n\n\n\n\n\n\nThink about it — discuss in pairs (3 min), then share\n\n\nUsing Session 2’s precise definitions: was the root cause of this incident a Consistency failure, an Availability failure, or something else entirely? (Hint: was the system actually unavailable during those tens of seconds — or did trying too hard to stay available cause the real damage?)\n\n\n\n\nTiming: 6 min including discussion. The intended insight: the partition itself briefly threatened availability, but the automatic-failover mechanism’s attempt to preserve availability is what created the consistency violation. It’s a case where optimizing for one side of CAP directly caused the failure on the other side — a subtler lesson than “pick consistency or availability” makes it sound."
+    "text": "Discussion: Consistency Problem, Availability Problem, or Both?\nThink about it — discuss in pairs (3 min), then share\nUsing Session 2’s precise definitions: was the root cause of this incident a Consistency failure, an Availability failure, or something else entirely?\n\nTiming: 6 min including discussion. The intended insight: the partition itself briefly threatened availability, but the automatic-failover mechanism’s attempt to preserve availability is what created the consistency violation. It’s a case where optimizing for one side of CAP directly caused the failure on the other side — a subtler lesson than “pick consistency or availability” makes it sound."
   },
   {
     "objectID": "cosc420/slides/module_2.html#the-recovery-choosing-consistency",
@@ -8145,35 +8327,35 @@
     "href": "cosc420/slides/module_2.html#discussion-was-that-the-right-call",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Discussion: Was That the Right Call?",
-    "text": "Discussion: Was That the Right Call?\n\n\n\n\n\n\nThink about it — small groups (3–4 students), 4 min, then share\n\n\nGitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data. Do you agree with that choice, for a code-hosting platform specifically? Would your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system? What’s the actual variable that should decide this, in general?\n\n\n\n\nTiming: 6 min including discussion. Push groups toward naming “the cost of being wrong vs. the cost of being unavailable” explicitly — that’s the same axis from Session 2’s consistency-vs-availability table, now applied to a real, harder case where the “right” answer is genuinely debatable."
+    "text": "Discussion: Was That the Right Call?\nThink about it — pair, 4 min, then share\nGitHub chose to go partially unavailable for ~24 hours rather than risk serving incorrect data.\n\nDo you agree with that choice, for a code-hosting platform specifically?\nWould your answer change for a different kind of service — say, a live sports-scores app, or an air-traffic control system?\nWhat’s the actual variable that should decide this, in general?\n\n\nTiming: 6 min including discussion. Push groups toward naming “the cost of being wrong vs. the cost of being unavailable” explicitly — that’s the same axis from Session 2’s consistency-vs-availability table, now applied to a real, harder case where the “right” answer is genuinely debatable."
   },
   {
     "objectID": "cosc420/slides/module_2.html#connecting-to-the-fallacies",
     "href": "cosc420/slides/module_2.html#connecting-to-the-fallacies",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Connecting to the Fallacies",
-    "text": "Connecting to the Fallacies\nLook back at Session 1’s eight fallacies of distributed computing. Which ones does this incident illustrate?\n\n“The network is reliable” — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.\n“Topology doesn’t change” — the automatic failover mechanism existed because the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.\n\n\n\n\n\n\n\nThink about it\n\n\nCan you connect a third fallacy from Session 1’s list to some part of this incident?\n\n\n\n\nTiming: 4 min. Leave the third fallacy genuinely open — several are defensible (e.g., “there is one administrator” relates to coordinating a fix across a large engineering org during an active incident)."
+    "text": "Connecting to the Fallacies\nLook back at Session 1’s eight fallacies of distributed computing. Which ones does this incident illustrate?\n\n“The network is reliable” — a routine maintenance operation caused a partition; the network broke exactly when it wasn’t expected to.\n“Topology doesn’t change” — the automatic failover mechanism existed because the system’s designers already knew topology (which node is primary) needs to be able to change — and that flexibility is exactly what created the split-brain risk.\n\n\nThink about it\nCan you connect a third fallacy from Session 1’s list to some part of this incident?\n\nTiming: 4 min. Leave the third fallacy genuinely open — several are defensible (e.g., “there is one administrator” relates to coordinating a fix across a large engineering org during an active incident)."
   },
   {
     "objectID": "cosc420/slides/module_2.html#small-group-exercise-diagnose-your-own-scenario",
     "href": "cosc420/slides/module_2.html#small-group-exercise-diagnose-your-own-scenario",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Small-Group Exercise: Diagnose Your Own Scenario",
-    "text": "Small-Group Exercise: Diagnose Your Own Scenario\nIn groups of 3–4, pick one of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?\n\nA ride-sharing app’s driver-location service loses connection between two regional servers for 30 seconds.\nA university’s course-registration system briefly can’t confirm seat counts are in sync across two servers during peak registration.\nA multiplayer game’s leaderboard can’t sync scores between two regions for a few minutes during a network blip.\n\nBe ready to defend your choice to the class — including what you’d do differently from GitHub’s approach, if anything.\n\nTiming: 7 min, including a couple of groups reporting back. If time is short, cut to 2 scenarios rather than rushing all 3 — depth of discussion matters more than covering everything."
+    "text": "Small-Group Exercise: Diagnose Your Own Scenario\nIn groups of 3–4, pick one of the following scenarios. In 5 minutes, decide: favor consistency or favor availability, and what would you tell users while recovering?\n\nA ride-sharing app’s driver-location service loses connection between two regional servers for 30 seconds.\nA university’s course-registration system briefly can’t confirm seat counts are in sync across two servers during peak registration.\nA multiplayer game’s leaderboard can’t sync scores between two regions for a few minutes during a network blip.\n\n\nBe ready to defend your choice to the class — including what you’d do differently from GitHub’s approach, if anything.\n\nTiming: 7 min, including a couple of groups reporting back. If time is short, cut to 2 scenarios rather than rushing all 3 — depth of discussion matters more than covering everything."
   },
   {
     "objectID": "cosc420/slides/module_2.html#wrap-up",
     "href": "cosc420/slides/module_2.html#wrap-up",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Wrap-Up",
-    "text": "Wrap-Up\nToday’s takeaway isn’t “GitHub made a mistake” — their recovery choice was defensible and matches the consistency-favoring reasoning from Session 2. The real lesson is narrower and more useful:\nA partition lasting seconds can create a consequence lasting a day, and the choice of how to respond to it is a design decision made in advance, not improvised during the incident.\nMonday: back to new material — the client-server model, and what actually happens when you type a URL into a browser.\n\nTiming: 2 min. Close on the forward-reference to keep momentum into Session 4."
+    "text": "Wrap-Up\nToday’s takeaway isn’t “GitHub made a mistake” — their recovery choice was defensible and matches the consistency-favoring reasoning from Session 2. The real lesson is narrower and more useful:\n\nA partition lasting seconds can create a consequence lasting a day, and the choice of how to respond to it is a design decision made in advance, not improvised during the incident.\n\n\nMonday: back to new material — the client-server model, and what actually happens when you type a URL into a browser.\n\nTiming: 2 min. Close on the forward-reference to keep momentum into Session 4."
   },
   {
     "objectID": "cosc420/slides/module_2.html#client-server-model-what-happens-when-you-type-a-url",
     "href": "cosc420/slides/module_2.html#client-server-model-what-happens-when-you-type-a-url",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Client-Server Model & What Happens When You Type a URL",
-    "text": "Client-Server Model & What Happens When You Type a URL\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Failures to How Things Talk\n3 min\n\n\nThe Client-Server Model\n4 min\n\n\nNot Every Server Is Only a Server\n4 min\n\n\nThe Journey of a URL — Step 1: The Address Book (DNS)\n5 min\n\n\nStep 2: Opening the Line (TCP Connection)\n4 min\n\n\nStep 3: Sending the Request\n5 min\n\n\nStep 4: The Server Does the Work\n4 min\n\n\nStep 5: The Response Comes Back\n4 min\n\n\nThe Whole Journey, Start to Finish\n5 min\n\n\nHTTP: The Standard Order Form\n4 min\n\n\nHTTP Verbs\n5 min\n\n\nWrap: Bridge to REST\n3 min\n\n\n\n12 slides, ~50 min. This session introduces vocabulary (client, server, DNS, HTTP) that Session 5 uses constantly — don’t let it run short even if discussion runs long elsewhere, since Session 5 assumes all of this is solid."
+    "text": "Client-Server Model & What Happens When You Type a URL\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Failures to How Things Talk\n3 min\n\n\nThe Client-Server Model\n4 min\n\n\nNot Every Server Is Only a Server\n4 min\n\n\nThe Journey of a URL — Step 1: The Address Book (DNS)\n5 min\n\n\nStep 2: Opening the Line (TCP Connection)\n4 min\n\n\nStep 3: Sending the Request\n5 min\n\n\nStep 4: The Server Does the Work\n4 min\n\n\nStep 5: The Response Comes Back\n4 min\n\n\nPause & Discuss: Where Did It Break?\n4 min\n\n\nThe Whole Journey, Start to Finish\n5 min\n\n\nHTTP: The Standard Order Form\n4 min\n\n\nHTTP Verbs\n5 min\n\n\nWrap: Bridge to REST\n3 min\n\n\n\n12 slides, ~50 min. This session introduces vocabulary (client, server, DNS, HTTP) that Session 5 uses constantly — don’t let it run short even if discussion runs long elsewhere, since Session 5 assumes all of this is solid."
   },
   {
     "objectID": "cosc420/slides/module_2.html#recap-from-failures-to-how-things-talk",
@@ -8232,6 +8414,13 @@
     "text": "Step 5: The Response Comes Back\nOnce the work is done, the server sends a response back across the same connection — the requested data, plus information about whether the request succeeded.\n\nKitchen picture: the branch calls back with your order — “here it is,” or “sorry, we’re out of that.”\nYour browser receives the response and renders it — turning the raw data into the page you actually see.\nThis is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.\n\n\nTiming: 4 min. Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1’s failure catalogue."
   },
   {
+    "objectID": "cosc420/slides/module_2.html#pause-discuss-where-did-it-break",
+    "href": "cosc420/slides/module_2.html#pause-discuss-where-did-it-break",
+    "title": "Module 2: Distributed Systems Concepts",
+    "section": "Pause & Discuss: Where Did It Break?",
+    "text": "Pause & Discuss: Where Did It Break?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nYou type a URL, press Enter, and the page doesn’t load.\nUsing the five steps so far (DNS, connection, request, server work, response), name three different steps where it could have failed. For each one: what would you actually see in the browser? Could you tell them apart?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Don’t insist on exact browser error wording. Aim for this rough mapping:\n\nDNS: the name can’t be translated. You get a fast “server not found” / “site can’t be reached” error.\nConnection: the address was found but nothing answers. You get “can’t connect,” “connection refused,” or a timeout.\nRequest lost, or server slow (including a slow hop further down the chain, from the “Not Every Server Is Only a Server” slide): the spinner keeps going until it times out.\nServer breaks while doing the work: a response does come back, but it’s an error page (Wednesday names this: 500).\nResponse lost or cut off: the spinner keeps going, or the page loads halfway.\n\nCan you tell them apart? Some, yes: DNS failures and error pages show up quickly and look distinct. But “request lost,” “server slow,” and “response lost” all look the same from the browser: a spinner, then a timeout. That’s Session 1’s dead-or-slow problem inside an everyday action, and it’s the point the next slide makes."
+  },
+  {
     "objectID": "cosc420/slides/module_2.html#the-whole-journey-start-to-finish",
     "href": "cosc420/slides/module_2.html#the-whole-journey-start-to-finish",
     "title": "Module 2: Distributed Systems Concepts",
@@ -8264,7 +8453,7 @@
     "href": "cosc420/slides/module_2.html#rest-apis-anatomy-of-a-request-response-checkpoint-2",
     "title": "Module 2: Distributed Systems Concepts",
     "section": "REST APIs: Anatomy of a Request & Response + Checkpoint 2",
-    "text": "REST APIs: Anatomy of a Request & Response + Checkpoint 2\n\nFull-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: HTTP Is the Protocol, REST Is the Style\n3 min\n\n\nWhat Makes an API “RESTful”?\n4 min\n\n\nStatelessness\n4 min\n\n\nAnatomy of a Request\n4 min\n\n\nAnatomy of a Response\n4 min\n\n\nHTTP Status Codes\n5 min\n\n\nJSON: The Language of REST Responses\n4 min\n\n\nWorked Example: Reading a Real Response\n6 min\n\n\nWhy Industry Uses REST Everywhere\n3 min\n\n\nLab 3 Preview\n2 min\n\n\nCheckpoint 2 Preview & Review\n4 min\n\n\n\nThat’s ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately."
+    "text": "REST APIs: Anatomy of a Request & Response + Checkpoint 2\n\nFull-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: HTTP Is the Protocol, REST Is the Style\n3 min\n\n\nWhat Makes an API “RESTful”?\n4 min\n\n\nStatelessness\n4 min\n\n\nAnatomy of a Request\n4 min\n\n\nAnatomy of a Response\n4 min\n\n\nPause & Discuss: Stateless, But It Remembers My Cart?\n4 min\n\n\nHTTP Status Codes\n5 min\n\n\nJSON: The Language of REST Responses\n4 min\n\n\nWorked Example: Reading a Real Response\n6 min\n\n\nWhy Industry Uses REST Everywhere\n3 min\n\n\nLab 3 Preview\n2 min\n\n\nCheckpoint 2 Preview & Review\n4 min\n\n\n\nThat’s ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately."
   },
   {
     "objectID": "cosc420/slides/module_2.html#recap-http-is-the-protocol-rest-is-the-style",
@@ -8300,6 +8489,13 @@
     "title": "Module 2: Distributed Systems Concepts",
     "section": "Anatomy of a Response",
     "text": "Anatomy of a Response\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\": 42, \"name\": \"Alice\", \"email\": \"alice@example.com\"}\n\nStatus line: the protocol version and a status code (200 OK) — did the request succeed, and how?\nHeaders: here, Content-Type tells the client the body is JSON — this is literally how a client knows how to parse what follows.\nBody: the actual data requested.\n\n\nTiming: 4 min. Point out explicitly: Content-Type is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers."
+  },
+  {
+    "objectID": "cosc420/slides/module_2.html#pause-discuss-stateless-but-it-remembers-my-cart",
+    "href": "cosc420/slides/module_2.html#pause-discuss-stateless-but-it-remembers-my-cart",
+    "title": "Module 2: Distributed Systems Concepts",
+    "section": "Pause & Discuss: Stateless, But It Remembers My Cart?",
+    "text": "Pause & Discuss: Stateless, But It Remembers My Cart?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nREST servers are stateless: they remember nothing about you between requests.\nYet you add a book to your cart on a shopping site, click through three other pages, and the book is still in your cart. Some of those requests may even have been handled by different machines.\nIs the site breaking the stateless rule? If not, where does your cart actually live, and how does each request find it? (Hint: look back at what a request carries besides the verb and path.)\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer: the site isn’t breaking the rule. “Stateless” means the server process keeps no memory of you between requests. It doesn’t mean no state exists anywhere.\n\nEvery request carries an identifier, usually a session token or cookie in a header, e.g. Cookie: session=abc123 or Authorization: Bearer ....\nThe cart itself lives either in a shared database or cache that every server machine can look up by that ID (Module 5 names this: a key-value store is a classic session store), or on the client.\nBecause each request brings its own ID, any machine can handle it. That’s the scaling benefit from the Statelessness slide.\n\nThis leads into the next slide: a missing or expired token is exactly when you get 401 Unauthorized."
   },
   {
     "objectID": "cosc420/slides/module_2.html#http-status-codes",
@@ -8348,7 +8544,7 @@
     "href": "cosc420/slides/module_4.html#what-is-spark-architecture-rdds-vs.-dataframes-lazy-evaluation",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation",
-    "text": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Hadoop to Spark\n3 min\n\n\nWhat Is Apache Spark?\n4 min\n\n\nWhy Spark Improves on MapReduce\n4 min\n\n\nRDDs vs. DataFrames\n5 min\n\n\nSpark Architecture\n4 min\n\n\nSparkSession — Your Entry Point\n3 min\n\n\nCreating and Inspecting a DataFrame\n4 min\n\n\nDataFrames Are Immutable\n3 min\n\n\nLazy Evaluation — The Core Idea\n5 min\n\n\nTransformations vs. Actions\n4 min\n\n\nLab 6 Recap / Lab 7 Preview\n3 min\n\n\nBridge: Two More Sessions to Go\n2 min\n\n\n\n12 slides, ~44 min. Module 4 only gets three real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here."
+    "text": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Hadoop to Spark\n3 min\n\n\nWhat Is Apache Spark?\n4 min\n\n\nWhy Spark Improves on MapReduce\n4 min\n\n\nRDDs vs. DataFrames\n5 min\n\n\nSpark Architecture\n4 min\n\n\nSparkSession — Your Entry Point\n3 min\n\n\nCreating and Inspecting a DataFrame\n4 min\n\n\nDataFrames Are Immutable\n3 min\n\n\nLazy Evaluation — The Core Idea\n5 min\n\n\nPause & Discuss: What Actually Ran?\n4 min\n\n\nTransformations vs. Actions\n4 min\n\n\nLab 6 Recap / Lab 7 Preview\n3 min\n\n\nBridge: Two More Sessions to Go\n2 min\n\n\n\n12 slides, ~44 min. Module 4 only gets three real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here."
   },
   {
     "objectID": "cosc420/slides/module_4.html#recap-from-hadoop-to-spark",
@@ -8414,6 +8610,13 @@
     "text": "Lazy Evaluation — The Core Idea\n# These lines define a PLAN — nothing runs yet\nfiltered   = df.filter(df[\"salary\"] &gt; 70000)\nselected   = filtered.select(\"name\", \"salary\")\nsorted_df  = selected.orderBy(\"salary\", ascending=False)\n\n# THIS triggers computation — Spark executes the whole plan at once\nsorted_df.show()\n\nNothing above sorted_df.show() actually touches the data. Spark just records each step as part of a plan — this is called lazy evaluation.\nThat recorded plan has a name: a DAG (Directed Acyclic Graph) — a chain of steps that only ever flows forward, never loops back on itself. Each transformation you chain adds one more step to the DAG; nothing runs until an action triggers the whole thing at once.\nOnly when you call an action (show(), count(), …) does Spark look at the entire DAG you built, optimize it, and run it all at once.\nWhy bother? Because seeing the whole plan first lets Spark skip unnecessary work — for example, if you filter() then select() two columns, Spark can avoid ever reading the columns you didn’t ask for.\n\n\nTiming: 5 min. Quiz 5’s Q8 tests this definition directly. The “why bother” bullet is the part students usually skip — don’t let this be just “Spark waits to run things,” make sure they leave with why waiting is useful. The DAG bullet is here specifically because Lab 7 Task 2 asks “What is a DAG in Spark? When does Spark build it and when does it execute it?” as a graded question — without this bullet, that question would be untaught."
   },
   {
+    "objectID": "cosc420/slides/module_4.html#pause-discuss-what-actually-ran",
+    "href": "cosc420/slides/module_4.html#pause-discuss-what-actually-ran",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Pause & Discuss: What Actually Ran?",
+    "text": "Pause & Discuss: What Actually Ran?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndf has 10 billion rows of employee data.\nhigh = df.filter(df[\"salary\"] &gt; 70000)      # line 1\ndf.filter(df[\"department\"] == \"Marketing\")  # line 2\nprint(high.count())                         # line 3\nLines 1 and 2 return instantly. Why?\nWhat does line 3 print: the number of high earners overall, or high earners in Marketing?\nHow many times does Spark actually go through the 10 billion rows?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nLines 1–2 are instant because transformations are lazy. They only add a step to the plan (the DAG), and no data is touched.\nLine 3 counts high earners in all departments. Line 2 built a new DataFrame that was never assigned, so it was thrown away (immutability). high never knew about it.\nOne pass, at line 3, the only action. Line 2’s plan never runs at all, because nothing ever asked for its result.\n\nThis combines the two previous slides (immutable + lazy) and leads straight into the next one: count() is an action, filter() is a transformation."
+  },
+  {
     "objectID": "cosc420/slides/module_4.html#transformations-vs.-actions",
     "href": "cosc420/slides/module_4.html#transformations-vs.-actions",
     "title": "Module 4: Apache Spark & PySpark",
@@ -8439,7 +8642,7 @@
     "href": "cosc420/slides/module_4.html#loading-filtering-and-selecting-data-checkpoint-4",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Loading, Filtering, and Selecting Data + Checkpoint 4",
-    "text": "Loading, Filtering, and Selecting Data + Checkpoint 4\n\nFull-session timing plan (50 min total, ~15–20 min of which is Checkpoint 4 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Transformations, Actions, Laziness\n3 min\n\n\nLoading Data into Spark\n4 min\n\n\nA Word on Schemas\n3 min\n\n\nFiltering Rows\n4 min\n\n\nSelecting and Renaming Columns\n4 min\n\n\nAdding a Computed Column\n3 min\n\n\nAvoiding Common PySpark Mistakes\n5 min\n\n\nWorked Example: Filter → Select\n4 min\n\n\nCheckpoint 4\n15–20 min\n\n\n\n9 content slides (~30 min) + Checkpoint 4. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period."
+    "text": "Loading, Filtering, and Selecting Data + Checkpoint 4\n\nFull-session timing plan (50 min total, ~15–20 min of which is Checkpoint 4 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Transformations, Actions, Laziness\n3 min\n\n\nLoading Data into Spark\n4 min\n\n\nA Word on Schemas\n3 min\n\n\nFiltering Rows\n4 min\n\n\nSelecting and Renaming Columns\n4 min\n\n\nAdding a Computed Column\n3 min\n\n\nPause & Discuss: Find the Two Bugs\n4 min\n\n\nAvoiding Common PySpark Mistakes\n5 min\n\n\nWorked Example: Filter → Select\n4 min\n\n\nCheckpoint 4\n15–20 min\n\n\n\n9 content slides (~30 min) + Checkpoint 4. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period."
   },
   {
     "objectID": "cosc420/slides/module_4.html#recap-transformations-actions-laziness",
@@ -8484,6 +8687,13 @@
     "text": "Adding a Computed Column\nfrom pyspark.sql.functions import col\n\n# Wrong — this is pandas syntax, and it doesn't work in Spark\ndf[\"new_col\"] = df[\"col1\"] * 2\n\n# Right — Spark syntax\ndf = df.withColumn(\"new_col\", col(\"col1\") * 2)\nThe pandas-style assignment on the first line above doesn’t raise an error that’s obviously about this mistake — it just fails, because PySpark DataFrames don’t support item assignment the way pandas DataFrames do. withColumn is the only correct way to add or replace a column.\n\nTiming: 3 min. This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error message is unhelpful, so seeing the correct pattern before hitting the bug saves real debugging time."
   },
   {
+    "objectID": "cosc420/slides/module_4.html#pause-discuss-find-the-two-bugs",
+    "href": "cosc420/slides/module_4.html#pause-discuss-find-the-two-bugs",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Pause & Discuss: Find the Two Bugs",
+    "text": "Pause & Discuss: Find the Two Bugs\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nGoal: names and salaries (in thousands) of everyone in Marketing.\ndf = spark.read.csv(\"hdfs:///user/alice/employees.csv\", header=True, inferSchema=True)\ndf.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.select(\"name\", \"salary_k\")\nresult = result.filter(col(\"department\") == \"Marketing\")\nresult.show()\nThis code fails. Find two separate bugs. Which line do you think Spark complains about first?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Let students find these before the next two slides, which cover both bugs.\nAnswer:\n\nBug 1 (line 2): the withColumn result is never assigned (immutability), so df has no salary_k column.\nBug 2 (line 4): it filters on department after select has already dropped that column.\nSpark complains first at line 3, with an AnalysisException saying it can’t resolve salary_k. Worth pointing out: Spark checks that column names exist as you build the plan, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.\n\nFixed version:\ndf = df.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.filter(col(\"department\") == \"Marketing\").select(\"name\", \"salary_k\")"
+  },
+  {
     "objectID": "cosc420/slides/module_4.html#avoiding-common-pyspark-mistakes",
     "href": "cosc420/slides/module_4.html#avoiding-common-pyspark-mistakes",
     "title": "Module 4: Apache Spark & PySpark",
@@ -8509,7 +8719,7 @@
     "href": "cosc420/slides/module_4.html#groupby-aggregation-joins-and-actions-checkpoint-5",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "GroupBy, Aggregation, Joins, and Actions + Checkpoint 5",
-    "text": "GroupBy, Aggregation, Joins, and Actions + Checkpoint 5\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 5 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap + Why Today Matters for Lab 8\n3 min\n\n\nGroupBy and Aggregation\n4 min\n\n\nAggregation Functions Reference\n3 min\n\n\norderBy and the Top-N Pattern\n4 min\n\n\nActions, Revisited: The Risk of collect()\n5 min\n\n\nWriting DataFrame Output\n3 min\n\n\nJoins in PySpark\n5 min\n\n\nWorked Example: A Full Multi-Step Query\n4 min\n\n\nCheckpoint 5\n15 min\n\n\nModule 4 Summary + Bridge to Module 5\n3 min\n\n\n\nNote on the calendar: Nov 4 (Wed) is Wellness Day, so this is the last Module 4 lecture — everything not covered by now gets picked up hands-on in Lab 8 (Nov 6) instead."
+    "text": "GroupBy, Aggregation, Joins, and Actions + Checkpoint 5\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 5 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap + Why Today Matters for Lab 8\n3 min\n\n\nGroupBy and Aggregation\n4 min\n\n\nAggregation Functions Reference\n3 min\n\n\norderBy and the Top-N Pattern\n4 min\n\n\nActions, Revisited: The Risk of collect()\n5 min\n\n\nPause & Discuss: Which One Crashes the Driver?\n4 min\n\n\nWriting DataFrame Output\n3 min\n\n\nJoins in PySpark\n5 min\n\n\nWorked Example: A Full Multi-Step Query\n4 min\n\n\nCheckpoint 5\n15 min\n\n\nModule 4 Summary + Bridge to Module 5\n3 min\n\n\n\nNote on the calendar: Nov 4 (Wed) is Wellness Day, so this is the last Module 4 lecture — everything not covered by now gets picked up hands-on in Lab 8 (Nov 6) instead."
   },
   {
     "objectID": "cosc420/slides/module_4.html#recap-why-today-matters-for-lab-8",
@@ -8545,6 +8755,13 @@
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Actions, Revisited: The Risk of collect()",
     "text": "Actions, Revisited: The Risk of collect()\nSession 1 introduced actions as “the things that trigger execution.” One of them deserves a warning of its own.\n# ⚠️ Dangerous on a large DataFrame\nall_rows = df.collect()   # pulls EVERY row to the driver machine, as a Python list\n\n# ✅ Safer — limit first\nsample = df.limit(100).collect()\n\ncollect() brings all matching rows back to the driver program, as ordinary Python objects — not distributed anymore.\nIf the DataFrame is large, this can crash the driver — the driver has one machine’s worth of memory, not the whole cluster’s.\ncount() and show(n) don’t have this problem: count() returns a single number, and show(n) only ever prints n rows without collecting the rest.\n\n\nTiming: 5 min. Quiz 6 Q7 tests this risk directly (“main risk of collect() on a very large DataFrame”) — this is a real, industry-relevant footgun, not a trivia fact, so it’s worth the full 5 minutes."
+  },
+  {
+    "objectID": "cosc420/slides/module_4.html#pause-discuss-which-one-crashes-the-driver",
+    "href": "cosc420/slides/module_4.html#pause-discuss-which-one-crashes-the-driver",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Pause & Discuss: Which One Crashes the Driver?",
+    "text": "Pause & Discuss: Which One Crashes the Driver?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nratings has 100 million rows but only about 50,000 distinct movies. Which of these are safe, and which could crash the driver?\nratings.count()                                          # (a)\nratings.groupBy(\"movieId\").agg(avg(\"rating\")).collect()  # (b)\nratings.collect()[:10]                                   # (c)\nratings.orderBy(desc(\"rating\")).show(10)                 # (d)\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) Safe. It returns a single number.\n(b) Safe. It collects the result: one small row per movie, about 50,000 rows, not 100 million. What makes collect() risky is the size of what you collect, not the size of the input.\n(c) Dangerous. collect() runs first and pulls all 100M rows onto the driver. The [:10] happens afterward in plain Python, which is too late. Fix: ratings.limit(10).collect() or ratings.take(10).\n(d) Safe. Only 10 rows come back to the driver. The sort itself runs on the executors.\n\nThe rule to leave with: ask “how many rows will land on the driver?”, not “how big is the DataFrame?”"
   },
   {
     "objectID": "cosc420/slides/module_4.html#writing-dataframe-output",
@@ -8586,7 +8803,7 @@
     "href": "cosc420/slides/module_6.html#cloud-computing-renting-instead-of-owning",
     "title": "Module 6: Cloud Computing & Microservices",
     "section": "Cloud Computing: Renting Instead of Owning",
-    "text": "Cloud Computing: Renting Instead of Owning\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: You’ve Already Used the Cloud\n3 min\n\n\nWhat Is Cloud Computing?\n5 min\n\n\nThe Apartment Analogy: IaaS, PaaS, SaaS\n5 min\n\n\nThe Three Service Models, Named\n5 min\n\n\nThe Major Cloud Providers\n3 min\n\n\nCloud-Native Data Services\n5 min\n\n\nScaling Out, Someone Else’s Problem\n4 min\n\n\nEL5 Preview: When the Cloud Breaks\n4 min\n\n\nBridge to Nov 30\n2 min\n\n\n\n9 slides, ~36 min, deliberately lighter than a full 50 — Week 13 has only one class session (Nov 25 and Nov 27 are Fall Break), so there’s no rush, and a full week passes before Nov 30’s denser session. Let discussion run long on the Apartment Analogy or the EL5 slide if it’s going well; there’s real slack in this session on purpose."
+    "text": "Cloud Computing: Renting Instead of Owning\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: You’ve Already Used the Cloud\n3 min\n\n\nWhat Is Cloud Computing?\n5 min\n\n\nThe Apartment Analogy: IaaS, PaaS, SaaS\n5 min\n\n\nThe Three Service Models, Named\n5 min\n\n\nPause & Discuss: Who Gets Paged at 2 a.m.?\n4 min\n\n\nThe Major Cloud Providers\n3 min\n\n\nCloud-Native Data Services\n5 min\n\n\nScaling Out, Someone Else’s Problem\n4 min\n\n\nEL5 Preview: When the Cloud Breaks\n4 min\n\n\nBridge to Nov 30\n2 min\n\n\n\n9 slides, ~36 min, deliberately lighter than a full 50 — Week 13 has only one class session (Nov 25 and Nov 27 are Fall Break), so there’s no rush, and a full week passes before Nov 30’s denser session. Let discussion run long on the Apartment Analogy or the EL5 slide if it’s going well; there’s real slack in this session on purpose."
   },
   {
     "objectID": "cosc420/slides/module_6.html#recap-youve-already-used-the-cloud",
@@ -8615,6 +8832,13 @@
     "title": "Module 6: Cloud Computing & Microservices",
     "section": "The Three Service Models, Named",
     "text": "The Three Service Models, Named\n\n\n\n\n\n\n\n\n\nModel\nYou manage\nProvider manages\nExamples\n\n\n\n\nIaaS\nOS, runtime, apps\nHardware, networking\nAWS EC2, Google Compute Engine\n\n\nPaaS\nYour code and data\nOS, runtime, scaling\nHeroku, Google App Engine, Colab\n\n\nSaaS\nNothing — just use it\nEverything\nGmail, Dropbox, Salesforce, MongoDB Atlas\n\n\n\n\n\n\n\n\n\nImportant\n\n\nThe more “as a service,” the less you manage — but also the less control you have. IaaS gives you the most control and the most responsibility; SaaS gives you the least of both.\n\n\n\n\n\n\n\n\n\nDiagram to add later (Excalidraw / pyxcd / draw.io)\n\n\nA single vertical stack of four labeled horizontal bands, bottom to top: “Hardware,” “Operating System,” “Runtime,” “Application.” Three columns to the right of the stack, one per service model (IaaS, PaaS, SaaS), each with the bands it covers shaded one color (labeled “you manage”) and the remaining bands shaded a second color (labeled “provider manages”) — IaaS shades only “Hardware” as provider-managed; PaaS shades “Hardware” + “OS” + “Runtime”; SaaS shades all four. Caption: “Same stack, different amount handed off.”\n\n\n\n\nTiming: 5 min. This table plus the diagram are Quiz 8 Q1/Q3/Q4 and Final Q46/Q48/Q49/Q50’s entire content — spend real time here, it’s the most directly tested slide in the module."
+  },
+  {
+    "objectID": "cosc420/slides/module_6.html#pause-discuss-who-gets-paged-at-2-a.m.",
+    "href": "cosc420/slides/module_6.html#pause-discuss-who-gets-paged-at-2-a.m.",
+    "title": "Module 6: Cloud Computing & Microservices",
+    "section": "Pause & Discuss: Who Gets Paged at 2 a.m.?",
+    "text": "Pause & Discuss: Who Gets Paged at 2 a.m.?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA critical security patch for the operating system is released on Friday night. Nobody on your team does anything all weekend. Who was responsible for applying it, if your app ran on:\n(a) an AWS EC2 virtual machine you set up yourself?\n(b) Heroku or Google App Engine?\n(c) MongoDB Atlas (for your database)?\nAnd if handing off more work is so convenient, why would anyone still choose IaaS?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) You. With IaaS the provider owns the hardware and networking, but the OS on your VM is yours to patch. If it’s unpatched, that’s on you.\n(b) The provider. PaaS manages the OS and runtime; you only manage your code and data.\n(c) The provider. Atlas is SaaS-like, and you never even see the database server’s OS.\nWhy choose IaaS anyway: control. You might need a specific OS, custom software, or settings a platform won’t let you change. This course’s own classroom setup (a custom Hadoop/Spark/Livy container) needs a whole machine to configure, and a PaaS wouldn’t let you install and wire all of that up. At large, steady scale, IaaS can also be cheaper.\n\nThis is the previous slide’s callout made concrete: the more “as a service,” the less responsibility and the less control."
   },
   {
     "objectID": "cosc420/slides/module_6.html#the-major-cloud-providers",
@@ -8656,7 +8880,7 @@
     "href": "cosc420/slides/module_6.html#autoscaling-serverless-microservices-checkpoint-8",
     "title": "Module 6: Cloud Computing & Microservices",
     "section": "Autoscaling, Serverless & Microservices + Checkpoint 8",
-    "text": "Autoscaling, Serverless & Microservices + Checkpoint 8\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 8 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Renting to Running Efficiently\n3 min\n\n\nAutoscaling: Extra Cooks During the Dinner Rush\n4 min\n\n\nServerless: You Never See a Machine at All\n4 min\n\n\nBridge: One Kitchen vs. Many Kitchen Branches\n3 min\n\n\nMonolith: One Big Kitchen\n4 min\n\n\nMicroservices: Separate Kitchen Branches\n5 min\n\n\nWhen to Use Which\n3 min\n\n\nCheckpoint 8 Preview\n3 min\n\n\n\n8 slides (~29 min) + Checkpoint 8. Autoscaling and serverless are promised by the syllabus for today (“Industry cloud patterns — autoscaling, serverless”) but aren’t separately competency-coded or quiz-tested — keep both brief and let monolith vs. microservices (which is C6.2, CP8, Quiz 8, and Final-tested) get the bulk of the remaining time."
+    "text": "Autoscaling, Serverless & Microservices + Checkpoint 8\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 8 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Renting to Running Efficiently\n3 min\n\n\nAutoscaling: Extra Cooks During the Dinner Rush\n4 min\n\n\nServerless: You Never See a Machine at All\n4 min\n\n\nBridge: One Kitchen vs. Many Kitchen Branches\n3 min\n\n\nMonolith: One Big Kitchen\n4 min\n\n\nMicroservices: Separate Kitchen Branches\n5 min\n\n\nPause & Discuss: One Slow Branch\n4 min\n\n\nWhen to Use Which\n3 min\n\n\nCheckpoint 8 Preview\n3 min\n\n\n\n8 slides (~29 min) + Checkpoint 8. Autoscaling and serverless are promised by the syllabus for today (“Industry cloud patterns — autoscaling, serverless”) but aren’t separately competency-coded or quiz-tested — keep both brief and let monolith vs. microservices (which is C6.2, CP8, Quiz 8, and Final-tested) get the bulk of the remaining time."
   },
   {
     "objectID": "cosc420/slides/module_6.html#recap-from-renting-to-running-efficiently",
@@ -8701,6 +8925,13 @@
     "text": "Microservices: Separate Kitchen Branches\nMicroservices: each function is built and deployed as an independent service, communicating with the others the same way Module 2 taught you any two machines communicate — over REST APIs.\nClient\n  ↓\nAPI Gateway\n  ├── Auth Branch         (own DB, own deployment)\n  ├── Order Branch        (own DB, own deployment)\n  ├── Payment Branch      (own DB, own deployment)\n  └── Notification Branch (own DB, own deployment)\n\nKitchen picture: an Auth branch, an Order branch, a Payment branch — each its own kitchen, its own staff, its own inventory — calling each other on the phone (a REST request) whenever one needs something from another.\n✅ Each branch scales independently — today’s autoscaling can add capacity to just the Payment branch during a sale, without touching the others.\n✅ Different teams can deploy their own branch independently — no coordinating one giant release.\n❌ Every call between branches is now a network call — Module 2’s entire catalogue of failure modes (lost messages, timeouts, partial failures) applies to every one of these calls, where a monolith’s internal function calls never fail that way.\n❌ Distributed tracing, service discovery, keeping data consistent across many separate databases — all genuinely new problems a monolith never had.\n\n\nTiming: 5 min. The “every call is now a network call” bullet is worth dwelling on — it’s the direct payoff of Module 2 Session 1’s entire catalogue (lost/delayed/reordered messages, partial failures, the timeout problem), now shown to apply inside a single application’s own architecture, not just between two different companies’ servers."
   },
   {
+    "objectID": "cosc420/slides/module_6.html#pause-discuss-one-slow-branch",
+    "href": "cosc420/slides/module_6.html#pause-discuss-one-slow-branch",
+    "title": "Module 6: Cloud Computing & Microservices",
+    "section": "Pause & Discuss: One Slow Branch",
+    "text": "Pause & Discuss: One Slow Branch\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nIt’s a big sale, and the Payment service starts taking 10 seconds per request instead of 0.1.\nThe Order service calls Payment on every checkout. It handles requests with a fixed pool of 50 worker threads, and it sets no timeout on the Payment call.\nWhat happens to the Order service over the next minute, including for users who are only viewing their past orders, not checking out? What would you change?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer: every checkout ties up an Order thread for 10 s while it waits on Payment. Once 50 checkouts are waiting, the pool is used up. That’s Module 1 Session 5’s “tasks that never finish” break slide, now across a network. From then on, every Order request waits in the queue, even “view my past orders,” which never touches Payment. The Order service looks down, the gateway backs up, and the whole site appears down. This is a cascading failure (the EL5 slide): one slow service took down a healthy one.\nFixes students might suggest:\n\nPut a timeout on calls to Payment (Module 2 Session 1’s timeout problem): fail fast instead of waiting forever.\nDegrade gracefully: reply “payment pending, we’ll email you,” or queue checkouts to finish later.\nUse separate thread pools so checkouts can’t starve every other kind of request.\nAutoscale Payment (today’s first topic).\n\nIn a monolith, this would just be a slow function call. This is the “every call is now a network call” bullet made concrete."
+  },
+  {
     "objectID": "cosc420/slides/module_6.html#when-to-use-which",
     "href": "cosc420/slides/module_6.html#when-to-use-which",
     "title": "Module 6: Cloud Computing & Microservices",
@@ -8719,7 +8950,7 @@
     "href": "cosc420/slides/module_6.html#flask-rest-api-the-full-pipeline-complete",
     "title": "Module 6: Cloud Computing & Microservices",
     "section": "Flask REST API + The Full Pipeline, Complete",
-    "text": "Flask REST API + The Full Pipeline, Complete\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Consuming APIs to Building One\n3 min\n\n\nFlask: Module 2’s REST Vocabulary, in Code\n4 min\n\n\nYour First Flask Route\n5 min\n\n\nFlask Route Patterns\n4 min\n\n\nConnecting Flask to MongoDB\n4 min\n\n\nThe Full Pipeline — End to End\n4 min\n\n\nLab 10 Preview\n3 min\n\n\nQuiz 8 Preview\n2 min\n\n\nRemember Day One?\n4 min\n\n\nCourse Wrap-Up\n3 min\n\n\n\n10 slides, ~36 min, with real slack — this is the last content day of the semester (Dec 4 is Lab 10 + Quiz 8; Dec 7/9 are capstone work days; Dec 11 is demos). Let the closing two slides run long rather than rushing them to fit a tighter number — they’re the payoff of the whole semester."
+    "text": "Flask REST API + The Full Pipeline, Complete\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Consuming APIs to Building One\n3 min\n\n\nFlask: Module 2’s REST Vocabulary, in Code\n4 min\n\n\nYour First Flask Route\n5 min\n\n\nFlask Route Patterns\n4 min\n\n\nConnecting Flask to MongoDB\n4 min\n\n\nPause & Discuss: Why Does This Route Fail?\n4 min\n\n\nThe Full Pipeline — End to End\n4 min\n\n\nLab 10 Preview\n3 min\n\n\nQuiz 8 Preview\n2 min\n\n\nRemember Day One?\n4 min\n\n\nCourse Wrap-Up\n3 min\n\n\n\n10 slides, ~36 min, with real slack — this is the last content day of the semester (Dec 4 is Lab 10 + Quiz 8; Dec 7/9 are capstone work days; Dec 11 is demos). Let the closing two slides run long rather than rushing them to fit a tighter number — they’re the payoff of the whole semester."
   },
   {
     "objectID": "cosc420/slides/module_6.html#recap-from-consuming-apis-to-building-one",
@@ -8755,6 +8986,13 @@
     "title": "Module 6: Cloud Computing & Microservices",
     "section": "Connecting Flask to MongoDB",
     "text": "Connecting Flask to MongoDB\nfrom flask import Flask, jsonify\nfrom pymongo import MongoClient\n\napp    = Flask(__name__)\nclient = MongoClient(\"mongodb+srv://...\")\ndb     = client[\"mydb\"]\n\n@app.route(\"/employees\")\ndef get_employees():\n    docs = list(db[\"employees\"].find({}, {\"_id\": 0}))\n    return jsonify(docs)\n\n@app.route(\"/employees/&lt;dept&gt;\")\ndef get_by_dept(dept):\n    docs = list(db[\"employees\"].find({\"dept\": dept}, {\"_id\": 0}))\n    return jsonify(docs)\n\nSame MongoClient and .find() syntax from Module 5’s Lab 9 — nothing new there.\nlist(...) around .find() is necessary because jsonify() needs an actual list, not MongoDB’s lazy cursor object.\nThis is exactly the pattern your capstone’s flask_app.py uses for its five JSON API endpoints.\n\n\nTiming: 4 min. Say plainly: “this slide is the shape of five of your capstone’s endpoints, just with different collection names and filters.”"
+  },
+  {
+    "objectID": "cosc420/slides/module_6.html#pause-discuss-why-does-this-route-fail",
+    "href": "cosc420/slides/module_6.html#pause-discuss-why-does-this-route-fail",
+    "title": "Module 6: Cloud Computing & Microservices",
+    "section": "Pause & Discuss: Why Does This Route Fail?",
+    "text": "Pause & Discuss: Why Does This Route Fail?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA classmate writes this capstone endpoint:\n@app.route(\"/top-movies\")\ndef top_movies():\n    docs = db[\"top_movies\"].find({}, {\"_id\": 0})\n    return jsonify(docs)\nIt crashes when you open it in a browser. Why?\nOnce that’s fixed, a teammate sends it a POST request instead of a GET. What status code comes back, and which range is it in?\nLast one: what goes wrong if you remove {\"_id\": 0}?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nThe crash: list(...) is missing. find() returns a lazy cursor, not a list, and jsonify can’t turn a cursor into JSON, so the request fails with a 500. Fix: docs = list(db[\"top_movies\"].find({}, {\"_id\": 0})). This is the list(...) bullet on the previous slide.\nPOST: the route only accepts GET by default, so Flask returns 405 Method Not Allowed. That’s a 4xx: the client asked the wrong way, and retrying won’t help (Module 2 Session 5’s 4xx-vs-5xx callout).\nWithout {\"_id\": 0}: every document includes MongoDB’s auto-generated _id, an ObjectId that jsonify can’t serialize, so it errors again.\n\nStudents hit all three of these in real capstone endpoints, so this also works as debugging practice for Dec 7/9."
   },
   {
     "objectID": "cosc420/slides/module_6.html#the-full-pipeline-end-to-end",
@@ -9140,6 +9378,69 @@
     "title": "The End of Free Lunch",
     "section": "This Week",
     "text": "This Week\n\nSession 2 (Wed, Sep 16): CPU vs. GPU design philosophy, with real numbers — FLOPS, memory bandwidth, SIMD\nLab 03 (Fri, Sep 18): Benchmark a loop vs. a vectorized NumPy call; measure the actual speedup ratio and compute GFLOP/s \n\n\n~1 min. Quick pointer slide, not a deep dive — just orient students to what’s next."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#todays-plan",
+    "href": "cosc435/notes/07.html#todays-plan",
+    "title": "Inside a GPU",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\nWhat’s actually on a GPU chip: Streaming Multiprocessors and CUDA cores\nHow many cores a real GPU has, and how they’re grouped\nHow your program’s work — threads, grouped into blocks — gets assigned onto that fixed hardware\nWhy a bigger problem means more scheduling rounds, not more silicon\n\n\n~1 min. Full 50-min session. This session is architecture-only — no code yet. Code starts Sep 23."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#vocabulary-threads-blocks-and-grids",
+    "href": "cosc435/notes/07.html#vocabulary-threads-blocks-and-grids",
+    "title": "Inside a GPU",
+    "section": "Vocabulary: Threads, Blocks, and Grids",
+    "text": "Vocabulary: Threads, Blocks, and Grids\nThree words you’ll see on every slide from here on — the concepts today, the code Sep 23:\n\n\n\nA thread is the smallest unit of work — one lane running your program, working on one piece of data\n\n\nA block is a group of threads that run together as a unit, share fast on-chip memory, and get scheduled onto a single SM\n\n\nA grid is the full set of blocks launched by one kernel call — potentially thousands of blocks, covering your entire problem\n\n\n\n~2 min. This is purely definitional — no syntax yet (that’s blockIdx, blockDim, cuda.grid() on Sep 23). The goal is just to have working nouns before the SM slide talks about “thread blocks” being scheduled. Keep it to plain-language definitions; resist the urge to show code here."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#from-one-chip-to-many-compute-units",
+    "href": "cosc435/notes/07.html#from-one-chip-to-many-compute-units",
+    "title": "Inside a GPU",
+    "section": "From One Chip to Many Compute Units",
+    "text": "From One Chip to Many Compute Units\n\nModule 1 compared CPU and GPU at the level of headline numbers (cores, clock, bandwidth) — today we open up the GPU chip itself\nA GPU is not one big processor — it’s a chip subdivided into dozens of smaller, largely independent compute units\nEach of those units is called a Streaming Multiprocessor, or SM\nUnderstanding SMs is the prerequisite for understanding warps, occupancy, and divergence (Sep 30) — those are all properties of one SM\n\n\n~2 min. Framing slide — connects back to Module 1’s CPU-vs-GPU table and forward to Sep 30’s content, so students see this as one continuous architectural story rather than isolated facts."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#the-streaming-multiprocessor-sm",
+    "href": "cosc435/notes/07.html#the-streaming-multiprocessor-sm",
+    "title": "Inside a GPU",
+    "section": "The Streaming Multiprocessor (SM)",
+    "text": "The Streaming Multiprocessor (SM)\n\n\n\nAn SM bundles together: many CUDA cores (the ALUs that do arithmetic), a register file (fast per-thread storage), shared memory (fast per-block storage — full detail in Module 4), and warp schedulers (full detail Sep 30)\n\n\nA GPU chip contains many SMs — tens of them on a typical GPU — all working independently on different pieces of your problem at once\n\n\nEvery thread block your kernel launches is assigned to run on exactly one SM\n\n\n\n~3 min. This slide is the map for the rest of the module — registers, shared memory, and warp scheduling (upcoming sessions) all live inside the SM box drawn here. Point back to this diagram when those topics come up."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#cuda-cores-the-actual-alus",
+    "href": "cosc435/notes/07.html#cuda-cores-the-actual-alus",
+    "title": "Inside a GPU",
+    "section": "CUDA Cores: The Actual ALUs",
+    "text": "CUDA Cores: The Actual ALUs\n\nA CUDA core is one simple arithmetic unit — it can do one floating-point add or multiply per clock cycle, nothing more\nCompare to a CPU core: a CUDA core has no branch predictor, no out-of-order execution, no deep pipeline — just an ALU and enough control to execute the instruction a warp scheduler hands it (Module 1’s die-anatomy diagram, made concrete)\nTotal CUDA cores on a chip = (number of SMs) × (cores per SM)\nThis total is a fixed, physical property of the chip — it does not change based on what code you run\n\n\n~2 min. “Fixed physical property” is the setup for the “same hardware” slide two slides from now — plant it explicitly here."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#how-many-cores-a-concrete-example",
+    "href": "cosc435/notes/07.html#how-many-cores-a-concrete-example",
+    "title": "Inside a GPU",
+    "section": "How Many Cores? A Concrete Example",
+    "text": "How Many Cores? A Concrete Example\nThe GPU behind every lab and checkpoint this semester — Google Colab’s NVIDIA T4 — breaks down like this:\nStreaming Multiprocessors (SMs) : 40\nCUDA cores per SM                : 64\nTotal CUDA cores                 : 40 × 64 = 2,560\nMemory                            : 16 GB GDDR6\nMemory bandwidth                  : ~320 GB/s\n\n2,560 cores sounds enormous next to a CPU’s 8–32 — and it is — but it’s still a fixed number, not something that grows with your problem size\nA data-center GPU (H100-class, Module 1’s “2,000 TFLOPS” chip) has far more SMs and cores than a T4 — the T4 is a modest, power-efficient GPU meant for exactly this kind of interactive/educational workload\n\n\n~3 min. These are the real numbers behind every timing result students will produce all semester — worth memorizing “40 SMs, 2,560 cores” as their GPU’s identity. If students run !nvidia-smi in Colab they can confirm they have a T4 (occasionally Colab assigns something else — mention this as a heads-up, not a concern)."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#a-bigger-problem-the-same-hardware",
+    "href": "cosc435/notes/07.html#a-bigger-problem-the-same-hardware",
+    "title": "Inside a GPU",
+    "section": "A Bigger Problem, the Same Hardware",
+    "text": "A Bigger Problem, the Same Hardware\n\nThe GPU always has the same 2,560 cores (on a T4) — that number never changes, no matter how large your problem gets\nA bigger problem means more thread blocks are launched, and those blocks queue up to be scheduled onto the SMs that already exist\nIf you launch more blocks than can run at once, extra blocks simply wait until an SM finishes its current block and becomes free — same hardware, more rounds of scheduling\nThis is why GPU speedup at small N is often worse than a CPU (fixed launch overhead dominates a tiny amount of work) but improves as N grows (that overhead gets amortized over far more useful work)\n\n\n~3 min. Frame this as building the correct mental model directly, not correcting a misconception — students haven’t been given any reason yet to think cores “activate” dynamically, so don’t set it up as a myth to debunk. That said, this is exactly the model tested by a real exam distractor (Midterm D2 offers “the GPU activates progressively more CUDA cores as N grows” as a wrong answer) — worth a one-line callback when reviewing for the midterm, just not framed as myth-busting here on day one."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#from-grid-to-hardware-how-blocks-get-scheduled",
+    "href": "cosc435/notes/07.html#from-grid-to-hardware-how-blocks-get-scheduled",
+    "title": "Inside a GPU",
+    "section": "From Grid to Hardware: How Blocks Get Scheduled",
+    "text": "From Grid to Hardware: How Blocks Get Scheduled\n\n\n\nYour kernel launch specifies a grid of blocks; the hardware decides which SM runs which block, and in what order\n\n\nA block runs start-to-finish on a single SM — it never moves partway through, and it never splits across two SMs\n\n\nAn SM can often hold more than one resident block at a time if there’s room (this is exactly what occupancy, covered Sep 30, measures) — the diagram above simplifies to one block per SM for clarity\n\n\nYou don’t control this scheduling directly — you control it indirectly, through launch configuration (block size, grid size) — Sep 23 teaches you to write that configuration\n\n\n\n~3 min. Keep this at “the hardware decides, you don’t” — the occupancy math (how many blocks actually fit per SM) is deliberately deferred to Sep 30, don’t get pulled into that calculation here."
+  },
+  {
+    "objectID": "cosc435/notes/07.html#this-week",
+    "href": "cosc435/notes/07.html#this-week",
+    "title": "Inside a GPU",
+    "section": "This Week",
+    "text": "This Week\n\nSession 2 (Wed, Sep 23): From architecture to code — writing and launching your first CUDA kernels. Quiz 2 (covers Module 1) opens that session.\nLab 04 (Fri, Sep 25): Your first Numba CUDA kernel — vector addition\nEverything on today’s slides (SMs, cores, block scheduling) is background you’ll use starting Sep 23, not something graded on its own — but Quiz 3 (Oct 5) and both exams draw on it\n\n\n~1 min. Quick pointer slide. Reassure students this session is conceptual grounding, not itself a checkpointed skill — the payoff is that Sep 23 onward will make a lot more sense."
   },
   {
     "objectID": "cosc435/notes/el1.html",
@@ -9559,7 +9860,7 @@
     "href": "cosc435/slides/module02-cuda-kernels.html#todays-plan-1",
     "title": "Module 2: CUDA Kernels",
     "section": "Today’s Plan",
-    "text": "Today’s Plan\n\nQuiz 2 first (15 min, Blackboard) — covers all of Module 1\nThen: what a CUDA kernel actually is, and how to launch one\nThe thread/block/grid indexing hierarchy — in 1D, then 2D\nTwo worked example kernels, and a preview of the capstone’s kernel\n\n\n~1 min. ~35 min of lecture time after the quiz, same structure as Module 1 Session 1. This is a dense, code-heavy session — keep momentum, save discussion for Lab 04."
+    "text": "Today’s Plan\n\n\nThen: what a CUDA kernel actually is, and how to launch one\nThe thread/block/grid indexing hierarchy — in 1D, then 2D\nTwo worked example kernels, and a preview of the capstone’s kernel\n\n\n~1 min. ~35 min of lecture time after the quiz, same structure as Module 1 Session 1. This is a dense, code-heavy session — keep momentum, save discussion for Lab 04."
   },
   {
     "objectID": "cosc435/slides/module02-cuda-kernels.html#what-a-kernel-is",

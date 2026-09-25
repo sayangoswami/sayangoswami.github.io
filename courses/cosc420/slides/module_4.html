@@ -265,14 +265,18 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="even">
-<td>Transformations vs.&nbsp;Actions</td>
+<td>Pause &amp; Discuss: What Actually Ran?</td>
 <td>4 min</td>
 </tr>
 <tr class="odd">
+<td>Transformations vs.&nbsp;Actions</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>Lab 6 Recap / Lab 7 Preview</td>
 <td>3 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Bridge: Two More Sessions to Go</td>
 <td>2 min</td>
 </tr>
@@ -607,6 +611,47 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-what-actually-ran" class="slide level2">
+<h2>Pause &amp; Discuss: What Actually Ran?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p><code>df</code> has 10 billion rows of employee data.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a>high <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)      <span class="co"># line 1</span></span>
+<span id="cb6-2"><a></a>df.<span class="bu">filter</span>(df[<span class="st">"department"</span>] <span class="op">==</span> <span class="st">"Marketing"</span>)  <span class="co"># line 2</span></span>
+<span id="cb6-3"><a></a><span class="bu">print</span>(high.count())                         <span class="co"># line 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Lines 1 and 2 return instantly. Why?</p>
+<p>What does line 3 print: the number of high earners overall, or high earners in Marketing?</p>
+<p>How many times does Spark actually go through the 10 billion rows?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>Lines 1–2 are instant</strong> because transformations are lazy. They only add a step to the plan (the DAG), and no data is touched.</li>
+<li><strong>Line 3 counts high earners in <em>all</em> departments.</strong> Line 2 built a new DataFrame that was never assigned, so it was thrown away (immutability). <code>high</code> never knew about it.</li>
+<li><strong>One pass</strong>, at line 3, the only action. Line 2’s plan never runs at all, because nothing ever asked for its result.</li>
+</ul>
+<p>This combines the two previous slides (immutable + lazy) and leads straight into the next one: <code>count()</code> is an action, <code>filter()</code> is a transformation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="transformations-vs.-actions" class="slide level2">
 <h2>Transformations vs.&nbsp;Actions</h2>
 <table class="caption-top">
@@ -758,14 +803,18 @@ SI
 <td>3 min</td>
 </tr>
 <tr class="odd">
+<td>Pause &amp; Discuss: Find the Two Bugs</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>Avoiding Common PySpark Mistakes</td>
 <td>5 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Worked Example: Filter → Select</td>
 <td>4 min</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Checkpoint 4</td>
 <td>15–20 min</td>
 </tr>
@@ -809,17 +858,17 @@ SI
 </section>
 <section id="loading-data-into-spark" class="slide level2">
 <h2>Loading Data into Spark</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="co"># CSV with a header row</span></span>
-<span id="cb6-2"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-3"><a></a></span>
-<span id="cb6-4"><a></a><span class="co"># TSV (tab-separated) with no header</span></span>
-<span id="cb6-5"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, header<span class="op">=</span><span class="va">False</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-6"><a></a></span>
-<span id="cb6-7"><a></a><span class="co"># JSON</span></span>
-<span id="cb6-8"><a></a>df <span class="op">=</span> spark.read.json(<span class="st">"path/to/file.json"</span>)</span>
-<span id="cb6-9"><a></a></span>
-<span id="cb6-10"><a></a><span class="co"># From HDFS — always your own username, never a shared placeholder</span></span>
-<span id="cb6-11"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/&lt;your-username&gt;/data.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="co"># CSV with a header row</span></span>
+<span id="cb7-2"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-3"><a></a></span>
+<span id="cb7-4"><a></a><span class="co"># TSV (tab-separated) with no header</span></span>
+<span id="cb7-5"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, header<span class="op">=</span><span class="va">False</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-6"><a></a></span>
+<span id="cb7-7"><a></a><span class="co"># JSON</span></span>
+<span id="cb7-8"><a></a>df <span class="op">=</span> spark.read.json(<span class="st">"path/to/file.json"</span>)</span>
+<span id="cb7-9"><a></a></span>
+<span id="cb7-10"><a></a><span class="co"># From HDFS — always your own username, never a shared placeholder</span></span>
+<span id="cb7-11"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/&lt;your-username&gt;/data.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>header=True</code> tells Spark the first row is column names, not data.</li>
 <li><code>inferSchema=True</code> tells Spark to scan the file and guess each column’s type (integer, string, double, …) rather than treating every value as text.</li>
@@ -875,17 +924,17 @@ SI
 </section>
 <section id="filtering-rows" class="slide level2">
 <h2>Filtering Rows</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
-<span id="cb7-2"><a></a></span>
-<span id="cb7-3"><a></a><span class="co"># Filter rows — both forms below are equivalent</span></span>
-<span id="cb7-4"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb7-5"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a><span class="co"># You can also pass a filter as a plain SQL-style string</span></span>
-<span id="cb7-8"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(<span class="st">"salary &gt; 70000"</span>)</span>
-<span id="cb7-9"><a></a></span>
-<span id="cb7-10"><a></a><span class="co"># .where() is just another name for the same thing</span></span>
-<span id="cb7-11"><a></a>high_earners <span class="op">=</span> df.where(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a><span class="co"># Filter rows — both forms below are equivalent</span></span>
+<span id="cb8-4"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb8-5"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb8-6"><a></a></span>
+<span id="cb8-7"><a></a><span class="co"># You can also pass a filter as a plain SQL-style string</span></span>
+<span id="cb8-8"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(<span class="st">"salary &gt; 70000"</span>)</span>
+<span id="cb8-9"><a></a></span>
+<span id="cb8-10"><a></a><span class="co"># .where() is just another name for the same thing</span></span>
+<span id="cb8-11"><a></a>high_earners <span class="op">=</span> df.where(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>df["salary"]</code> and <code>col("salary")</code> are two ways of referring to the same column — use whichever reads more clearly in context.</li>
 <li><code>filter()</code> and <code>where()</code> are exact synonyms — pick one and be consistent.</li>
@@ -907,14 +956,14 @@ SI
 </section>
 <section id="selecting-and-renaming-columns" class="slide level2">
 <h2>Selecting and Renaming Columns</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Select specific columns</span></span>
-<span id="cb8-2"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>)</span>
-<span id="cb8-3"><a></a></span>
-<span id="cb8-4"><a></a><span class="co"># Add a new computed column</span></span>
-<span id="cb8-5"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb8-6"><a></a></span>
-<span id="cb8-7"><a></a><span class="co"># Rename a column</span></span>
-<span id="cb8-8"><a></a>df <span class="op">=</span> df.withColumnRenamed(<span class="st">"salary"</span>, <span class="st">"annual_salary"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Select specific columns</span></span>
+<span id="cb9-2"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>)</span>
+<span id="cb9-3"><a></a></span>
+<span id="cb9-4"><a></a><span class="co"># Add a new computed column</span></span>
+<span id="cb9-5"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb9-6"><a></a></span>
+<span id="cb9-7"><a></a><span class="co"># Rename a column</span></span>
+<span id="cb9-8"><a></a>df <span class="op">=</span> df.withColumnRenamed(<span class="st">"salary"</span>, <span class="st">"annual_salary"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>select()</code> keeps only the columns you name, in the order you name them, dropping the rest.</li>
 <li><code>withColumn(name, expression)</code> adds a new column computed from existing ones — or overwrites an existing column if you reuse its name.</li>
@@ -936,13 +985,13 @@ SI
 </section>
 <section id="adding-a-computed-column" class="slide level2">
 <h2>Adding a Computed Column</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
-<span id="cb9-2"><a></a></span>
-<span id="cb9-3"><a></a><span class="co"># Wrong — this is pandas syntax, and it doesn't work in Spark</span></span>
-<span id="cb9-4"><a></a>df[<span class="st">"new_col"</span>] <span class="op">=</span> df[<span class="st">"col1"</span>] <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb9-5"><a></a></span>
-<span id="cb9-6"><a></a><span class="co"># Right — Spark syntax</span></span>
-<span id="cb9-7"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"new_col"</span>, col(<span class="st">"col1"</span>) <span class="op">*</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb10-2"><a></a></span>
+<span id="cb10-3"><a></a><span class="co"># Wrong — this is pandas syntax, and it doesn't work in Spark</span></span>
+<span id="cb10-4"><a></a>df[<span class="st">"new_col"</span>] <span class="op">=</span> df[<span class="st">"col1"</span>] <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb10-5"><a></a></span>
+<span id="cb10-6"><a></a><span class="co"># Right — Spark syntax</span></span>
+<span id="cb10-7"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"new_col"</span>, col(<span class="st">"col1"</span>) <span class="op">*</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The pandas-style assignment on the first line above doesn’t raise an error that’s obviously about this mistake — it just fails, because PySpark DataFrames don’t support item assignment the way pandas DataFrames do. <code>withColumn</code> is the only correct way to add or replace a column.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error message is unhelpful, so seeing the correct pattern <em>before</em> hitting the bug saves real debugging time.</p>
@@ -958,17 +1007,61 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-find-the-two-bugs" class="slide level2">
+<h2>Pause &amp; Discuss: Find the Two Bugs</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>Goal: names and salaries (in thousands) of everyone in Marketing.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/alice/employees.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-2"><a></a>df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb11-3"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span>
+<span id="cb11-4"><a></a>result <span class="op">=</span> result.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>)</span>
+<span id="cb11-5"><a></a>result.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This code fails. Find <strong>two</strong> separate bugs. Which line do you think Spark complains about first?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Let students find these before the next two slides, which cover both bugs.</p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Bug 1 (line 2):</strong> the <code>withColumn</code> result is never assigned (immutability), so <code>df</code> has no <code>salary_k</code> column.</li>
+<li><strong>Bug 2 (line 4):</strong> it filters on <code>department</code> after <code>select</code> has already dropped that column.</li>
+<li><strong>Spark complains first at line 3</strong>, with an <code>AnalysisException</code> saying it can’t resolve <code>salary_k</code>. Worth pointing out: Spark checks that column names exist <em>as you build the plan</em>, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.</li>
+</ul>
+<p>Fixed version:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb12-2"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>).select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="avoiding-common-pyspark-mistakes" class="slide level2">
 <h2>Avoiding Common PySpark Mistakes</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="co"># ❌ Wrong — using a Python list comprehension on a Spark DataFrame</span></span>
-<span id="cb10-2"><a></a>result <span class="op">=</span> [row <span class="cf">for</span> row <span class="kw">in</span> df <span class="cf">if</span> row[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>]  <span class="co"># doesn't use Spark at all</span></span>
-<span id="cb10-3"><a></a></span>
-<span id="cb10-4"><a></a><span class="co"># ✅ Right — use Spark's own filter</span></span>
-<span id="cb10-5"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb10-6"><a></a></span>
-<span id="cb10-7"><a></a><span class="co"># ❌ Wrong — forgetting that filter() doesn't modify df in place</span></span>
-<span id="cb10-8"><a></a>df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)   <span class="co"># result thrown away — df is unchanged</span></span>
-<span id="cb10-9"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)  <span class="co"># correct — result is captured</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># ❌ Wrong — using a Python list comprehension on a Spark DataFrame</span></span>
+<span id="cb13-2"><a></a>result <span class="op">=</span> [row <span class="cf">for</span> row <span class="kw">in</span> df <span class="cf">if</span> row[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>]  <span class="co"># doesn't use Spark at all</span></span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a><span class="co"># ✅ Right — use Spark's own filter</span></span>
+<span id="cb13-5"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb13-6"><a></a></span>
+<span id="cb13-7"><a></a><span class="co"># ❌ Wrong — forgetting that filter() doesn't modify df in place</span></span>
+<span id="cb13-8"><a></a>df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)   <span class="co"># result thrown away — df is unchanged</span></span>
+<span id="cb13-9"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)  <span class="co"># correct — result is captured</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>A Python <code>for</code> loop over a DataFrame technically works, but it pulls everything to a single machine and processes it one row at a time in plain Python — throwing away everything Spark is for.</li>
 <li>The second mistake is the immutability rule from Session 1, showing up again in real code — if your DataFrame “isn’t changing,” check whether you forgot to assign the result.</li>
@@ -990,14 +1083,14 @@ SI
 <section id="worked-example-filter-select" class="slide level2">
 <h2>Worked Example: Filter → Select</h2>
 <p>Given a DataFrame <code>employees</code> with columns <code>name</code>, <code>department</code>, <code>salary</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Goal: names and salaries of everyone in Marketing earning over $60,000</span></span>
-<span id="cb11-2"><a></a></span>
-<span id="cb11-3"><a></a>marketing_high_earners <span class="op">=</span> employees <span class="op">\</span></span>
-<span id="cb11-4"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>) <span class="op">\</span></span>
-<span id="cb11-5"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">60000</span>) <span class="op">\</span></span>
-<span id="cb11-6"><a></a>    .select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
-<span id="cb11-7"><a></a></span>
-<span id="cb11-8"><a></a>marketing_high_earners.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="co"># Goal: names and salaries of everyone in Marketing earning over $60,000</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a>marketing_high_earners <span class="op">=</span> employees <span class="op">\</span></span>
+<span id="cb14-4"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>) <span class="op">\</span></span>
+<span id="cb14-5"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">60000</span>) <span class="op">\</span></span>
+<span id="cb14-6"><a></a>    .select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
+<span id="cb14-7"><a></a></span>
+<span id="cb14-8"><a></a>marketing_high_earners.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>Multiple <code>.filter()</code> calls chain naturally — each one narrows the DataFrame further.</li>
 <li>Order between the two filters here doesn’t change the result, but <code>select()</code> <strong>must</strong> come after both filters — once you <code>select()</code> away a column, you can no longer filter on it.</li>
@@ -1075,22 +1168,26 @@ SI
 <td>5 min</td>
 </tr>
 <tr class="even">
-<td>Writing DataFrame Output</td>
-<td>3 min</td>
-</tr>
-<tr class="odd">
-<td>Joins in PySpark</td>
-<td>5 min</td>
-</tr>
-<tr class="even">
-<td>Worked Example: A Full Multi-Step Query</td>
+<td>Pause &amp; Discuss: Which One Crashes the Driver?</td>
 <td>4 min</td>
 </tr>
 <tr class="odd">
+<td>Writing DataFrame Output</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>Joins in PySpark</td>
+<td>5 min</td>
+</tr>
+<tr class="odd">
+<td>Worked Example: A Full Multi-Step Query</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
 <td>Checkpoint 5</td>
 <td>15 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Module 4 Summary + Bridge to Module 5</td>
 <td>3 min</td>
 </tr>
@@ -1129,16 +1226,16 @@ SI
 </section>
 <section id="groupby-and-aggregation" class="slide level2">
 <h2>GroupBy and Aggregation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
-<span id="cb12-2"><a></a></span>
-<span id="cb12-3"><a></a><span class="co"># Average salary and headcount by department</span></span>
-<span id="cb12-4"><a></a>df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
-<span id="cb12-5"><a></a>  .agg(</span>
-<span id="cb12-6"><a></a>      spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>),</span>
-<span id="cb12-7"><a></a>      count(<span class="st">"name"</span>).alias(<span class="st">"num_employees"</span>)</span>
-<span id="cb12-8"><a></a>  ) <span class="op">\</span></span>
-<span id="cb12-9"><a></a>  .orderBy(desc(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
-<span id="cb12-10"><a></a>  .show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a><span class="co"># Average salary and headcount by department</span></span>
+<span id="cb15-4"><a></a>df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
+<span id="cb15-5"><a></a>  .agg(</span>
+<span id="cb15-6"><a></a>      spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>),</span>
+<span id="cb15-7"><a></a>      count(<span class="st">"name"</span>).alias(<span class="st">"num_employees"</span>)</span>
+<span id="cb15-8"><a></a>  ) <span class="op">\</span></span>
+<span id="cb15-9"><a></a>  .orderBy(desc(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
+<span id="cb15-10"><a></a>  .show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>groupBy("column")</code> — a transformation; it doesn’t compute anything on its own, it just says “gather rows into groups by this column’s value.”</li>
 <li><code>.agg(...)</code> — applies one or more aggregation functions (<code>avg</code>, <code>count</code>, <code>sum</code>, …) to each group, producing one output row per group.</li>
@@ -1160,17 +1257,17 @@ SI
 </section>
 <section id="aggregation-functions-reference" class="slide level2">
 <h2>Aggregation Functions Reference</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> (</span>
-<span id="cb13-2"><a></a>    avg, count, <span class="bu">sum</span> <span class="im">as</span> spark_sum, <span class="bu">min</span>, <span class="bu">max</span>, countDistinct</span>
-<span id="cb13-3"><a></a>)</span>
-<span id="cb13-4"><a></a></span>
-<span id="cb13-5"><a></a>df.groupBy(<span class="st">"category"</span>).agg(</span>
-<span id="cb13-6"><a></a>    count(<span class="st">"*"</span>).alias(<span class="st">"total_rows"</span>),</span>
-<span id="cb13-7"><a></a>    avg(<span class="st">"price"</span>).alias(<span class="st">"avg_price"</span>),</span>
-<span id="cb13-8"><a></a>    spark_sum(<span class="st">"revenue"</span>).alias(<span class="st">"total_revenue"</span>),</span>
-<span id="cb13-9"><a></a>    <span class="bu">min</span>(<span class="st">"price"</span>).alias(<span class="st">"cheapest"</span>),</span>
-<span id="cb13-10"><a></a>    <span class="bu">max</span>(<span class="st">"price"</span>).alias(<span class="st">"most_expensive"</span>)</span>
-<span id="cb13-11"><a></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> (</span>
+<span id="cb16-2"><a></a>    avg, count, <span class="bu">sum</span> <span class="im">as</span> spark_sum, <span class="bu">min</span>, <span class="bu">max</span>, countDistinct</span>
+<span id="cb16-3"><a></a>)</span>
+<span id="cb16-4"><a></a></span>
+<span id="cb16-5"><a></a>df.groupBy(<span class="st">"category"</span>).agg(</span>
+<span id="cb16-6"><a></a>    count(<span class="st">"*"</span>).alias(<span class="st">"total_rows"</span>),</span>
+<span id="cb16-7"><a></a>    avg(<span class="st">"price"</span>).alias(<span class="st">"avg_price"</span>),</span>
+<span id="cb16-8"><a></a>    spark_sum(<span class="st">"revenue"</span>).alias(<span class="st">"total_revenue"</span>),</span>
+<span id="cb16-9"><a></a>    <span class="bu">min</span>(<span class="st">"price"</span>).alias(<span class="st">"cheapest"</span>),</span>
+<span id="cb16-10"><a></a>    <span class="bu">max</span>(<span class="st">"price"</span>).alias(<span class="st">"most_expensive"</span>)</span>
+<span id="cb16-11"><a></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -1221,13 +1318,13 @@ SI
 </section>
 <section id="orderby-and-the-top-n-pattern" class="slide level2">
 <h2><code>orderBy</code> and the Top-N Pattern</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="co"># The "top N by some metric" pattern — you'll use this constantly</span></span>
-<span id="cb14-2"><a></a>top_5 <span class="op">=</span> df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
-<span id="cb14-3"><a></a>          .agg(spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
-<span id="cb14-4"><a></a>          .orderBy(<span class="st">"avg_salary"</span>, ascending<span class="op">=</span><span class="va">False</span>) <span class="op">\</span></span>
-<span id="cb14-5"><a></a>          .limit(<span class="dv">5</span>)</span>
-<span id="cb14-6"><a></a></span>
-<span id="cb14-7"><a></a>top_5.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a><span class="co"># The "top N by some metric" pattern — you'll use this constantly</span></span>
+<span id="cb17-2"><a></a>top_5 <span class="op">=</span> df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
+<span id="cb17-3"><a></a>          .agg(spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
+<span id="cb17-4"><a></a>          .orderBy(<span class="st">"avg_salary"</span>, ascending<span class="op">=</span><span class="va">False</span>) <span class="op">\</span></span>
+<span id="cb17-5"><a></a>          .limit(<span class="dv">5</span>)</span>
+<span id="cb17-6"><a></a></span>
+<span id="cb17-7"><a></a>top_5.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>orderBy(column, ascending=False)</code> sorts descending; <code>ascending=True</code> (or omitting it) sorts ascending.</li>
 <li><code>.limit(n)</code> keeps only the first <code>n</code> rows after sorting.</li>
@@ -1263,11 +1360,11 @@ SI
 <section id="actions-revisited-the-risk-of-collect" class="slide level2">
 <h2>Actions, Revisited: The Risk of <code>collect()</code></h2>
 <p>Session 1 introduced actions as “the things that trigger execution.” One of them deserves a warning of its own.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="co"># ⚠️ Dangerous on a large DataFrame</span></span>
-<span id="cb15-2"><a></a>all_rows <span class="op">=</span> df.collect()   <span class="co"># pulls EVERY row to the driver machine, as a Python list</span></span>
-<span id="cb15-3"><a></a></span>
-<span id="cb15-4"><a></a><span class="co"># ✅ Safer — limit first</span></span>
-<span id="cb15-5"><a></a>sample <span class="op">=</span> df.limit(<span class="dv">100</span>).collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a></a><span class="co"># ⚠️ Dangerous on a large DataFrame</span></span>
+<span id="cb18-2"><a></a>all_rows <span class="op">=</span> df.collect()   <span class="co"># pulls EVERY row to the driver machine, as a Python list</span></span>
+<span id="cb18-3"><a></a></span>
+<span id="cb18-4"><a></a><span class="co"># ✅ Safer — limit first</span></span>
+<span id="cb18-5"><a></a>sample <span class="op">=</span> df.limit(<span class="dv">100</span>).collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>collect()</code> brings <strong>all</strong> matching rows back to the driver program, as ordinary Python objects — not distributed anymore.</li>
 <li>If the DataFrame is large, this can <strong>crash the driver</strong> — the driver has one machine’s worth of memory, not the whole cluster’s.</li>
@@ -1287,13 +1384,53 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="pause-discuss-which-one-crashes-the-driver" class="slide level2">
+<h2>Pause &amp; Discuss: Which One Crashes the Driver?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p><code>ratings</code> has 100 million rows but only about 50,000 distinct movies. Which of these are safe, and which could crash the driver?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a>ratings.count()                                          <span class="co"># (a)</span></span>
+<span id="cb19-2"><a></a>ratings.groupBy(<span class="st">"movieId"</span>).agg(avg(<span class="st">"rating"</span>)).collect()  <span class="co"># (b)</span></span>
+<span id="cb19-3"><a></a>ratings.collect()[:<span class="dv">10</span>]                                   <span class="co"># (c)</span></span>
+<span id="cb19-4"><a></a>ratings.orderBy(desc(<span class="st">"rating"</span>)).show(<span class="dv">10</span>)                 <span class="co"># (d)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) Safe.</strong> It returns a single number.</li>
+<li><strong>(b) Safe.</strong> It collects the <em>result</em>: one small row per movie, about 50,000 rows, not 100 million. What makes <code>collect()</code> risky is the size of what you collect, not the size of the input.</li>
+<li><strong>(c) Dangerous.</strong> <code>collect()</code> runs first and pulls all 100M rows onto the driver. The <code>[:10]</code> happens afterward in plain Python, which is too late. Fix: <code>ratings.limit(10).collect()</code> or <code>ratings.take(10)</code>.</li>
+<li><strong>(d) Safe.</strong> Only 10 rows come back to the driver. The sort itself runs on the executors.</li>
+</ul>
+<p>The rule to leave with: ask <strong>“how many rows will land on the driver?”</strong>, not “how big is the DataFrame?”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="writing-dataframe-output" class="slide level2">
 <h2>Writing DataFrame Output</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a><span class="co"># Write as CSV — creates a folder, not a single file</span></span>
-<span id="cb16-2"><a></a>df.write.csv(<span class="st">"output/path"</span>, header<span class="op">=</span><span class="va">True</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span>
-<span id="cb16-3"><a></a></span>
-<span id="cb16-4"><a></a><span class="co"># Write as JSON</span></span>
-<span id="cb16-5"><a></a>df.write.json(<span class="st">"output/path"</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a></a><span class="co"># Write as CSV — creates a folder, not a single file</span></span>
+<span id="cb20-2"><a></a>df.write.csv(<span class="st">"output/path"</span>, header<span class="op">=</span><span class="va">True</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span>
+<span id="cb20-3"><a></a></span>
+<span id="cb20-4"><a></a><span class="co"># Write as JSON</span></span>
+<span id="cb20-5"><a></a>df.write.json(<span class="st">"output/path"</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>df.write.csv(...)</code> <strong>is an action</strong> — like <code>show()</code> or <code>count()</code>, it triggers Spark to execute the full pending plan, this time saving the result to storage instead of printing it.</li>
 <li><code>mode="overwrite"</code> replaces existing data at that path; <code>mode="error"</code> (the default) fails if the path already exists, to prevent accidentally destroying previous output.</li>
@@ -1315,14 +1452,14 @@ SI
 </section>
 <section id="joins-in-pyspark" class="slide level2">
 <h2>Joins in PySpark</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a><span class="co"># Inner join: only rows with matching keys in both DataFrames</span></span>
-<span id="cb17-2"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>)</span>
-<span id="cb17-3"><a></a></span>
-<span id="cb17-4"><a></a><span class="co"># Left join: all rows from the left DataFrame, matched rows (or nulls) from the right</span></span>
-<span id="cb17-5"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
-<span id="cb17-6"><a></a></span>
-<span id="cb17-7"><a></a><span class="co"># Joining on differently-named columns</span></span>
-<span id="cb17-8"><a></a>result <span class="op">=</span> df1.join(df2, df1[<span class="st">"user_id"</span>] <span class="op">==</span> df2[<span class="st">"id"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a></a><span class="co"># Inner join: only rows with matching keys in both DataFrames</span></span>
+<span id="cb21-2"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>)</span>
+<span id="cb21-3"><a></a></span>
+<span id="cb21-4"><a></a><span class="co"># Left join: all rows from the left DataFrame, matched rows (or nulls) from the right</span></span>
+<span id="cb21-5"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb21-6"><a></a></span>
+<span id="cb21-7"><a></a><span class="co"># Joining on differently-named columns</span></span>
+<span id="cb21-8"><a></a>result <span class="op">=</span> df1.join(df2, df1[<span class="st">"user_id"</span>] <span class="op">==</span> df2[<span class="st">"id"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>A <strong>join</strong> combines two DataFrames into one, matching rows where a key column agrees.</li>
 <li><strong>Inner join</strong> (the default): keep only rows that have a match in <em>both</em> DataFrames — rows with no match on either side are dropped.</li>
@@ -1357,18 +1494,18 @@ SI
 </section>
 <section id="worked-example-a-full-multi-step-query" class="slide level2">
 <h2>Worked Example: A Full Multi-Step Query</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
-<span id="cb18-2"><a></a></span>
-<span id="cb18-3"><a></a>top_movies <span class="op">=</span> ratings <span class="op">\</span></span>
-<span id="cb18-4"><a></a>    .groupBy(<span class="st">"movieId"</span>) <span class="op">\</span></span>
-<span id="cb18-5"><a></a>    .agg(spark_round(avg(<span class="st">"rating"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_rating"</span>),</span>
-<span id="cb18-6"><a></a>         count(<span class="st">"rating"</span>).alias(<span class="st">"num_ratings"</span>)) <span class="op">\</span></span>
-<span id="cb18-7"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"num_ratings"</span>) <span class="op">&gt;=</span> <span class="dv">50</span>) <span class="op">\</span></span>
-<span id="cb18-8"><a></a>    .join(movies, on<span class="op">=</span><span class="st">"movieId"</span>) <span class="op">\</span></span>
-<span id="cb18-9"><a></a>    .select(<span class="st">"title"</span>, <span class="st">"avg_rating"</span>, <span class="st">"num_ratings"</span>) <span class="op">\</span></span>
-<span id="cb18-10"><a></a>    .orderBy(desc(<span class="st">"avg_rating"</span>))</span>
-<span id="cb18-11"><a></a></span>
-<span id="cb18-12"><a></a>top_movies.show(<span class="dv">10</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
+<span id="cb22-2"><a></a></span>
+<span id="cb22-3"><a></a>top_movies <span class="op">=</span> ratings <span class="op">\</span></span>
+<span id="cb22-4"><a></a>    .groupBy(<span class="st">"movieId"</span>) <span class="op">\</span></span>
+<span id="cb22-5"><a></a>    .agg(spark_round(avg(<span class="st">"rating"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_rating"</span>),</span>
+<span id="cb22-6"><a></a>         count(<span class="st">"rating"</span>).alias(<span class="st">"num_ratings"</span>)) <span class="op">\</span></span>
+<span id="cb22-7"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"num_ratings"</span>) <span class="op">&gt;=</span> <span class="dv">50</span>) <span class="op">\</span></span>
+<span id="cb22-8"><a></a>    .join(movies, on<span class="op">=</span><span class="st">"movieId"</span>) <span class="op">\</span></span>
+<span id="cb22-9"><a></a>    .select(<span class="st">"title"</span>, <span class="st">"avg_rating"</span>, <span class="st">"num_ratings"</span>) <span class="op">\</span></span>
+<span id="cb22-10"><a></a>    .orderBy(desc(<span class="st">"avg_rating"</span>))</span>
+<span id="cb22-11"><a></a></span>
+<span id="cb22-12"><a></a>top_movies.show(<span class="dv">10</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Reading this top to bottom: group ratings by film, compute each film’s average and count, keep only films with enough ratings to be meaningful, join in the title, keep just the columns we want, sort by rating, show the top 10.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> This is deliberately close to Lab 8 Task 2’s actual solution shape — walk through it step by step rather than all at once, since chaining six operations together is a lot to take in as a single block the first time.</p>
