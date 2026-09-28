@@ -167,3 +167,14 @@
   text-align: left;
   width: 100%;
 }
+/*********************************************
+ * CALLOUTS
+ * Quarto shrinks callouts to 0.7em in revealjs; render them at body size.
+ *********************************************/
+.reveal .slides section div.callout {
+  font-size: 1em;
+}
+/* undo Quarto's heading compensation for the 0.7em shrink */
+.reveal .slides section div.callout h1 { font-size: 2.5em; }
+.reveal .slides section div.callout h2 { font-size: 1.6em; }
+.reveal .slides section div.callout h3 { font-size: 1.3em; }
