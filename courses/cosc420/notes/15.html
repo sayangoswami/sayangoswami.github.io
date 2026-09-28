@@ -9,7 +9,7 @@
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.9.36">
 
-  <title>Class Notes – Client-Server Model &amp; What Happens When You Type a URL</title>
+  <title>Class Notes – REST APIs: Anatomy of a Request &amp; Response</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -30,6 +30,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -133,7 +199,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Client-Server Model &amp; What Happens When You Type a URL</h1>
+  <h1 class="title">REST APIs: Anatomy of a Request &amp; Response</h1>
   <p class="subtitle">Module 2: Distributed Systems Concepts</p>
 
 <div class="quarto-title-authors">
@@ -141,14 +207,14 @@
 
 </section>
 <section>
-<section id="session-4-mon-sep-28" class="title-slide slide level1 section center">
-<h1>Session 4 · Mon Sep 28</h1>
+<section id="session-5-wed-sep-30" class="title-slide slide level1 section center">
+<h1>Session 5 · Wed Sep 30</h1>
 
 </section>
-<section id="client-server-model-what-happens-when-you-type-a-url" class="slide level2">
-<h2>Client-Server Model &amp; What Happens When You Type a URL</h2>
+<section id="rest-apis-anatomy-of-a-request-response" class="slide level2">
+<h2>REST APIs: Anatomy of a Request &amp; Response</h2>
 <aside class="notes">
-<p><strong>Full-session timing plan (50 min total):</strong></p>
+<p><strong>Full-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):</strong></p>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -158,60 +224,56 @@
 </thead>
 <tbody>
 <tr class="odd">
-<td>Recap: From Failures to How Things Talk</td>
+<td>Recap: HTTP Is the Protocol, REST Is the Style</td>
 <td>3 min</td>
 </tr>
 <tr class="even">
-<td>The Client-Server Model</td>
+<td>What Makes an API “RESTful”?</td>
 <td>4 min</td>
 </tr>
 <tr class="odd">
-<td>Not Every Server Is Only a Server</td>
+<td>Statelessness</td>
 <td>4 min</td>
 </tr>
 <tr class="even">
-<td>The Journey of a URL — Step 1: The Address Book (DNS)</td>
+<td>Anatomy of a Request</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Anatomy of a Response</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>HTTP Status Codes</td>
 <td>5 min</td>
 </tr>
-<tr class="odd">
-<td>Step 2: Opening the Line (TCP Connection)</td>
+<tr class="even">
+<td>JSON: The Language of REST Responses</td>
 <td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Worked Example: Reading a Real Response</td>
+<td>6 min</td>
 </tr>
 <tr class="even">
-<td>Step 3: Sending the Request</td>
-<td>5 min</td>
-</tr>
-<tr class="odd">
-<td>Step 4: The Server Does the Work</td>
-<td>4 min</td>
-</tr>
-<tr class="even">
-<td>Step 5: The Response Comes Back</td>
-<td>4 min</td>
-</tr>
-<tr class="odd">
-<td>Pause &amp; Discuss: Where Did It Break?</td>
-<td>4 min</td>
-</tr>
-<tr class="even">
-<td>The Whole Journey, Start to Finish</td>
-<td>5 min</td>
-</tr>
-<tr class="odd">
-<td>HTTP: The Standard Order Form</td>
-<td>4 min</td>
-</tr>
-<tr class="even">
-<td>HTTP Verbs</td>
-<td>5 min</td>
-</tr>
-<tr class="odd">
-<td>Wrap: Bridge to REST</td>
+<td>Why Industry Uses REST Everywhere</td>
 <td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Lab 3 Preview</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
+<td>Checkpoint 2 Preview &amp; Review</td>
+<td>4 min</td>
 </tr>
 </tbody>
 </table>
-<p>12 slides, ~50 min. This session introduces vocabulary (client, server, DNS, HTTP) that Session 5 uses constantly — don’t let it run short even if discussion runs long elsewhere, since Session 5 assumes all of this is solid.</p>
+<p>That’s ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -224,11 +286,12 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="recap-from-failures-to-how-things-talk" class="slide level2">
-<h2>Recap: From Failures to How Things Talk</h2>
-<p>Sessions 1–3 were about what goes <em>wrong</em>: lost messages, partitions, split-brain. Today, before going further, we need the basics of how machines talk to each other <strong>when things go right</strong> — the client-server model and HTTP.</p>
+<section id="recap-http-is-the-protocol-rest-is-the-style" class="slide level2">
+<h2>Recap: HTTP Is the Protocol, REST Is the Style</h2>
+<p>Session 4 gave you HTTP: the shared format for requests and responses. HTTP itself is fairly general — it can be used in many ways.</p>
+<p><strong>REST (Representational State Transfer)</strong> is a specific, disciplined <em>style</em> of using HTTP that the industry has largely standardized on for building APIs. Today: what makes an API count as RESTful, and how to read one.</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Brief tonal shift — signal explicitly that today is foundational/mechanical rather than failure-focused, so students recalibrate expectations.</p>
+<p><strong>Timing: 3 min.</strong> Brief — just draw the HTTP-vs-REST distinction (protocol vs.&nbsp;a style of using it) before the rest of the session builds on it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -241,15 +304,34 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-client-server-model" class="slide level2">
-<h2>The Client-Server Model</h2>
-<p>The most common shape of communication between two machines: one asks, one answers.</p>
+<section id="what-makes-an-api-restful" class="slide level2">
+<h2>What Makes an API “RESTful”?</h2>
 <ul>
-<li class="fragment">The <strong>client</strong> initiates a request. Your laptop’s browser, your phone’s app — these are clients.</li>
-<li class="fragment">The <strong>server</strong> receives the request, does whatever work is needed, and sends back a response. A kitchen branch answering the phone is the server; the customer calling in is the client.</li>
-<li class="fragment">Crucially: <strong>the client always initiates.</strong> A server doesn’t call you out of the blue to tell you your order is ready — you have to ask.</li>
+<li class="fragment"><strong>Resources have URLs.</strong> Every “thing” the API exposes — a user, an order, a book — is identified by a URL, e.g.&nbsp;<code>/users/42</code> or <code>/orders/17</code>.</li>
+<li class="fragment"><strong>The verb says what to do; the URL says what to do it to.</strong> <code>GET /users/42</code> reads user 42. <code>DELETE /orders/17</code> removes order 17. Same verbs from Session 4, now paired with specific resource URLs.</li>
+<li class="fragment"><strong>One API, many endpoints.</strong> A single REST API commonly exposes many different URLs for different resources — <code>/users</code>, <code>/orders</code>, <code>/products</code> might all live under the same API.</li>
 </ul>
-<div class="fragment">
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This slide directly matches Quiz 2’s REST-structure question — “identified by a URL and an HTTP method” and “a single API can expose multiple endpoints” are both verbatim-testable ideas here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="statelessness" class="slide level2">
+<h2>Statelessness</h2>
+<p><strong>REST is stateless:</strong> each request must contain everything the server needs to understand and fulfill it. The server does not remember anything about you between requests.</p>
+<ul>
+<li class="fragment">Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
+<li class="fragment">This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
+</ul>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -259,12 +341,12 @@
 <p><strong>Think about it</strong></p>
 </div>
 <div class="callout-content">
-<p>Think about three client-server interactions you had <em>this morning</em>.</p>
+<p>If a server had to remember every client’s conversation history, what would that make harder when you’re trying to scale the service across many machines?</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Let several students answer — email, weather app, any login screen, a map loading — the goal is making them notice how constant and invisible this pattern already is in their daily life.</p>
+<p><strong>Timing: 4 min.</strong> The callout’s intended answer connects directly back to Module 1/Session 1’s scaling motivation — remembering per-client state ties a client to a specific machine, which fights against the “add more machines” scaling story.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -276,18 +358,19 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
-<section id="not-every-server-is-only-a-server" class="slide level2">
-<h2>Not Every Server Is Only a Server</h2>
-<p>Real systems are rarely just “one client, one server” — they’re chains.</p>
+<section id="anatomy-of-a-request" class="slide level2">
+<h2>Anatomy of a Request</h2>
+<pre><code>GET /users/42 HTTP/1.1
+Host: api.example.com
+Accept: application/json</code></pre>
 <ul>
-<li class="fragment">When your browser asks a web server for a page, that web server might itself act as a <strong>client</strong> to a database server, asking it for the data needed to build the page.</li>
-<li class="fragment">Distributed systems are often long chains of client-server relationships: browser → web server → application server → database — each link in the chain plays “client” to the one after it, and “server” to the one before it.</li>
-<li class="fragment">This is why “client” and “server” describe a <strong>role in a specific interaction</strong>, not a permanent label on a machine.</li>
+<li class="fragment"><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
+<li class="fragment"><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
+<li class="fragment">Some requests (like <code>POST</code> or <code>PUT</code>) also include a <strong>body</strong> — the actual data being sent, e.g.&nbsp;the details of a new order to create.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Worth a quick concrete trace: “when you load Netflix’s homepage, how many client-server hops do you think happen before you see a single thumbnail?” — no need for a precise answer, just to loosen the assumption that it’s always exactly one hop.</p>
+<p><strong>Timing: 4 min.</strong> Keep headers light — <code>Host</code> and <code>Accept</code> are enough to establish “headers carry metadata,” without a full catalogue of HTTP headers.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -300,16 +383,19 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-journey-of-a-url-step-1-the-address-book-dns" class="slide level2">
-<h2>The Journey of a URL — Step 1: The Address Book (DNS)</h2>
-<p>You type <code>www.example.com</code> into your browser. The very first problem: <strong>that’s a name, not an address.</strong> Computers on a network find each other using numeric addresses (IP addresses), not human-friendly names.</p>
+<section id="anatomy-of-a-response" class="slide level2">
+<h2>Anatomy of a Response</h2>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Alice", "email": "alice@example.com"}</code></pre>
 <ul>
-<li class="fragment"><strong>DNS (Domain Name System)</strong> is the internet’s address book — it translates a human-readable name like <code>www.example.com</code> into a numeric address like <code>93.184.216.34</code>.</li>
-<li class="fragment">Kitchen picture: you know the <em>name</em> of a restaurant branch, not its phone number. DNS is the phone directory you look the name up in before you can actually call.</li>
-<li class="fragment">This lookup happens automatically, in milliseconds, before your browser can even attempt to contact the server.</li>
+<li class="fragment"><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
+<li class="fragment"><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
+<li class="fragment"><strong>Body:</strong> the actual data requested.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> No need to go deep into DNS internals (recursive resolvers, caching, etc.) — the one idea to land is “names have to be translated to addresses before anything else can happen.”</p>
+<p><strong>Timing: 4 min.</strong> Point out explicitly: <code>Content-Type</code> is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -322,95 +408,8 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="step-2-opening-the-line-tcp-connection" class="slide level2">
-<h2>Step 2: Opening the Line (TCP Connection)</h2>
-<p>With the numeric address in hand, your browser opens a connection to that machine.</p>
-<ul>
-<li class="fragment">This is like the phone actually starting to ring at the other end — a <strong>connection</strong> is established between your machine and the server, over which data can now flow in both directions.</li>
-<li class="fragment">We won’t go deep into how this connection is established (that’s networking-course territory) — the one thing to know is that it happens <strong>before</strong> any actual request is sent, and it can itself fail (recall Session 1: the line can be slow to open, or fail to open at all).</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> Deliberately light-touch — no TCP handshake details, no OS/networking vocabulary. The goal is just to have a named step between “found the address” and “sent the request,” not to teach networking.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="step-3-sending-the-request" class="slide level2">
-<h2>Step 3: Sending the Request</h2>
-<p>With the line open, your browser sends an actual <strong>request</strong> — a structured message asking for something specific.</p>
-<ul>
-<li class="fragment">The request names what’s being asked for (which page, which resource) and how (more on this in a moment).</li>
-<li class="fragment">Kitchen picture: the call has connected, and now you actually place your order — not just “hello,” but “I’d like the Tuesday special, extra large.”</li>
-<li class="fragment">The request travels across the network to the server — and, as Session 1 established, that trip is not instant and not guaranteed.</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> This is the natural moment to plant “the request has a <em>format</em>” without fully teaching HTTP yet — that’s two slides away, after the response side of the story is told first.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="step-4-the-server-does-the-work" class="slide level2">
-<h2>Step 4: The Server Does the Work</h2>
-<p>The server receives the request and does whatever is needed to fulfill it.</p>
-<ul>
-<li class="fragment">This might be as simple as reading a file off disk, or as complex as querying a database, running a computation, or — per the previous slide’s chain idea — becoming a <em>client</em> itself to another server.</li>
-<li class="fragment">How long this takes varies enormously: a cached, simple page might take milliseconds; a page that requires a complex database query might take much longer.</li>
-<li class="fragment">Kitchen picture: the branch has your order, and is now actually cooking it — this is the part of the phone call where you’re on hold.</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> Brief — the mechanics of server-side processing aren’t this course’s focus; the point is just naming this as a distinct step with its own variable duration.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="step-5-the-response-comes-back" class="slide level2">
-<h2>Step 5: The Response Comes Back</h2>
-<p>Once the work is done, the server sends a <strong>response</strong> back across the same connection — the requested data, plus information about whether the request succeeded.</p>
-<ul>
-<li class="fragment">Kitchen picture: the branch calls back with your order — “here it is,” or “sorry, we’re out of that.”</li>
-<li class="fragment">Your browser receives the response and <strong>renders</strong> it — turning the raw data into the page you actually see.</li>
-<li class="fragment">This is also a point where things can go wrong per Session 1: the response itself can be lost, delayed, or the connection can drop before it fully arrives.</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> Keep the failure-mode callback brief — one sentence — since the tone of this session is meant to be mechanical/foundational, not a return to Session 1’s failure catalogue.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="pause-think-where-did-it-break" class="slide level2">
-<h2>Pause &amp; Think: Where Did It Break?</h2>
+<section id="pause-discuss-stateless-but-it-remembers-my-cart" class="slide level2">
+<h2>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</h2>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -420,21 +419,20 @@
 <p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
 </div>
 <div class="callout-content">
-<p>You type a URL, press Enter, and the page doesn’t load.</p>
-<p>Using the five steps so far (DNS, connection, request, server work, response), think of <strong>three different steps</strong> where it could have failed. For each one: what would you actually <em>see</em> in the browser? Could you tell them apart?</p>
+<p>REST servers are stateless: they remember nothing about you between requests.</p>
+<p>Yet you add a book to your cart on a shopping site, click through three other pages, and the book is still in your cart. Some of those requests may even have been handled by different machines.</p>
+<p>Is the site breaking the stateless rule? If not, where does your cart actually live, and how does each request find it? (Hint: look back at what a request carries besides the verb and path.)</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Don’t insist on exact browser error wording. Aim for this rough mapping:</p>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong> the site isn’t breaking the rule. “Stateless” means the <em>server process</em> keeps no memory of you between requests. It doesn’t mean no state exists anywhere.</p>
 <ul>
-<li><strong>DNS:</strong> the name can’t be translated. You get a fast “server not found” / “site can’t be reached” error.</li>
-<li><strong>Connection:</strong> the address was found but nothing answers. You get “can’t connect,” “connection refused,” or a timeout.</li>
-<li><strong>Request lost, or server slow</strong> (including a slow hop further down the chain, from the “Not Every Server Is Only a Server” slide): the spinner keeps going until it times out.</li>
-<li><strong>Server breaks while doing the work:</strong> a response <em>does</em> come back, but it’s an error page (Wednesday names this: <code>500</code>).</li>
-<li><strong>Response lost or cut off:</strong> the spinner keeps going, or the page loads halfway.</li>
+<li>Every request carries an identifier, usually a session token or cookie in a <strong>header</strong>, e.g. <code>Cookie: session=abc123</code> or <code>Authorization: Bearer ...</code>.</li>
+<li>The cart itself lives either in a <strong>shared database or cache</strong> that every server machine can look up by that ID (Module 5 names this: a key-value store is a classic session store), or on the client.</li>
+<li>Because each request brings its own ID, <strong>any</strong> machine can handle it. That’s the scaling benefit from the Statelessness slide.</li>
 </ul>
-<p><strong>Can you tell them apart?</strong> Some, yes: DNS failures and error pages show up quickly and look distinct. But “request lost,” “server slow,” and “response lost” all look the same from the browser: a spinner, then a timeout. That’s Session 1’s dead-or-slow problem inside an everyday action, and it’s the point the next slide makes.</p>
+<p>This leads into the next slide: a missing or expired token is exactly when you get <code>401 Unauthorized</code>.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -447,51 +445,44 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-whole-journey-start-to-finish" class="slide level2">
-<h2>The Whole Journey, Start to Finish</h2>
-
-<!-- ```
-1. You type www.example.com
-        ↓
-2. DNS lookup: name → numeric address     (the address book)
-        ↓
-3. Connection opens to that address        (the phone line connects)
-        ↓
-4. Browser sends a request                 (you place your order)
-        ↓
-5. Server does the work                    (the kitchen cooks)
-        ↓
-6. Server sends a response                 (the callback: "here it is")
-        ↓
-7. Browser renders the response            (you see the page)
-``` -->
-<img data-src="diags/url-journey.svg" alt="A flow diagram with seven steps: 1. You type www.example.com (browser icon), 2. DNS lookup (address book icon), 3. Connection opens (phone line icon), 4. Browser sends a request (envelope icon), 5. Server does the work (gear/pot icon), 6. Server sends a response (return envelope icon), 7. Browser renders the response (eye icon). Arrows connect each step in order." width="600" class="r-stretch"><p>Every one of these seven steps takes real time, and every one of them can fail independently — this single, everyday action is itself a small distributed system, with all the properties Sessions 1–3 described.</p>
-<!-- ::: {.callout-note}
-## Diagram to add later (Excalidraw / pyxcd / draw.io)
-A horizontal 7-step flow, browser icon on the left, server icon on the right, DNS depicted as a small "address book" icon above the line between them (queried before the main connection line is drawn). Number each step 1–7 matching the list above, with small icons: a magnifying glass for DNS lookup, a phone/plug icon for the connection, an envelope for the request, a gear/pot icon for server processing, a return envelope for the response, and an eye icon for rendering.
-::: -->
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> This is the payoff slide of the session — walk it top to bottom, and explicitly connect back: “this is why loading a single web page is not instantaneous, and why it sometimes fails partway through.”</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="http-the-standard-order-form" class="slide level2">
-<h2>HTTP: The Standard Order Form</h2>
-<p>Step 4 (sending a request) and step 6 (sending a response) both need to happen in a format <strong>both sides agree on</strong> — otherwise the server couldn’t understand the request, or the browser couldn’t understand the response.</p>
-<ul>
-<li class="fragment"><strong>HTTP (HyperText Transfer Protocol)</strong> is that agreed-upon format. It’s a set of rules both client and server follow for how requests and responses are structured.</li>
-<li class="fragment">Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.</li>
-</ul>
-<div class="fragment">
+<section id="http-status-codes" class="slide level2">
+<h2>HTTP Status Codes</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Range</th>
+<th>Meaning</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2xx</td>
+<td>Success</td>
+<td><code>200 OK</code>, <code>201 Created</code></td>
+</tr>
+<tr class="even">
+<td>3xx</td>
+<td>Redirect</td>
+<td><code>301 Moved Permanently</code></td>
+</tr>
+<tr class="odd">
+<td>4xx</td>
+<td>Client error — you asked for something wrong</td>
+<td><code>400 Bad Request</code>, <code>404 Not Found</code>, <code>401 Unauthorized</code></td>
+</tr>
+<tr class="even">
+<td>5xx</td>
+<td>Server error — something broke on their end</td>
+<td><code>500 Internal Server Error</code>, <code>503 Service Unavailable</code></td>
+</tr>
+</tbody>
+</table>
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -501,71 +492,12 @@ A horizontal 7-step flow, browser icon on the left, server icon on the right, DN
 <p><strong>Think about it</strong></p>
 </div>
 <div class="callout-content">
-<p>Why does <em>everyone</em> need to agree on the same request/response format, rather than each server inventing its own? What would break if they didn’t?</p>
+<p>Why does it matter whether an error is 4xx (your fault) versus 5xx (their fault)? What would you do differently, as the client, in each case?</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The callout’s answer is really “interoperability” — any client can talk to any HTTP server, precisely because the format is standardized rather than server-specific. Let students arrive at that themselves before naming it.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="http-verbs" class="slide level2">
-<h2>HTTP Verbs</h2>
-<p>An HTTP request always names an <strong>action</strong> it wants performed — the verb:</p>
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Verb</th>
-<th>Operation</th>
-<th>Kitchen picture</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>GET</code></td>
-<td>Read a resource</td>
-<td>“What’s in order #42?”</td>
-</tr>
-<tr class="even">
-<td><code>POST</code></td>
-<td>Create a new resource</td>
-<td>“Start a brand-new order”</td>
-</tr>
-<tr class="odd">
-<td><code>PUT</code></td>
-<td>Replace a resource entirely</td>
-<td>“Throw out order #42, replace it with this”</td>
-</tr>
-<tr class="even">
-<td><code>PATCH</code></td>
-<td>Partially update a resource</td>
-<td>“Just change the drink on order #42”</td>
-</tr>
-<tr class="odd">
-<td><code>DELETE</code></td>
-<td>Remove a resource</td>
-<td>“Cancel order #42”</td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> These five verbs, and being able to pick the right one for a scenario, are directly tested (Quiz 2’s HTTP methods question) — worth a quick “which verb?” cold-call for a couple of scenarios before moving on.</p>
+<p><strong>Timing: 5 min.</strong> The callout’s intended answer: a 4xx means retrying the exact same request will fail again (you need to fix your request), while a 5xx might succeed on retry (the problem is transient, on the server side) — this is a genuinely useful distinction for real debugging, not just quiz trivia. Memorize 200, 201, 400, 401, 403, 404, 500 — the most commonly tested set.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -578,12 +510,24 @@ A horizontal 7-step flow, browser icon on the left, server icon on the right, DN
           display:block!important;
       }</style></aside>
 </section>
-<section id="wrap-bridge-to-rest" class="slide level2">
-<h2>Wrap: Bridge to REST</h2>
-<p>Today gave you the mechanics: client, server, DNS, connections, and HTTP as the shared format both sides speak.</p>
-<p><strong>Wednesday: REST — the specific <em>style</em> of using HTTP that almost the entire industry has converged on, and the format Checkpoint 2 will test you on directly.</strong></p>
+<section id="json-the-language-of-rest-responses" class="slide level2">
+<h2>JSON: The Language of REST Responses</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb3-1"><a></a><span class="fu">{</span></span>
+<span id="cb3-2"><a></a>  <span class="dt">"book"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-3"><a></a>    <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Designing Data-Intensive Applications"</span><span class="fu">,</span></span>
+<span id="cb3-4"><a></a>    <span class="dt">"author"</span><span class="fu">:</span> <span class="st">"Martin Kleppmann"</span><span class="fu">,</span></span>
+<span id="cb3-5"><a></a>    <span class="dt">"year"</span><span class="fu">:</span> <span class="dv">2017</span><span class="fu">,</span></span>
+<span id="cb3-6"><a></a>    <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"distributed"</span><span class="ot">,</span> <span class="st">"databases"</span><span class="ot">,</span> <span class="st">"systems"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb3-7"><a></a>    <span class="dt">"available"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb3-8"><a></a>  <span class="fu">}</span></span>
+<span id="cb3-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
+<li class="fragment">Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
+<li class="fragment">This is the near-universal body format for REST API responses, which is exactly why <code>Content-Type: application/json</code> matters — it tells you this is the format to expect.</li>
+</ul>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Close on the forward-reference — Session 5 builds directly and immediately on today’s HTTP-verbs slide.</p>
+<p><strong>Timing: 4 min.</strong> Point out the nesting explicitly — <code>tags</code> is an array <em>inside</em> an object, which is itself the value of <code>"book"</code> — reading nested JSON correctly is exactly what Checkpoint 2 requires.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -595,6 +539,117 @@ A horizontal 7-step flow, browser icon on the left, server icon on the right, DN
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="worked-example-reading-a-real-response" class="slide level2">
+<h2>Worked Example: Reading a Real Response</h2>
+<pre><code>GET https://api.example.com/books?isbn=9780132350884
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "pages": 464
+}</code></pre>
+<p><strong>As a class:</strong> what HTTP method was used? What does the <code>200</code> mean? What format is the body in, and how do we know? What is the title of the book returned?</p>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is deliberately the same <em>shape</em> of question as Checkpoint 2, using a different book — walk through it as a group so students rehearse the exact reasoning they’ll need to do individually on the checkpoint, without literally seeing the checkpoint’s example in advance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-industry-uses-rest-everywhere" class="slide level2">
+<h2>Why Industry Uses REST Everywhere</h2>
+<ul>
+<li class="fragment"><strong>Universality:</strong> any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.</li>
+<li class="fragment"><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
+<li class="fragment"><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>What would calling an API look like <em>without</em> a standard like REST — if every company invented its own request/response format? What would that cost you as a developer?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Let this connect back to Session 4’s “why does everyone need to agree” callout — same underlying idea (standardization enables interoperability), now applied specifically to REST’s dominance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="problem" class="slide level2 scrollable">
+<h2>Problem</h2>
+<p>A Java program sends the following HTTP request to a public API:</p>
+<pre><code>GET https://api.openlibrary.org/books?bibkeys=ISBN:0451526538&amp;format=json&amp;jscmd=data</code></pre>
+<p>The server responds with:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "ISBN:0451526538": {
+    "title": "Nineteen Eighty-Four",
+    "authors": [{"name": "George Orwell"}],
+    "number_of_pages": 328,
+    "publish_date": "1961"
+  }
+}</code></pre>
+<div class="fragment">
+<p><strong>Your Task</strong></p>
+<p>Answer the following questions about this API response:</p>
+<ol type="1">
+<li class="fragment">What HTTP method was used in the request, and what does that method do?</li>
+<li class="fragment">What does the status code <code>200</code> mean?</li>
+<li class="fragment">What format is the response body in, and how do you know?</li>
+<li class="fragment">What is the title of the book returned?</li>
+<li class="fragment">Name one thing that could go wrong when making this request in a real program, and what status code the server might return in that case.</li>
+</ol>
+</div>
+</section>
+<section id="lab-3-preview" class="slide level2">
+<h2>Lab 3 Preview</h2>
+<p><strong>Lab 3 (this Friday, Oct 2):</strong> you’ll write a Java program that calls a real public API (the Open Library API), parses the JSON response using <code>HttpClient</code> and <code>org.json</code>, and handles a request that fails.</p>
+<p>Everything you need — the request/response anatomy, status codes, JSON structure — is exactly what today covered.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Keep this brief — Lab 3 itself teaches the Java syntax (<code>HttpClient</code>, <code>JSONObject</code>, <code>optString</code>) hands-on; this slide is a pointer, not a code walkthrough.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 
 
 </section></section>
