@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-09-28">
 
-<title>COSC420 — Slides – Class Notes</title>
+<title>EL-01: EL1: Python Basics for Java Programmers – Class Notes</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +34,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-listing/list.min.js"></script>
-<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
@@ -72,65 +71,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -197,15 +138,25 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a></li>
+  <li><a href="#whats-in-the-notebook" id="toc-whats-in-the-notebook" class="nav-link" data-scroll-target="#whats-in-the-notebook">What’s in the notebook</a></li>
+  <li><a href="#what-to-submit" id="toc-what-to-submit" class="nav-link" data-scroll-target="#what-to-submit">What to submit</a></li>
+  <li><a href="#completion-criteria" id="toc-completion-criteria" class="nav-link" data-scroll-target="#completion-criteria">Completion criteria</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">COSC420 — Slides</h1>
+<h1 class="title">EL-01: EL1: Python Basics for Java Programmers</h1>
 </div>
 
 
@@ -213,6 +164,12 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 28, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -222,193 +179,95 @@ window.Quarto = {
 </header>
 
 
-<p>Lecture slide decks for COSC420.</p>
-
-
-
-
-<div class="quarto-listing quarto-listing-container-table" id="listing-listing">
-<div class="listing-actions-group">
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
-</div>
-<table class="quarto-listing-table table">
+<p><strong>Due:</strong> October 7 <strong>Format:</strong> Completion-based Engaged Learning activity, done outside class (see syllabus) <strong>Notebook:</strong> <code>engaged_learning/el_01_python_basics.ipynb</code> (Google Colab) <strong>Competency:</strong> Enabling. Python syntax prerequisite for CLO4 (PySpark); feeds Lab 6 and Quiz 4</p>
+<hr>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>From Module 4 onward, the course is in Python: PySpark, the MongoDB driver, Flask, and the capstone. You already program in Java, so this activity focuses on how Python writes the things you already know, and the places where it behaves differently. EL3 (assigned Oct 9) continues with functions, lists and dictionaries. The Oct 21 Python crash-course lecture and Lab 6 build on both.</p>
+<p>The exercises use web-server log lines and HTTP status codes from Module 2. They also preview three ideas coming later in the course: splitting records across workers (MapReduce, next week), retry storms (EL5), and re-sharding (Module 5).</p>
+<p><strong>Time:</strong> about 45 min of reading + 60–75 min on the notebook.</p>
+<hr>
+</section>
+<section id="materials" class="level2">
+<h2 class="anchored" data-anchor-id="materials">Materials</h2>
+<ol type="1">
+<li><strong>Reading:</strong> the official Python tutorial, <a href="https://docs.python.org/3/tutorial/introduction.html">§3 An Informal Introduction to Python</a> and <a href="https://docs.python.org/3/tutorial/controlflow.html">§4.1–4.6 More Control Flow Tools</a>. Stop before §4.7; functions come in EL3. <em>Optional, for a slower pace:</em> <a href="https://www.py4e.com/book">Python for Everybody</a> (free, CC-BY), in its chapters on variables, conditionals, iteration and strings.</li>
+<li><strong>Notebook:</strong> <a href="https://colab.research.google.com/drive/1lt0i-yahrJbukyxuE9Wwog_V8W-DerQK?usp=sharing">Click on this link</a>, access it with your college email id, and then <strong>File → Save a copy in Drive</strong>. Go to <strong>Tools → Settings → AI Assisgtance</strong> and check <strong>Hide generative AI features</strong>.</li>
+</ol>
+</section>
+<section id="whats-in-the-notebook" class="level2">
+<h2 class="anchored" data-anchor-id="whats-in-the-notebook">What’s in the notebook</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
-<tr>
-
-<th>
-Title
-</th>
-
-<th>
-Description
-</th>
-
+<tr class="header">
+<th>#</th>
+<th>Topic</th>
+<th>What you do</th>
 </tr>
 </thead>
-<tbody class="list">
-
-<tr data-index="0" data-listing-file-modified-sort="1788193212552" data-listing-reading-time-sort="13" data-listing-word-count-sort="2530" data-listing-title-sort="Introduction" data-listing-filename-sort="01-intro.qmd">
-<td>
-<a href="../../cosc420/notes/01-intro.html" class="title listing-title">Introduction</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Types and operators</td>
+<td>Predict 7 expressions (<code>7 / 2</code>, <code>"7" + "2"</code>, …) before running them; fix a Java-style <code>if (status = 200) { … }</code></td>
 </tr>
-
-<tr data-index="1" data-listing-file-modified-sort="1788354559729" data-listing-reading-time-sort="14" data-listing-word-count-sort="2601" data-listing-title-sort="Processes vs. Threads" data-listing-filename-sort="02-processes-threads.qmd">
-<td>
-<a href="../../cosc420/notes/02-processes-threads.html" class="title listing-title">Processes vs.&nbsp;Threads</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
+<tr class="even">
+<td>2</td>
+<td>Strings</td>
+<td>Parse one log line with <code>split()</code>, indexing, slicing, <code>int()</code></td>
 </tr>
-
-<tr data-index="2" data-listing-date-sort="1788494400000" data-listing-file-modified-sort="1788880049846" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="519" data-listing-title-sort="Lab 1: The Race Condition Game" data-listing-filename-sort="03-lab1.qmd">
-<td>
-<a href="../../cosc420/notes/03-lab1.html" class="title listing-title">Lab 1: The Race Condition Game</a>
-</td>
-<td>
-<span class="listing-description"><strong>Date:</strong> September 4 <strong>Duration:</strong> 50 minutes<br>
-<strong>Points:</strong> 10<br>
-<strong>Competency:</strong> C1.1 — Identify race conditions in concurrent Java code; C1.2 — Apply <code>synchronized</code> to prevent one (mechanically…<em></em></span>
-</td>
-
+<tr class="odd">
+<td>3</td>
+<td>Conditionals</td>
+<td>Classify HTTP status codes into 2xx/3xx/4xx/5xx with <code>if</code>/<code>elif</code>/<code>else</code></td>
 </tr>
-
-<tr data-index="3" data-listing-file-modified-sort="1788955748069" data-listing-reading-time-sort="9" data-listing-word-count-sort="1773" data-listing-title-sort="Race Conditions In Depth" data-listing-filename-sort="04.qmd">
-<td>
-<a href="../../cosc420/notes/04.html" class="title listing-title">Race Conditions In Depth</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
+<tr class="even">
+<td>4</td>
+<td><code>for</code> loops</td>
+<td>Summarize a 10-line log: counts per category, average/slowest latency, error rate</td>
 </tr>
-
-<tr data-index="4" data-listing-date-sort="1788494400000" data-listing-file-modified-sort="1788886896465" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="704" data-listing-title-sort="Lab 2: Java Threading Exercises" data-listing-filename-sort="05-lab2.qmd">
-<td>
-<a href="../../cosc420/notes/05-lab2.html" class="title listing-title">Lab 2: Java Threading Exercises</a>
-</td>
-<td>
-<span class="listing-description"><strong>Date:</strong> September 11<br>
-<strong>Duration:</strong> 50 minutes<br>
-<strong>Points:</strong> 10<br>
-<strong>Competency:</strong> C1.2 — Apply <code>synchronized</code> and locks to prevent race conditions</span>
-</td>
-
+<tr class="odd">
+<td>5</td>
+<td><code>while</code> loops</td>
+<td>Simulate retry with exponential backoff</td>
 </tr>
-
-<tr data-index="5" data-listing-file-modified-sort="1789398782245" data-listing-reading-time-sort="13" data-listing-word-count-sort="2567" data-listing-title-sort="Synchronization, Locks, and Their Failure Modes" data-listing-filename-sort="06.qmd">
-<td>
-<a href="../../cosc420/notes/06.html" class="title listing-title">Synchronization, Locks, and Their Failure Modes</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
+<tr class="even">
+<td>6</td>
+<td><code>range()</code> and <code>%</code></td>
+<td>Partition 12 record ids across 3 workers by <code>id % n</code></td>
 </tr>
-
-<tr data-index="6" data-listing-file-modified-sort="1789507567628" data-listing-reading-time-sort="11" data-listing-word-count-sort="2075" data-listing-title-sort="Thread Pools, ExecutorService" data-listing-filename-sort="07.qmd">
-<td>
-<a href="../../cosc420/notes/07.html" class="title listing-title">Thread Pools, ExecutorService</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
+<tr class="odd">
+<td>—</td>
+<td>Reflection</td>
+<td>Two 2–3 sentence answers</td>
 </tr>
-
-<tr data-index="7" data-listing-file-modified-sort="1789395996618" data-listing-reading-time-sort="9" data-listing-word-count-sort="1696" data-listing-title-sort="Review" data-listing-filename-sort="08.qmd">
-<td>
-<a href="../../cosc420/notes/08.html" class="title listing-title">Review</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="8" data-listing-date-sort="1789531200000" data-listing-file-modified-sort="1789507836418" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="201" data-listing-title-sort="Checkpoint 1: Fix a Synchronization Bug" data-listing-filename-sort="09.qmd">
-<td>
-<a href="../../cosc420/notes/09.html" class="title listing-title">Checkpoint 1: Fix a Synchronization Bug</a>
-</td>
-<td>
-<span class="listing-description">A bank has a shared account object used by two threads simultaneously — one for deposits and one for withdrawals. The code below has a race condition that can cause the…</span>
-</td>
-
-</tr>
-
-<tr data-index="9" data-listing-file-modified-sort="1789735446750" data-listing-reading-time-sort="9" data-listing-word-count-sort="1738" data-listing-title-sort="Review" data-listing-filename-sort="10.qmd">
-<td>
-<a href="../../cosc420/notes/10.html" class="title listing-title">Review</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="10" data-listing-file-modified-sort="1789953216548" data-listing-reading-time-sort="12" data-listing-word-count-sort="2222" data-listing-title-sort="What Makes Distributed Systems Hard" data-listing-filename-sort="11.qmd">
-<td>
-<a href="../../cosc420/notes/11.html" class="title listing-title">What Makes Distributed Systems Hard</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="11" data-listing-file-modified-sort="1790168991540" data-listing-reading-time-sort="10" data-listing-word-count-sort="1862" data-listing-title-sort="The CAP Theorem" data-listing-filename-sort="12.qmd">
-<td>
-<a href="../../cosc420/notes/12.html" class="title listing-title">The CAP Theorem</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="12" data-listing-file-modified-sort="1790609696659" data-listing-reading-time-sort="9" data-listing-word-count-sort="1615" data-listing-title-sort="Case Study Discussion: A Real Network Partition" data-listing-filename-sort="13.qmd">
-<td>
-<a href="../../cosc420/notes/13.html" class="title listing-title">Case Study Discussion: A Real Network Partition</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="13" data-listing-file-modified-sort="1790609711915" data-listing-reading-time-sort="21" data-listing-word-count-sort="4015" data-listing-title-sort="Client-Server Model &amp; What Happens When You Type a URL" data-listing-filename-sort="14.qmd">
-<td>
-<a href="../../cosc420/notes/14.html" class="title listing-title">Client-Server Model &amp; What Happens When You Type a URL</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="14" data-listing-date-sort="1790568000000" data-listing-file-modified-sort="1790623644319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="451" data-listing-title-sort="EL-01: EL1: Python Basics for Java Programmers" data-listing-filename-sort="el1.qmd">
-<td>
-<a href="../../cosc420/notes/el1.html" class="title listing-title">EL-01: EL1: Python Basics for Java Programmers</a>
-</td>
-<td>
-<span class="listing-description"><strong>Due:</strong> October 7 <strong>Format:</strong> Completion-based Engaged Learning activity, done outside class (see syllabus) <strong>Notebook:</strong> <code>engaged_learning/el_01_python_basics.ipynb</code> (Google Colab) <strong>Compe…</strong></span>
-</td>
-
-</tr>
-
 </tbody>
 </table>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+<p>Every exercise is followed by a <strong>check cell</strong> that prints ✅ when the code is right. Exercises 3–6 also end with a 1–2 sentence question.</p>
+</section>
+<section id="what-to-submit" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-submit">What to submit</h2>
+<p>Upload your completed notebook to the EL1 assignment on Blackboard (<strong>File → Download → Download .ipynb</strong>).</p>
+</section>
+<section id="completion-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="completion-criteria">Completion criteria</h2>
+<p>EL1 is graded complete/incomplete. It’s <strong>complete</strong> if:</p>
+<ul>
+<li>the notebook shows every exercise attempted. Each check cell shows ✅, <em>or</em> the exercise has a genuine attempt and a note saying where you got stuck;</li>
+<li>the four short-answer questions (Exercises 3–6) and the two reflection questions are answered, even briefly.</li>
+</ul>
+<p>A wrong prediction in Exercise 1a is fine, since that exercise is about noticing surprises.</p>
+<hr>
+
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

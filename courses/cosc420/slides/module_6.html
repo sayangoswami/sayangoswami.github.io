@@ -614,7 +614,7 @@ SI
 <li><strong>The “retry storm”</strong> — the moment a recovering service comes back online, every client that was failing retries at once, instantly overwhelming it again.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> This slide anchors EL5, it doesn’t teach new content in depth — point back to Module 2 Session 3’s GitHub incident explicitly as the model students should apply to whatever outage post-mortem they choose to read.</p>
+<p><strong>Timing: 4 min.</strong> This slide anchors EL5, it doesn’t teach new content in depth — point back to Module 2 Session 3’s GitHub incident explicitly as the model students should apply to the AWS US-EAST-1 post-mortem (Dec 7, 2021) they’ll read — see <code>engaged_learning/el_05.md</code>. It fails differently from GitHub (overload + retry feedback loop, not a consistency problem), which is exactly the comparison Part 3 of the post asks for.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -754,7 +754,7 @@ SI
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Keep this brief but don’t skip it — it’s promised syllabus content for today even though it isn’t separately quiz-tested.</p>
+<p><strong>Timing: 4 min.</strong> Keep this brief but don’t skip it — it’s promised syllabus content for today even though it isn’t separately quiz-tested. EL5 is due today: if there’s a moment, note that the AWS outage students read was <em>triggered</em> by an automated scaling activity — autoscaling fixes load spikes, but a badly behaved one can also cause them.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

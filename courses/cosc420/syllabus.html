@@ -238,7 +238,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="engaged-learning" class="level2">
 <h2 class="anchored" data-anchor-id="engaged-learning">Engaged Learning</h2>
-<p>Students can expect the Engaged Learning element of this course to connect the technical material to how distributed systems are actually built and operated in industry, and to build the prerequisite Python skills needed for the Spark modules. Engaged Learning is delivered as six completion-graded activities (5% of the course grade) done outside class: reading and reflecting on an industry case study, two self-paced Python self-learning modules, watching a Spark tech talk, reading a real cloud outage post-mortem and explaining the failure in distributed-systems terms, and a pencil-and-paper MapReduce tracing exercise verified with a short Python script.</p>
+<p>Students can expect the Engaged Learning element of this course to connect the technical material to how distributed systems are actually built and operated in industry, and to build the prerequisite Python skills needed for the Spark modules. Engaged Learning is delivered as five completion-graded activities (5% of the course grade) done outside class: two self-paced Python self-learning modules, a pencil-and-paper MapReduce tracing exercise verified with a short Python script, watching the original Spark talk by its creator, and reading a real cloud outage post-mortem and explaining the failure in distributed-systems terms.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -257,39 +257,33 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>EL1</td>
-<td>Read an industry case study (e.g., how Netflix uses distributed systems) + post a short reflection on the discussion board</td>
-<td>Sep 4</td>
-<td>Sep 11</td>
+<td>Python self-learning module 1: syntax, variables, control flow (provided materials + short Colab exercise)</td>
+<td>Sep 30</td>
+<td>Oct 7</td>
 </tr>
 <tr class="even">
 <td>EL2</td>
-<td>Python self-learning module 1: syntax, variables, control flow (provided materials + short exercise)</td>
-<td>Sep 30</td>
-<td>Oct 14</td>
+<td>MapReduce tracing — pencil-and-paper trace of a word count job through map/shuffle/reduce, verified with a short Python script; prep for Lab 4 (formerly graded as Lab 4)</td>
+<td>Oct 7</td>
+<td>Oct 9</td>
 </tr>
 <tr class="odd">
 <td>EL3</td>
-<td>Python self-learning module 2: functions, lists, dictionaries (provided materials + short exercise)</td>
-<td>Oct 5</td>
+<td>Python self-learning module 2: functions, lists, dictionaries (provided materials + short Colab exercise)</td>
+<td>Oct 9</td>
 <td>Oct 23</td>
 </tr>
 <tr class="even">
 <td>EL4</td>
-<td>Watch a beginner Spark tech talk (provided link) + answer 3 guided questions</td>
+<td>Watch the original Spark talk by its creator (Matei Zaharia, NSDI 2012, ~28 min) + answer 3 guided questions</td>
 <td>Oct 26</td>
 <td>Nov 6</td>
 </tr>
 <tr class="odd">
 <td>EL5</td>
-<td>Read a real cloud outage post-mortem (e.g., AWS us-east-1 2021) + post reflection: which distributed concepts explain the failure?</td>
+<td>Read a real cloud outage post-mortem (AWS US-EAST-1, Dec 2021) + post reflection: which distributed concepts explain the failure?</td>
 <td>Nov 23</td>
 <td>Nov 30</td>
-</tr>
-<tr class="even">
-<td>EL6</td>
-<td>MapReduce tracing — pencil-and-paper trace of a word count job through map/shuffle/reduce, verified with a short Python script (formerly graded as Lab 4)</td>
-<td>Oct 7</td>
-<td>Oct 16</td>
 </tr>
 </tbody>
 </table>
@@ -358,7 +352,7 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Midterm Exam</strong> - In-class Blackboard exam (MC + short answer) covering Modules 1–3.</li>
 <li><strong>Final Exam</strong> - Blackboard exam (MC + short answer) during finals week. Comprehensive, but weighted toward Modules 4–6, which are not on the midterm.</li>
 <li><strong>Capstone</strong> - A pair project with a live demo: an end-to-end data pipeline (HDFS → PySpark → MongoDB → Flask dashboard). Graded against a checklist rubric.</li>
-<li><strong>Engaged Learning (6)</strong> - Completion-graded reflection and self-study activities done outside class (see the Engaged Learning section above).</li>
+<li><strong>Engaged Learning (5)</strong> - Completion-graded reflection and self-study activities done outside class (see the Engaged Learning section above).</li>
 </ul>
 </section>
 <section id="grading-grade-scale" class="level2">
@@ -406,7 +400,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td>Engaged Learning</td>
 <td>5%</td>
-<td>6</td>
+<td>5</td>
 </tr>
 </tbody>
 </table>
@@ -530,7 +524,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Sep 4</td>
 <td>Fri</td>
 <td><strong>Lab 1</strong></td>
-<td>Thread game — students physically act as threads; simulate a race condition; discuss what went wrong (EL1 assigned)</td>
+<td>Thread game — students physically act as threads; simulate a race condition; discuss what went wrong</td>
 </tr>
 <tr class="even">
 <td>Sep 7</td>
@@ -548,7 +542,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Sep 11</td>
 <td>Fri</td>
 <td><strong>Lab 2</strong></td>
-<td>Java threading — <code>Thread</code>, <code>Runnable</code>, <code>start()</code>, <code>join()</code>; observe non-deterministic output (EL1 due)</td>
+<td>Java threading — <code>Thread</code>, <code>Runnable</code>, <code>start()</code>, <code>join()</code>; observe non-deterministic output</td>
 </tr>
 <tr class="odd">
 <td>Sep 14</td>
@@ -617,7 +611,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Sep 30</td>
 <td>Wed</td>
 <td>Lecture + <strong>Checkpoint 2</strong></td>
-<td>REST APIs — anatomy of a request/response → <em>Checkpoint: given a REST API response, identify the status code, data format, and one thing that could go wrong</em> (EL2 assigned)</td>
+<td>REST APIs — anatomy of a request/response → <em>Checkpoint: given a REST API response, identify the status code, data format, and one thing that could go wrong</em> (EL1 assigned)</td>
 </tr>
 <tr class="even">
 <td>Oct 2</td>
@@ -650,19 +644,19 @@ ul.task-list li input[type="checkbox"] {
 <td>Oct 5</td>
 <td>Mon</td>
 <td>Lecture</td>
-<td>What is big data? The 3 Vs; industry examples (social media, IoT, genomics, e-commerce logs) (EL3 assigned)</td>
+<td>What is big data? The 3 Vs; industry examples (social media, IoT, genomics, e-commerce logs)</td>
 </tr>
 <tr class="even">
 <td>Oct 7</td>
 <td>Wed</td>
 <td>Lecture + <strong>Checkpoint 3</strong></td>
-<td>MapReduce paradigm — map, shuffle, reduce; word count walkthrough → <em>Checkpoint: given a map() function and input data, write the map-phase output</em> (EL6 assigned)</td>
+<td>MapReduce paradigm — map, shuffle, reduce; word count walkthrough → <em>Checkpoint: given a map() function and input data, write the map-phase output</em> (EL1 due; EL2 assigned)</td>
 </tr>
 <tr class="odd">
 <td>Oct 9</td>
 <td>Fri</td>
 <td><strong>Lab 4</strong></td>
-<td>Write your own MapReduce job — Java Mapper/Reducer for an email-domain counter, run in Hadoop local mode via the classroom terminal</td>
+<td>Write your own MapReduce job — Java Mapper/Reducer for an email-domain counter, run in Hadoop local mode via the classroom terminal (EL2 due; EL3 assigned)</td>
 </tr>
 <tr class="even">
 <td>Oct 12</td>
@@ -680,7 +674,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Oct 16</td>
 <td>Fri</td>
 <td><strong>Lab 5</strong> + <strong>Quiz 3</strong></td>
-<td>Instructor-hosted Hadoop — <code>hdfs dfs -put</code>, run word count, <code>hdfs dfs -cat</code> output → Quiz 3: Module 3 — Big Data &amp; MapReduce (EL6 due)</td>
+<td>Instructor-hosted Hadoop — <code>hdfs dfs -put</code>, run word count, <code>hdfs dfs -cat</code> output → Quiz 3: Module 3 — Big Data &amp; MapReduce</td>
 </tr>
 </tbody>
 </table>
@@ -713,13 +707,13 @@ ul.task-list li input[type="checkbox"] {
 <td>Oct 21</td>
 <td>Wed</td>
 <td>Lecture</td>
-<td>Python crash course — syntax, variables, control flow, functions (builds on EL2 and EL3 self-study)</td>
+<td>Python crash course — syntax, variables, control flow, functions (builds on EL1 and EL3 self-study)</td>
 </tr>
 <tr class="odd">
 <td>Oct 23</td>
 <td>Fri</td>
 <td><strong>Lab 6</strong> + <strong>Quiz 4</strong></td>
-<td>Python exercises in Colab; <code>sparkmagic</code> setup against the classroom cluster → Quiz 4: Python basics (EL2 due)</td>
+<td>Python exercises in Colab; <code>sparkmagic</code> setup against the classroom cluster → Quiz 4: Python basics (EL3 due)</td>
 </tr>
 </tbody>
 </table>
