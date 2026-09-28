@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-04">
+<meta name="dcterms.date" content="2026-09-28">
 
-<title>EL-01: The Shape of a Dot Product – Class Notes</title>
+<title>EL-02: Inside a GPU — The Hardware Behind the Code – Class Notes</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -154,7 +154,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">EL-01: The Shape of a Dot Product</h1>
+<h1 class="title">EL-02: Inside a GPU — The Hardware Behind the Code</h1>
 <p class="subtitle lead">Module 1: The Case for GPUs</p>
 </div>
 
@@ -166,7 +166,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 4, 2026</p>
+      <p class="date">September 28, 2026</p>
     </div>
   </div>
   
@@ -178,34 +178,28 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><strong>Engaged Learning · 1% of course grade</strong></p>
+<p><strong>Engaged Learning · Due: Sun Oct 4, 2026 · 1% of course grade</strong></p>
 <hr>
 <section id="why-this-matters" class="level2">
 <h2 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h2>
-<p>On the first day of class you heard: “Every song is described by 64 numbers. We measure how well two things match by multiplying those numbers together and adding up.” That operation is a <strong>dot product</strong> — and it is the computational heart of your capstone.</p>
-<p>This assignment gives you the visual intuition that makes the math feel obvious rather than arbitrary. You will need it in Module 4 (tiled matrix multiply) and in the capstone.</p>
+<p>You have now written several CUDA kernels. But do you know what actually happens when you type <code>my_kernel[blocks, threads](...)</code>? The performance intuitions you need for the rest of the course — why coalescing matters, why shared memory is fast, why 1024 threads per block is not always better than 256 — all trace back to the physical hardware.</p>
+<p>This assignment gives you a mental picture of a GPU’s insides that no amount of syntax can replace.</p>
 <hr>
 </section>
 <section id="what-to-watch" class="level2">
 <h2 class="anchored" data-anchor-id="what-to-watch">What to Watch</h2>
-<p><strong>3Blue1Brown — Essence of Linear Algebra</strong> <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"><em>(YouTube playlist: “Essence of linear algebra” by 3Blue1Brown)</em></a></p>
-<p>Watch these three episodes in order — they are short (8–10 min each):</p>
-<ol type="1">
-<li><p><strong>Episode 1 — “Vectors, what even are they?”</strong> <em>What a vector is, how to picture it, why mathematicians and physicists define it differently.</em></p></li>
-<li><p><strong>Episode 3 — “Linear transformations and matrices”</strong> <em>What it means to multiply a matrix by a vector. The visual that makes matrix math click.</em></p></li>
-<li><p><strong>Episode 9 — “Dot products and duality”</strong> <em>The geometric meaning of the dot product: projection, alignment, and why a value near 1.0 means “pointing in the same direction.”</em></p></li>
-</ol>
-<p>Total viewing time: approximately 30 minutes.</p>
-<!-- Search YouTube for **"3Blue1Brown essence of linear algebra"** to find the playlist.
-The channel name is 3Blue1Brown and the videos are free. -->
+<p><strong>“How do Graphics Cards Work?”</strong> by Branch Education <a href="https://www.youtube.com/watch?v=h9Z4oGN89MU"><em>(YouTube — Branch Education how do graphics cards work”)</em></a></p>
+<p>Running time: approximately 25 minutes.</p>
+<p>This video uses detailed physical animations to show you what a GPU actually looks like at the circuit level — memory chips, compute units, the data paths between them. It is not a CUDA tutorial. It is the hardware story that sits underneath everything we do in this course.</p>
+<p>Pay particular attention to: - The difference between the GPU’s on-chip memory (fast, small) and its DRAM (slow, large). - How many arithmetic units exist on a modern GPU versus a CPU. - What limits how fast data can move from memory to those arithmetic units.</p>
 <hr>
 </section>
 <section id="reflection-prompts" class="level2">
 <h2 class="anchored" data-anchor-id="reflection-prompts">Reflection Prompts</h2>
-<p>Write a <strong>200–300 word reflection</strong> on Blackboard for EL-01. Address all three prompts — a sentence or two each is fine, but be specific:</p>
-<p><strong>1. The geometric picture.</strong> In your own words, what does a dot product <em>measure</em> geometrically? (Not the formula — the <em>meaning</em>. Use the word “direction” somewhere in your answer.)</p>
-<p><strong>2. The similarity connection.</strong> Suppose two songs both have 64-number embeddings and those vectors point in nearly the same direction. What does their dot product tell you about how similar the songs are? Why does normalising the vectors to unit length make this cleaner?</p>
-<p><strong>3. Your honest reaction.</strong> Did anything in the videos surprise you, change how you think about something, or clarify something that felt like magic before? If the videos were old news to you, describe one thing you noticed in the visualisations that you had not thought about that way before.</p>
+<p>Write a <strong>200–300 word reflection</strong> on Blackboard for EL-02. Address all three prompts:</p>
+<p><strong>1. The memory hierarchy.</strong> Describe in your own words the difference between the GPU’s on-chip memory and its off-chip DRAM. How does this map to the distinction between <em>shared memory</em> and <em>global memory</em> in Numba? (Hint: what we call “shared memory” in CUDA lives on-chip.)</p>
+<p><strong>2. Threads and arithmetic units.</strong> The video shows how many ALUs (arithmetic logic units) a modern GPU packs onto a chip. Why does having thousands of arithmetic units only help if you also have enough <em>work</em> to keep them busy? Connect this to something you observed in Lab 06 (GPU timing).</p>
+<p><strong>3. The bottleneck.</strong> After watching, what do you think is the main bottleneck in a typical GPU computation — the arithmetic units running out of work, or the memory system not supplying data fast enough? What evidence from the video or from your labs supports your answer?</p>
 
 
 </section>

@@ -102,6 +102,8 @@
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -114,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -888,11 +891,15 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
 <section id="not-all-gpu-memory-is-equal" class="slide level2">
 <h2>Not All GPU Memory Is Equal</h2>
 
-<img data-src="diags/memory-hierarchy-pyramid.svg" alt="A four-tier pyramid, narrowest at top: Registers, then Shared Memory, then Constant Memory (cached), then Global Memory widest at the bottom, labeled fastest/smallest at top and slowest/largest at bottom. Below a dashed gap, a separate dashed box labeled Host RAM (CPU side), across PCIe, slower still." width="620" class="r-stretch"><ul>
-<li class="fragment">Just like a CPU has registers → L1 → L2 → L3 → RAM, a GPU has its own hierarchy — smaller and faster near the compute units, larger and slower further away</li>
-<li class="fragment">The core tradeoff is identical to any memory hierarchy: capacity and speed trade off against each other</li>
-<li class="fragment">Today: what each tier is <em>for</em>. Module 4 teaches you to <em>use</em> shared memory in a kernel; today is the map, not yet the tool</li>
-</ul>
+<img data-src="diags/memory-hierarchy-pyramid.svg" alt="A four-tier pyramid, narrowest at top: Registers, then Shared Memory, then Constant Memory (cached), then Global Memory widest at the bottom, labeled fastest/smallest at top and slowest/largest at bottom. Below a dashed gap, a separate dashed box labeled Host RAM (CPU side), across PCIe, slower still." width="800" class="r-stretch"><div class="fragment fade-in-then-out absolute" style="top: 100px; left: 630px; width: 400px; ">
+<p>Just like a CPU has registers → L1 → L2 → L3 → RAM, a GPU has its own hierarchy — <em>smaller and faster near</em> the compute units, <em>larger and slower further</em> away</p>
+</div>
+<div class="fragment fade-in-then-out absolute" style="top: 100px; left: 630px; width: 400px; ">
+<p>The core tradeoff is identical to any memory hierarchy: <em>capacity</em> and <em>speed</em> trade off against each other</p>
+</div>
+<div class="fragment fade-in-then-out absolute" style="top: 100px; left: 630px; width: 400px; ">
+<p>Today: what each tier is <em>for</em>. Module 4 teaches you to <em>use</em> shared memory in a kernel; today is the map, not yet the tool</p>
+</div>
 <aside class="notes">
 <p>~3 min. Explicitly frame this as “the map, not the tool” — students shouldn’t leave today expecting to write <code>cuda.shared.array</code> yet, that’s Module 4’s job (C4.2). Today is purely “what exists and why.”</p>
 <style type="text/css">
@@ -1084,11 +1091,11 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="beyond-the-chip-the-hostdevice-boundary" class="slide level2">
-<h2>Beyond the Chip: The Host↔︎Device Boundary</h2>
-<pre><code>CPU (Host RAM) ←—[PCIe, ~16 GB/s]—→ GPU (Device global memory, ~320 GB/s on a T4)</code></pre>
-<ul>
-<li class="fragment">Everything on the tiers above lives <em>inside</em> the GPU. Getting data onto the GPU in the first place — or back off it — crosses a much slower link: <strong>PCIe</strong>, connecting the GPU card to the rest of the computer</li>
+<section id="beyond-the-chip-the-host-device-boundary" class="slide level2">
+<h2>Beyond the Chip: The Host ↔︎ Device Boundary</h2>
+
+<img data-src="diags/host-device-pcie.svg" alt="a digram of host and device memory speeds and data-transfer rates" class="r-stretch"><ul>
+<li class="fragment">Everything on the tiers in the previous slide lives <em>inside</em> the GPU. Getting data onto the GPU in the first place — or back off it — crosses a much slower link: <strong>PCIe</strong>, connecting the GPU card to the rest of the computer</li>
 <li class="fragment">PCIe bandwidth (~16 GB/s) is roughly <strong>20× slower</strong> than the T4’s own global-memory bandwidth (~320 GB/s), and dramatically slower than any on-chip tier</li>
 <li class="fragment"><code>cuda.to_device()</code> and <code>.copy_to_host()</code> both cross this boundary — every call is expensive relative to anything happening once your data is already on the GPU</li>
 </ul>
@@ -1108,15 +1115,15 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
 </section>
 <section id="minimizing-transfers" class="slide level2">
 <h2>Minimizing Transfers</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="co"># Host → Device (before kernel launches)</span></span>
-<span id="cb12-2"><a></a>arr_gpu <span class="op">=</span> cuda.to_device(arr_host)</span>
-<span id="cb12-3"><a></a></span>
-<span id="cb12-4"><a></a><span class="co"># Launch kernel(s) — all device-side, no PCIe traffic</span></span>
-<span id="cb12-5"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
-<span id="cb12-6"><a></a>cuda.synchronize()</span>
-<span id="cb12-7"><a></a></span>
-<span id="cb12-8"><a></a><span class="co"># Device → Host (only once, when you actually need the result)</span></span>
-<span id="cb12-9"><a></a>result <span class="op">=</span> arr_gpu.copy_to_host()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Host → Device (before kernel launches)</span></span>
+<span id="cb11-2"><a></a>arr_gpu <span class="op">=</span> cuda.to_device(arr_host)</span>
+<span id="cb11-3"><a></a></span>
+<span id="cb11-4"><a></a><span class="co"># Launch kernel(s) — all device-side, no PCIe traffic</span></span>
+<span id="cb11-5"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
+<span id="cb11-6"><a></a>cuda.synchronize()</span>
+<span id="cb11-7"><a></a></span>
+<span id="cb11-8"><a></a><span class="co"># Device → Host (only once, when you actually need the result)</span></span>
+<span id="cb11-9"><a></a>result <span class="op">=</span> arr_gpu.copy_to_host()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><strong>Rule of thumb:</strong> transfer data to the GPU once, do as much work as possible while it’s there, and transfer results back once — not on every iteration of a loop</li>
 <li class="fragment">A very common early-semester mistake: copying results back to the host inside a loop “just to check on them,” which turns a fast GPU computation into one bottlenecked by PCIe</li>
@@ -1334,13 +1341,13 @@ Occupancy                 : 1500 / 1536 ≈ 97.7%</code></pre>
 </section>
 <section id="thread-divergence-when-threads-disagree" class="slide level2">
 <h2>Thread Divergence: When Threads Disagree</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb15-2"><a></a><span class="kw">def</span> classify(arr, out):</span>
-<span id="cb15-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb15-4"><a></a>    <span class="cf">if</span> arr[i] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb15-5"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span>      <span class="co"># "positive" path</span></span>
-<span id="cb15-6"><a></a>    <span class="cf">else</span>:</span>
-<span id="cb15-7"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="op">-</span><span class="fl">1.0</span>     <span class="co"># "negative" path</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb14-2"><a></a><span class="kw">def</span> classify(arr, out):</span>
+<span id="cb14-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb14-4"><a></a>    <span class="cf">if</span> arr[i] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb14-5"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span>      <span class="co"># "positive" path</span></span>
+<span id="cb14-6"><a></a>    <span class="cf">else</span>:</span>
+<span id="cb14-7"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="op">-</span><span class="fl">1.0</span>     <span class="co"># "negative" path</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment">Every thread in a warp executes the <em>same instruction</em> together — but what happens when an <code>if</code> sends different threads down different paths?</li>
 <li class="fragment">Within one warp, some threads may satisfy <code>arr[i] &gt; 0</code> and others may not — the warp cannot run two different instructions at once</li>
@@ -1532,6 +1539,7 @@ Occupancy                 : 1500 / 1536 ≈ 97.7%</code></pre>
   <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -1553,7 +1561,8 @@ Occupancy                 : 1500 / 1536 ≈ 97.7%</code></pre>
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -1724,7 +1733,7 @@ Occupancy                 : 1500 / 1536 ≈ 97.7%</code></pre>
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealMath,
           RevealNotes,

@@ -1734,7 +1734,7 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <p><strong>Think about it</strong></p>
 </div>
 <div class="callout-content">
-<p>Name three client-server interactions you had <em>this morning</em> — before you even opened this course’s slides.</p>
+<p>Think about three client-server interactions you had <em>this morning</em>.</p>
 </div>
 </div>
 </div>
@@ -1924,7 +1924,9 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 </section>
 <section id="the-whole-journey-start-to-finish" class="slide level2">
 <h2>The Whole Journey, Start to Finish</h2>
-<pre><code>1. You type www.example.com
+
+<!-- ```
+1. You type www.example.com
         ↓
 2. DNS lookup: name → numeric address     (the address book)
         ↓
@@ -1936,21 +1938,13 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
         ↓
 6. Server sends a response                 (the callback: "here it is")
         ↓
-7. Browser renders the response            (you see the page)</code></pre>
-<p>Every one of these seven steps takes real time, and every one of them can fail independently — this single, everyday action is itself a small distributed system, with all the properties Sessions 1–3 described.</p>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>A horizontal 7-step flow, browser icon on the left, server icon on the right, DNS depicted as a small “address book” icon above the line between them (queried before the main connection line is drawn). Number each step 1–7 matching the list above, with small icons: a magnifying glass for DNS lookup, a phone/plug icon for the connection, an envelope for the request, a gear/pot icon for server processing, a return envelope for the response, and an eye icon for rendering.</p>
-</div>
-</div>
-</div>
+7. Browser renders the response            (you see the page)
+``` -->
+<img data-src="diags/url-journey.svg" alt="A flow diagram with seven steps: 1. You type www.example.com (browser icon), 2. DNS lookup (address book icon), 3. Connection opens (phone line icon), 4. Browser sends a request (envelope icon), 5. Server does the work (gear/pot icon), 6. Server sends a response (return envelope icon), 7. Browser renders the response (eye icon). Arrows connect each step in order." width="600" class="r-stretch"><p>Every one of these seven steps takes real time, and every one of them can fail independently — this single, everyday action is itself a small distributed system, with all the properties Sessions 1–3 described.</p>
+<!-- ::: {.callout-note}
+## Diagram to add later (Excalidraw / pyxcd / draw.io)
+A horizontal 7-step flow, browser icon on the left, server icon on the right, DNS depicted as a small "address book" icon above the line between them (queried before the main connection line is drawn). Number each step 1–7 matching the list above, with small icons: a magnifying glass for DNS lookup, a phone/plug icon for the connection, an envelope for the request, a gear/pot icon for server processing, a return envelope for the response, and an eye icon for rendering.
+::: -->
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> This is the payoff slide of the session — walk it top to bottom, and explicitly connect back: “this is why loading a single web page is not instantaneous, and why it sometimes fails partway through.”</p>
 <style type="text/css">
@@ -1972,6 +1966,7 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
 <li class="fragment"><strong>HTTP (HyperText Transfer Protocol)</strong> is that agreed-upon format. It’s a set of rules both client and server follow for how requests and responses are structured.</li>
 <li class="fragment">Kitchen picture: HTTP is like a standardized order form every branch in the chain uses — no matter which branch you call, the form has the same fields in the same places, so anyone can read it.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1998,6 +1993,7 @@ Two clusters of 2–3 kitchen-branch icons each, with a jagged lightning-bolt br
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="http-verbs" class="slide level2">
 <h2>HTTP Verbs</h2>
@@ -2384,15 +2380,15 @@ Content-Type: application/json
 </section>
 <section id="json-the-language-of-rest-responses" class="slide level2">
 <h2>JSON: The Language of REST Responses</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb4-1"><a></a><span class="fu">{</span></span>
-<span id="cb4-2"><a></a>  <span class="dt">"book"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-3"><a></a>    <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Designing Data-Intensive Applications"</span><span class="fu">,</span></span>
-<span id="cb4-4"><a></a>    <span class="dt">"author"</span><span class="fu">:</span> <span class="st">"Martin Kleppmann"</span><span class="fu">,</span></span>
-<span id="cb4-5"><a></a>    <span class="dt">"year"</span><span class="fu">:</span> <span class="dv">2017</span><span class="fu">,</span></span>
-<span id="cb4-6"><a></a>    <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"distributed"</span><span class="ot">,</span> <span class="st">"databases"</span><span class="ot">,</span> <span class="st">"systems"</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb4-7"><a></a>    <span class="dt">"available"</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb4-8"><a></a>  <span class="fu">}</span></span>
-<span id="cb4-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb3-1"><a></a><span class="fu">{</span></span>
+<span id="cb3-2"><a></a>  <span class="dt">"book"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-3"><a></a>    <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Designing Data-Intensive Applications"</span><span class="fu">,</span></span>
+<span id="cb3-4"><a></a>    <span class="dt">"author"</span><span class="fu">:</span> <span class="st">"Martin Kleppmann"</span><span class="fu">,</span></span>
+<span id="cb3-5"><a></a>    <span class="dt">"year"</span><span class="fu">:</span> <span class="dv">2017</span><span class="fu">,</span></span>
+<span id="cb3-6"><a></a>    <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"distributed"</span><span class="ot">,</span> <span class="st">"databases"</span><span class="ot">,</span> <span class="st">"systems"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb3-7"><a></a>    <span class="dt">"available"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb3-8"><a></a>  <span class="fu">}</span></span>
+<span id="cb3-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
 <li class="fragment">Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
