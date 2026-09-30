@@ -2318,8 +2318,9 @@ Two cook icons, "Thread A" and "Thread B," facing each other. Thread A has a kni
 </table>
 <div class="fragment">
 <p>Always call <code>shutdown()</code> when you’re done submitting work — an <code>ExecutorService</code> that’s never shut down keeps its worker threads alive indefinitely, even after your program logically has nothing left to do.</p>
+<p>After <code>shutdown()</code>, the pool refuses new work <em>loudly</em>: any further <code>submit()</code> throws a <code>RejectedExecutionException</code>. The task is not queued for later, and it is not silently dropped.</p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The last line is worth stating explicitly — “forgetting shutdown()” is a common real bug (a program that never exits because idle pool threads are still alive), not just a syntax footnote.</p>
+<p><strong>Timing: 4 min.</strong> The last line is worth stating explicitly — “forgetting shutdown()” is a common real bug (a program that never exits because idle pool threads are still alive), not just a syntax footnote. The <code>RejectedExecutionException</code> line is Quiz 1 Q9 — say the exception name out loud, and contrast it with “silently ignored,” which is the tempting wrong answer.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

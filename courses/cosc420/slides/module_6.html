@@ -864,11 +864,12 @@ API Gateway
 <li>Kitchen picture: an Auth branch, an Order branch, a Payment branch — each its own kitchen, its own staff, its own inventory — calling each other on the phone (a REST request) whenever one needs something from another.</li>
 <li>✅ Each branch scales independently — today’s autoscaling can add capacity to just the Payment branch during a sale, without touching the others.</li>
 <li>✅ Different teams can deploy their own branch independently — no coordinating one giant release.</li>
+<li>✅ Each branch can pick its own tools — the Payment branch in Java with a relational database, the Notification branch in Python with MongoDB. Nothing forces one language or one database across services.</li>
 <li>❌ Every call between branches is now a <strong>network call</strong> — Module 2’s entire catalogue of failure modes (lost messages, timeouts, partial failures) applies to <em>every one</em> of these calls, where a monolith’s internal function calls never fail that way.</li>
 <li>❌ Distributed tracing, service discovery, keeping data consistent across many separate databases — all genuinely new problems a monolith never had.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> The “every call is now a network call” bullet is worth dwelling on — it’s the direct payoff of Module 2 Session 1’s entire catalogue (lost/delayed/reordered messages, partial failures, the timeout problem), now shown to apply <em>inside</em> a single application’s own architecture, not just between two different companies’ servers.</p>
+<p><strong>Timing: 5 min.</strong> The “every call is now a network call” bullet is worth dwelling on — it’s the direct payoff of Module 2 Session 1’s entire catalogue (lost/delayed/reordered messages, partial failures, the timeout problem), now shown to apply <em>inside</em> a single application’s own architecture, not just between two different companies’ servers. The “pick its own tools” bullet is Quiz 8 Q6 (services are <em>not</em> required to share a language or a database).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

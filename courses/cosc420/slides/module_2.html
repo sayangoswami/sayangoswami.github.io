@@ -2505,6 +2505,451 @@ Content-Type: application/json
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section></section>
+<section>
+<section id="session-5-wed-sep-30-1" class="title-slide slide level1 section center">
+<h1>Session 5 · Wed Sep 30</h1>
+
+</section>
+<section id="rest-apis-anatomy-of-a-request-response" class="slide level2">
+<h2>REST APIs: Anatomy of a Request &amp; Response</h2>
+<aside class="notes">
+<p><strong>Full-session timing plan (50 min total, then Checkpoint 2 runs in the last 15 min per the syllabus):</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recap: HTTP Is the Protocol, REST Is the Style</td>
+<td>3 min</td>
+</tr>
+<tr class="even">
+<td>What Makes an API “RESTful”?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Statelessness</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Anatomy of a Request</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Anatomy of a Response</td>
+<td>4 min</td>
+</tr>
+<tr class="even">
+<td>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>HTTP Status Codes</td>
+<td>5 min</td>
+</tr>
+<tr class="even">
+<td>JSON: The Language of REST Responses</td>
+<td>4 min</td>
+</tr>
+<tr class="odd">
+<td>Worked Example: Reading a Real Response</td>
+<td>6 min</td>
+</tr>
+<tr class="even">
+<td>Why Industry Uses REST Everywhere</td>
+<td>3 min</td>
+</tr>
+<tr class="odd">
+<td>Lab 3 Preview</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
+<td>Checkpoint 2 Preview &amp; Review</td>
+<td>4 min</td>
+</tr>
+</tbody>
+</table>
+<p>That’s ~43 min of lecture; the graded 15-min Checkpoint 2 follows separately.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="recap-http-is-the-protocol-rest-is-the-style-1" class="slide level2">
+<h2>Recap: HTTP Is the Protocol, REST Is the Style</h2>
+<p>Session 4 gave you HTTP: the shared format for requests and responses. HTTP itself is fairly general — it can be used in many ways.</p>
+<p><strong>REST (Representational State Transfer)</strong> is a specific, disciplined <em>style</em> of using HTTP that the industry has largely standardized on for building APIs. Today: what makes an API count as RESTful, and how to read one.</p>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Brief — just draw the HTTP-vs-REST distinction (protocol vs.&nbsp;a style of using it) before the rest of the session builds on it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-makes-an-api-restful-1" class="slide level2">
+<h2>What Makes an API “RESTful”?</h2>
+<ul>
+<li class="fragment"><strong>Resources have URLs.</strong> Every “thing” the API exposes — a user, an order, a book — is identified by a URL, e.g.&nbsp;<code>/users/42</code> or <code>/orders/17</code>.</li>
+<li class="fragment"><strong>The verb says what to do; the URL says what to do it to.</strong> <code>GET /users/42</code> reads user 42. <code>DELETE /orders/17</code> removes order 17. Same verbs from Session 4, now paired with specific resource URLs.</li>
+<li class="fragment"><strong>One API, many endpoints.</strong> A single REST API commonly exposes many different URLs for different resources — <code>/users</code>, <code>/orders</code>, <code>/products</code> might all live under the same API.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This slide directly matches Quiz 2’s REST-structure question — “identified by a URL and an HTTP method” and “a single API can expose multiple endpoints” are both verbatim-testable ideas here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="statelessness-1" class="slide level2">
+<h2>Statelessness</h2>
+<p><strong>REST is stateless:</strong> each request must contain everything the server needs to understand and fulfill it. The server does not remember anything about you between requests.</p>
+<ul>
+<li class="fragment">Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
+<li class="fragment">This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>If a server had to remember every client’s conversation history, what would that make harder when you’re trying to scale the service across many machines?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The callout’s intended answer connects directly back to Module 1/Session 1’s scaling motivation — remembering per-client state ties a client to a specific machine, which fights against the “add more machines” scaling story.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="anatomy-of-a-request-1" class="slide level2">
+<h2>Anatomy of a Request</h2>
+<pre><code>GET /users/42 HTTP/1.1
+Host: api.example.com
+Accept: application/json</code></pre>
+<ul>
+<li class="fragment"><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
+<li class="fragment"><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
+<li class="fragment">Some requests (like <code>POST</code> or <code>PUT</code>) also include a <strong>body</strong> — the actual data being sent, e.g.&nbsp;the details of a new order to create.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Keep headers light — <code>Host</code> and <code>Accept</code> are enough to establish “headers carry metadata,” without a full catalogue of HTTP headers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="anatomy-of-a-response-1" class="slide level2">
+<h2>Anatomy of a Response</h2>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Alice", "email": "alice@example.com"}</code></pre>
+<ul>
+<li class="fragment"><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
+<li class="fragment"><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
+<li class="fragment"><strong>Body:</strong> the actual data requested.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Point out explicitly: <code>Content-Type</code> is how Checkpoint 2’s third question (“what format is the response in, and how do you know”) gets answered — it’s not a guess, it’s stated in the headers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="pause-discuss-stateless-but-it-remembers-my-cart-1" class="slide level2">
+<h2>Pause &amp; Discuss: Stateless, But It Remembers My Cart?</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
+</div>
+<div class="callout-content">
+<p>REST servers are stateless: they remember nothing about you between requests.</p>
+<p>Yet you add a book to your cart on a shopping site, click through three other pages, and the book is still in your cart. Some of those requests may even have been handled by different machines.</p>
+<p>Is the site breaking the stateless rule? If not, where does your cart actually live, and how does each request find it? (Hint: look back at what a request carries besides the verb and path.)</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong> the site isn’t breaking the rule. “Stateless” means the <em>server process</em> keeps no memory of you between requests. It doesn’t mean no state exists anywhere.</p>
+<ul>
+<li>Every request carries an identifier, usually a session token or cookie in a <strong>header</strong>, e.g. <code>Cookie: session=abc123</code> or <code>Authorization: Bearer ...</code>.</li>
+<li>The cart itself lives either in a <strong>shared database or cache</strong> that every server machine can look up by that ID (Module 5 names this: a key-value store is a classic session store), or on the client.</li>
+<li>Because each request brings its own ID, <strong>any</strong> machine can handle it. That’s the scaling benefit from the Statelessness slide.</li>
+</ul>
+<p>This leads into the next slide: a missing or expired token is exactly when you get <code>401 Unauthorized</code>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="http-status-codes-1" class="slide level2">
+<h2>HTTP Status Codes</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Range</th>
+<th>Meaning</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2xx</td>
+<td>Success</td>
+<td><code>200 OK</code>, <code>201 Created</code></td>
+</tr>
+<tr class="even">
+<td>3xx</td>
+<td>Redirect</td>
+<td><code>301 Moved Permanently</code></td>
+</tr>
+<tr class="odd">
+<td>4xx</td>
+<td>Client error — you asked for something wrong</td>
+<td><code>400 Bad Request</code>, <code>404 Not Found</code>, <code>401 Unauthorized</code></td>
+</tr>
+<tr class="even">
+<td>5xx</td>
+<td>Server error — something broke on their end</td>
+<td><code>500 Internal Server Error</code>, <code>503 Service Unavailable</code></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>Why does it matter whether an error is 4xx (your fault) versus 5xx (their fault)? What would you do differently, as the client, in each case?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 5 min.</strong> The callout’s intended answer: a 4xx means retrying the exact same request will fail again (you need to fix your request), while a 5xx might succeed on retry (the problem is transient, on the server side) — this is a genuinely useful distinction for real debugging, not just quiz trivia. Memorize 200, 201, 400, 401, 403, 404, 500 — the most commonly tested set.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="json-the-language-of-rest-responses-1" class="slide level2">
+<h2>JSON: The Language of REST Responses</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb7-1"><a></a><span class="fu">{</span></span>
+<span id="cb7-2"><a></a>  <span class="dt">"book"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb7-3"><a></a>    <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Designing Data-Intensive Applications"</span><span class="fu">,</span></span>
+<span id="cb7-4"><a></a>    <span class="dt">"author"</span><span class="fu">:</span> <span class="st">"Martin Kleppmann"</span><span class="fu">,</span></span>
+<span id="cb7-5"><a></a>    <span class="dt">"year"</span><span class="fu">:</span> <span class="dv">2017</span><span class="fu">,</span></span>
+<span id="cb7-6"><a></a>    <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"distributed"</span><span class="ot">,</span> <span class="st">"databases"</span><span class="ot">,</span> <span class="st">"systems"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-7"><a></a>    <span class="dt">"available"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb7-8"><a></a>  <span class="fu">}</span></span>
+<span id="cb7-9"><a></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><strong>JSON</strong> (JavaScript Object Notation) is a language-independent text format for structured data — despite the name, it’s used by virtually every programming language, not just JavaScript.</li>
+<li class="fragment">Building blocks: strings, numbers, booleans, <code>null</code>, arrays <code>[ ]</code>, and objects <code>{ }</code> — objects and arrays can nest inside each other, as seen here.</li>
+<li class="fragment">This is the near-universal body format for REST API responses, which is exactly why <code>Content-Type: application/json</code> matters — it tells you this is the format to expect.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Point out the nesting explicitly — <code>tags</code> is an array <em>inside</em> an object, which is itself the value of <code>"book"</code> — reading nested JSON correctly is exactly what Checkpoint 2 requires.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="worked-example-reading-a-real-response-1" class="slide level2">
+<h2>Worked Example: Reading a Real Response</h2>
+<pre><code>GET https://api.example.com/books?isbn=9780132350884
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "pages": 464
+}</code></pre>
+<p><strong>As a class:</strong> what HTTP method was used? What does the <code>200</code> mean? What format is the body in, and how do we know? What is the title of the book returned?</p>
+<aside class="notes">
+<p><strong>Timing: 6 min.</strong> This is deliberately the same <em>shape</em> of question as Checkpoint 2, using a different book — walk through it as a group so students rehearse the exact reasoning they’ll need to do individually on the checkpoint, without literally seeing the checkpoint’s example in advance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-industry-uses-rest-everywhere-1" class="slide level2">
+<h2>Why Industry Uses REST Everywhere</h2>
+<ul>
+<li class="fragment"><strong>Universality:</strong> any client that speaks HTTP — a browser, a phone app, a Java program, another server — can talk to any REST API, with no special client software required.</li>
+<li class="fragment"><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
+<li class="fragment"><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p>What would calling an API look like <em>without</em> a standard like REST — if every company invented its own request/response format? What would that cost you as a developer?</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 3 min.</strong> Let this connect back to Session 4’s “why does everyone need to agree” callout — same underlying idea (standardization enables interoperability), now applied specifically to REST’s dominance.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="problem" class="slide level2 scrollable">
+<h2>Problem</h2>
+<p>A Java program sends the following HTTP request to a public API:</p>
+<pre><code>GET https://api.openlibrary.org/books?bibkeys=ISBN:0451526538&amp;format=json&amp;jscmd=data</code></pre>
+<p>The server responds with:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "ISBN:0451526538": {
+    "title": "Nineteen Eighty-Four",
+    "authors": [{"name": "George Orwell"}],
+    "number_of_pages": 328,
+    "publish_date": "1961"
+  }
+}</code></pre>
+<div class="fragment">
+<p><strong>Your Task</strong></p>
+<p>Answer the following questions about this API response:</p>
+<ol type="1">
+<li class="fragment">What HTTP method was used in the request, and what does that method do?</li>
+<li class="fragment">What does the status code <code>200</code> mean?</li>
+<li class="fragment">What format is the response body in, and how do you know?</li>
+<li class="fragment">What is the title of the book returned?</li>
+<li class="fragment">Name one thing that could go wrong when making this request in a real program, and what status code the server might return in that case.</li>
+</ol>
+</div>
+</section>
+<section id="lab-3-preview-1" class="slide level2">
+<h2>Lab 3 Preview</h2>
+<p><strong>Lab 3 (this Friday, Oct 2):</strong> you’ll write a Java program that calls a real public API (the Open Library API), parses the JSON response using <code>HttpClient</code> and <code>org.json</code>, and handles a request that fails.</p>
+<p>Everything you need — the request/response anatomy, status codes, JSON structure — is exactly what today covered.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Keep this brief — Lab 3 itself teaches the Java syntax (<code>HttpClient</code>, <code>JSONObject</code>, <code>optString</code>) hands-on; this slide is a pointer, not a code walkthrough.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 
 
 </section></section>

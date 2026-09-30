@@ -289,6 +289,7 @@
 <section id="recap-http-is-the-protocol-rest-is-the-style" class="slide level2">
 <h2>Recap: HTTP Is the Protocol, REST Is the Style</h2>
 <p>Session 4 gave you HTTP: the shared format for requests and responses. HTTP itself is fairly general — it can be used in many ways.</p>
+<div class="fragment">
 <p><strong>REST (Representational State Transfer)</strong> is a specific, disciplined <em>style</em> of using HTTP that the industry has largely standardized on for building APIs. Today: what makes an API count as RESTful, and how to read one.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Brief — just draw the HTTP-vs-REST distinction (protocol vs.&nbsp;a style of using it) before the rest of the session builds on it.</p>
@@ -303,6 +304,7 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="what-makes-an-api-restful" class="slide level2">
 <h2>What Makes an API “RESTful”?</h2>
@@ -332,6 +334,7 @@
 <li class="fragment">Kitchen picture: every single phone call to a branch has to restate your full order from scratch — the branch keeps no memory of your last call. If you called yesterday and ordered a pizza, that fact is gone; today’s call must include everything relevant again.</li>
 <li class="fragment">This sounds inefficient, but it’s a deliberate design choice: a stateless server can hand your <em>next</em> request to a completely different machine (recall replication and scaling motivations) without that machine needing to know anything about your <em>previous</em> requests.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -358,12 +361,13 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="anatomy-of-a-request" class="slide level2">
 <h2>Anatomy of a Request</h2>
-<pre><code>GET /users/42 HTTP/1.1
-Host: api.example.com
-Accept: application/json</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb1-1"><a></a>GET /users/42 HTTP/1.1</span>
+<span id="cb1-2"><a></a>Host: api.example.com</span>
+<span id="cb1-3"><a></a>Accept: application/json</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><strong>Verb + path:</strong> <code>GET /users/42</code> — read the resource at this URL.</li>
 <li class="fragment"><strong>Headers:</strong> metadata about the request — here, which host to talk to, and what response format is acceptable.</li>
@@ -385,10 +389,10 @@ Accept: application/json</code></pre>
 </section>
 <section id="anatomy-of-a-response" class="slide level2">
 <h2>Anatomy of a Response</h2>
-<pre><code>HTTP/1.1 200 OK
-Content-Type: application/json
-
-{"id": 42, "name": "Alice", "email": "alice@example.com"}</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a></a>HTTP/1.1 200 OK</span>
+<span id="cb2-2"><a></a>Content-Type: application/json</span>
+<span id="cb2-3"><a></a></span>
+<span id="cb2-4"><a></a>{"id": 42, "name": "Alice", "email": "alice@example.com"}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><strong>Status line:</strong> the protocol version and a <strong>status code</strong> (<code>200 OK</code>) — did the request succeed, and how?</li>
 <li class="fragment"><strong>Headers:</strong> here, <code>Content-Type</code> tells the client the body is JSON — this is literally how a client knows <em>how to parse</em> what follows.</li>
@@ -542,18 +546,23 @@ Content-Type: application/json
 </section>
 <section id="worked-example-reading-a-real-response" class="slide level2">
 <h2>Worked Example: Reading a Real Response</h2>
-<pre><code>GET https://api.example.com/books?isbn=9780132350884
-
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "isbn": "9780132350884",
-  "title": "Clean Code",
-  "author": "Robert C. Martin",
-  "pages": 464
-}</code></pre>
-<p><strong>As a class:</strong> what HTTP method was used? What does the <code>200</code> mean? What format is the body in, and how do we know? What is the title of the book returned?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb4-1"><a></a>GET https://api.example.com/books?isbn=9780132350884</span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a>HTTP/1.1 200 OK</span>
+<span id="cb4-4"><a></a>Content-Type: application/json</span>
+<span id="cb4-5"><a></a></span>
+<span id="cb4-6"><a></a>{</span>
+<span id="cb4-7"><a></a>  "isbn": "9780132350884",</span>
+<span id="cb4-8"><a></a>  "title": "Clean Code",</span>
+<span id="cb4-9"><a></a>  "author": "Robert C. Martin",</span>
+<span id="cb4-10"><a></a>  "pages": 464</span>
+<span id="cb4-11"><a></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">What HTTP method was used?</li>
+<li class="fragment">What does the <code>200</code> mean?</li>
+<li class="fragment">What format is the body in, and how do we know?</li>
+<li class="fragment">What is the title of the book returned?</li>
+</ul>
 <aside class="notes">
 <p><strong>Timing: 6 min.</strong> This is deliberately the same <em>shape</em> of question as Checkpoint 2, using a different book — walk through it as a group so students rehearse the exact reasoning they’ll need to do individually on the checkpoint, without literally seeing the checkpoint’s example in advance.</p>
 <style type="text/css">
@@ -575,6 +584,7 @@ Content-Type: application/json
 <li class="fragment"><strong>Statelessness → scalability:</strong> since no server needs to remember you between requests, requests can be handled by any available machine, which is exactly what lets services scale by adding more machines (Session 1’s scaling motivation, realized).</li>
 <li class="fragment"><strong>Human-readable, debuggable:</strong> JSON and plain URLs mean you can inspect what’s happening with nothing more than a web browser or a simple command-line tool.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -601,33 +611,6 @@ Content-Type: application/json
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section>
-<section id="problem" class="slide level2 scrollable">
-<h2>Problem</h2>
-<p>A Java program sends the following HTTP request to a public API:</p>
-<pre><code>GET https://api.openlibrary.org/books?bibkeys=ISBN:0451526538&amp;format=json&amp;jscmd=data</code></pre>
-<p>The server responds with:</p>
-<pre><code>HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "ISBN:0451526538": {
-    "title": "Nineteen Eighty-Four",
-    "authors": [{"name": "George Orwell"}],
-    "number_of_pages": 328,
-    "publish_date": "1961"
-  }
-}</code></pre>
-<div class="fragment">
-<p><strong>Your Task</strong></p>
-<p>Answer the following questions about this API response:</p>
-<ol type="1">
-<li class="fragment">What HTTP method was used in the request, and what does that method do?</li>
-<li class="fragment">What does the status code <code>200</code> mean?</li>
-<li class="fragment">What format is the response body in, and how do you know?</li>
-<li class="fragment">What is the title of the book returned?</li>
-<li class="fragment">Name one thing that could go wrong when making this request in a real program, and what status code the server might return in that case.</li>
-</ol>
 </div>
 </section>
 <section id="lab-3-preview" class="slide level2">
