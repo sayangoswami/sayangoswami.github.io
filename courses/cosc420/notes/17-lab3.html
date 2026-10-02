@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-09-04">
 
-<title>COSC420 — Slides – Class Notes</title>
+<title>Lab 3: Calling a REST API in Java – Class Notes</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +24,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,8 +69,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-listing/list.min.js"></script>
-<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
@@ -72,65 +106,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -197,15 +173,27 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#task-1-make-a-get-request-10-min" id="toc-task-1-make-a-get-request-10-min" class="nav-link" data-scroll-target="#task-1-make-a-get-request-10-min">Task 1 — Make a GET Request (10 min)</a></li>
+  <li><a href="#task-2-parse-the-json-response-15-min" id="toc-task-2-parse-the-json-response-15-min" class="nav-link" data-scroll-target="#task-2-parse-the-json-response-15-min">Task 2 — Parse the JSON Response (15 min)</a></li>
+  <li><a href="#task-3-search-for-anything-10-min" id="toc-task-3-search-for-anything-10-min" class="nav-link" data-scroll-target="#task-3-search-for-anything-10-min">Task 3 — Search for Anything (10 min)</a></li>
+  <li><a href="#submission" id="toc-submission" class="nav-link" data-scroll-target="#submission">Submission</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">COSC420 — Slides</h1>
+<h1 class="title">Lab 3: Calling a REST API in Java</h1>
+<p class="subtitle lead">Module 1: Concurrency</p>
 </div>
 
 
@@ -213,6 +201,12 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 4, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -222,225 +216,111 @@ window.Quarto = {
 </header>
 
 
-<p>Lecture slide decks for COSC420.</p>
-
-
-
-
-<div class="quarto-listing quarto-listing-container-table" id="listing-listing">
-<div class="listing-actions-group">
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
-</div>
-<table class="quarto-listing-table table">
-<thead>
-<tr>
-
-<th>
-Title
-</th>
-
-<th>
-Description
-</th>
-
-</tr>
-</thead>
-<tbody class="list">
-
-<tr data-index="0" data-listing-file-modified-sort="1788193212552" data-listing-reading-time-sort="13" data-listing-word-count-sort="2530" data-listing-title-sort="Introduction" data-listing-filename-sort="01-intro.qmd">
-<td>
-<a href="../../cosc420/notes/01-intro.html" class="title listing-title">Introduction</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="1" data-listing-file-modified-sort="1788354559729" data-listing-reading-time-sort="14" data-listing-word-count-sort="2601" data-listing-title-sort="Processes vs. Threads" data-listing-filename-sort="02-processes-threads.qmd">
-<td>
-<a href="../../cosc420/notes/02-processes-threads.html" class="title listing-title">Processes vs.&nbsp;Threads</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="2" data-listing-date-sort="1788494400000" data-listing-file-modified-sort="1788880049846" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="519" data-listing-title-sort="Lab 1: The Race Condition Game" data-listing-filename-sort="03-lab1.qmd">
-<td>
-<a href="../../cosc420/notes/03-lab1.html" class="title listing-title">Lab 1: The Race Condition Game</a>
-</td>
-<td>
-<span class="listing-description"><strong>Date:</strong> September 4 <strong>Duration:</strong> 50 minutes<br>
-<strong>Points:</strong> 10<br>
-<strong>Competency:</strong> C1.1 — Identify race conditions in concurrent Java code; C1.2 — Apply <code>synchronized</code> to prevent one (mechanically…<em></em></span>
-</td>
-
-</tr>
-
-<tr data-index="3" data-listing-file-modified-sort="1788955748069" data-listing-reading-time-sort="9" data-listing-word-count-sort="1773" data-listing-title-sort="Race Conditions In Depth" data-listing-filename-sort="04.qmd">
-<td>
-<a href="../../cosc420/notes/04.html" class="title listing-title">Race Conditions In Depth</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="4" data-listing-date-sort="1788494400000" data-listing-file-modified-sort="1788886896465" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="704" data-listing-title-sort="Lab 2: Java Threading Exercises" data-listing-filename-sort="05-lab2.qmd">
-<td>
-<a href="../../cosc420/notes/05-lab2.html" class="title listing-title">Lab 2: Java Threading Exercises</a>
-</td>
-<td>
-<span class="listing-description"><strong>Date:</strong> September 11<br>
-<strong>Duration:</strong> 50 minutes<br>
-<strong>Points:</strong> 10<br>
-<strong>Competency:</strong> C1.2 — Apply <code>synchronized</code> and locks to prevent race conditions</span>
-</td>
-
-</tr>
-
-<tr data-index="5" data-listing-file-modified-sort="1789398782245" data-listing-reading-time-sort="13" data-listing-word-count-sort="2567" data-listing-title-sort="Synchronization, Locks, and Their Failure Modes" data-listing-filename-sort="06.qmd">
-<td>
-<a href="../../cosc420/notes/06.html" class="title listing-title">Synchronization, Locks, and Their Failure Modes</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="6" data-listing-file-modified-sort="1790771414432" data-listing-reading-time-sort="11" data-listing-word-count-sort="2127" data-listing-title-sort="Thread Pools, ExecutorService" data-listing-filename-sort="07.qmd">
-<td>
-<a href="../../cosc420/notes/07.html" class="title listing-title">Thread Pools, ExecutorService</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="7" data-listing-file-modified-sort="1789395996618" data-listing-reading-time-sort="9" data-listing-word-count-sort="1696" data-listing-title-sort="Review" data-listing-filename-sort="08.qmd">
-<td>
-<a href="../../cosc420/notes/08.html" class="title listing-title">Review</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="8" data-listing-date-sort="1789531200000" data-listing-file-modified-sort="1789507836418" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="201" data-listing-title-sort="Checkpoint 1: Fix a Synchronization Bug" data-listing-filename-sort="09.qmd">
-<td>
-<a href="../../cosc420/notes/09.html" class="title listing-title">Checkpoint 1: Fix a Synchronization Bug</a>
-</td>
-<td>
-<span class="listing-description">A bank has a shared account object used by two threads simultaneously — one for deposits and one for withdrawals. The code below has a race condition that can cause the…</span>
-</td>
-
-</tr>
-
-<tr data-index="9" data-listing-file-modified-sort="1789735446750" data-listing-reading-time-sort="9" data-listing-word-count-sort="1738" data-listing-title-sort="Review" data-listing-filename-sort="10.qmd">
-<td>
-<a href="../../cosc420/notes/10.html" class="title listing-title">Review</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="10" data-listing-file-modified-sort="1789953216548" data-listing-reading-time-sort="12" data-listing-word-count-sort="2222" data-listing-title-sort="What Makes Distributed Systems Hard" data-listing-filename-sort="11.qmd">
-<td>
-<a href="../../cosc420/notes/11.html" class="title listing-title">What Makes Distributed Systems Hard</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="11" data-listing-file-modified-sort="1790168991540" data-listing-reading-time-sort="10" data-listing-word-count-sort="1862" data-listing-title-sort="The CAP Theorem" data-listing-filename-sort="12.qmd">
-<td>
-<a href="../../cosc420/notes/12.html" class="title listing-title">The CAP Theorem</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="12" data-listing-file-modified-sort="1790609696659" data-listing-reading-time-sort="9" data-listing-word-count-sort="1615" data-listing-title-sort="Case Study Discussion: A Real Network Partition" data-listing-filename-sort="13.qmd">
-<td>
-<a href="../../cosc420/notes/13.html" class="title listing-title">Case Study Discussion: A Real Network Partition</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="13" data-listing-file-modified-sort="1790624426779" data-listing-reading-time-sort="12" data-listing-word-count-sort="2220" data-listing-title-sort="Client-Server Model &amp; What Happens When You Type a URL" data-listing-filename-sort="14.qmd">
-<td>
-<a href="../../cosc420/notes/14.html" class="title listing-title">Client-Server Model &amp; What Happens When You Type a URL</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="14" data-listing-file-modified-sort="1790774129083" data-listing-reading-time-sort="9" data-listing-word-count-sort="1619" data-listing-title-sort="REST APIs: Anatomy of a Request &amp; Response" data-listing-filename-sort="15.qmd">
-<td>
-<a href="../../cosc420/notes/15.html" class="title listing-title">REST APIs: Anatomy of a Request &amp; Response</a>
-</td>
-<td>
-<span class="listing-description"></span>
-</td>
-
-</tr>
-
-<tr data-index="15" data-listing-date-sort="1790740800000" data-listing-file-modified-sort="1790773654765" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="123" data-listing-title-sort="Checkpoint 2: Reading a REST API Response" data-listing-filename-sort="16.qmd">
-<td>
-<a href="../../cosc420/notes/16.html" class="title listing-title">Checkpoint 2: Reading a REST API Response</a>
-</td>
-<td>
-<span class="listing-description">A Java program sends the following HTTP request to a public API:</span>
-</td>
-
-</tr>
-
-<tr data-index="16" data-listing-date-sort="1788494400000" data-listing-file-modified-sort="1790949091698" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="793" data-listing-title-sort="Lab 3: Calling a REST API in Java" data-listing-filename-sort="17-lab3.qmd">
-<td>
-<a href="../../cosc420/notes/17-lab3.html" class="title listing-title">Lab 3: Calling a REST API in Java</a>
-</td>
-<td>
-<span class="listing-description"><strong>Date:</strong> October 2<br>
+<p><strong>Date:</strong> October 2<br>
 <strong>Duration:</strong> 35 minutes <strong>Points:</strong> 10<br>
-<strong>Competency:</strong> C2.3 — Describe the structure of a REST API and consume one programmatically in Java</span>
-</td>
+<strong>Competency:</strong> C2.3 — Describe the structure of a REST API and consume one programmatically in Java</p>
+<hr>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>REST APIs are the backbone of distributed systems — services talk to each other by sending HTTP requests and receiving JSON responses. Today you will write a Java program that calls a real public API, parses the JSON response, and prints useful information from it.</p>
+<p>You will use the <strong>Open Library API</strong> — no account or API key required.</p>
+<hr>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>You need Java 11 or later (for <code>java.net.http.HttpClient</code>). Check with <code>java -version</code>.</p>
+<p>Add the following JSON library to your project:</p>
+<p><strong>If using Maven</strong> — add to <code>pom.xml</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode xml code-with-copy"><code class="sourceCode xml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.json&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;json&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">version</span>&gt;20231013&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>If your IDE of choice doesn’t use Maven</strong> — download the <code>org.json</code> jar directly from <a href="https://repo1.maven.org/maven2/org/json/json/">Maven Central</a> and add it to your project’s classpath/libraries manually.</p>
+<p>Put all your code in a single class, <code>LibrarySearch.java</code>, with a <code>main</code> method.</p>
+<hr>
+</section>
+<section id="task-1-make-a-get-request-10-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-1-make-a-get-request-10-min">Task 1 — Make a GET Request (10 min)</h2>
+<p>The Open Library API lets you search for books by title:</p>
+<pre><code>https://openlibrary.org/search.json?q=distributed+systems&amp;limit=5</code></pre>
+<p>The code below sends a GET request and prints the status code and raw response. Put it in your <code>main</code> method (declare <code>main</code> with <code>throws Exception</code>) and run it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">net</span><span class="op">.</span><span class="im">http</span><span class="op">.</span><span class="im">HttpClient</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">net</span><span class="op">.</span><span class="im">http</span><span class="op">.</span><span class="im">HttpRequest</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">net</span><span class="op">.</span><span class="im">http</span><span class="op">.</span><span class="im">HttpResponse</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">net</span><span class="op">.</span><span class="im">URI</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>HttpClient client <span class="op">=</span> HttpClient<span class="op">.</span><span class="fu">newHttpClient</span><span class="op">();</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>HttpRequest request <span class="op">=</span> HttpRequest<span class="op">.</span><span class="fu">newBuilder</span><span class="op">()</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">uri</span><span class="op">(</span><span class="bu">URI</span><span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="st">"https://openlibrary.org/search.json?q=distributed+systems&amp;limit=5"</span><span class="op">))</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">GET</span><span class="op">()</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>HttpResponse<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> response <span class="op">=</span> client<span class="op">.</span><span class="fu">send</span><span class="op">(</span>request<span class="op">,</span> HttpResponse<span class="op">.</span><span class="fu">BodyHandlers</span><span class="op">.</span><span class="fu">ofString</span><span class="op">());</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Status: "</span> <span class="op">+</span> response<span class="op">.</span><span class="fu">statusCode</span><span class="op">());</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Body:   "</span> <span class="op">+</span> response<span class="op">.</span><span class="fu">body</span><span class="op">());</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Question 1:</strong> What status code do you see? What does a 200 status code mean?</p>
+<hr>
+</section>
+<section id="task-2-parse-the-json-response-15-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-2-parse-the-json-response-15-min">Task 2 — Parse the JSON Response (15 min)</h2>
+<p>This time you write the code. Here is the shape of the response, trimmed to the fields you need:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"numFound"</span><span class="fu">:</span> <span class="dv">1234</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"docs"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Distributed Systems"</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"author_name"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"Maarten van Steen"</span><span class="ot">,</span> <span class="st">"Andrew S. Tanenbaum"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"first_publish_year"</span><span class="fu">:</span> <span class="dv">2002</span><span class="fu">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="er">...</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="er">...</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Using <code>org.json</code> (<code>import org.json.*;</code>), parse <code>response.body()</code> and print a formatted table of the books: title, <strong>first</strong> author, and first publish year. Your output should look roughly like this:</p>
+<pre><code>Title                                              Author                    Year
+-------------------------------------------------------------------------------------
+Distributed Systems                                Maarten van Steen         2002
+...</code></pre>
+<p>Things to know:</p>
+<ul>
+<li><code>new JSONObject(String)</code> parses a JSON string. A <code>JSONObject</code> has <code>getJSONArray(key)</code>; a <code>JSONArray</code> has <code>length()</code> and <code>getJSONObject(i)</code>.</li>
+<li><strong>Not every book has every field.</strong> Some have no <code>author_name</code> or no <code>first_publish_year</code>. Your program must not crash on these. Print <code>N/A</code> (or <code>0</code> for the year) instead. Look at the <code>opt...</code> methods on <code>JSONObject</code> (<code>optString</code>, <code>optInt</code>, <code>optJSONArray</code>) and see how they differ from the <code>get...</code> methods.</li>
+<li><code>System.out.printf("%-50s %-25s %-6s%n", ...)</code> prints left-aligned columns.</li>
+</ul>
+<p><strong>Question 2:</strong> What does <code>getString</code> do when the field is missing, and what does <code>optString</code> do instead? Which one did you use for each field, and why?</p>
+<p><strong>Question 3:</strong> Look at the raw JSON from Task 1. Find one field you did NOT print. What is it, and what do you think it represents?</p>
+<hr>
+</section>
+<section id="task-3-search-for-anything-10-min" class="level2">
+<h2 class="anchored" data-anchor-id="task-3-search-for-anything-10-min">Task 3 — Search for Anything (10 min)</h2>
+<p>Change your program so the user types the search term instead of it being hard-coded:</p>
+<ol type="1">
+<li><p>Read a search term from the keyboard with a <code>Scanner</code> (e.g.&nbsp;<code>cloud computing</code>).</p></li>
+<li><p>Build the request URL from that term. Spaces and special characters are not allowed in a URL, so encode the term first:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> q <span class="op">=</span> <span class="bu">URLEncoder</span><span class="op">.</span><span class="fu">encode</span><span class="op">(</span>term<span class="op">,</span> StandardCharsets<span class="op">.</span><span class="fu">UTF_8</span><span class="op">);</span>  <span class="co">// java.net, java.nio.charset</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>Before parsing, check the status code. If it is not 200, print <code>Error: request failed with status &lt;code&gt;</code> and stop.</p></li>
+<li><p>If the search finds no books (the <code>docs</code> array is empty), print <code>No results for "&lt;term&gt;"</code> instead of an empty table.</p></li>
+</ol>
+<p>To test step 3, temporarily change the URL path to <code>https://openlibrary.org/does-not-exist</code>. To test step 4, search for nonsense like <code>qwxzv</code>.</p>
+<p><strong>Question 4:</strong> What status code did you get for <code>/does-not-exist</code>, and what does it mean in HTTP?</p>
+<p><strong>Question 5:</strong> Remove the <code>URLEncoder.encode</code> call and search for <code>cloud computing</code> again. What happens, and why?</p>
+<hr>
+</section>
+<section id="submission" class="level2">
+<h2 class="anchored" data-anchor-id="submission">Submission</h2>
+<p>Upload to Blackboard:</p>
+<ol type="1">
+<li><strong>Screenshot</strong>: your formatted book table for a search term of your choice (Task 3)</li>
+<li><strong>Code file</strong>: your completed <code>LibrarySearch.java</code></li>
+<li><strong>Answers</strong>: paste your 5 answers into the Blackboard text box</li>
+</ol>
+<hr>
 
-</tr>
 
-<tr data-index="17" data-listing-date-sort="1790568000000" data-listing-file-modified-sort="1790623644319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="451" data-listing-title-sort="EL-01: EL1: Python Basics for Java Programmers" data-listing-filename-sort="el1.qmd">
-<td>
-<a href="../../cosc420/notes/el1.html" class="title listing-title">EL-01: EL1: Python Basics for Java Programmers</a>
-</td>
-<td>
-<span class="listing-description"><strong>Due:</strong> October 7 <strong>Format:</strong> Completion-based Engaged Learning activity, done outside class (see syllabus) <strong>Notebook:</strong> <code>engaged_learning/el_01_python_basics.ipynb</code> (Google Colab) <strong>Compe…</strong></span>
-</td>
+</section>
 
-</tr>
-
-</tbody>
-</table>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
