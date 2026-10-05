@@ -514,11 +514,12 @@ Exercise 3 max-reduction) — corrected.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-10 will ask you to:</p>
 <ul>
-<li>Adapt a block-level tree reduction to a <strong>minimum</strong> combiner (not sum — you’ll need the correct identity value for the padding case)</li>
-<li>Combine the resulting per-block partial results into a single final answer on the host</li>
+<li>Adapt a block-level tree reduction to find <strong>where</strong> the minimum is (argmin): each slot carries a (value, index) pair</li>
+<li>Choose identity values for the padding threads (the array length won’t be a multiple of the block size)</li>
+<li>Combine the per-block results into a single global index on the host</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 10 (Nov 6). Deliberately uses a different combiner (min) than either the lab’s sum or its max exercise, so the checkpoint tests whether the <em>pattern</em> generalized, not memorized code.</p>
+<p>~1 min. 20-minute timed, paired with Lab 10 (Nov 6). REWRITTEN 2026-10-02 from min to argmin. The old min version never actually exercised the identity value (N was a multiple of BLOCK), printed the answer in its setup cell, and its hints contained every gap. Students now write the whole tree loop.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -767,7 +768,7 @@ Final: [0, 2, 7, 8]  ✓ matches the exclusive scan definition</code></pre>
 <section id="this-week-1" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 11 (Fri, Nov 13):</strong> Write the serial scan, trace up-sweep and full Blelloch by hand on your own array, then verify the pre-written GPU kernel against your trace — bonus: use your scan for stream compaction — <strong>CK-11</strong> same day</li>
+<li><strong>Lab 11 (Fri, Nov 13):</strong> Write the serial scan, trace up-sweep and full Blelloch by hand on your own array, then port your CPU Blelloch to a GPU shared-memory kernel (you decide where the barriers go) — bonus: use your scan for stream compaction — <strong>CK-11</strong> same day</li>
 <li><strong>Nov 11 (next lecture):</strong> Histograms and atomic operations — a third way for threads to cooperate, for when the <em>pattern</em> of who-writes-where isn’t known in advance</li>
 </ul>
 <aside class="notes">
@@ -788,11 +789,12 @@ Final: [0, 2, 7, 8]  ✓ matches the exclusive scan definition</code></pre>
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-11 will ask you to:</p>
 <ul>
-<li>Implement the Blelloch algorithm’s up-sweep and down-sweep phases from scratch, given the lab’s structure as a starting point</li>
-<li>Produce an inclusive scan result (a small shift from the lab’s exclusive-scan kernel — the checkpoint’s verification converts appropriately)</li>
+<li>Adapt the Blelloch scan to a different operator: a <strong>running maximum</strong> instead of a running sum</li>
+<li>Decide what every “+”-specific detail of the algorithm becomes, including the identity used to clear the root</li>
+<li>Work with an array length that isn’t a power of two</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 11 (Nov 13). This is the heaviest checkpoint so far in the course — both algorithm phases, written from a structural starting point rather than filled into a handful of <code># YOUR CODE HERE</code> gaps.</p>
+<p>~1 min. 20-minute timed, paired with Lab 11 (Nov 13). REWRITTEN 2026-10-02: it was the lab’s sum-scan kernel with blanks, and the gap comments held the code. Loop headers are given; conditions, bodies, and identities are not. The data is mostly negative, so clearing the root to 0.0 visibly fails.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

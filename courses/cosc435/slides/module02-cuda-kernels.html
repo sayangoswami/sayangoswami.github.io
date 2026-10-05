@@ -820,7 +820,7 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
 <h2>Looking Ahead</h2>
 <ul>
 <li class="fragment"><strong>Lab 04 (Fri, Sep 25):</strong> Write three kernels — scalar multiply, array add, one of your own design. Observe what happens with a missing bounds guard.</li>
-<li class="fragment"><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication — implement, time, and verify against NumPy’s reference (2D kernel skills applied at full scale)</li>
+<li class="fragment"><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication (write the kernel and its launch, time it, verify against NumPy), plus a transpose, where the output shape differs from the input</li>
 <li class="fragment"><strong>Sep 28 (next lecture):</strong> GPU memory hierarchy — where data actually lives, and what it costs to access each kind</li>
 </ul>
 <aside class="notes">
@@ -1484,7 +1484,7 @@ material. Rest of Module 2 promotion is a separate future pass.
 <section id="looking-ahead-1" class="slide level2">
 <h2>Looking Ahead</h2>
 <ul>
-<li class="fragment"><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication — implement a 2D kernel, time it, and verify against NumPy’s reference</li>
+<li class="fragment"><strong>Lab 05 (Fri, Oct 2):</strong> Naive matrix multiplication (write the kernel and its launch, time it, verify against NumPy), plus a transpose, where the output shape differs from the input</li>
 <li class="fragment"><strong>Quiz 3 (Mon, Oct 5):</strong> covers all of Module 2 (SMs/cores, execution model, memory hierarchy, warps/occupancy/divergence)</li>
 <li class="fragment"><strong>Module 3 starts Oct 5:</strong> kernel design patterns and profiling — picking up exactly where Sep 30’s “why code that looks correct can run below peak” thread leaves off</li>
 </ul>
@@ -1507,10 +1507,11 @@ material. Rest of Module 2 promotion is a separate future pass.
 <p>Checkpoint CK-05 will ask you to:</p>
 <ul>
 <li class="fragment">Unpack a 2D global thread index with <code>cuda.grid(2)</code></li>
-<li class="fragment">Write the 2D bounds guard for a given matrix shape</li>
-<li class="fragment">Implement a small 2D transformation (e.g.&nbsp;a 180° rotation) using that index</li>
-<li class="fragment">Give the 2D launch configuration (<code>blocks_per_grid</code> tuple) for a specified matrix shape and thread-block size</li>
+<li class="fragment">Implement a 2D transformation of a <strong>non-square</strong> matrix, where the output shape can differ from the input shape</li>
+<li class="fragment">Write the 2D bounds guard and allocate the output for that shape</li>
+<li class="fragment">Give the 2D launch configuration (<code>blocks_per_grid</code> tuple) that covers it</li>
 </ul>
+<p>Tip: practice deriving index mappings on paper from a small example.</p>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 05 (Oct 2). Distinct from CK-04: CK-04 tests 1D kernel-writing plus a 2D trace-by-hand; CK-05 tests writing an actual 2D kernel end-to-end.</p>
 <style type="text/css">

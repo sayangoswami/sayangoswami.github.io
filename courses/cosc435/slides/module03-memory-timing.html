@@ -772,11 +772,13 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-06 will ask you to:</p>
 <ul>
-<li>Read a profiler-style table of block size vs.&nbsp;timing (like the one above) and identify the fastest configuration</li>
-<li>Explain whether occupancy alone accounts for the result, or whether something else (like memory-bound behavior) is also at play</li>
+<li>Read a profiler-style table (block size, time, occupancy) for a kernel with a known number of bytes and FLOPs</li>
+<li>Compute the achieved bandwidth in GB/s (watch your units!) and the percent of the hardware peak</li>
+<li>Decide whether the kernel is memory-bound or compute-bound by comparing its arithmetic intensity to the ridge point</li>
+<li>Pick a robust launch configuration (not necessarily the single fastest one)</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 06 (Oct 9). Short-answer format — no kernel-writing on this checkpoint, it’s purely about interpreting results correctly.</p>
+<p>~1 min. 20-minute timed, paired with Lab 06 (Oct 9). No kernel-writing; it’s all analysis of given numbers. REWRITTEN 2026-10-02 (was argmin + a lookup). The ridge point (peak FLOP/s ÷ peak bandwidth) is formalized only in Module 4’s roofline slide, so Lab 06 Exercise 2 now practices it on the matmul kernel first. Spend 1 minute on it here as well.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -873,7 +875,7 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <ul>
 <li>This course uses <strong>clamping</strong> (also called edge-replication) throughout: any neighbor index that falls outside the valid range is snapped to the nearest valid edge index instead</li>
 <li>Effect: edge pixels/values get their “missing” neighbors filled in with a repeat of the nearest real value, rather than a fabricated zero or a wraparound from the opposite edge</li>
-<li>Every stencil kernel this semester (Lab 7, CK-07) uses this exact <code>clamp()</code> helper — implemented inline inside the kernel, since Numba CUDA kernels can’t call arbitrary Python helper functions</li>
+<li>Lab 7 uses this <code>clamp()</code> helper, implemented inline inside the kernel, since Numba CUDA kernels can’t call arbitrary Python helper functions. CK-07 deliberately switches to <strong>zero-padding</strong>, so make sure you understand the policies themselves, not just one line of code</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Flag the “can’t call arbitrary helper functions” constraint explicitly — students will need to inline the clamp logic (<code>min(max(idx, 0), n-1)</code>) directly in the kernel body rather than calling a separate <code>clamp()</code> function, which is a real Numba CUDA limitation worth knowing about before Lab 7.</p>
@@ -895,14 +897,14 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb10-2"><a></a><span class="kw">def</span> moving_average_1d(arr, out, n, radius):</span>
 <span id="cb10-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
 <span id="cb10-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
-<span id="cb10-5"><a></a>        total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
 <span id="cb10-6"><a></a>        <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
 <span id="cb10-7"><a></a>            j <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(i <span class="op">+</span> d, <span class="dv">0</span>), n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp inline</span></span>
 <span id="cb10-8"><a></a>            total <span class="op">+=</span> arr[j]</span>
 <span id="cb10-9"><a></a>        out[i] <span class="op">=</span> total <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>Each output <code>i</code> averages <code>2*radius + 1</code> neighboring inputs — radius 2 means a 5-wide window (2 before, the center, 2 after)</li>
-<li>The <code>min(max(...))</code> clamp appears inside the loop, once per neighbor read — this is CK-07’s exact pattern</li>
+<li>The <code>min(max(...))</code> clamp appears inside the loop, once per neighbor read</li>
 <li>Near the edges, clamping means some neighbor positions repeat (e.g.&nbsp;near index 0, <code>j</code> clamps to 0 for every out-of-range neighbor) — that’s the clamping policy visibly at work, not a bug</li>
 </ul>
 <aside class="notes">
@@ -925,7 +927,7 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb11-2"><a></a><span class="kw">def</span> box_blur_2d(img, out, H, W, radius):</span>
 <span id="cb11-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
 <span id="cb11-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> H <span class="kw">and</span> col <span class="op">&lt;</span> W:</span>
-<span id="cb11-5"><a></a>        total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
 <span id="cb11-6"><a></a>        <span class="cf">for</span> dr <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
 <span id="cb11-7"><a></a>            <span class="cf">for</span> dc <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
 <span id="cb11-8"><a></a>                r <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(row <span class="op">+</span> dr, <span class="dv">0</span>), H <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp row</span></span>
@@ -1027,11 +1029,11 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-07 will ask you to:</p>
 <ul>
-<li>Implement a 1D stencil kernel (moving average) with a clamped boundary condition</li>
-<li>Verify your kernel’s output against a reference implementation</li>
+<li>Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with weights given as a 3×3 array)</li>
+<li>Handle the boundary with a policy from today’s table, which won’t necessarily be the one Lab 7 uses</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 07 (Oct 16). The checkpoint is the 1D case (matches the “warm-up” slide above) — the 2D box blur itself is completion-graded in the lab, not separately checkpointed.</p>
+<p>~1 min. 20-minute timed, paired with Lab 07 (Oct 16). REWRITTEN 2026-10-02: it was the 1D moving-average demo with blanks. Now a weighted 3×3 stencil with ZERO-PADDING, so students transfer the idea instead of recalling the lab’s clamp line.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

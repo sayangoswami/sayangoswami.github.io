@@ -340,7 +340,7 @@ content that belongs to a later module.
 <li>This exact pattern is Lab 12 Exercise 1</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Point out explicitly: this is computing a column-wise z-score, the same operation CK-12 checkpoints — worth flagging that Lab 12 and CK-12 are testing precisely this three-line pattern, not something harder.</p>
+<p>~3 min. Point out explicitly: this is computing a column-wise z-score (Lab 12 Exercise 1). Spend a moment on <code>axis=</code> and why the per-column statistics broadcast against the rows. CK-12 asks for a row-wise reduction, where that needs <code>keepdims=True</code>.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -569,12 +569,12 @@ content that belongs to a later module.
 <p>Checkpoint CK-12 will ask you to:</p>
 <ul>
 <li>Transfer a NumPy matrix to the GPU as a CuPy array</li>
-<li>Compute a column-wise z-score entirely on the GPU using CuPy broadcasting</li>
-<li>Retrieve the result back to a NumPy array on the CPU</li>
-<li>(Ungraded reflection: when would you choose CuPy over a custom Numba kernel?)</li>
+<li>Compute a <strong>row-wise softmax</strong> on the GPU, choosing the right axis and keeping dimensions for broadcasting</li>
+<li>Make it numerically stable: the inputs are large enough that a naive <code>exp()</code> overflows <code>float32</code></li>
+<li>Reduce on the GPU and bring results back as NumPy arrays / Python floats</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 12 (Nov 20). CuPy-only by instructor decision — PyTorch is practiced in this lab (Exercise 5) but not independently checkpointed, since a 20-minute window doesn’t comfortably fit two separate library skills (see checkpoints/ck12-cupy-lab.md’s instructor notes).</p>
+<p>~1 min. 20-minute timed, paired with Lab 12 (Nov 20). REWRITTEN 2026-10-02: it was Lab 12’s z-score again. Worth one sentence here on softmax(x) = softmax(x − c), which the checkpoint’s Background also gives. CuPy-only by instructor decision — PyTorch is practiced in this lab (Exercise 5) but not independently checkpointed, since a 20-minute window doesn’t comfortably fit two separate library skills (see checkpoints/ck12-cupy-lab.md’s instructor notes).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

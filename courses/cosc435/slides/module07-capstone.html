@@ -709,7 +709,7 @@ Disk (result image) or display</code></pre>
 <span id="cb8-2"><a></a><span class="kw">def</span> sim_naive(Q, D, sim):</span>
 <span id="cb8-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
 <span id="cb8-4"><a></a>    <span class="cf">if</span> ___GAP_1___:                      <span class="co"># bounds guard</span></span>
-<span id="cb8-5"><a></a>        acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb8-5"><a></a>        acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
 <span id="cb8-6"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(___GAP_2___):     <span class="co"># inner loop over D</span></span>
 <span id="cb8-7"><a></a>            acc <span class="op">+=</span> Q[row, k] <span class="op">*</span> D[col, k]</span>
 <span id="cb8-8"><a></a>        sim[___GAP_3___] <span class="op">=</span> acc           <span class="co"># write result</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -768,7 +768,7 @@ Disk (result image) or display</code></pre>
 <span id="cb9-8"><a></a>    row <span class="op">=</span> cuda.blockIdx.x <span class="op">*</span> TILE <span class="op">+</span> cuda.threadIdx.x</span>
 <span id="cb9-9"><a></a>    col <span class="op">=</span> cuda.blockIdx.y <span class="op">*</span> TILE <span class="op">+</span> cuda.threadIdx.y</span>
 <span id="cb9-10"><a></a>    tx, ty <span class="op">=</span> cuda.threadIdx.x, cuda.threadIdx.y</span>
-<span id="cb9-11"><a></a>    acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb9-11"><a></a>    acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
 <span id="cb9-12"><a></a></span>
 <span id="cb9-13"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>((Q.shape[<span class="dv">1</span>] <span class="op">+</span> TILE <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> TILE):</span>
 <span id="cb9-14"><a></a>        <span class="co"># Load tiles ...</span></span>

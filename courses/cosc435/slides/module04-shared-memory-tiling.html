@@ -385,11 +385,11 @@ of that remaining content is still a separate future pass.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-08 will ask you to:</p>
 <ul>
-<li>Implement both a coalesced and a strided memory-access kernel</li>
-<li>Time both and explain the performance difference in terms of memory transactions</li>
+<li>Restructure an <strong>array of structs</strong> (every particle’s fields stored together) into a <strong>struct of arrays</strong> (each field contiguous), so a kernel’s warp reads become coalesced</li>
+<li>Time both layouts correctly and explain the difference in terms of the bytes DRAM actually delivers</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 08 (Oct 23). Note the date gap: this lecture is Oct 21 (Wed), but Lab 8/CK-8 land Oct 23 (Fri) — the same two-day lecture-then-lab rhythm as every other module.</p>
+<p>~1 min. 20-minute timed, paired with Lab 08 (Oct 23). REWRITTEN 2026-10-02 (it used to re-type the lab’s kernels). Define AoS vs.&nbsp;SoA in one sentence here; the checkpoint’s Background repeats it. Note the date gap: this lecture is Oct 21 (Wed), but Lab 8/CK-8 land Oct 23 (Fri) — the same two-day lecture-then-lab rhythm as every other module.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -723,7 +723,7 @@ of that remaining content is still a separate future pass.
 <span id="cb7-2"><a></a><span class="kw">def</span> matmul_naive(A, B, C):</span>
 <span id="cb7-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
 <span id="cb7-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
-<span id="cb7-5"><a></a>        acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-5"><a></a>        acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
 <span id="cb7-6"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(A.shape[<span class="dv">1</span>]):    <span class="co"># inner dimension</span></span>
 <span id="cb7-7"><a></a>            acc <span class="op">+=</span> A[row, k] <span class="op">*</span> B[k, col]</span>
 <span id="cb7-8"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -785,7 +785,7 @@ of that remaining content is still a separate future pass.
 <span id="cb8-11"><a></a>    col <span class="op">=</span> cuda.blockIdx.y <span class="op">*</span> TILE <span class="op">+</span> cuda.threadIdx.y</span>
 <span id="cb8-12"><a></a>    tx, ty <span class="op">=</span> cuda.threadIdx.x, cuda.threadIdx.y</span>
 <span id="cb8-13"><a></a></span>
-<span id="cb8-14"><a></a>    acc <span class="op">=</span> <span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-14"><a></a>    acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>TILE</code> is declared as a Python constant, not a function parameter — Numba needs the shared-array shape fixed at compile time (Oct 26’s “Rules of Shared Memory”), so <code>TILE</code> must be a literal or a module-level constant</li>
 <li><code>tile_A</code> and <code>tile_B</code> are the block’s shared scratchpad — one <code>TILE × TILE</code> tile of each input matrix, reused by every thread in the block</li>
@@ -1003,12 +1003,12 @@ of that remaining content is still a separate future pass.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-09 will ask you to:</p>
 <ul>
-<li>Declare the two shared-memory tiles for a tiled matmul kernel</li>
-<li>Fill in the two missing <code>cuda.syncthreads()</code> calls at the correct points in the loop</li>
-<li>Accumulate the dot product from the shared-memory tiles (<code>tile_A[ty, k] * tile_B[k, tx]</code>)</li>
+<li>Complete a tiled matmul kernel for <strong>rectangular matrices whose sizes aren’t multiples of TILE</strong></li>
+<li>Write the bounds-guarded tile loads yourself, and decide where the barriers go</li>
+<li>Your kernel is re-run several times and must be correct every time, so races are caught</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 09 (Oct 30). One kernel-completion cell built entirely from today’s material — no new concepts introduced at checkpoint time.</p>
+<p>~1 min. 20-minute timed, paired with Lab 09 (Oct 30). REWRITTEN 2026-10-02: the guarded loads used to be given, the barriers were labeled, and the matrices were square multiples of 16. No new concepts: the zero-padded loads are exactly the walkthrough on the tiled-kernel slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
