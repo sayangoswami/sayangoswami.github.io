@@ -102,6 +102,8 @@
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -114,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -240,11 +243,11 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 </section>
 <section id="todays-plan" class="slide level2">
 <h2>Today’s Plan</h2>
+<!-- - Quiz 3 first (15 min, Blackboard) — covers all of Module 2 -->
 <ul>
-<li>Quiz 3 first (15 min, Blackboard) — covers all of Module 2</li>
-<li>Then: patterns for structuring a kernel beyond “one thread, one element”</li>
-<li>Choosing a launch configuration when there’s no single obviously-correct answer</li>
-<li>Debugging Numba CUDA code — what goes wrong, and how to find it without a GPU-side debugger</li>
+<li class="fragment">Patterns for structuring a kernel beyond “one thread, one element”</li>
+<li class="fragment">Choosing a launch configuration when there’s no single obviously-correct answer</li>
+<li class="fragment">Debugging Numba CUDA code — what goes wrong, and how to find it without a GPU-side debugger</li>
 </ul>
 <aside class="notes">
 <p>~1 min. ~35 min of lecture time after the quiz. This session is the pivot point of the module: everything before this (Modules 0-2) was about getting a kernel to run at all; everything from here on is about making it fast and getting it right when it isn’t.</p>
@@ -263,9 +266,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="from-does-it-run-to-does-it-run-well" class="slide level2">
 <h2>From “Does It Run” to “Does It Run Well”</h2>
 <ul>
-<li>Every kernel you’ve written so far (Labs 4-5) follows one pattern: one thread computes one output element, checked by one bounds guard</li>
-<li>That pattern is correct, and it’s the right default — but it’s not the only shape a kernel can take, and getting it running is only the first bar to clear</li>
-<li>The rest of this module is about two things: designing kernels deliberately rather than by habit, and measuring whether they’re actually fast</li>
+<li class="fragment">Every kernel you’ve written so far (Labs 4-5) follows one pattern: one thread computes one output element, checked by one bounds guard</li>
+<li class="fragment">That pattern is correct, and it’s the right default — but it’s not the only shape a kernel can take, and getting it running is only the first bar to clear</li>
+<li class="fragment">The rest of this module is about two things: designing kernels deliberately rather than by habit, and measuring whether they’re actually fast</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Framing slide — sets up why “design patterns” and “debugging” belong in the same session as a matched pair: patterns are how you write a kernel well the first time, debugging is what you do when it isn’t.</p>
@@ -289,9 +292,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb1-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
 <span id="cb1-5"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>The pattern every kernel this semester has used so far: launch (at least) as many threads as there are outputs, each thread computes exactly one</li>
-<li>Simple to reason about, maps directly onto the hardware’s SIMT model (Sep 30), and is the right choice whenever the number of outputs is known ahead of time and reasonably launch-able (millions of threads is fine; billions can hit practical limits)</li>
-<li>This is the default pattern — reach for it first, and only reach for something else when it doesn’t fit</li>
+<li class="fragment">The pattern every kernel this semester has used so far: launch (at least) as many threads as there are outputs, each thread computes exactly one</li>
+<li class="fragment">Simple to reason about, maps directly onto the hardware’s SIMT model (Sep 30), and is the right choice whenever the number of outputs is known ahead of time and reasonably launch-able (millions of threads is fine; billions can hit practical limits)</li>
+<li class="fragment">This is the default pattern — reach for it first, and only reach for something else when it doesn’t fit</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Deliberately named and framed as “the pattern” — students have been using it since Lab 4 without necessarily thinking of it as a reusable, nameable design choice. Naming it is the point of this slide.</p>
@@ -316,9 +319,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb2-5"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(start, arr.shape[<span class="dv">0</span>], stride):</span>
 <span id="cb2-6"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>A different shape: launch a <em>fixed, modest</em> number of threads, and have each one loop over multiple elements, striding by the total thread count</li>
-<li>Useful when N is unknown at launch time, or so large that launching one thread per element isn’t practical, or when you want the same kernel to run efficiently across a wide range of N without recomputing launch config each time</li>
-<li>You won’t be asked to write this pattern in a lab or checkpoint this semester — it’s here so you recognize it when you see it in real-world CUDA code, which uses it constantly</li>
+<li class="fragment">A different shape: launch a <em>fixed, modest</em> number of threads, and have each one loop over multiple elements, striding by the total thread count</li>
+<li class="fragment">Useful when N is unknown at launch time, or so large that launching one thread per element isn’t practical, or when you want the same kernel to run efficiently across a wide range of N without recomputing launch config each time</li>
+<li class="fragment">You won’t be asked to write this pattern in a lab or checkpoint this semester — it’s here so you recognize it when you see it in real-world CUDA code, which uses it constantly</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Explicitly flag this as awareness-level, not tested — students should not walk away thinking they need to memorize <code>cuda.gridsize()</code> syntax for a checkpoint. The goal is purely “don’t be confused when you see this shape later in your career.”</p>
@@ -337,10 +340,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="choosing-a-launch-configuration" class="slide level2">
 <h2>Choosing a Launch Configuration</h2>
 <ul>
-<li>So far, launch configuration (<code>THREADS</code>, computed <code>BLOCKS</code>) has mostly been handed to you or fixed at a round number like 256</li>
-<li>In practice, there is rarely one obviously-correct block size — it depends on the kernel’s resource usage (registers, shared memory) and the GPU’s occupancy limits (Sep 30)</li>
-<li>A few reliable heuristics: prefer multiples of 32 (whole warps, no wasted lanes — Sep 30); common starting points are 128, 256, or 512 threads per block; extremes (very small or very large blocks) are rarely optimal</li>
-<li>Beyond those heuristics, the honest answer is: <strong>measure it</strong>. Lab 6 (this Friday) has you sweep several block sizes on a real kernel and find the fastest empirically — that’s Oct 7’s subject in full</li>
+<li class="fragment">So far, launch configuration (<code>THREADS</code>, computed <code>BLOCKS</code>) has mostly been handed to you or fixed at a round number like 256</li>
+<li class="fragment">In practice, there is rarely one obviously-correct block size — it depends on the kernel’s resource usage (registers, shared memory) and the GPU’s occupancy limits (Sep 30)</li>
+<li class="fragment">A few reliable heuristics: prefer multiples of 32 (whole warps, no wasted lanes — Sep 30); common starting points are 128, 256, or 512 threads per block; extremes (very small or very large blocks) are rarely optimal</li>
+<li class="fragment">Beyond those heuristics, the honest answer is: <strong>measure it</strong>. Lab 6 (this Friday) has you sweep several block sizes on a real kernel and find the fastest empirically — that’s Oct 7’s subject in full</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Resist the temptation to give a definitive “always use 256” rule — the entire point of Oct 7’s profiling session is that this has to be measured per-kernel. This slide should leave students slightly unsatisfied with “it depends,” which Oct 7 then resolves with a concrete method.</p>
@@ -359,12 +362,12 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="debugging-numba-cuda-kernels" class="slide level2">
 <h2>Debugging Numba CUDA Kernels</h2>
 <ul>
-<li>GPU kernels run outside the normal Python debugger — you can’t drop a breakpoint inside a <code>@cuda.jit</code> function the way you would in ordinary Python</li>
-<li>Common failure modes you’ll hit this semester:
+<li class="fragment">GPU kernels run outside the normal Python debugger — you can’t drop a breakpoint inside a <code>@cuda.jit</code> function the way you would in ordinary Python</li>
+<li class="fragment">Common failure modes you’ll hit this semester:
 <ul>
-<li><strong>Silent wrong answers</strong> — almost always a missing or incorrect bounds guard (Module 2)</li>
-<li><strong>TypingError at compile time</strong> — Numba’s CUDA compiler only supports a restricted subset of Python/NumPy; an unsupported operation (e.g.&nbsp;Python lists, string formatting, most NumPy functions) inside a kernel fails to compile with a (sometimes cryptic) type error</li>
-<li><strong>Shape mismatches</strong> — passing an array of the wrong shape or dtype to a kernel that assumes a specific layout</li>
+<li class="fragment"><strong>Silent wrong answers</strong> — almost always a missing or incorrect bounds guard (Module 2)</li>
+<li class="fragment"><strong>TypingError at compile time</strong> — Numba’s CUDA compiler only supports a restricted subset of Python/NumPy; an unsupported operation (e.g.&nbsp;Python lists, string formatting, most NumPy functions) inside a kernel fails to compile with a (sometimes cryptic) type error</li>
+<li class="fragment"><strong>Shape mismatches</strong> — passing an array of the wrong shape or dtype to a kernel that assumes a specific layout</li>
 </ul></li>
 </ul>
 <aside class="notes">
@@ -392,9 +395,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb3-7"><a></a></span>
 <span id="cb3-8"><a></a><span class="bu">print</span>(arr_gpu.copy_to_host())      <span class="co"># small enough to read directly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Before trusting a kernel at N = 1,000,000, run it at N = 8 (or similar) and check every value by hand or against a tiny NumPy reference</li>
-<li>Launching one block with exactly N threads (no ceiling division needed) removes launch-configuration bugs from the picture while you debug the kernel body itself</li>
-<li>Every lab’s Completion cell does a version of this at full scale — this technique is how you get there with confidence, one step earlier</li>
+<li class="fragment">Before trusting a kernel at N = 1,000,000, run it at N = 8 (or similar) and check every value by hand or against a tiny NumPy reference</li>
+<li class="fragment">Launching one block with exactly N threads (no ceiling division needed) removes launch-configuration bugs from the picture while you debug the kernel body itself</li>
+<li class="fragment">Every lab’s Completion cell does a version of this at full scale — this technique is how you get there with confidence, one step earlier</li>
 </ul>
 <aside class="notes">
 <p>~2 min. This is the single most useful habit to instill this session — most kernel bugs are far easier to spot in 8 printed numbers than in a checksum computed over a million.</p>
@@ -424,9 +427,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb4-10"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
 <span id="cb4-11"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Setting <code>NUMBA_ENABLE_CUDASIM=1</code> runs your <code>@cuda.jit</code> kernel in pure Python, on the CPU, one simulated thread at a time — no GPU required</li>
-<li>Inside the simulator, ordinary Python <code>print()</code> and even <code>pdb</code> breakpoints work exactly as they would in any Python function — neither works reliably in a real GPU kernel</li>
-<li>Trade-off: the simulator is much slower and doesn’t reflect real GPU timing — use it to debug <em>logic</em>, then switch back to a real GPU to debug and measure <em>performance</em></li>
+<li class="fragment">Setting <code>NUMBA_ENABLE_CUDASIM=1</code> runs your <code>@cuda.jit</code> kernel in pure Python, on the CPU, one simulated thread at a time — no GPU required</li>
+<li class="fragment">Inside the simulator, ordinary Python <code>print()</code> and even <code>pdb</code> breakpoints work exactly as they would in any Python function — neither works reliably in a real GPU kernel</li>
+<li class="fragment">Trade-off: the simulator is much slower and doesn’t reflect real GPU timing — use it to debug <em>logic</em>, then switch back to a real GPU to debug and measure <em>performance</em></li>
 </ul>
 <aside class="notes">
 <p>~2 min. This is a genuinely useful Numba feature many students won’t discover on their own — worth a live demo if time allows, showing a kernel with a deliberate bug caught via a <code>print()</code> that would be silent (or crash unhelpfully) on real hardware.</p>
@@ -445,8 +448,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="this-week" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 06 (Fri, Oct 9):</strong> Correct GPU timing methodology, then sweep launch configurations on Lab 5’s matmul kernel to find the fastest — CK-06 same day</li>
-<li><strong>Oct 7 (next lecture):</strong> How to time GPU code correctly, and how to read the profiler-style results Lab 6 will have you produce</li>
+<li class="fragment"><strong>Lab 06 (Fri, Oct 9):</strong> Correct GPU timing methodology, then sweep launch configurations on Lab 5’s matmul kernel to find the fastest — CK-06 same day</li>
+<li class="fragment"><strong>Oct 7 (next lecture):</strong> How to time GPU code correctly, and how to read the profiler-style results Lab 6 will have you produce</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Quick pointer slide.</p>
@@ -473,10 +476,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="todays-plan-1" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>The most common — and most deceptive — mistake in timing GPU code</li>
-<li>Timing correctly, and what a time-vs-problem-size curve tells you</li>
-<li>Reading a profiler-style table: which configuration is fastest, and why</li>
-<li>Amdahl’s Law — the theoretical ceiling on any speedup, no matter how good your kernel is</li>
+<li class="fragment">The most common — and most deceptive — mistake in timing GPU code</li>
+<li class="fragment">Timing correctly, and what a time-vs-problem-size curve tells you</li>
+<li class="fragment">Reading a profiler-style table: which configuration is fastest, and why</li>
+<li class="fragment">Amdahl’s Law — the theoretical ceiling on any speedup, no matter how good your kernel is</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Full 50-min session, no quiz. Two distinct halves: measurement technique (first ~20 min), then the theoretical ceiling that measurement is ultimately in service of (Amdahl, last ~20 min).</p>
@@ -502,9 +505,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb5-6"><a></a></span>
 <span id="cb5-7"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># WRONG</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>A GPU kernel launch is <strong>asynchronous</strong> — the CPU issues the launch and immediately continues to the next line, without waiting for the GPU to actually finish</li>
-<li><code>time.perf_counter()</code> here measures how long it took to <em>launch</em> the kernel, not how long the kernel took to <em>run</em></li>
-<li>The result: a suspiciously, impossibly fast number — this is the bug, not a real measurement</li>
+<li class="fragment">A GPU kernel launch is <strong>asynchronous</strong> — the CPU issues the launch and immediately continues to the next line, without waiting for the GPU to actually finish</li>
+<li class="fragment"><code>time.perf_counter()</code> here measures how long it took to <em>launch</em> the kernel, not how long the kernel took to <em>run</em></li>
+<li class="fragment">The result: a suspiciously, impossibly fast number — this is the bug, not a real measurement</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is Lab 06’s critical demo. Let the wrong number sit for a moment before revealing why it’s wrong — the surprise is the point, it makes the fix memorable.</p>
@@ -532,9 +535,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb6-8"><a></a></span>
 <span id="cb6-9"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># CORRECT</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>cuda.synchronize()</code> blocks the CPU until every previously-launched GPU operation has completed</li>
-<li>Without it, you are timing a function call that returns almost instantly, not a computation</li>
-<li>This is not a beginner mistake to be embarrassed about — the same bug appears in published papers and shipped industry code. Professional GPU code-review checklists explicitly call it out</li>
+<li class="fragment"><code>cuda.synchronize()</code> blocks the CPU until every previously-launched GPU operation has completed</li>
+<li class="fragment">Without it, you are timing a function call that returns almost instantly, not a computation</li>
+<li class="fragment">This is not a beginner mistake to be embarrassed about — the same bug appears in published papers and shipped industry code. Professional GPU code-review checklists explicitly call it out</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Reiterate: the fact that the wrong code runs, produces a plausible-looking (if suspiciously small) number, and never raises an error is exactly what makes this trap dangerous. There is no crash to alert you.</p>
@@ -564,9 +567,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb7-10"><a></a></span>
 <span id="cb7-11"><a></a>    <span class="bu">print</span>(<span class="ss">f"N=</span><span class="sc">{</span>N<span class="sc">:&gt;10,}</span><span class="ss">  time=</span><span class="sc">{</span>elapsed<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Running the same computation across a range of N reveals whether GPU overhead (kernel launch, PCIe transfer — Module 2) is dominating small problems</li>
-<li>At small N, expect the GPU to look <em>slow</em> — fixed overhead dominates. At large N, that overhead is amortized and the GPU’s raw throughput wins</li>
-<li>Lab 6 has you find this crossover point directly — it’s a concrete answer to Module 1’s “when does the GPU actually win?” question</li>
+<li class="fragment">Running the same computation across a range of N reveals whether GPU overhead (kernel launch, PCIe transfer — Module 2) is dominating small problems</li>
+<li class="fragment">At small N, expect the GPU to look <em>slow</em> — fixed overhead dominates. At large N, that overhead is amortized and the GPU’s raw throughput wins</li>
+<li class="fragment">Lab 6 has you find this crossover point directly — it’s a concrete answer to Module 1’s “when does the GPU actually win?” question</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Tie explicitly back to Module 1’s “when does the GPU win/lose” slide — this timing sweep is that question, answered empirically instead of just in principle.</p>
@@ -591,9 +594,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
      16x16 |       6.31 |            256
      32x32 |       8.94 |           1024</code></pre>
 <ul>
-<li>Reading this table is itself a skill: scan the “Time” column for the minimum, then ask <em>why</em> that configuration won — this is exactly what CK-06 tests</li>
-<li>Here, 16×16 is fastest — not the smallest block (8×8, too few threads to keep the SM busy) and not the largest (32×32, resource limits reduce how many blocks can be resident at once — Sep 30’s occupancy content)</li>
-<li>A profiler-style table like this is a compressed record of an experiment — reading it well means reconstructing the “why,” not just picking out the smallest number</li>
+<li class="fragment">Reading this table is itself a skill: scan the “Time” column for the minimum, then ask <em>why</em> that configuration won — this is exactly what CK-06 tests</li>
+<li class="fragment">Here, 16×16 is fastest — not the smallest block (8×8, too few threads to keep the SM busy) and not the largest (32×32, resource limits reduce how many blocks can be resident at once — Sep 30’s occupancy content)</li>
+<li class="fragment">A profiler-style table like this is a compressed record of an experiment — reading it well means reconstructing the “why,” not just picking out the smallest number</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Numbers shown are representative, not guaranteed — actual Lab 6 results vary by Colab’s assigned T4 and current load. The <em>shape</em> (middle value wins) is the teachable pattern, not these exact milliseconds.</p>
@@ -612,10 +615,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="compute-bound-or-memory-bound" class="slide level2">
 <h2>Compute-Bound or Memory-Bound?</h2>
 <ul>
-<li>The naive matmul kernel reads a full row of <code>A</code> and a full column of <code>B</code> from <strong>global memory</strong> for every single output element it computes — with zero reuse between threads</li>
-<li>That’s a lot of global-memory traffic relative to the arithmetic done per byte fetched (low arithmetic intensity — Module 1’s preview of this idea)</li>
-<li><strong>Diagnosis:</strong> this kernel is memory-bound, not compute-bound — its ALUs are very often waiting on data, not the limiting factor</li>
-<li>This diagnosis is exactly <em>why</em> Module 4’s tiled matmul (reusing data via shared memory) gets such a large speedup over this naive version — it directly attacks the memory-bound bottleneck identified here</li>
+<li class="fragment">The naive matmul kernel reads a full row of <code>A</code> and a full column of <code>B</code> from <strong>global memory</strong> for every single output element it computes — with zero reuse between threads</li>
+<li class="fragment">That’s a lot of global-memory traffic relative to the arithmetic done per byte fetched (low arithmetic intensity — Module 1’s preview of this idea)</li>
+<li class="fragment"><strong>Diagnosis:</strong> this kernel is memory-bound, not compute-bound — its ALUs are very often waiting on data, not the limiting factor</li>
+<li class="fragment">This diagnosis is exactly <em>why</em> Module 4’s tiled matmul (reusing data via shared memory) gets such a large speedup over this naive version — it directly attacks the memory-bound bottleneck identified here</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is CK-06’s Q1 in worked-example form — plant the reasoning pattern here (describe the access pattern → count reuse → conclude bound type) so students can reproduce it on a different kernel in the checkpoint.</p>
@@ -634,10 +637,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="why-a-middle-block-size-often-wins" class="slide level2">
 <h2>Why a Middle Block Size Often Wins</h2>
 <ul>
-<li>Very small blocks (8×8 = 64 threads = 2 warps): too few resident warps for the scheduler to hide memory latency well (Sep 30) — the SM often has nothing else ready to run while one warp waits</li>
-<li>Very large blocks (32×32 = 1024 threads): each block claims a large share of the SM’s fixed register/thread budget, so <em>fewer blocks</em> fit resident at once — occupancy can drop even though each individual block is “big”</li>
-<li>The middle ground (16×16 = 256 threads = 8 warps) is often the sweet spot: enough warps to hide latency, without claiming so much of the SM’s budget that fewer blocks fit</li>
-<li>“Often” is doing real work in that sentence — this is a heuristic, not a law. The only way to know for a specific kernel is to measure, exactly as Lab 6 does</li>
+<li class="fragment">Very small blocks (8×8 = 64 threads = 2 warps): too few resident warps for the scheduler to hide memory latency well (Sep 30) — the SM often has nothing else ready to run while one warp waits</li>
+<li class="fragment">Very large blocks (32×32 = 1024 threads): each block claims a large share of the SM’s fixed register/thread budget, so <em>fewer blocks</em> fit resident at once — occupancy can drop even though each individual block is “big”</li>
+<li class="fragment">The middle ground (16×16 = 256 threads = 8 warps) is often the sweet spot: enough warps to hide latency, without claiming so much of the SM’s budget that fewer blocks fit</li>
+<li class="fragment">“Often” is doing real work in that sentence — this is a heuristic, not a law. The only way to know for a specific kernel is to measure, exactly as Lab 6 does</li>
 </ul>
 <aside class="notes">
 <p>~2 min. This is CK-06’s Q2 in worked-example form. Emphasize this is reasoning <em>from</em> the occupancy concept (Sep 30), not a new independent rule to memorize.</p>
@@ -657,8 +660,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Amdahl’s Law: The Serial Fraction Problem</h2>
 <p>Every program has two parts:</p>
 <ul>
-<li><strong>Parallel part</strong> (fraction <span class="math inline">\(p\)</span>): can run on all GPU cores simultaneously</li>
-<li><strong>Serial part</strong> (fraction <span class="math inline">\(1-p\)</span>): must run sequentially — no amount of parallel hardware helps</li>
+<li class="fragment"><strong>Parallel part</strong> (fraction <span class="math inline">\(p\)</span>): can run on all GPU cores simultaneously</li>
+<li class="fragment"><strong>Serial part</strong> (fraction <span class="math inline">\(1-p\)</span>): must run sequentially — no amount of parallel hardware helps</li>
 </ul>
 <p><span class="math display">\[\text{Speedup}(n) = \frac{1}{(1-p) + \frac{p}{n}}\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is the number of parallel processors applied to the parallel part.</p>
@@ -681,8 +684,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <p>As <span class="math inline">\(n \to \infty\)</span> (infinitely many processors):</p>
 <p><span class="math display">\[\text{Speedup} \to \frac{1}{1-p}\]</span></p>
 <ul>
-<li>A 5% serial fraction caps total speedup at <strong>20×</strong> — forever, no matter how many GPU cores you add</li>
-<li>A 1% serial fraction caps it at 100×. Even a tiny serial fraction becomes the binding constraint once <span class="math inline">\(n\)</span> is large enough</li>
+<li class="fragment">A 5% serial fraction caps total speedup at <strong>20×</strong> — forever, no matter how many GPU cores you add</li>
+<li class="fragment">A 1% serial fraction caps it at 100×. Even a tiny serial fraction becomes the binding constraint once <span class="math inline">\(n\)</span> is large enough</li>
 </ul>
 <p>[DIAGRAM] — Line chart, x-axis “number of processors n” (log scale, 1 to 10,000), y-axis “speedup.” Four curves for p = 0.5, 0.9, 0.95, 0.99. All four curves rise initially, then flatten into a horizontal asymptote — the p=0.5 curve flattens near speedup=2 almost immediately, while the p=0.99 curve keeps climbing much further before flattening near speedup=100. Dashed horizontal lines mark each curve’s ceiling value.</p>
 <aside class="notes">
@@ -702,10 +705,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="the-uncomfortable-implication" class="slide level2">
 <h2>The Uncomfortable Implication</h2>
 <ul>
-<li>Your GPU kernel is 50× faster than the CPU version. The serial part of your program is completely unchanged.</li>
-<li>If the serial fraction is 5%, the <strong>end-to-end</strong> speedup of your whole program is still capped at 20×, no matter how fast that kernel gets</li>
-<li>Cutting the serial fraction from 5% to 2.5% buys <em>more</em> end-to-end speedup than doubling the GPU kernel’s raw performance</li>
-<li>Practical consequence: sometimes the highest-value optimization isn’t the kernel at all — it’s the data loading, the preprocessing step, or a serial aggregation on the host</li>
+<li class="fragment">Your GPU kernel is 50× faster than the CPU version. The serial part of your program is completely unchanged.</li>
+<li class="fragment">If the serial fraction is 5%, the <strong>end-to-end</strong> speedup of your whole program is still capped at 20×, no matter how fast that kernel gets</li>
+<li class="fragment">Cutting the serial fraction from 5% to 2.5% buys <em>more</em> end-to-end speedup than doubling the GPU kernel’s raw performance</li>
+<li class="fragment">Practical consequence: sometimes the highest-value optimization isn’t the kernel at all — it’s the data loading, the preprocessing step, or a serial aggregation on the host</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is the punchline students should carry into the capstone: profiling (this session’s first half) tells you <em>where</em> time goes; Amdahl tells you the <em>ceiling</em> on how much any one piece of optimization can help.</p>
@@ -725,13 +728,13 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Applying Amdahl to the Capstone</h2>
 <p>In the capstone’s similarity-search pipeline:</p>
 <ul>
-<li><strong>Serial:</strong> data loading, host↔︎device PCIe transfer, <code>cp.argpartition</code> for top-K — estimated at roughly 5% of total time</li>
-<li><strong>Parallel:</strong> the <code>Q @ D.T</code> similarity computation itself — roughly 95%</li>
+<li class="fragment"><strong>Serial:</strong> data loading, host↔︎device PCIe transfer, <code>cp.argpartition</code> for top-K — estimated at roughly 5% of total time</li>
+<li class="fragment"><strong>Parallel:</strong> the <code>Q @ D.T</code> similarity computation itself — roughly 95%</li>
 </ul>
 <p><span class="math display">\[\text{Max possible speedup} = \frac{1}{0.05} = 20\times\]</span></p>
 <ul>
-<li><strong>EL-03</strong> (due Sun, Oct 18 — the day before the midterm) has you read Herb Sutter’s “The Free Lunch Is Over” essay and apply this exact calculation to the capstone yourself</li>
-<li>At CK-14 (end of semester), you’ll measure your <em>actual</em> speedup and compare it against this theoretical ceiling</li>
+<li class="fragment"><strong>EL-03</strong> (due Sun, Oct 18 — the day before the midterm) has you read Herb Sutter’s “The Free Lunch Is Over” essay and apply this exact calculation to the capstone yourself</li>
+<li class="fragment">At CK-14 (end of semester), you’ll measure your <em>actual</em> speedup and compare it against this theoretical ceiling</li>
 </ul>
 <aside class="notes">
 <p>~2 min. EL-03’s timing is deliberate — Amdahl’s Law is squarely midterm material, and finishing the reading/calculation the day before the exam is meant to cement it, not just check a box.</p>
@@ -750,9 +753,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="this-week-1" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 06 (Fri, Oct 9):</strong> Correct timing, launch-configuration sweep on Lab 5’s matmul kernel, bottleneck diagnosis — <strong>CK-06</strong> same day</li>
-<li><strong>EL-03</strong> (due Sun, Oct 18): Sutter essay + Amdahl’s Law applied to the capstone</li>
-<li><strong>Oct 14 (next lecture, after Fall Reading Days):</strong> Stencil kernels — a first departure from the “one output, one independent input” shape used everywhere so far</li>
+<li class="fragment"><strong>Lab 06 (Fri, Oct 9):</strong> Correct timing, launch-configuration sweep on Lab 5’s matmul kernel, bottleneck diagnosis — <strong>CK-06</strong> same day</li>
+<li class="fragment"><strong>EL-03</strong> (due Sun, Oct 18): Sutter essay + Amdahl’s Law applied to the capstone</li>
+<li class="fragment"><strong>Oct 14 (next lecture, after Fall Reading Days):</strong> Stencil kernels — a first departure from the “one output, one independent input” shape used everywhere so far</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Note the gap: Oct 12 is a holiday (Fall Reading Days), so the next class meeting is Oct 14, not Oct 9’s immediate next weekday.</p>
@@ -772,10 +775,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-06 will ask you to:</p>
 <ul>
-<li>Read a profiler-style table (block size, time, occupancy) for a kernel with a known number of bytes and FLOPs</li>
-<li>Compute the achieved bandwidth in GB/s (watch your units!) and the percent of the hardware peak</li>
-<li>Decide whether the kernel is memory-bound or compute-bound by comparing its arithmetic intensity to the ridge point</li>
-<li>Pick a robust launch configuration (not necessarily the single fastest one)</li>
+<li class="fragment">Read a profiler-style table (block size, time, occupancy) for a kernel with a known number of bytes and FLOPs</li>
+<li class="fragment">Compute the achieved bandwidth in GB/s (watch your units!) and the percent of the hardware peak</li>
+<li class="fragment">Decide whether the kernel is memory-bound or compute-bound by comparing its arithmetic intensity to the ridge point</li>
+<li class="fragment">Pick a robust launch configuration (not necessarily the single fastest one)</li>
 </ul>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 06 (Oct 9). No kernel-writing; it’s all analysis of given numbers. REWRITTEN 2026-10-02 (was argmin + a lookup). The ridge point (peak FLOP/s ÷ peak bandwidth) is formalized only in Module 4’s roofline slide, so Lab 06 Exercise 2 now practices it on the matmul kernel first. Spend 1 minute on it here as well.</p>
@@ -802,9 +805,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="todays-plan-2" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>A new kernel shape: outputs that depend on a <em>neighborhood</em> of inputs, not just one</li>
-<li>The boundary problem — what happens at the edges of the data, and how to handle it</li>
-<li>A 1D warm-up (moving average), then the 2D case (image blur) — this session’s motivating example</li>
+<li class="fragment">A new kernel shape: outputs that depend on a <em>neighborhood</em> of inputs, not just one</li>
+<li class="fragment">The boundary problem — what happens at the edges of the data, and how to handle it</li>
+<li class="fragment">A 1D warm-up (moving average), then the 2D case (image blur) — this session’s motivating example</li>
 </ul>
 <aside class="notes">
 <p>~1 min. First class meeting after Fall Reading Days (Oct 12 holiday). Full 50-min session.</p>
@@ -823,10 +826,10 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="beyond-element-wise-what-is-a-stencil" class="slide level2">
 <h2>Beyond Element-wise: What Is a Stencil?</h2>
 <ul>
-<li>Every kernel so far has been <strong>element-wise</strong>: output <code>i</code> depends only on input <code>i</code> (or input <code>(row, col)</code>) — no thread needs to look at its neighbors</li>
-<li>A <strong>stencil</strong> breaks that pattern: output <code>i</code> depends on a small <em>neighborhood</em> of nearby inputs, not just the one at the same position</li>
-<li>Classic examples: a moving average (each output = average of nearby inputs), image blur (each output pixel = weighted average of nearby pixels), numerical derivatives (each output = a weighted combination of neighboring values)</li>
-<li>The “one thread, one output” launch pattern (Oct 5) still applies — what changes is what each thread <em>reads</em>, not how many threads you launch</li>
+<li class="fragment">Every kernel so far has been <strong>element-wise</strong>: output <code>i</code> depends only on input <code>i</code> (or input <code>(row, col)</code>) — no thread needs to look at its neighbors</li>
+<li class="fragment">A <strong>stencil</strong> breaks that pattern: output <code>i</code> depends on a small <em>neighborhood</em> of nearby inputs, not just the one at the same position</li>
+<li class="fragment">Classic examples: a moving average (each output = average of nearby inputs), image blur (each output pixel = weighted average of nearby pixels), numerical derivatives (each output = a weighted combination of neighboring values)</li>
+<li class="fragment">The “one thread, one output” launch pattern (Oct 5) still applies — what changes is what each thread <em>reads</em>, not how many threads you launch</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Frame this explicitly as “the launch pattern you already know, applied to a kernel body that reads more than one input” — students shouldn’t feel like they’re learning an entirely new launch mechanic, just a new kernel-body shape.</p>
@@ -846,9 +849,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>The Boundary Problem</h2>
 <p>[DIAGRAM] — A 1D array of 10 cells, indices 0-9, drawn in a row. Above index 0, dashed “ghost” cells at positions -2 and -1 are shown with question marks, labeled “neighbors that don’t exist.” Above index 9, the same for positions 10 and 11 on the right. A caption: “Every interior cell has real neighbors on both sides. Cells near the edges do not.”</p>
 <ul>
-<li>A stencil reads a neighborhood around each position — but positions near the edge of the array have neighbors that fall <em>outside</em> the array entirely</li>
-<li>Every stencil kernel needs an explicit policy for what to do at the boundary — there is no “correct” default, only different reasonable choices with different tradeoffs</li>
-<li>Three common policies: <strong>clamp</strong> (reuse the nearest valid edge value), <strong>zero-pad</strong> (treat out-of-range neighbors as zero), <strong>wrap</strong> (treat the array as circular, wrapping around to the other side)</li>
+<li class="fragment">A stencil reads a neighborhood around each position — but positions near the edge of the array have neighbors that fall <em>outside</em> the array entirely</li>
+<li class="fragment">Every stencil kernel needs an explicit policy for what to do at the boundary — there is no “correct” default, only different reasonable choices with different tradeoffs</li>
+<li class="fragment">Three common policies: <strong>clamp</strong> (reuse the nearest valid edge value), <strong>zero-pad</strong> (treat out-of-range neighbors as zero), <strong>wrap</strong> (treat the array as circular, wrapping around to the other side)</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Don’t rush past “there is no correct default” — this is a genuine design decision, not a fact to memorize. Different applications legitimately prefer different policies (image processing usually clamps or wraps; some signal-processing contexts zero-pad).</p>
@@ -873,9 +876,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb9-5"><a></a>clamp(<span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">9</span>)    <span class="co">#  5 is in range     → unchanged</span></span>
 <span id="cb9-6"><a></a>clamp(<span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">9</span>)   <span class="co"># 15 is out of range → snaps to 9</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>This course uses <strong>clamping</strong> (also called edge-replication) throughout: any neighbor index that falls outside the valid range is snapped to the nearest valid edge index instead</li>
-<li>Effect: edge pixels/values get their “missing” neighbors filled in with a repeat of the nearest real value, rather than a fabricated zero or a wraparound from the opposite edge</li>
-<li>Lab 7 uses this <code>clamp()</code> helper, implemented inline inside the kernel, since Numba CUDA kernels can’t call arbitrary Python helper functions. CK-07 deliberately switches to <strong>zero-padding</strong>, so make sure you understand the policies themselves, not just one line of code</li>
+<li class="fragment">This course uses <strong>clamping</strong> (also called edge-replication) throughout: any neighbor index that falls outside the valid range is snapped to the nearest valid edge index instead</li>
+<li class="fragment">Effect: edge pixels/values get their “missing” neighbors filled in with a repeat of the nearest real value, rather than a fabricated zero or a wraparound from the opposite edge</li>
+<li class="fragment">Lab 7 uses this <code>clamp()</code> helper, implemented inline inside the kernel, since Numba CUDA kernels can’t call arbitrary Python helper functions. CK-07 deliberately switches to <strong>zero-padding</strong>, so make sure you understand the policies themselves, not just one line of code</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Flag the “can’t call arbitrary helper functions” constraint explicitly — students will need to inline the clamp logic (<code>min(max(idx, 0), n-1)</code>) directly in the kernel body rather than calling a separate <code>clamp()</code> function, which is a real Numba CUDA limitation worth knowing about before Lab 7.</p>
@@ -903,9 +906,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb10-8"><a></a>            total <span class="op">+=</span> arr[j]</span>
 <span id="cb10-9"><a></a>        out[i] <span class="op">=</span> total <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Each output <code>i</code> averages <code>2*radius + 1</code> neighboring inputs — radius 2 means a 5-wide window (2 before, the center, 2 after)</li>
-<li>The <code>min(max(...))</code> clamp appears inside the loop, once per neighbor read</li>
-<li>Near the edges, clamping means some neighbor positions repeat (e.g.&nbsp;near index 0, <code>j</code> clamps to 0 for every out-of-range neighbor) — that’s the clamping policy visibly at work, not a bug</li>
+<li class="fragment">Each output <code>i</code> averages <code>2*radius + 1</code> neighboring inputs — radius 2 means a 5-wide window (2 before, the center, 2 after)</li>
+<li class="fragment">The <code>min(max(...))</code> clamp appears inside the loop, once per neighbor read</li>
+<li class="fragment">Near the edges, clamping means some neighbor positions repeat (e.g.&nbsp;near index 0, <code>j</code> clamps to 0 for every out-of-range neighbor) — that’s the clamping policy visibly at work, not a bug</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is Lab 07 Part 3’s warm-up, shown here as a worked example before the lab. Have students trace through <code>i=0, radius=2</code> by hand: <code>d</code> ranges over -2,-1,0,1,2; <code>j</code> clamps to 0,0,0,1,2 — three of the five taps are the same repeated value.</p>
@@ -935,9 +938,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <span id="cb11-10"><a></a>                total <span class="op">+=</span> img[r, c]</span>
 <span id="cb11-11"><a></a>        out[row, col] <span class="op">=</span> total <span class="op">/</span> ((<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>) <span class="op">**</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Same idea as the 1D case, doubled: a <code>(2·radius+1) × (2·radius+1)</code> square neighborhood, clamped independently on both row and column</li>
-<li>This is <strong>image convolution</strong> — the motivating example for this whole session. A box blur is the simplest possible convolution: every neighbor weighted equally</li>
-<li>Radius 1 → 3×3 window (9 taps). Radius 2 → 5×5 window (25 taps). Bigger radius means more blur, but also a lot more memory reads per output pixel</li>
+<li class="fragment">Same idea as the 1D case, doubled: a <code>(2·radius+1) × (2·radius+1)</code> square neighborhood, clamped independently on both row and column</li>
+<li class="fragment">This is <strong>image convolution</strong> — the motivating example for this whole session. A box blur is the simplest possible convolution: every neighbor weighted equally</li>
+<li class="fragment">Radius 1 → 3×3 window (9 taps). Radius 2 → 5×5 window (25 taps). Bigger radius means more blur, but also a lot more memory reads per output pixel</li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is Lab 07’s Exercise 1 pattern, shown as a worked example. The nested loop (row neighborhood × col neighborhood) is the main new syntactic idea versus the 1D case — walk through it explicitly.</p>
@@ -987,9 +990,9 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 </tbody>
 </table>
 <ul>
-<li>Taps per pixel grows with the <strong>square</strong> of the radius — doubling the radius roughly quadruples the memory reads and arithmetic per output element</li>
-<li>Every one of those taps is a separate global-memory read in the naive version above — this is exactly the kind of memory traffic Module 4’s shared-memory tiling (a stencil-shaped problem too, in spirit) is built to reduce</li>
-<li>Lab 7 has you compare blur strength across a few radii directly and connect the visual result back to this table</li>
+<li class="fragment">Taps per pixel grows with the <strong>square</strong> of the radius — doubling the radius roughly quadruples the memory reads and arithmetic per output element</li>
+<li class="fragment">Every one of those taps is a separate global-memory read in the naive version above — this is exactly the kind of memory traffic Module 4’s shared-memory tiling (a stencil-shaped problem too, in spirit) is built to reduce</li>
+<li class="fragment">Lab 7 has you compare blur strength across a few radii directly and connect the visual result back to this table</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Worth an explicit callback: “this naive stencil re-reads overlapping neighborhoods from global memory constantly, with heavy reuse between adjacent output pixels — sound familiar?” — it’s the same reuse-without-caching problem Oct 7’s naive-matmul diagnosis identified, just in a different kernel shape.</p>
@@ -1008,8 +1011,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <section id="this-week-2" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 07 (Fri, Oct 16):</strong> Implement the 2D box-blur kernel above on a synthetic test image, explore radius vs.&nbsp;blur strength, and (bonus) swap in Gaussian weighting — <strong>CK-07</strong> same day</li>
-<li><strong>This closes Module 3.</strong> Next up: the Midterm (Mon, Oct 19), covering Modules 0-3</li>
+<li class="fragment"><strong>Lab 07 (Fri, Oct 16):</strong> Implement the 2D box-blur kernel above on a synthetic test image, explore radius vs.&nbsp;blur strength, and (bonus) swap in Gaussian weighting — <strong>CK-07</strong> same day</li>
+<li class="fragment"><strong>This closes Module 3.</strong> Next up: the Midterm (Mon, Oct 19), covering Modules 0-3</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Remind students EL-03 (due the Sunday before, Oct 18) directly supports midterm prep — the Amdahl’s Law reading/calculation from Oct 7 is squarely midterm material.</p>
@@ -1029,8 +1032,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-07 will ask you to:</p>
 <ul>
-<li>Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with weights given as a 3×3 array)</li>
-<li>Handle the boundary with a policy from today’s table, which won’t necessarily be the one Lab 7 uses</li>
+<li class="fragment">Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with weights given as a 3×3 array)</li>
+<li class="fragment">Handle the boundary with a policy from today’s table, which won’t necessarily be the one Lab 7 uses</li>
 </ul>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 07 (Oct 16). REWRITTEN 2026-10-02: it was the 1D moving-average demo with blanks. Now a weighted 3×3 stencil with ZERO-PADDING, so students transfer the idea instead of recalling the lab’s clamp line.</p>
@@ -1062,6 +1065,7 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
   <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -1083,7 +1087,8 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -1254,7 +1259,7 @@ slide material anywhere, despite being a full lecture + lab + checkpoint).
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealMath,
           RevealNotes,

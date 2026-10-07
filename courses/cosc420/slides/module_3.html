@@ -225,15 +225,9 @@ SI
 <section id="recap-the-pipeline-stage-two" class="slide level2">
 <h2>Recap: The Pipeline, Stage Two</h2>
 <p>Week 1’s opening story: a manager at “StreamBase” hands you a pipeline diagram with six stages and asks you to build it. Modules 1 and 2 built everything <em>underneath</em> that diagram — threads (Module 1), and how separate machines talk to each other at all (Module 2). Starting today, we build the diagram itself, one stage at a time.</p>
-<pre><code>ratings.csv + movies.csv   ← too big for one machine — today's whole problem
-        ↓  hdfs dfs -put
-      HDFS                  ← Modules 3: the next two weeks live here
-        ↓  %%spark
-    Apache Spark             (Module 4)
-        ↓
-     MongoDB                 (Module 5)
-        ↓
-    Flask API + Dashboard    (Module 6)</code></pre>
+
+<img data-src="diags/03-pipeline.svg" alt="The course pipeline as five boxes left to right, joined by arrows. Box 1, gray: &quot;ratings.csv + movies.csv&quot;, captioned &quot;too big for one machine&quot;. An arrow labeled with the command &quot;hdfs dfs -put&quot; leads to box 2, highlighted yellow: &quot;HDFS&quot;, captioned in red &quot;Module 3: you are here&quot;. An arrow labeled &quot;%%spark&quot; leads to box 3, &quot;Apache Spark&quot;, captioned &quot;Module 4&quot;. Then box 4, &quot;MongoDB&quot;, captioned &quot;Module 5&quot;, and box 5, &quot;Flask API + Dashboard&quot;, captioned &quot;Module 6&quot;." width="1000" class="r-stretch"><p>HDFS is where the next two weeks live.</p>
+<div class="fragment">
 <p><strong>Today’s question, stage one:</strong> before we can even talk about storing a file across many machines, why does a file need that at all — why isn’t one machine enough?</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Just re-anchor Week 1’s bookmark slide — don’t redraw the whole six-stage diagram from memory, just enough to point at HDFS and say “that’s where we are now.”</p>
@@ -248,18 +242,21 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="recap-why-one-machine-isnt-enough" class="slide level2">
 <h2>Recap: Why One Machine Isn’t Enough</h2>
-<p>Week 1 already did this arithmetic once — the StreamBase manager’s ask was 80 billion events. Quick replay:</p>
+<p>Week 1’s StreamBase manager asked about <strong>80 billion events</strong>. Quick arithmetic:</p>
 <ul>
-<li>A laptop with 16 GB of RAM holds roughly <strong>200 million integers</strong> in memory at once.</li>
-<li>80 billion rows is <strong>400× that</strong> — you’d need on the order of 400 machines just to <em>store</em> it, before any processing starts.</li>
-<li>Processing 80 billion rows sequentially, one machine, one core, at a generous 1 million rows/second, takes <strong>over 22 hours</strong> — for one pass over the data, one time.</li>
+<li class="fragment">A laptop with 16 GB of RAM holds about <em>4 billion integers</em> (4 bytes each) in memory at once.</li>
+<li class="fragment">80 billion rows is <em>20× that</em> — about 20 laptops’ worth of memory just to <em>hold</em> one number per row. Real rows (user, movie, rating, timestamp) are several times bigger still.</li>
+<li class="fragment">Processing 80 billion rows on one machine, one core, at a generous 1 million rows/second, takes <em>over 22 hours</em> — for one pass over the data, one time.</li>
 </ul>
-<p>That arithmetic is the entire justification for everything in this module: storage has to spread across machines (HDFS), and so does the processing (MapReduce).</p>
+<div class="fragment">
+<p>That arithmetic justifies everything in this module: <em>storage</em> has to spread across machines (HDFS), and so does the <em>processing</em> (MapReduce).</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> This is a recap, not a new derivation — if a student asks “wait, why 200 million integers,” that’s a Week 1 detail (4 bytes/int, 16 GB ÷ 4 bytes), not worth re-deriving here. Move on.</p>
+<p><strong>Timing: 3 min.</strong> This is a recap, not a new derivation. The arithmetic: 16 GB ÷ 4 bytes/int = 4 billion ints; 80 B ÷ 4 B = 20×; 80 B rows ÷ 10⁶ rows/s = 80,000 s ≈ 22.2 h.</p>
+<p><strong>Heads-up:</strong> Module 1’s version of this slide says “200 million integers” and “400×”. That figure is off (16 GB ÷ 4 bytes is 4 billion, not 200 million). If a student notices the mismatch, the numbers here are the corrected ones — the conclusion (one machine isn’t enough) is the same.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -271,6 +268,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="naming-it-the-three-vs" class="slide level2">
 <h2>Naming It: The Three Vs</h2>
@@ -306,22 +304,10 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p><strong>Big data</strong> = data that’s too big, too fast-arriving, or too messily-shaped (often all three) for one machine to handle alone.</p>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>Three icon columns side by side, one per V. <strong>Volume:</strong> a single small server icon on the left, dwarfed by a large stack of stacked-disk icons on the right, with a “≠” or size-mismatch cue between them. <strong>Velocity:</strong> a stopwatch icon with a fast-moving stream of small envelope/event icons flowing into a funnel that’s visibly overflowing. <strong>Variety:</strong> a cluster of differently shaped icons — a spreadsheet grid, a photo, a speech-bubble, a raw text scroll — piled together under one label, contrasted with a single neat table icon labeled “what one database table expects.” Caption under all three: “Too much. Too fast. Too messy — for one machine, one shape.”</p>
-</div>
-</div>
-</div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Reusing Week 1’s exact three vignettes is deliberate — the goal is precise vocabulary on top of stories they already have, not three brand-new industry examples to absorb today.</p>
+<p><strong>Timing: 4 min (including the picture on the next sub-slide).</strong> Reusing Week 1’s exact three vignettes is deliberate — the goal is precise vocabulary on top of stories they already have, not three brand-new industry examples to absorb today.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -333,15 +319,27 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
+<section class="slide level2">
+
+
+<img data-src="diags/03-three-vs.svg" alt="Three panels side by side. Panel 1, &quot;Volume — too much&quot;: a small box labeled &quot;one machine&quot; next to a ≠ sign and a tall stack of six disks labeled &quot;the data&quot;; caption &quot;doesn't fit&quot;. Panel 2, &quot;Velocity — too fast&quot;: a stream of small event cards flows along an arrow labeled &quot;events/sec&quot; into a funnel above a box labeled &quot;one machine&quot;; extra event cards spill over the funnel's sides; caption &quot;can't keep up&quot;. Panel 3, &quot;Variety — too messy&quot;: five differently shaped items labeled &quot;rating: 4.5&quot;, &quot;photo&quot;, &quot;\&quot;pause\&quot;&quot;, &quot;raw text&quot; and &quot;hover 3.2 s&quot; point down at a plain grid table with a question mark beside it, labeled &quot;one tidy table expects one shape&quot;; caption &quot;doesn't fit one shape&quot;. Along the bottom: &quot;Too much. Too fast. Too messy — for one machine.&quot;" width="900" class="r-stretch"></section>
 <section id="batch-processing-meal-prep-not-à-la-carte" class="slide level2">
 <h2>Batch Processing: Meal-Prep, Not À La Carte</h2>
-<p>Once data is big in one of these ways, there are two general strategies for processing it: handle each new piece of data the instant it arrives (<strong>streaming</strong> — out of scope this course), or collect a pile of it and process the whole pile at once (<strong>batch processing</strong> — this module and Module 4).</p>
+<p>Once data is big in one of these ways, there are two general strategies for processing it:</p>
 <ul>
-<li><strong>Kitchen picture:</strong> a meal-prep Sunday, where a kitchen cooks a whole week’s worth of a dish in one big batch, versus a restaurant cooking one dish fresh the instant each order comes in. Batch processing is the meal-prep Sunday: collect first, process the whole pile together.</li>
-<li>Classic real example: process yesterday’s entire log file overnight, have results ready by morning — nobody needs the answer in the next 10 milliseconds, so batching the whole day’s data together is simpler and more efficient than reacting to each log line individually.</li>
-<li><strong>MapReduce</strong> (Google, 2004 — the paper from Week 1’s Google vignette) is the framework that made batch processing on thousands of machines practical and programmable. You’re about to invent a version of it yourself.</li>
+<li class="fragment"><strong>Streaming:</strong> handle each new piece of data <em>the instant it arrives</em> (out of scope this course).</li>
+<li class="fragment"><strong>Batch processing:</strong> <em>collect a pile</em> of it, then process the whole pile at once (this module and Module 4).</li>
 </ul>
+<div class="fragment">
+<ul>
+<li><strong>Kitchen picture:</strong> a meal-prep Sunday cooks a whole week’s worth of a dish <em>in one big batch</em>; a restaurant cooks each dish fresh <em>the instant the order comes in</em>. Batch processing is the meal-prep Sunday.</li>
+<li><strong>Classic example:</strong> process <em>yesterday’s entire log file overnight</em>, results ready by morning. Nobody needs the answer in the next 10 milliseconds, so batching is simpler and more efficient.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>MapReduce</strong> (Google, 2004 — the paper behind Week 1’s Google vignette) is the framework that made batch processing on thousands of machines practical and programmable. You’re about to invent a version of it yourself.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Keep this brief — it exists to set up “batch” as the vocabulary word for what the activity is about to do, not to teach streaming as a topic (it isn’t covered this course).</p>
 <style type="text/css">
@@ -355,14 +353,15 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="today-become-the-cluster" class="slide level2">
 <h2>Today: Become the Cluster</h2>
-<p>For the rest of this session, no more slides about big data — you’re going to <strong>become</strong> a small distributed system and solve a real batch-processing problem with your own bodies, before any formal vocabulary shows up.</p>
+<p>For the rest of this session, no more slides about big data — you’re going to <strong>become</strong> a small distributed system and solve a real batch-processing problem, before any formal vocabulary shows up.</p>
 <ul>
-<li>You’ll work in <strong>clusters of 3</strong> — each of you is a separate “machine,” sitting at a separate desk, not next to each other.</li>
-<li>Each of you gets a slice of a dataset — nobody sees the whole thing.</li>
-<li>Your cluster’s job: combine your three slices into one correct answer, in as little time as possible, with your teammates spending as little time standing around waiting as possible.</li>
+<li class="fragment">You’ll work in <strong>clusters of 3</strong> — each of you is a <em>separate “machine,”</em> at a separate desk, not next to each other.</li>
+<li class="fragment">Each of you gets <em>a slice of a dataset</em> — nobody sees the whole thing.</li>
+<li class="fragment">Your cluster’s job: combine your three slices into <em>one correct answer</em>, as fast as possible, with teammates spending as little time <em>waiting</em> as possible.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Say explicitly: “I’m not going to tell you the algorithm. Figure one out, then we’ll name what you did.” The entire value of the activity depends on not front-loading the strategy.</p>
@@ -381,25 +380,18 @@ SI
 <section id="activity-setup" class="slide level2">
 <h2>Activity Setup</h2>
 <ul>
-<li>Desks for each cluster of 3 are <strong>spread apart</strong> — corners of the room, not adjacent. Leaving your desk to check in with a teammate costs a real walk, not a whisper.</li>
-<li>Each cluster gets its own shuffled deck (or set of order strips) split three ways — one pile per student. Nobody’s pile is sorted; your slice is a random mix of everything.</li>
-<li><strong>The rule that makes this interesting:</strong> every trip you make to a teammate’s desk costs time, and whoever you leave behind is sitting idle until you’re back. A good cluster finishes fast <em>and</em> keeps everyone busy — not just one person doing all the walking while two people watch.</li>
+<li class="fragment">Desks for each cluster are <em>spread apart</em> — corners of the room, not adjacent. Leaving your desk to check in with a teammate costs <em>a real walk</em>, not a whisper.</li>
+<li class="fragment">Each cluster gets its own shuffled deck (or set of order strips) <em>split three ways</em>. Nobody’s pile is sorted; your slice is a random mix of everything.</li>
+<li class="fragment"><strong>The rule that makes this interesting:</strong> every trip to a teammate’s desk <em>costs time</em>, and whoever you leave behind <em>sits idle</em> until you’re back. A good cluster finishes fast <em>and</em> keeps everyone busy.</li>
 </ul>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>A simple room-layout sketch, top-down view: 4–6 small clusters of 3 desk icons each, scattered around a rectangular classroom outline, with real distance between clusters and between the three desks within a cluster. Dashed footprint-trail lines between one cluster’s three desks to suggest “walking between machines costs something.” Caption: “Not sitting together — sitting apart, like separate machines.”</p>
-</div>
-</div>
-</div>
+<div class="fragment">
+<p><strong>The task</strong> (your instructor will say which version):</p>
+<ul>
+<li><em>Cards:</em> find the total number of cards of <em>each suit</em> (♠ ♥ ♦ ♣) across all three piles.</li>
+<li><em>Order strips:</em> find how many times <em>each menu item</em> (burger, fries, salad, pizza) was ordered across all three branches.</li>
+</ul>
 <aside class="notes">
-<p><strong>Timing: 4 min for instructions.</strong> Physically rearrange desks into scattered clusters before class starts, not during — it eats time and breaks momentum if done live.</p>
+<p><strong>Timing: 4 min for instructions (including the room picture on the next sub-slide).</strong> Physically rearrange desks into scattered clusters before class starts, not during — it eats time and breaks momentum if done live.</p>
 <p><strong>Materials, Option A — playing cards (primary, if you have decks):</strong> one standard 52-card deck per cluster (no jokers), shuffled and split into 3 roughly-equal piles. Task: “As a cluster, find the total number of cards of each suit — ♠ ♥ ♦ ♣ — across all three of your piles combined.” Every cluster’s correct answer is 13 of each suit, every time — simple to verify, but predictable, which is exactly why Option B exists as an alternative if you want a less foreseeable answer. Bonus round for a fast cluster, same cards, no new deal: total <em>point value</em> per suit instead of count (face cards = 10, ace = 1).</p>
 <p><strong>Materials, Option B — ticket-rail word count (backup, paper only, reusable indefinitely):</strong> print one strip per student, one order word per line, styled as a kitchen branch’s raw ticket rail — same “Branch” framing as Module 2’s kitchen-branch language. Task: “As a cluster, find how many times each of <code>burger</code>, <code>fries</code>, <code>salad</code>, <code>pizza</code> was ordered, across all three branches combined.”</p>
 <p><em>Round 1 strips (Set A):</em> - Branch 1: burger, fries, salad, burger, pizza, fries, burger, salad, fries, burger, pizza, salad, burger - Branch 2: fries, burger, fries, pizza, fries, salad, pizza, fries, burger, pizza, fries, pizza, fries, pizza - Branch 3: salad, burger, salad, fries, salad, burger, pizza, salad, fries, burger, salad</p>
@@ -418,10 +410,17 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
+<section class="slide level2">
+
+
+<img data-src="diags/03-room-layout.svg" alt="Top-down sketch of a rectangular classroom with &quot;front of room&quot; at the top. Twelve desks are scattered around the room in four color-coded clusters of three, labeled A1–A3, B1–B3, C1–C3 and D1–D3. The three desks of each cluster are far apart from each other. Cluster A's desks are joined by dashed lines forming a triangle, labeled &quot;every trip costs a walk&quot;. Caption: &quot;Each letter is one cluster of 3. Sit apart, like separate machines.&quot;" width="780" class="r-stretch"></section>
 <section id="round-1-however-you-like" class="slide level2">
 <h2>Round 1: However You Like</h2>
-<p><strong>Go.</strong> Solve the task as a cluster, any way you want. One person in each cluster should informally track: how many times did someone leave their desk, and roughly how long did the whole cluster take?</p>
+<p><strong>Go.</strong> Solve the task as a cluster, any way you want.</p>
+<p>One person in each cluster should informally track: <em>how many times did someone leave their desk</em>, and roughly <em>how long did the whole cluster take?</em></p>
+<div class="fragment">
 <p>Don’t overthink a “correct” way to do this — there isn’t one yet. Just get to the right answer.</p>
 <aside class="notes">
 <p><strong>Timing: 8 min, including a short countdown warning near the end.</strong> Circulate and watch, don’t intervene. Most clusters will do something naive here — often literally carrying handfuls of raw cards or whole strips across the room. That’s the expected, useful outcome — it’s the baseline Round 2 improves on.</p>
@@ -436,6 +435,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="debrief-what-happened" class="slide level2">
 <h2>Debrief: What Happened?</h2>
@@ -454,7 +454,7 @@ SI
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Let the “a note would’ve been lighter” idea come from a student if possible — if nobody offers it, ask directly. Don’t fully resolve it here; it’s the seed for Round 2’s redesign.</p>
+<p><strong>Timing: 4 min.</strong> Let the “a note would’ve been lighter” idea come from a student if possible — if nobody offers it, ask directly. Don’t fully resolve it here; it’s the seed for Round 2’s redesign. (The resolution is on the “Naming What You Just Invented” slide.)</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -470,11 +470,12 @@ SI
 <section id="round-2-minimize-trips-minimize-waiting" class="slide level2">
 <h2>Round 2: Minimize Trips, Minimize Waiting</h2>
 <p>Same task, a <strong>fresh</strong> dataset (new shuffled deck, or Set B’s strips) — same three teammates.</p>
-<p><strong>The challenge:</strong> redesign your cluster’s strategy, as a team, before you touch a single card or strip. Your new strategy should try to minimize both:</p>
+<p><strong>The challenge:</strong> redesign your cluster’s strategy, as a team, <em>before</em> you touch a single card or strip. Your new strategy should try to minimize both:</p>
 <ol type="1">
 <li><strong>Trips</strong> — how many times anyone leaves their desk</li>
 <li><strong>Idle time</strong> — how long anyone sits around waiting on a teammate</li>
 </ol>
+<div class="fragment">
 <p>Take 2–3 minutes to plan out loud as a cluster. Then go, and track your trip count and time again.</p>
 <aside class="notes">
 <p><strong>Timing: 8 min (2–3 min planning + ~5 min execution).</strong> If a cluster is stuck during planning, the one hint to offer verbally (not written on this slide) is: “What if only one of you is responsible for each suit / each menu item?” Let clusters that don’t need the hint discover it themselves — the discovery is the point.</p>
@@ -489,10 +490,22 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="debrief-naming-what-you-just-invented" class="slide level2">
 <h2>Debrief: Naming What You Just Invented</h2>
-<p>Compare Round 2’s trip count and time to Round 1’s, cluster by cluster. Most clusters converge on something like: each person first sorts and tallies <em>their own</em> pile alone at their desk — no walking yet — then only a small written tally, not the raw pile, travels to whichever teammate “owns” that suit or item.</p>
+<p>Compare Round 2’s trip count and time to Round 1’s, cluster by cluster.</p>
+<div class="fragment">
+<p>Most clusters converge on something like this:</p>
+<ul>
+<li class="fragment">Each person first <em>sorts and tallies their own pile</em>, alone at their desk — no walking yet.</li>
+<li class="fragment">Then only <em>a small written tally</em>, not the raw pile, travels to whichever teammate <em>“owns”</em> that suit or item.</li>
+<li class="fragment">That teammate <em>adds up</em> everything handed to them.</li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -511,7 +524,7 @@ SI
 </tr>
 <tr class="even">
 <td>Writing a small tally instead of carrying the raw pile</td>
-<td>The instinct behind a real optimization Hadoop/Spark actually use</td>
+<td>A <strong>combiner</strong> — a real optimization Hadoop/Spark use: shrink the data <em>before</em> it travels</td>
 </tr>
 <tr class="odd">
 <td>Carrying a tally to the one teammate who “owns” that key</td>
@@ -523,12 +536,12 @@ SI
 </tr>
 <tr class="odd">
 <td>Sitting and waiting on a teammate’s tally before you could finish</td>
-<td>Exactly why a real job can bottleneck on its slowest worker</td>
+<td>A <strong>straggler</strong> — a real job finishes only when its slowest worker does</td>
 </tr>
 </tbody>
 </table>
 <aside class="notes">
-<p><strong>Timing: 6 min.</strong> This table is the entire point of the session — don’t rush it. If a cluster’s best strategy still didn’t fully separate “map” from “shuffle,” that’s fine; name the ideal strategy explicitly here even if no cluster found it on their own. Wednesday’s opener re-reads this exact table before introducing any code.</p>
+<p><strong>Timing: 6 min (both sub-slides).</strong> This table is the entire point of the session — don’t rush it. If a cluster’s best strategy still didn’t fully separate “map” from “shuffle,” that’s fine; name the ideal strategy explicitly here even if no cluster found it on their own. Wednesday’s opener re-reads this exact table before introducing any code. “Combiner” and “straggler” are named only so the ideas have handles — neither is tested.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -625,7 +638,7 @@ SI
 </tr>
 </tbody>
 </table>
-<p>10 slides (~35 min) + Checkpoint 3. Every one of today’s ideas already has a physical version from Monday’s activity — lean on it constantly rather than introducing the material as if it’s brand new.</p>
+<p>11 slides (~39 min) + Checkpoint 3 — tight, so keep the two Pause &amp; Discuss / callout answers moving. Every one of today’s ideas already has a physical version from Monday’s activity — lean on it constantly rather than introducing the material as if it’s brand new.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -640,7 +653,7 @@ SI
 </section>
 <section id="recap-what-you-did-monday" class="slide level2">
 <h2>Recap: What You Did Monday</h2>
-<p>Monday, in clusters of 3, you solved a counting problem with nothing but your own bodies, a shuffled pile each, and a rule about minimizing trips. By the end, most clusters had converged on the same shape:</p>
+<p>Monday, in clusters of 3, you solved a counting problem with nothing but your own bodies, a shuffled pile each, and a rule about minimizing trips. Most clusters converged on the same shape:</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -667,6 +680,7 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>Today: the same three ideas, precise definitions, and the actual code shape behind them.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Don’t re-run the activity or re-derive the table — just read it back fast and move on. This slide’s whole job is continuity with Monday, not new content.</p>
@@ -681,34 +695,16 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="meet-map-shuffle-reduce" class="slide level2">
 <h2>Meet Map, Shuffle, Reduce</h2>
-<p><strong>MapReduce</strong> is a programming pattern for processing a big dataset by splitting it into pieces, processing each piece independently, then combining the results — exactly what your cluster did Monday, generalized to any number of “machines” and any counting problem, not just suits or menu items.</p>
-<pre><code>Input data (split across N machines/files)
-         ↓
-    Map    — each machine processes only its own piece, in parallel
-         ↓
-  Shuffle/Sort — the framework groups everyone's output by key
-         ↓
-   Reduce — one machine per key combines that key's values into a final answer
-         ↓
-      Output</code></pre>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>Reuse Monday’s kitchen-branch icon language. Three small “branch” icons on the left, each with its own input pile, feeding downward arrows into a “Map” band where each branch is shown tallying its own pile independently (no arrows <em>between</em> branches at this stage). Below that, a “Shuffle” band where arrows converge from all three branches toward per-key collection points (e.g., one arrow bundle labeled “♠” converging on one point, another labeled “♥” converging elsewhere) — these are the only diagonal/crossing arrows in the whole diagram, visually marking this as the one phase that costs movement. Below that, a “Reduce” band where each collection point emits one final summed value. Caption: “Same shape as Monday — just relabeled.”</p>
-</div>
-</div>
-</div>
+<p><strong>MapReduce</strong> is a programming pattern for big data: <em>split</em> the dataset into pieces, <em>process each piece independently</em>, then <em>combine</em> the results. It’s what your cluster did Monday, for any number of machines and any counting problem.</p>
+<div class="fragment">
+<p><img data-src="diags/03-mr-phases.svg" alt="Five columns left to right: Input, Map, Shuffle/Sort, Reduce, Output. Input has three gray boxes, &quot;chunk 1&quot;, &quot;chunk 2&quot;, &quot;chunk 3&quot;, each with an arrow to its own green &quot;map()&quot; box in the Map column. In the Shuffle/Sort column, crossing purple arrows connect every map() box to both green reducer boxes, &quot;reduce() key A&quot; and &quot;reduce() key B&quot;. Each reducer has an arrow to an Output box, &quot;result key A&quot; and &quot;result key B&quot;. Under the diagram are two rows of labels. Row 1, who writes it: Map &quot;you write&quot;, Shuffle/Sort &quot;framework does it&quot;, Reduce &quot;you write&quot;. Row 2, where it runs: Map &quot;local, in parallel&quot;, Shuffle/Sort &quot;crosses the network&quot; in red, Reduce &quot;local, in parallel&quot;." width="820"></p>
+<p>Each machine <em>maps</em> only its own chunk. The framework <em>shuffles</em> everyone’s output so that each key’s values end up together. One reducer per key <em>reduces</em> them to a final answer.</p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Point at each band and ask “what did this look like in your cluster on Monday?” before naming it formally — let the room answer before you do.</p>
+<p><strong>Timing: 4 min (both sub-slides).</strong> On the next sub-slide, point at each band and ask “what did this look like in your cluster on Monday?” before naming it formally — let the room answer before you do.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -720,14 +716,23 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
+<section class="slide level2">
+
+<p>Monday’s Round 2, redrawn with the new names (salad left out to save space):</p>
+
+<img data-src="diags/03-mapreduce-flow.svg" alt="Three horizontal bands, top to bottom. Above them, three gray boxes: &quot;Branch 1: raw tickets&quot;, &quot;Branch 2: raw tickets&quot;, &quot;Branch 3: raw tickets&quot;, each with an arrow down into the Map band. Map band, subtitled &quot;alone, in parallel&quot;: each branch has its own yellow tally box — Branch 1: burger 5, fries 3, pizza 2; Branch 2: burger 2, fries 6, pizza 5; Branch 3: burger 3, fries 2, pizza 1. No arrows connect branches in this band. Shuffle band, subtitled &quot;the only trips&quot;: nine crossing arrows, color-coded by item, carry each branch's burger tally to one owner, each fries tally to a second owner, and each pizza tally to a third. Reduce band, subtitled &quot;one owner per key&quot;: three blue boxes &quot;owns burger&quot;, &quot;owns fries&quot;, &quot;owns pizza&quot;, with results burger = 10, fries = 11, pizza = 8. Caption: &quot;Same shape as Monday, just relabeled.&quot;" width="720" class="r-stretch"></section>
 <section id="the-map-phase-one-record-in-zero-or-more-pairs-out" class="slide level2">
 <h2>The Map Phase: One Record In, Zero or More Pairs Out</h2>
 <p>A <strong>map function</strong> takes one input record and emits <strong>(key, value)</strong> pairs — nothing more.</p>
+<div class="columns">
+<div class="column" style="width:45%;">
 <pre><code>map(record):
-    ... extract whatever matters from this one record ...
+    ... extract what matters
+        from this one record ...
     emit(key, value)</code></pre>
-<p>Two examples of the same pattern, different data:</p>
+</div><div class="column" style="width:55%;">
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -742,15 +747,34 @@ SI
 <tbody>
 <tr class="odd">
 <td>Count words in a line of text</td>
-<td><code>emit(word, 1)</code> for every word in the line</td>
+<td><code>emit(word, 1)</code> for every word</td>
 </tr>
 <tr class="even">
-<td>Total sales per region, given <code>region, productID, saleAmount</code> records</td>
+<td>Total sales per region, from <code>region, productID, saleAmount</code> records</td>
 <td><code>emit(region, saleAmount)</code></td>
 </tr>
 </tbody>
 </table>
-<p>Notice what’s the same in both: <strong>one input record in, one small (key, value) pair out</strong> — the mapper never looks at any other record, and never talks to any other machine. Exactly like your cluster tallying your own pile alone, Monday.</p>
+</div></div>
+<div class="fragment">
+<p>The same in both: <em>one record in, small (key, value) pairs out.</em> The mapper <em>never looks at another record</em> and <em>never talks to another machine</em> — just like tallying your own pile on Monday.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min (including the Think-about-it sub-slide).</strong> The point of showing three problems with the same shape is pattern transfer, since Lab 4 and CP3 both hand students a <em>new</em> extraction problem (email domains) they need to recognize as this same pattern.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -764,27 +788,18 @@ SI
 </div>
 </div>
 </div>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> Callout answer: <code>emit(status_code, 1)</code> — structurally identical to word count and the sales example, just a different field extracted. The point of showing three problems with the same shape is pattern transfer, since Lab 4 and CP3 both hand students a <em>new</em> extraction problem (email domains) they need to recognize as this same pattern.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="fragment">
+<p><strong>Answer:</strong> <code>emit(status_code, 1)</code> for every line. It’s word count again, with a different field pulled out of the record. The reducer then sums the 1s for each status code.</p>
+</div>
 </section>
 <section id="the-shufflesort-phase-the-frameworks-job" class="slide level2">
 <h2>The Shuffle/Sort Phase: The Framework’s Job</h2>
-<p>After every machine finishes its map phase, all the emitted (key, value) pairs need to end up grouped by key — every value for <code>"gmail.com"</code> in one place, every value for <code>"yahoo.com"</code> in another — <strong>regardless of which machine originally emitted them.</strong></p>
+<p>After every machine finishes its map phase, all the (key, value) pairs must end up <em>grouped by key</em> — every value for <code>"gmail.com"</code> in one place, every value for <code>"yahoo.com"</code> in another — <em>regardless of which machine emitted them.</em></p>
+<div class="fragment">
 <ul>
-<li>This is exactly Monday’s “carry your tally to whoever owns that key” step — except now it’s the <strong>framework</strong> doing the carrying, across a real network, not a student walking across a room.</li>
-<li><strong>You never write this step yourself.</strong> Hadoop and Spark both do shuffle/sort automatically — it’s the one phase of MapReduce with no function you implement.</li>
-<li>It’s also the one phase that costs real network transfer — same as Monday, where trips were the only real cost. Map and Reduce, like your cluster’s own tallying and summing, happen locally.</li>
+<li class="fragment">It’s Monday’s “carry your tally to whoever owns that key” step — except the <em>framework</em> does the carrying, across a real network.</li>
+<li class="fragment"><strong>You never write this step yourself.</strong> Hadoop and Spark do shuffle/sort <em>automatically</em> — it’s the one phase with no function you implement.</li>
+<li class="fragment">It’s also the one phase that costs <em>real network transfer</em>, just as trips were Monday’s only real cost. Map and Reduce happen <em>locally</em>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Emphasize “you never write this step” explicitly — CP3 only asks students to write map-phase output precisely because shuffle and reduce’s mechanics are the framework’s job, not something to hand-code.</p>
@@ -799,6 +814,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-reduce-phase-combine-each-group-into-one-answer" class="slide level2">
 <h2>The Reduce Phase: Combine Each Group Into One Answer</h2>
@@ -806,9 +822,10 @@ SI
 <pre><code>reduce(key, values):
     total = sum(values)
     emit(key, total)</code></pre>
+<div class="fragment">
 <ul>
-<li>This runs once <strong>per key</strong>, on whichever machine the shuffle phase sent that key’s values to — the same role as the one teammate on Monday who “owned” a suit or menu item and summed everything handed to them.</li>
-<li>Reduce doesn’t have to mean “sum” — it could compute a maximum, an average, a count of distinct values, anything that combines a list into one answer. Summing is just today’s example.</li>
+<li>It runs <em>once per key</em>, on whichever machine the shuffle sent that key’s values to — like the Monday teammate who “owned” a suit or menu item.</li>
+<li>Reduce doesn’t have to mean “sum”: it could be a <em>maximum, an average, a count of distinct values</em> — anything that combines a list into one answer.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Keep this brief — it’s the shortest of the three phase slides because it’s the most intuitive once Map and Shuffle are solid.</p>
@@ -823,23 +840,20 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="word-count-walkthrough" class="slide level2">
 <h2>Word Count Walkthrough</h2>
-<p>The classic “Hello World” of MapReduce — structurally identical to Monday’s activity, just counting words instead of suits or menu items.</p>
-<p><strong>Input:</strong></p>
+<p>The “Hello World” of MapReduce — Monday’s activity, counting words instead of suits or menu items.</p>
+<p><strong>Input</strong> (two lines, so two mappers):</p>
 <pre><code>the quick brown fox
 the fox jumped over the lazy dog</code></pre>
-<p><strong>Map phase</strong> (one mapper per line):</p>
+<div class="fragment">
+<p><strong>Map phase</strong> — each mapper emits <code>(word, 1)</code> for every word in its line:</p>
 <pre><code>(the,1) (quick,1) (brown,1) (fox,1)
 (the,1) (fox,1) (jumped,1) (over,1) (the,1) (lazy,1) (dog,1)</code></pre>
-<p><strong>Shuffle/Sort</strong> (grouped by key — the framework’s work, not yours):</p>
-<pre><code>(brown,[1])  (dog,[1])  (fox,[1,1])  (jumped,[1])
-(lazy,[1])   (over,[1]) (quick,[1])  (the,[1,1,1])</code></pre>
-<p><strong>Reduce phase</strong> (sum each list):</p>
-<pre><code>(brown,1) (dog,1) (fox,2) (jumped,1) (lazy,1) (over,1) (quick,1) (the,3)</code></pre>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> Walk this top to bottom, pointing explicitly at which line is Map, which is Shuffle, which is Reduce — this is the exact shape CP3 and Lab 4’s email-domain problem reuse.</p>
+<p><strong>Timing: 5 min (both sub-slides).</strong> Walk this top to bottom, pointing explicitly at which line is Map, which is Shuffle, which is Reduce — this is the exact shape CP3 and Lab 4’s email-domain problem reuse. Before revealing each step, ask the room to predict it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -851,6 +865,20 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Shuffle/Sort</strong> — grouped by key (the framework’s work, not yours):</p>
+<pre><code>(brown,[1])  (dog,[1])  (fox,[1,1])  (jumped,[1])
+(lazy,[1])   (over,[1]) (quick,[1])  (the,[1,1,1])</code></pre>
+<div class="fragment">
+<p><strong>Reduce phase</strong> — sum each list:</p>
+<pre><code>(brown,1) (dog,1) (fox,2) (jumped,1) (lazy,1) (over,1) (quick,1) (the,3)</code></pre>
+</div>
+<div class="fragment">
+<p><code>the</code> came from <em>both</em> mappers, but only <em>one</em> reducer sees all three of its 1s. That’s the shuffle’s whole job.</p>
+</div>
 </section>
 <section id="pause-discuss-average-not-count" class="slide level2">
 <h2>Pause &amp; Discuss: Average, Not Count</h2>
@@ -874,12 +902,7 @@ the fox jumped over the lazy dog</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><code>map</code>: <code>emit(movieId, rating)</code>. Same shape as word count and sales-per-region.</li>
-<li><code>reduce</code>: <code>emit(movieId, sum(values) / len(values))</code>. In the example, movie 31 gets <code>[2.5, 4.0]</code> → <code>3.25</code>.</li>
-<li><strong>Follow-up: no.</strong> Averaging averages is wrong whenever the groups are different sizes. Say machine 1 has movie 31’s ratings <code>[5, 5, 5, 5]</code> (average 5) and machine 2 has <code>[1]</code> (average 1). The average of averages is 3, but the true average is 16 / 5 = 3.2. <strong>Fix:</strong> each machine sends a <code>(sum, count)</code> pair per movie, and the reducer adds up the sums and counts and divides once at the end. Sums and counts can be combined early; averages can’t. Spark’s <code>avg()</code> (Module 4) does exactly this for you.</li>
-</ul>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.</p>
 <p>This sets up the next slide: the teammate’s instinct (shrink what crosses the network) is right. Only the math was wrong.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -893,15 +916,77 @@ the fox jumped over the lazy dog</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<h3 id="answer">Answer</h3>
+<ul>
+<li><strong><code>map</code>:</strong> <code>emit(movieId, rating)</code> — same shape as word count and sales-per-region.</li>
+<li><strong><code>reduce</code>:</strong> <code>emit(movieId, sum(values) / len(values))</code>. Movie 31 gets <code>[2.5, 4.0]</code> → <code>3.25</code>.</li>
+</ul>
+<p>. . .</p>
+<p><strong>Follow-up: no.</strong> Averaging averages is wrong whenever the groups are <em>different sizes</em>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Movie 31’s ratings</th>
+<th>Local average</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Machine 1</td>
+<td><code>[5, 5, 5, 5]</code></td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>Machine 2</td>
+<td><code>[1]</code></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Average of averages = (5 + 1) / 2 = <strong>3</strong>. True average = 21 / 5 = <strong>4.2</strong>.</p>
+<p>. . .</p>
+<p><strong>Fix:</strong> each machine sends a <em><code>(sum, count)</code> pair</em> per movie — here <code>(20, 4)</code> and <code>(1, 1)</code>. The reducer adds them, <code>(21, 5)</code>, and <em>divides once at the end</em>. Sums and counts can be combined early; averages can’t. Spark’s <code>avg()</code> (Module 4) does exactly this for you.</p>
+</section>
 <section id="why-this-scales" class="slide level2">
 <h2>Why This Scales</h2>
-<p>Module 2 put it this way: <em>“a distributed system grows by adding more machines, not by buying an impossibly bigger one.”</em> That’s called <strong>scaling out</strong> (add more machines) as opposed to <strong>scaling up</strong> (buy one bigger machine) — MapReduce is the mechanism that makes scaling out actually work for processing, not just storage.</p>
+<p>Module 2 put it this way: <em>“a distributed system grows by adding more machines, not by buying an impossibly bigger one.”</em></p>
 <ul>
-<li><strong>Map tasks run in parallel</strong>, one per input chunk — on a real cluster, ideally on the same machine that already holds that chunk of data. This is called <strong>data locality</strong>: compute goes <em>to</em> the data, not data to the compute. Kitchen picture: send the recipe to the branch that already has the ingredients, don’t ship the ingredients to one central kitchen.</li>
-<li><strong>Reduce tasks also run in parallel</strong>, one per key (or range of keys).</li>
-<li><strong>Only shuffle moves data across the network</strong> — exactly the one phase that cost a trip on Monday. Everything else happens locally, at the same time, on every machine.</li>
-<li>Adding a 21st machine to a MapReduce cluster doesn’t require rewriting <code>map()</code> or <code>reduce()</code> — it just means one more machine’s worth of chunks processed in parallel. That’s what “scaling out” buys you: capacity grows by adding machines, with the same code.</li>
+<li><strong>Scaling out:</strong> add <em>more machines</em>.</li>
+<li><strong>Scaling up:</strong> buy <em>one bigger machine</em>.</li>
 </ul>
+<p>MapReduce is the mechanism that makes scaling out work for <em>processing</em>, not just storage.</p>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>Map tasks run in parallel</strong>, one per input chunk.</li>
+<li class="fragment"><strong>Reduce tasks also run in parallel</strong>, one per key (or range of keys).</li>
+<li class="fragment"><strong>Only shuffle moves data across the network</strong> — the one phase that cost a trip on Monday.</li>
+<li class="fragment">Adding one more machine <em>doesn’t require rewriting</em> <code>map()</code> or <code>reduce()</code> — it’s one more machine’s worth of chunks processed in parallel. <em>Same code, more capacity.</em></li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min (both sub-slides).</strong> The scale-up/scale-out distinction isn’t tested by any checkpoint, quiz, or exam — it’s here only so the slide’s own title (“scales”) is earned by a definition rather than assumed. Don’t spend more than a sentence on it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="data-locality-move-the-computation-not-the-data">Data locality: move the computation, not the data</h3>
+<p>On a real cluster, each map task runs <em>on the same machine that already holds its chunk</em> of data. This is called <strong>data locality</strong>: compute goes <em>to</em> the data, not data to the compute.</p>
+<p>. . .</p>
+<p><strong>Kitchen picture:</strong> send the recipe to the branch that <em>already has the ingredients</em> — don’t ship the ingredients to one central kitchen.</p>
+<p>. . .</p>
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -916,7 +1001,7 @@ the fox jumped over the lazy dog</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The callout is the payoff of the whole activity — say explicitly that “data locality” is the formal name for the exact efficiency idea their best Round 2 strategy already discovered. The scale-up/scale-out distinction isn’t tested by any checkpoint, quiz, or exam — it’s here only so the slide’s own title (“scales”) is earned by a definition rather than assumed. Don’t spend more than a sentence on it.</p>
+<p>The callout is the payoff of the whole activity — say explicitly that “data locality” is the formal name for the exact efficiency idea their best Round 2 strategy already discovered.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -933,11 +1018,12 @@ the fox jumped over the lazy dog</code></pre>
 <h2>What the Framework Handles For You</h2>
 <p>Beyond running Map, Shuffle, and Reduce, Hadoop and Spark both handle a list of things you never have to code yourself:</p>
 <ul>
-<li><strong>Task scheduling</strong> — deciding which machine runs which chunk</li>
-<li><strong>Fault tolerance</strong> — if a machine dies mid-job, its work gets reassigned and re-run elsewhere</li>
-<li><strong>Retries</strong> — a failed task is retried automatically, not left broken</li>
-<li><strong>Progress tracking</strong> — reporting how much of the job is done</li>
+<li class="fragment"><strong>Task scheduling</strong> — deciding which machine runs which chunk</li>
+<li class="fragment"><strong>Fault tolerance</strong> — if a machine dies mid-job, its work gets reassigned and re-run elsewhere</li>
+<li class="fragment"><strong>Retries</strong> — a failed task is retried automatically, not left broken</li>
+<li class="fragment"><strong>Progress tracking</strong> — reporting how much of the job is done</li>
 </ul>
+<div class="fragment">
 <p>You write <code>map()</code> and <code>reduce()</code>. The framework does everything else — a big part of why MapReduce was such a breakthrough in 2004.</p>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Keep brief — this is context for <em>why</em> the abstraction is valuable, not testable detail.</p>
@@ -952,11 +1038,17 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="checkpoint-3-preview" class="slide level2">
 <h2>Checkpoint 3 Preview</h2>
 <p><strong>CP3 (last 15 minutes of today’s session):</strong> given a <code>map()</code> function and an input dataset, write the map-phase output.</p>
-<p>Review before you start: - What the mapper receives (key = line offset, value = line content) - What it must emit — (key, value) pairs, same shape as the sales-per-region and status-code examples from earlier in this session - How to extract the relevant field from each record (e.g.&nbsp;email domain, word, timestamp)</p>
+<p>Review before you start:</p>
+<ul>
+<li>What the mapper receives (<em>key = line offset, value = line content</em>)</li>
+<li>What it must emit — <em>(key, value) pairs</em>, same shape as the sales-per-region and status-code examples from earlier in this session</li>
+<li>How to <em>extract the relevant field</em> from each record (e.g.&nbsp;email domain, word, timestamp)</li>
+</ul>
 <aside class="notes">
 <p><strong>Timing: 3 min for this review slide — the 15-min checkpoint itself follows separately.</strong> See <code>checkpoints/checkpoint_03.md</code> for the exact graded scenario (email-domain counting) — don’t preview its specific email list before students start.</p>
 <style type="text/css">
@@ -1063,7 +1155,7 @@ the fox jumped over the lazy dog</code></pre>
 </tr>
 </tbody>
 </table>
-<p>12 slides, ~42 min, with room to spare — there’s no timed checkpoint today, so let discussion run a little if a good question comes up. <strong>Oct 12 (the Monday before this) is Fall Reading Days — this is the only session that covers HDFS, YARN, <em>and</em> midterm review, since there’s no other lecture day this week.</strong> Don’t let YARN eat time meant for HDFS or the midterm checklist: only C3.3 (“use HDFS commands… run a job on a Hadoop cluster”) is competency-tested — YARN internals are context, not a graded target, so keep that slide brief on purpose.</p>
+<p>13 slides, ~46 min — there’s no timed checkpoint today, but only a few minutes of slack, so let discussion run only if a good question comes up. <strong>Oct 12 (the Monday before this) is Fall Reading Days — this is the only session that covers HDFS, YARN, <em>and</em> midterm review, since there’s no other lecture day this week.</strong> Don’t let YARN eat time meant for HDFS or the midterm checklist: only C3.3 (“use HDFS commands… run a job on a Hadoop cluster”) is competency-tested — YARN internals are context, not a graded target, so keep that slide brief on purpose.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1078,7 +1170,14 @@ the fox jumped over the lazy dog</code></pre>
 </section>
 <section id="recap-from-how-to-where" class="slide level2">
 <h2>Recap: From “How” to “Where”</h2>
-<p>Monday and Wednesday gave you MapReduce — the <em>program</em> that processes big data, split into Map, Shuffle, and Reduce. But every one of those tasks has to run <strong>somewhere</strong>, reading a file that has to <strong>live somewhere</strong>. Today: the file system that stores it (HDFS), and the software that decides which machine runs which task (YARN) — the two real pieces underneath what Lab 4 only simulated in local mode, and what Lab 5 runs for real this Friday.</p>
+<p>Last week gave you MapReduce — the <em>program</em> that processes big data, split into Map, Shuffle, and Reduce.</p>
+<div class="fragment">
+<p>But every one of those tasks has to run <strong>somewhere</strong>, reading a file that has to <strong>live somewhere</strong>. Today:</p>
+<ul>
+<li><strong>HDFS</strong> — the file system that <em>stores</em> the data</li>
+<li><strong>YARN</strong> — the software that decides <em>which machine runs which task</em></li>
+</ul>
+<p>These are the two real pieces underneath what Lab 4 only simulated in local mode, and what Lab 5 runs for real this Friday.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Say explicitly: “Lab 4 ran without HDFS or YARN at all — that was deliberate, so you could focus on the Mapper/Reducer code first. Today fills in the two pieces Lab 4 skipped.”</p>
 <style type="text/css">
@@ -1092,18 +1191,20 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="why-not-just-a-regular-file-system" class="slide level2">
 <h2>Why Not Just a Regular File System?</h2>
 <p>A regular file system — the one on your laptop — lives on <strong>one machine’s one disk.</strong></p>
 <ul>
-<li>Its size is capped by that one disk, no matter how the rest of the data grows.</li>
-<li>If that one disk fails, everything on it is gone — no backup, nothing to fall back on.</li>
-<li>Only one machine can read it at a time — no way to spread the reading work across many machines.</li>
+<li class="fragment">Its size is <em>capped by that one disk</em>, no matter how the data grows.</li>
+<li class="fragment">If that disk fails, everything on it is <em>gone</em> — nothing to fall back on.</li>
+<li class="fragment">All reading goes <em>through that one machine and its one disk</em> — no way to spread the reading work across many machines.</li>
 </ul>
-<p><strong>HDFS (Hadoop Distributed File System)</strong> splits a file into pieces and spreads those pieces — <em>plus duplicate copies</em> — across many machines’ disks. The file can now be bigger than any single disk, survives a disk failure, and can be read by many machines at once, in parallel. This is the same <strong>scaling out</strong> idea from Wednesday — now applied to <em>storage</em>, not computation.</p>
+<div class="fragment">
+<p><strong>HDFS (Hadoop Distributed File System)</strong> splits a file into pieces and spreads those pieces — <em>plus duplicate copies</em> — across many machines’ disks. The file can now be <em>bigger than any single disk</em>, <em>survives a disk failure</em>, and can be <em>read by many machines at once</em>. It’s the same <strong>scaling out</strong> idea from last Wednesday, now applied to <em>storage</em>.</p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> One-sentence callback to Wednesday’s scale-up/scale-out beat is enough — don’t re-derive it, just point at it: “same idea, different resource.”</p>
+<p><strong>Timing: 4 min.</strong> One-sentence callback to last Wednesday’s scale-up/scale-out beat is enough — don’t re-derive it, just point at it: “same idea, different resource.”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1115,22 +1216,24 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="hdfs-blocks-replication" class="slide level2">
 <h2>HDFS Blocks + Replication</h2>
 <ul>
-<li>HDFS splits a file into fixed-size <strong>blocks</strong> (default 128 MB) — a large file becomes many blocks, scattered across many machines.</li>
-<li>Each block is stored on <strong>3 machines</strong>, not one (<strong>replication factor = 3</strong>).</li>
-<li>Kitchen picture: like stocking the same popular ingredient at 3 different branches, so one branch’s fridge breaking down doesn’t mean the whole company runs out of it.</li>
-<li>This is a <strong>first, simpler taste</strong> of the replication idea — Module 5 covers the full version, including <em>why</em> 3 copies, consistency between them, and what happens when one goes stale. For now: 3 copies, automatic, so no single block is a single point of failure.</li>
+<li class="fragment">HDFS splits a file into fixed-size <strong>blocks</strong> (default <em>128 MB</em>) — a large file becomes many blocks, <em>scattered across many machines</em>.</li>
+<li class="fragment">Each block is stored on <strong>3 machines</strong>, not one (<strong>replication factor = 3</strong>).</li>
+<li class="fragment"><strong>Kitchen picture:</strong> stocking the same popular ingredient at <em>3 different branches</em>, so one branch’s fridge breaking down doesn’t mean the company runs out.</li>
 </ul>
-<pre><code>ratings.csv (say, 500 MB) → split into 4 blocks of ~128 MB each
+<div class="fragment">
+<pre><code>ratings.csv (say, 500 MB) → 4 blocks: three full 128 MB blocks + one 116 MB block
   Block 1 → stored on Machine A, Machine C, Machine E
   Block 2 → stored on Machine B, Machine D, Machine A
   Block 3 → stored on Machine C, Machine E, Machine B
   Block 4 → stored on Machine D, Machine A, Machine C</code></pre>
+<p>Each block’s 3 copies are on <em>3 different machines</em>. (The last block only uses as much disk as it needs.)</p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The block-placement example is illustrative, not something to test — the point is “different blocks can land on different machines, and each one is triplicated,” not the exact placement algorithm.</p>
+<p><strong>Timing: 4 min (both sub-slides).</strong> The block-placement example is illustrative, not something to test — the point is “different blocks can land on different machines, and each one is triplicated,” not the exact placement algorithm.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1142,30 +1245,37 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="hdfs-architecture-the-address-book-again" class="slide level2">
-<h2>HDFS Architecture: The Address Book, Again</h2>
-<p>Module 2 gave you DNS: the internet’s address book, translating a human-readable name into a numeric address before your browser could even connect. HDFS has the <strong>exact same shape of problem</strong> — given a filename, which machines actually hold its blocks?</p>
-<ul>
-<li>The <strong>NameNode</strong> is HDFS’s version of that address book — it tracks which blocks belong to which file, and which machines hold each block. It does <strong>not</strong> store any of the actual file data itself.</li>
-<li><strong>DataNodes</strong> are the machines that store the real block data.</li>
-<li>To read a file: the client asks the NameNode “where are this file’s blocks?”, the NameNode replies with a list of DataNode locations, and the client then reads the blocks <strong>directly</strong> from those DataNodes — the NameNode itself never touches the actual data.</li>
-</ul>
+<section class="slide level2">
+
+<p>This is a <strong>first, simpler taste</strong> of replication. Module 5 covers the full version: <em>why</em> 3 copies, keeping copies <em>consistent</em>, and what happens when one goes <em>stale</em>. For now: 3 copies, automatic, so no single block is a single point of failure.</p>
+<div class="fragment">
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
+<p><strong>On our classroom server</strong></p>
 </div>
 <div class="callout-content">
-<p>A client icon on the left. An arrow labeled “1. Where are ratings.csv’s blocks?” pointing to a central “NameNode” icon (drawn like an address-book/directory icon, visually matching Module 2’s DNS diagram style). A return arrow labeled “2. Blocks 1–4 are on Machines A, B, C…” pointing back to the client. Then separate direct arrows labeled “3. Read block data” from the client straight to 3–4 “DataNode” icons (plain server/disk icons) — these arrows should visually bypass the NameNode entirely, making clear the NameNode only answers the lookup, it doesn’t relay any data itself. Caption: “Same shape as DNS: ask the address book, then go straight to the real thing.”</p>
+<p>The classroom Hadoop cluster is <em>one machine</em>, so it’s configured with <strong>replication factor 1</strong> — there’s nowhere else to put a second copy. In Lab 5, <code>hdfs dfs -ls</code> will show <code>1</code> where a real cluster shows <code>3</code>.</p>
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="hdfs-architecture-the-address-book-again" class="slide level2">
+<h2>HDFS Architecture: The Address Book, Again</h2>
+<p>Module 2 gave you DNS: the internet’s address book, translating a name into an address before your browser could connect. HDFS has the <strong>same shape of problem</strong> — given a filename, which machines hold its blocks?</p>
+<div class="fragment">
+<ul>
+<li class="fragment">The <strong>NameNode</strong> is HDFS’s address book: it tracks <em>which blocks belong to which file</em>, and <em>which machines hold each block</em>. It does <strong>not</strong> store any file data itself.</li>
+<li class="fragment"><strong>DataNodes</strong> are the machines that <em>store the real block data</em>.</li>
+</ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The “NameNode never touches the actual data” point is the one most worth stating explicitly and slowly — it’s the detail students most often get backwards, assuming the NameNode is a relay rather than a lookup service.</p>
+<p><strong>Timing: 4 min (both sub-slides).</strong> The “NameNode never touches the actual data” point is the one most worth stating explicitly and slowly — it’s the detail students most often get backwards, assuming the NameNode is a relay rather than a lookup service.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1177,6 +1287,13 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="reading-a-file-from-hdfs">Reading a file from HDFS</h3>
+
+<img data-src="diags/03-hdfs-read.svg" alt="A Client box on the left, a NameNode box labeled &quot;(address book)&quot; at the top, and four DataNode boxes labeled A, B, C, D on the right. Step 1: an arrow from the Client to the NameNode labeled &quot;1. Where are the blocks of ratings.csv?&quot;. Step 2: a dashed arrow back from the NameNode to the Client labeled &quot;2. Block 1: A, C, E; Block 2: B, D, A ...&quot;. Step 3: two thick arrows go from the Client straight to DataNode A and DataNode B, bypassing the NameNode, labeled &quot;3. Read block data directly&quot;. Caption: &quot;Ask the address book, then go straight to the data. The NameNode never touches the file's bytes.&quot;" width="560" class="r-stretch"><p>The client reads blocks <em>directly from the DataNodes</em>. The NameNode only answers the lookup.</p>
 </section>
 <section id="hdfs-commands-demo" class="slide level2">
 <h2>HDFS Commands Demo</h2>
@@ -1185,12 +1302,13 @@ hdfs dfs -ls /user/alice/                 # list files in an HDFS directory
 hdfs dfs -cat /user/alice/ratings.csv     # read a file's contents
 hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code></pre>
 <ul>
-<li><code>-put</code> and <code>-get</code> are opposites: local-to-HDFS, and HDFS-to-local.</li>
-<li><code>-ls</code> and <code>-cat</code> mirror the everyday Unix commands you already know, just pointed at HDFS instead of your local disk.</li>
-<li>This <code>-put</code> command is not a hypothetical — it’s the literal first step of Week 1’s Pipeline diagram, and the exact command Lab 10 has you run on <code>ratings.csv</code> and <code>movies.csv</code> for the capstone.</li>
+<li class="fragment"><code>-put</code> and <code>-get</code> are opposites: <em>local → HDFS</em>, and <em>HDFS → local</em>.</li>
+<li class="fragment"><code>-ls</code> and <code>-cat</code> mirror the <em>everyday Unix commands</em>, just pointed at HDFS instead of your disk.</li>
+<li class="fragment">This <code>-put</code> is the <em>literal first step</em> of Week 1’s pipeline diagram — Lab 10 has you run it on <code>ratings.csv</code> and <code>movies.csv</code> for the capstone.</li>
 </ul>
+<p>In the labs, replace <code>alice</code> with <em>your own username</em>: <code>/user/&lt;your-username&gt;/</code>.</p>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> Actually run these four commands live against the classroom cluster if possible, on a small throwaway file — seeing real output (a real file listing, real file contents) lands better than reading the commands off a slide.</p>
+<p><strong>Timing: 5 min (both sub-slides).</strong> Actually run these four commands live against the classroom cluster if possible, on a small throwaway file — seeing real output lands better than reading the commands off a slide. The next sub-slide shows the output for students reviewing later.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1203,13 +1321,32 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<h3 id="what-the-output-looks-like">What the output looks like</h3>
+<pre><code>$ hdfs dfs -ls /user/alice/
+Found 1 items
+-rw-r--r--   3 alice supergroup    2483723 2026-10-14 10:02 /user/alice/ratings.csv</code></pre>
+<p>. . .</p>
+<ul>
+<li>The <code>3</code> is the file’s <em>replication factor</em> (on the classroom server you’ll see <code>1</code>).</li>
+<li><code>2483723</code> is the size in bytes (about 2.4 MB — the MovieLens sample you’ll use in the capstone).</li>
+</ul>
+<p>. . .</p>
+<pre><code>$ hdfs dfs -cat /user/alice/ratings.csv | head -4
+userId,movieId,rating,timestamp
+1,1,4.0,964982703
+1,3,4.0,964981247
+1,6,4.0,964982224</code></pre>
+<p><code>-cat</code> prints the whole file; piping it to <code>head</code> shows just the first lines.</p>
+</section>
 <section id="hdfs-design-principles" class="slide level2">
 <h2>HDFS Design Principles</h2>
 <ul>
-<li><strong>Write once, read many</strong> — files aren’t modified after writing; you write a file once, then only ever read it (or replace it entirely) afterward.</li>
-<li><strong>Data locality</strong> — the same idea from Wednesday: MapReduce runs map tasks on the same machine that already holds the data block being processed.</li>
-<li><strong>Fault tolerance</strong> — if a DataNode fails, its blocks are automatically re-replicated elsewhere from the remaining copies, restoring the replication factor of 3.</li>
-<li><strong>Not good for:</strong> small files (overhead per file is high), low-latency access (built for throughput, not speed-of-single-lookup), or random writes (write-once-read-many, remember).</li>
+<li class="fragment"><strong>Write once, read many</strong> — files <em>aren’t modified after writing</em>; you write a file once, then only read it (or replace it entirely).</li>
+<li class="fragment"><strong>Data locality</strong> — same idea as last Wednesday: map tasks run <em>on the machine that already holds</em> the block being processed.</li>
+<li class="fragment"><strong>Fault tolerance</strong> — if a DataNode fails, its blocks are <em>automatically re-replicated</em> from the remaining copies, restoring the replication factor of 3.</li>
+<li class="fragment"><strong>Not good for:</strong> <em>small files</em> (high overhead per file), <em>low-latency access</em> (built for throughput, not single lookups), or <em>random writes</em> (write once, remember).</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> HDFS was designed for exactly the workload MapReduce produces — large, sequential reads of immutable files. It’s a poor choice for transactional workloads (that’s what Module 5’s databases are for) — worth saying explicitly, since students may otherwise wonder why the capstone uses <em>both</em> HDFS and MongoDB instead of just one.</p>
@@ -1244,12 +1381,7 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>(a)</strong> 1024 / 128 = <strong>8 blocks</strong>. With 3 copies each, that’s 24 block copies, about <strong>3 GB</strong> of raw disk.</li>
-<li><strong>(b)</strong> Nothing is lost. Every block on the dead node still has 2 copies elsewhere. HDFS notices the node has gone silent and re-replicates its blocks from the surviving copies until each block is back to 3 (the Design Principles slide). Data is only lost if all 3 holders of the same block die before re-replication finishes.</li>
-<li><strong>(c)</strong> No.&nbsp;Every byte is still on the DataNodes, but nothing knows which blocks make up which file, or where they are. The address book is gone. In a basic setup that makes the NameNode a <strong>single point of failure</strong>, and production clusters run a standby NameNode to take over. Compare DNS: when DNS is down, every website still exists, but you can’t find any of them.</li>
-</ul>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide; reveal them one part at a time after discussion.</p>
 <p>Part (c) sets up Module 5 Session 1’s single-point-of-failure slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1263,29 +1395,25 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<h3 id="answers">Answers</h3>
+<p><strong>(a)</strong> 1024 MB ÷ 128 MB = <strong>8 blocks</strong>. With 3 copies each, that’s 24 block copies — about <strong>3 GB</strong> of raw disk.</p>
+<p>. . .</p>
+<p><strong>(b)</strong> <em>Nothing is lost.</em> Every block on the dead node still has 2 copies elsewhere. HDFS notices the node has gone silent and <em>re-replicates</em> its blocks from the surviving copies until each is back to 3. Data is lost only if <em>all 3 holders</em> of the same block die before that finishes.</p>
+<p>. . .</p>
+<p><strong>(c)</strong> <em>No.</em> Every byte is still on the DataNodes, but nothing knows which blocks make up which file, or where they are — the address book is gone. That makes a lone NameNode a <strong>single point of failure</strong>, so production clusters run a <em>standby NameNode</em> to take over. (Compare DNS: when it’s down, every website still exists, but you can’t find any of them.)</p>
+</section>
 <section id="yarn-who-actually-runs-the-job" class="slide level2">
 <h2>YARN: Who Actually Runs the Job?</h2>
 <p>HDFS answers “where does the data live.” <strong>YARN</strong> (Yet Another Resource Negotiator) answers “which machine actually runs each Map or Reduce task, and who’s keeping track?”</p>
 <ul>
-<li><strong>ResourceManager</strong> — the whole branch network’s dispatcher: one per cluster, deciding which worker machine handles a newly submitted job.</li>
-<li><strong>NodeManager</strong> — each branch’s own on-site manager: one per worker machine, actually running whatever tasks get assigned to that machine.</li>
-<li><strong>ApplicationMaster</strong> — a coordinator dispatched specifically for <strong>one job</strong>: tracks that job’s progress across whichever workers are running its tasks. One ApplicationMaster per job, not one for the whole cluster.</li>
+<li class="fragment"><strong>ResourceManager</strong> — the branch network’s <em>dispatcher</em>: <em>one per cluster</em>, handing out room on worker machines (CPU and memory) to the jobs that need it.</li>
+<li class="fragment"><strong>NodeManager</strong> — each branch’s <em>on-site manager</em>: <em>one per worker machine</em>, actually running the tasks assigned to that machine.</li>
+<li class="fragment"><strong>ApplicationMaster</strong> — a coordinator for <em>one job only</em>: it requests room from the ResourceManager and <em>tracks that job’s tasks</em> across whichever workers run them.</li>
 </ul>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>A client icon submitting a job (arrow labeled “hadoop jar … job”) to a single “ResourceManager” icon at the top. The ResourceManager fans out to 3 “NodeManager” icons, one per worker machine, each drawn next to a small server/disk icon labeled “runs Map/Reduce tasks here.” Keep this diagram visually separate from the HDFS NameNode/DataNode diagram two slides back — same three worker machines can appear in both, but the arrows and roles are different, and drawing them as one combined diagram is exactly the confusion this split is meant to avoid.</p>
-</div>
-</div>
-</div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Keep this the lightest new-content slide of the session — YARN internals aren’t competency-tested, this exists so “run a MapReduce job on a Hadoop cluster” (C3.3) has a name attached to what’s actually happening, not to be memorized role-by-role.</p>
+<p><strong>Timing: 4 min (both sub-slides).</strong> Keep this the lightest new-content slide of the session — YARN internals aren’t competency-tested, this exists so “run a MapReduce job on a Hadoop cluster” (C3.3) has a name attached to what’s actually happening, not to be memorized role-by-role. The diagram on the next sub-slide is deliberately separate from the HDFS read diagram: the same worker machines appear in both, but the roles and arrows are different.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1298,6 +1426,11 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<h3 id="one-job-step-by-step">One job, step by step</h3>
+
+<img data-src="diags/03-yarn.svg" alt="A Client box sends an arrow labeled &quot;1. submit job&quot; to a ResourceManager box labeled &quot;(one per cluster)&quot;. The ResourceManager has three arrows labeled &quot;2. hand out room to run tasks&quot; going down to three large boxes: &quot;Worker 1: NodeManager&quot;, &quot;Worker 2: NodeManager&quot;, &quot;Worker 3: NodeManager&quot;. Worker 1 holds a yellow &quot;ApplicationMaster (this job only)&quot; box and one Map task. Worker 2 holds two Map tasks. Worker 3 holds one Map task and one Reduce task. Dashed lines from the ApplicationMaster connect to every task, labeled &quot;3. tracks progress&quot;. Caption: &quot;YARN decides WHERE tasks run. (HDFS decides where data lives.)&quot;" width="820" class="r-stretch"></section>
 <section id="a-mapreduce-job-in-practice" class="slide level2">
 <h2>A MapReduce Job in Practice</h2>
 <p>The output directory of a completed Hadoop MapReduce job:</p>
@@ -1305,8 +1438,9 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
   _SUCCESS          ← empty file, signals the job completed successfully
   part-r-00000      ← actual output (one file per reducer)
   part-r-00001      ← (if 2 reducers were used)</code></pre>
+<div class="fragment">
 <ul>
-<li><strong>Never overwrite</strong> an existing output directory — Hadoop refuses, specifically to prevent accidental data loss. You’ll see this exact error in Lab 5 if you forget to clean up first.</li>
+<li>Hadoop <strong>never overwrites</strong> an existing output directory — it <em>refuses to run</em>, specifically to prevent accidental data loss. You’ll see this exact error in Lab 5 if you forget to clean up.</li>
 <li>Delete it yourself before re-running: <code>hdfs dfs -rm -r /output</code></li>
 </ul>
 <aside class="notes">
@@ -1322,16 +1456,18 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="from-mapreduce-to-spark" class="slide level2">
 <h2>From MapReduce to Spark</h2>
 <p>MapReduce already gets you scaling out for processing — but it has real limitations:</p>
 <ul>
-<li>Every job writes its intermediate results to <strong>disk</strong>, even between steps of the same pipeline — slow for anything iterative.</li>
-<li>The Mapper/Reducer API is low-level and verbose — hard to express a multi-step pipeline cleanly.</li>
-<li>No support for interactive, ask-a-question-and-wait-seconds-for-an-answer queries.</li>
+<li class="fragment">Every job writes its intermediate results <em>to disk</em>, even between steps of the same pipeline — <em>slow for anything iterative</em>.</li>
+<li class="fragment">The Mapper/Reducer API is <em>low-level and verbose</em> — hard to express a multi-step pipeline cleanly.</li>
+<li class="fragment">No support for <em>interactive</em> ask-a-question-and-get-an-answer-in-seconds queries.</li>
 </ul>
-<p><strong>Spark</strong> (2009, Berkeley AMPLab) keeps intermediate data <strong>in memory</strong> instead of writing it to disk between steps — 10–100× faster for iterative workloads. Same scaling-out idea as MapReduce; Module 4 is about doing it faster.</p>
+<div class="fragment">
+<p><strong>Spark</strong> (2009, UC Berkeley) keeps intermediate data <strong>in memory</strong> instead of writing it to disk between steps — 10–100× faster for iterative workloads. Same scaling-out idea as MapReduce; Module 4 is about doing it faster.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Keep the framing “same idea, faster mechanism” rather than “MapReduce is obsolete” — Hadoop/HDFS is still the storage layer under Spark in this course’s own pipeline.</p>
 <style type="text/css">
@@ -1345,6 +1481,7 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="lab-5-preview" class="slide level2">
 <h2>Lab 5 Preview</h2>
@@ -1355,6 +1492,7 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
 <li>Inspect output with <code>hdfs dfs -cat</code></li>
 <li>Answer questions about HDFS block replication and job output structure</li>
 </ul>
+<p><strong>Quiz 3</strong> (Module 3 — Big Data &amp; MapReduce) runs in the last 10–15 minutes of Friday’s lab.</p>
 <p><em>(EL3 — Python self-study module 2 — is due Oct 23, the day of Lab 6 and Quiz 4.)</em></p>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Quick logistics only — today’s commands demo already covered everything Lab 5 needs mechanically.</p>
@@ -1450,10 +1588,14 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
 <td>Add more machines, same code — vs.&nbsp;scaling up (one bigger machine)</td>
 </tr>
 <tr class="even">
+<td>Data locality</td>
+<td>Run the computation where the data already is — move code, not data</td>
+</tr>
+<tr class="odd">
 <td>HDFS</td>
 <td>Distributed file system: blocks + replication (×3) + NameNode/DataNode</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>YARN</td>
 <td>Schedules and runs jobs across the cluster: ResourceManager/NodeManager/ApplicationMaster</td>
 </tr>
@@ -1461,7 +1603,7 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
 </table>
 <p><strong>Connects to:</strong> Lab 4, Lab 5, Checkpoint 3, Quiz 3, Midterm Q25–Q35</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Close with the Midterm date one more time (Mon Oct 19) and remind students Oct 12 has no class — Monday’s exam is the very next session after today.</p>
+<p><strong>Timing: 3 min.</strong> Close with the Midterm date one more time (Mon Oct 19). Friday is Lab 5 + Quiz 3, so Monday’s exam is the very next <em>lecture</em> session after today.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
