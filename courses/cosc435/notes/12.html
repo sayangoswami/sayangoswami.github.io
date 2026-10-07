@@ -9,7 +9,7 @@
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.9.36">
 
-  <title>Class Notes – Module 3: Kernel Development &amp; Profiling</title>
+  <title>Class Notes – Profiling GPU Kernels</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -199,385 +199,19 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Module 3: Kernel Development &amp; Profiling</h1>
-  <p class="subtitle">Design Patterns, Timing, and Stencils — COSC 435</p>
+  <h1 class="title">Profiling GPU Kernels</h1>
+  <p class="subtitle">Module 3: Kernel Development &amp; Profiling</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section class="slide level2">
-
-<!--
-INSTRUCTOR NOTES
-================
-PROMOTED this session (full rewrite). This deck was previously titled "GPU
-Memory & Timing" and covered memory hierarchy + memory coalescing + Amdahl's
-Law + a timing-methodology section — but per schedule.md, Module 3's actual
-three lecture topics are (1) kernel design patterns & debugging (Oct 5),
-(2) profiling GPU kernels (Oct 7), and (3) stencil kernels (Oct 14). Memory
-hierarchy duplicated Module 2's Sep 28 session (removed — that's the
-canonical location). Memory coalescing isn't Module 3 content at all — it's
-Module 4's Oct 21 topic ("intro to memory coalescing"), paired with CK-08;
-that content has been MOVED to slides/module04-shared-memory-tiling.qmd as a
-new dated session there, not deleted. This resolves the module03/module04
-content-boundary issue flagged (and deferred) in earlier promotion passes.
-
-Timing methodology (wrong vs. right way to time a kernel) and Amdahl's Law
-are both genuinely Module 3 content — timing fits Oct 7's "Colab timing"
-sub-topic directly, and Amdahl's Law was promised in Module 1 ("we'll derive
-this properly in Module 3") and is EL-03's subject (due Oct 18, the day
-before the midterm) — both kept and promoted in place.
-
-New content added to close real gaps: kernel design patterns, debugging
-Numba CUDA code in Colab (Oct 5 — previously had zero slide material
-anywhere), reading a profiler-style table (Oct 7, matches CK-06 directly),
-and stencil kernels / boundary conditions (Oct 14 — previously had zero
-slide material anywhere, despite being a full lecture + lab + checkpoint).
-
-AUDIT PASS 2026-10-07 (slide-audit): split crowded slides into sub-slides /
-columns; italic keywords on long bullets. Added: grid-stride trace,
-shrink-N expected output, simulator output, warm-up run in the timing code,
-a worked bandwidth / intensity / ridge-point / robust-block example (CK-06
-tests all four and the deck previously taught none of them), Amdahl worked
-numbers, boundary-policy table + zero-pad/wrap code, moving-average trace
-(was only in speaker notes), Module 3 wrap-up. Fixed: print() does work in
-real Numba CUDA kernels (simulator slide overstated it, and its print read
-arr[i] before the bounds guard); helpers CAN be called from kernels as
-@cuda.jit(device=True) functions; the size sweep (was CuPy, now Numba + NumPy — CuPy
-isn't introduced until Module 6) never crossed PCIe;
-naive matmul does get incidental L1/L2 reuse (Lab 06 Ex 2 relies on that).
-Figures: diags/amdahl-ceiling.svg (diags/make_amdahl_chart.py) and
-diags/stencil-boundary.svg (.excalidraw source alongside).
-REWRITTEN 2026-10-07: "Why a Middle Block Size Often Wins" (occupancy
-argument, false on a T4) replaced by "Why 16x16 Won Here" (warp memory
-footprint vs. in-block data sharing), moved to directly follow the profiler
-table; diags/warp-footprint.svg. Lab 06 Ex 3 Q2 + lab-key updated to match.
--->
-</section>
-<section>
-<section id="session-1-oct-5-kernel-design-patterns-debugging" class="title-slide slide level1 center">
-<h1>Session 1 · Oct 5 · Kernel Design Patterns &amp; Debugging</h1>
-
-</section>
-<section id="todays-plan" class="slide level2">
-<h2>Today’s Plan</h2>
-<!-- - Quiz 3 first (15 min, Blackboard) — covers all of Module 2 -->
-<ul>
-<li class="fragment">Patterns for structuring a kernel beyond “one thread, one element”</li>
-<li class="fragment">Choosing a launch configuration when there’s no single obviously-correct answer</li>
-<li class="fragment">Debugging Numba CUDA code — what goes wrong, and how to find it without a GPU-side debugger</li>
-</ul>
-<aside class="notes">
-<p>~1 min. ~35 min of lecture time after the quiz. This session is the pivot point of the module: everything before this (Modules 0-2) was about getting a kernel to run at all; everything from here on is about making it fast and getting it right when it isn’t.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="from-does-it-run-to-does-it-run-well" class="slide level2">
-<h2>From “Does It Run” to “Does It Run Well”</h2>
-<ul>
-<li class="fragment">Every kernel you’ve written so far (Labs 4-5) follows one pattern: <em>one thread computes one output element</em>, checked by one bounds guard</li>
-<li class="fragment">That pattern is correct, and it’s the right default — but it’s not the only shape a kernel can take, and <em>getting it running is only the first bar</em> to clear</li>
-<li class="fragment">The rest of this module is about two things: <em>designing kernels deliberately</em> rather than by habit, and <em>measuring whether they’re actually fast</em></li>
-</ul>
-<aside class="notes">
-<p>~2 min. Framing slide — sets up why “design patterns” and “debugging” belong in the same session as a matched pair: patterns are how you write a kernel well the first time, debugging is what you do when it isn’t.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="pattern-one-thread-one-output-element" class="slide level2">
-<h2>Pattern: One Thread, One Output Element</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb1-2"><a></a><span class="kw">def</span> scale(arr, factor):</span>
-<span id="cb1-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb1-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb1-5"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment">Launch (at least) <em>as many threads as there are outputs</em>; each thread computes exactly one</li>
-<li class="fragment">Maps directly onto the hardware’s <em>SIMT model</em> (Sep 30)</li>
-<li class="fragment">Right whenever the number of outputs is <em>known ahead of time</em> and reasonably launch-able — millions of threads is fine; billions can hit practical limits</li>
-<li class="fragment">This is <em>the default pattern</em> — reach for it first</li>
-</ul>
-</div></div>
-<aside class="notes">
-<p>~2 min. Deliberately named and framed as “the pattern” — students have been using it since Lab 4 without necessarily thinking of it as a reusable, nameable design choice. Naming it is the point of this slide.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="pattern-the-grid-stride-loop" class="slide level2">
-<h2>Pattern: The Grid-Stride Loop</h2>
-<div class="columns">
-<div class="column" style="width:55%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb2-2"><a></a><span class="kw">def</span> scale_grid_stride(arr, factor):</span>
-<span id="cb2-3"><a></a>    start  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb2-4"><a></a>    stride <span class="op">=</span> cuda.gridsize(<span class="dv">1</span>)   <span class="co"># total threads launched</span></span>
-<span id="cb2-5"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(start, arr.shape[<span class="dv">0</span>], stride):</span>
-<span id="cb2-6"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:45%;">
-<ul>
-<li class="fragment">Launch a <em>fixed, modest number of threads</em>; each one <em>loops over several elements</em>, striding by the total thread count</li>
-<li class="fragment">Useful when N is <em>unknown at launch time</em> or too large for one thread per element, or to run one launch config <em>across a wide range of N</em></li>
-</ul>
-</div></div>
-<aside class="notes">
-<p>~2 min. Explicitly flag this as awareness-level, not tested — students should not walk away thinking they need to memorize <code>cuda.gridsize()</code> syntax for a checkpoint. The goal is purely “don’t be confused when you see this shape later in your career.” The trace on the next sub-slide is the fastest way to make the loop click.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section class="slide level2">
-
-<p><strong>Trace:</strong> N = 10 elements, but only 4 threads launched (<code>stride = 4</code>)</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Thread (<code>start</code>)</th>
-<th>Handles indices</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>0</td>
-<td>0, 4, 8</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>1, 5, 9</td>
-</tr>
-<tr class="odd">
-<td>2</td>
-<td>2, 6</td>
-</tr>
-<tr class="even">
-<td>3</td>
-<td>3, 7</td>
-</tr>
-</tbody>
-</table>
-<div class="fragment">
-<ul>
-<li class="fragment">Every index is covered <em>exactly once</em>, and the loop’s own <code>range</code> stops at N — <em>no separate bounds guard</em> needed</li>
-<li class="fragment">You won’t be asked to write this pattern in a lab or checkpoint this semester — it’s here so you <em>recognize it</em> in real-world CUDA code, which uses it constantly</li>
-</ul>
-</div>
-</section>
-<section id="choosing-a-launch-configuration" class="slide level2">
-<h2>Choosing a Launch Configuration</h2>
-<ul>
-<li class="fragment">So far, launch configuration (<code>THREADS</code>, computed <code>BLOCKS</code>) has mostly been <em>handed to you</em> or fixed at a round number like 256</li>
-<li class="fragment">In practice there is rarely one obviously-correct block size — it depends on the kernel’s <em>resource usage</em> (registers, shared memory) and the GPU’s <em>occupancy limits</em> (Sep 30)</li>
-</ul>
-<div class="fragment">
-<p>A few reliable heuristics:</p>
-<ul>
-<li class="fragment">Prefer <em>multiples of 32</em> — whole warps, no wasted lanes (Sep 30)</li>
-<li class="fragment">Common starting points: <em>128, 256, or 512</em> threads per block</li>
-<li class="fragment"><em>Extremes</em> (very small or very large blocks) are rarely optimal</li>
-</ul>
-</div>
-</section>
-<section class="slide level2">
-
-<p>Beyond those heuristics, the honest answer is: <strong>measure it</strong>.</p>
-<ul>
-<li class="fragment">Lab 6 (this Friday) has you <em>sweep several block sizes</em> on a real kernel and find the fastest empirically — that’s Oct 7’s subject in full</li>
-</ul>
-<aside class="notes">
-<p>~3 min across both sub-slides. Resist the temptation to give a definitive “always use 256” rule — the entire point of Oct 7’s profiling session is that this has to be measured per-kernel. This slide should leave students slightly unsatisfied with “it depends,” which Oct 7 then resolves with a concrete method.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="debugging-numba-cuda-kernels" class="slide level2">
-<h2>Debugging Numba CUDA Kernels</h2>
-<ul>
-<li class="fragment">GPU kernels run <em>outside the normal Python debugger</em> — you can’t drop a breakpoint inside a <code>@cuda.jit</code> function the way you would in ordinary Python</li>
-</ul>
-<div class="fragment">
-<p>Common failure modes you’ll hit this semester:</p>
-<ul>
-<li class="fragment"><strong>Silent wrong answers</strong> — almost always a <em>missing or incorrect bounds guard</em> (Module 2)</li>
-<li class="fragment"><strong><code>TypingError</code> at compile time</strong> — Numba compiles only a <em>restricted subset of Python/NumPy</em>; Python lists, string formatting, and most NumPy functions inside a kernel fail with a (sometimes cryptic) type error</li>
-<li class="fragment"><strong>Shape mismatches</strong> — passing an array of the <em>wrong shape or dtype</em> to a kernel that assumes a specific layout</li>
-</ul>
-<aside class="notes">
-<p>~3 min. Ask the room if anyone has already hit a TypingError in Lab 4 or 5 — normalize it as a routine part of the workflow, not a sign something has gone deeply wrong.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="debugging-technique-shrink-n-and-verify-by-hand" class="slide level2">
-<h2>Debugging Technique: Shrink N and Verify by Hand</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>N_DEBUG <span class="op">=</span> <span class="dv">8</span>   <span class="co"># instead of 1,000,000 — small enough to eyeball</span></span>
-<span id="cb3-2"><a></a>arr <span class="op">=</span> np.arange(N_DEBUG, dtype<span class="op">=</span>np.float32)</span>
-<span id="cb3-3"><a></a>arr_gpu <span class="op">=</span> cuda.to_device(arr)</span>
-<span id="cb3-4"><a></a></span>
-<span id="cb3-5"><a></a>my_kernel[<span class="dv">1</span>, N_DEBUG](arr_gpu)     <span class="co"># one block, exactly enough threads</span></span>
-<span id="cb3-6"><a></a>cuda.synchronize()</span>
-<span id="cb3-7"><a></a></span>
-<span id="cb3-8"><a></a><span class="bu">print</span>(arr_gpu.copy_to_host())      <span class="co"># small enough to read directly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p>If <code>my_kernel</code> doubles every element, you should see:</p>
-<pre><code>[ 0.  2.  4.  6.  8. 10. 12. 14.]</code></pre>
-<p>If you see <code>[ 0.  2.  4.  6.  4.  5.  6.  7.]</code> instead, half the threads did nothing — an <em>indexing or launch bug</em>, visible at a glance.</p>
-</div>
-</section>
-<section class="slide level2">
-
-<ul>
-<li class="fragment">Before trusting a kernel at N = 1,000,000, run it at <em>N = 8</em> and check every value by hand or against a tiny NumPy reference</li>
-<li class="fragment">Launching <em>one block with exactly N threads</em> (no ceiling division needed) removes launch-configuration bugs from the picture while you debug the kernel body itself</li>
-<li class="fragment">Every lab’s Completion cell checks your results at full scale — this technique is how you get there <em>with confidence, one step earlier</em></li>
-</ul>
-<aside class="notes">
-<p>~2 min across both sub-slides. This is the single most useful habit to instill this session — most kernel bugs are far easier to spot in 8 printed numbers than in a checksum computed over a million.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="debugging-technique-the-cuda-simulator" class="slide level2">
-<h2>Debugging Technique: The CUDA Simulator</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="im">import</span> os</span>
-<span id="cb5-2"><a></a>os.environ[<span class="st">"NUMBA_ENABLE_CUDASIM"</span>] <span class="op">=</span> <span class="st">"1"</span>   <span class="co"># set BEFORE importing numba</span></span>
-<span id="cb5-3"><a></a></span>
-<span id="cb5-4"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb5-5"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
-<span id="cb5-6"><a></a></span>
-<span id="cb5-7"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb5-8"><a></a><span class="kw">def</span> my_kernel(arr):</span>
-<span id="cb5-9"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb5-10"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb5-11"><a></a>        <span class="bu">print</span>(<span class="st">"thread"</span>, i, <span class="st">"sees"</span>, arr[i])</span>
-<span id="cb5-12"><a></a>        arr[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span></span>
-<span id="cb5-13"><a></a></span>
-<span id="cb5-14"><a></a>my_kernel[<span class="dv">1</span>, <span class="dv">4</span>](np.arange(<span class="dv">4</span>, dtype<span class="op">=</span>np.float32))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:40%;">
-<div class="fragment">
-<p>Output (thread order may vary):</p>
-<pre><code>thread 0 sees 0.0
-thread 1 sees 1.0
-thread 2 sees 2.0
-thread 3 sees 3.0</code></pre>
-</div>
-</div></div>
-</section>
-<section class="slide level2">
-
-<ul>
-<li class="fragment"><code>NUMBA_ENABLE_CUDASIM=1</code> runs your <code>@cuda.jit</code> kernel <em>in pure Python, on the CPU</em>, with every GPU thread simulated — <em>no GPU required</em></li>
-<li class="fragment">In the simulator you can <em>inspect any variable</em> with <code>print()</code> and even set <em><code>pdb</code> breakpoints</em> — and an out-of-bounds read raises a normal Python <code>IndexError</code> instead of silently corrupting memory</li>
-<li class="fragment">On a real GPU, <code>print()</code> works only for <em>simple values</em> (numbers, string constants), the output is <em>unordered</em> across threads, and <code>pdb</code> doesn’t work at all</li>
-<li class="fragment">Trade-off: the simulator is <em>much slower</em> and doesn’t reflect real GPU timing — use it to debug <em>logic</em>, then switch back to a real GPU to measure <em>performance</em></li>
-</ul>
-<aside class="notes">
-<p>~2 min. This is a genuinely useful Numba feature many students won’t discover on their own — worth a live demo if time allows: move the print() above the bounds guard and launch 5 threads on 4 elements; the simulator raises IndexError on the spot, while real hardware would read garbage silently. Note the env var must be set before <code>numba</code> is imported at all — in Colab that means restarting the runtime if numba is already loaded.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="this-week" class="slide level2">
-<h2>This Week</h2>
-<ul>
-<li class="fragment"><strong>Lab 06 (Fri, Oct 9):</strong> Correct GPU timing methodology, then <em>sweep launch configurations</em> on Lab 5’s matmul kernel to find the fastest — <strong>CK-06</strong> same day</li>
-<li class="fragment"><strong>Oct 7 (next lecture):</strong> How to <em>time GPU code correctly</em>, and how to <em>read the profiler-style results</em> Lab 6 will have you produce</li>
-</ul>
-<aside class="notes">
-<p>~1 min. Quick pointer slide.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section class="slide level2">
-
-</section></section>
 <section>
 <section id="session-2-oct-7-profiling-gpu-kernels" class="title-slide slide level1 center">
 <h1>Session 2 · Oct 7 · Profiling GPU Kernels</h1>
 
 </section>
-<section id="todays-plan-1" class="slide level2">
+<section id="todays-plan" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
 <li class="fragment">The most common — and most deceptive — mistake in timing GPU code</li>
@@ -602,16 +236,16 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section id="the-wrong-way-to-time-a-gpu-kernel" class="slide level2">
 <h2>The Wrong Way to Time a GPU Kernel</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="im">import</span> time</span>
-<span id="cb7-2"><a></a></span>
-<span id="cb7-3"><a></a>my_kernel[blocks, threads](arr_gpu)    <span class="co"># warm-up: the first call JIT-compiles</span></span>
-<span id="cb7-4"><a></a>cuda.synchronize()</span>
-<span id="cb7-5"><a></a></span>
-<span id="cb7-6"><a></a>start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb7-7"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
-<span id="cb7-8"><a></a>end <span class="op">=</span> time.perf_counter()</span>
-<span id="cb7-9"><a></a></span>
-<span id="cb7-10"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># WRONG</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> time</span>
+<span id="cb1-2"><a></a></span>
+<span id="cb1-3"><a></a>my_kernel[blocks, threads](arr_gpu)    <span class="co"># warm-up: the first call JIT-compiles</span></span>
+<span id="cb1-4"><a></a>cuda.synchronize()</span>
+<span id="cb1-5"><a></a></span>
+<span id="cb1-6"><a></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb1-7"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
+<span id="cb1-8"><a></a>end <span class="op">=</span> time.perf_counter()</span>
+<span id="cb1-9"><a></a></span>
+<span id="cb1-10"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># WRONG</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment">A GPU kernel launch is <strong>asynchronous</strong> — the CPU issues the launch and <em>immediately continues</em> to the next line, without waiting for the GPU to finish</li>
 <li class="fragment"><code>time.perf_counter()</code> here measures how long it took to <em>launch</em> the kernel, not how long the kernel took to <em>run</em></li>
@@ -633,18 +267,18 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section id="the-right-way-cuda.synchronize" class="slide level2">
 <h2>The Right Way: <code>cuda.synchronize()</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="im">import</span> time</span>
-<span id="cb8-2"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
-<span id="cb8-3"><a></a></span>
-<span id="cb8-4"><a></a>my_kernel[blocks, threads](arr_gpu)    <span class="co"># warm-up: the first call JIT-compiles</span></span>
-<span id="cb8-5"><a></a>cuda.synchronize()</span>
-<span id="cb8-6"><a></a></span>
-<span id="cb8-7"><a></a>start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb8-8"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
-<span id="cb8-9"><a></a>cuda.synchronize()              <span class="co"># wait for the GPU to actually finish</span></span>
-<span id="cb8-10"><a></a>end <span class="op">=</span> time.perf_counter()</span>
-<span id="cb8-11"><a></a></span>
-<span id="cb8-12"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># CORRECT</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> time</span>
+<span id="cb2-2"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
+<span id="cb2-3"><a></a></span>
+<span id="cb2-4"><a></a>my_kernel[blocks, threads](arr_gpu)    <span class="co"># warm-up: the first call JIT-compiles</span></span>
+<span id="cb2-5"><a></a>cuda.synchronize()</span>
+<span id="cb2-6"><a></a></span>
+<span id="cb2-7"><a></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb2-8"><a></a>my_kernel[blocks, threads](arr_gpu)</span>
+<span id="cb2-9"><a></a>cuda.synchronize()              <span class="co"># wait for the GPU to actually finish</span></span>
+<span id="cb2-10"><a></a>end <span class="op">=</span> time.perf_counter()</span>
+<span id="cb2-11"><a></a></span>
+<span id="cb2-12"><a></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>(end <span class="op">-</span> start)<span class="op">*</span><span class="dv">1000</span><span class="sc">:.2f}</span><span class="ss"> ms"</span>)  <span class="co"># CORRECT</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment"><code>cuda.synchronize()</code> <em>blocks the CPU</em> until every previously-launched GPU operation has completed</li>
 <li class="fragment">The <strong>warm-up</strong> call matters too: the <em>first</em> launch of a <code>@cuda.jit</code> kernel compiles it, which can take hundreds of ms — never time that call</li>
@@ -673,27 +307,27 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section id="timing-across-problem-sizes" class="slide level2">
 <h2>Timing Across Problem Sizes</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>sizes <span class="op">=</span> [<span class="dv">10_000</span>, <span class="dv">100_000</span>, <span class="dv">1_000_000</span>, <span class="dv">10_000_000</span>]</span>
-<span id="cb9-2"><a></a>THREADS <span class="op">=</span> <span class="dv">256</span></span>
-<span id="cb9-3"><a></a></span>
-<span id="cb9-4"><a></a><span class="cf">for</span> N <span class="kw">in</span> sizes:</span>
-<span id="cb9-5"><a></a>    arr <span class="op">=</span> np.ones(N, dtype<span class="op">=</span>np.float32)</span>
-<span id="cb9-6"><a></a>    arr_gpu <span class="op">=</span> cuda.to_device(arr)            <span class="co"># transfer happens before the timer</span></span>
-<span id="cb9-7"><a></a>    BLOCKS <span class="op">=</span> (N <span class="op">+</span> THREADS <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> THREADS</span>
-<span id="cb9-8"><a></a></span>
-<span id="cb9-9"><a></a>    scale[BLOCKS, THREADS](arr_gpu, <span class="fl">2.0</span>)     <span class="co"># warm-up (first call compiles)</span></span>
-<span id="cb9-10"><a></a>    cuda.synchronize()</span>
-<span id="cb9-11"><a></a></span>
-<span id="cb9-12"><a></a>    start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb9-13"><a></a>    scale[BLOCKS, THREADS](arr_gpu, <span class="fl">2.0</span>)     <span class="co"># the scale kernel from Oct 5</span></span>
-<span id="cb9-14"><a></a>    cuda.synchronize()</span>
-<span id="cb9-15"><a></a>    gpu_ms <span class="op">=</span> (time.perf_counter() <span class="op">-</span> start) <span class="op">*</span> <span class="dv">1000</span></span>
-<span id="cb9-16"><a></a></span>
-<span id="cb9-17"><a></a>    start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb9-18"><a></a>    arr <span class="op">*=</span> <span class="fl">2.0</span>                               <span class="co"># the same work in NumPy, on the CPU</span></span>
-<span id="cb9-19"><a></a>    cpu_ms <span class="op">=</span> (time.perf_counter() <span class="op">-</span> start) <span class="op">*</span> <span class="dv">1000</span></span>
-<span id="cb9-20"><a></a></span>
-<span id="cb9-21"><a></a>    <span class="bu">print</span>(<span class="ss">f"N=</span><span class="sc">{</span>N<span class="sc">:&gt;10,}</span><span class="ss">  GPU=</span><span class="sc">{</span>gpu_ms<span class="sc">:.3f}</span><span class="ss"> ms  NumPy=</span><span class="sc">{</span>cpu_ms<span class="sc">:.3f}</span><span class="ss"> ms"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>sizes <span class="op">=</span> [<span class="dv">10_000</span>, <span class="dv">100_000</span>, <span class="dv">1_000_000</span>, <span class="dv">10_000_000</span>]</span>
+<span id="cb3-2"><a></a>THREADS <span class="op">=</span> <span class="dv">256</span></span>
+<span id="cb3-3"><a></a></span>
+<span id="cb3-4"><a></a><span class="cf">for</span> N <span class="kw">in</span> sizes:</span>
+<span id="cb3-5"><a></a>    arr <span class="op">=</span> np.ones(N, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb3-6"><a></a>    arr_gpu <span class="op">=</span> cuda.to_device(arr)            <span class="co"># transfer happens before the timer</span></span>
+<span id="cb3-7"><a></a>    BLOCKS <span class="op">=</span> (N <span class="op">+</span> THREADS <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> THREADS</span>
+<span id="cb3-8"><a></a></span>
+<span id="cb3-9"><a></a>    scale[BLOCKS, THREADS](arr_gpu, <span class="fl">2.0</span>)     <span class="co"># warm-up (first call compiles)</span></span>
+<span id="cb3-10"><a></a>    cuda.synchronize()</span>
+<span id="cb3-11"><a></a></span>
+<span id="cb3-12"><a></a>    start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb3-13"><a></a>    scale[BLOCKS, THREADS](arr_gpu, <span class="fl">2.0</span>)     <span class="co"># the scale kernel from Oct 5</span></span>
+<span id="cb3-14"><a></a>    cuda.synchronize()</span>
+<span id="cb3-15"><a></a>    gpu_ms <span class="op">=</span> (time.perf_counter() <span class="op">-</span> start) <span class="op">*</span> <span class="dv">1000</span></span>
+<span id="cb3-16"><a></a></span>
+<span id="cb3-17"><a></a>    start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb3-18"><a></a>    arr <span class="op">*=</span> <span class="fl">2.0</span>                               <span class="co"># the same work in NumPy, on the CPU</span></span>
+<span id="cb3-19"><a></a>    cpu_ms <span class="op">=</span> (time.perf_counter() <span class="op">-</span> start) <span class="op">*</span> <span class="dv">1000</span></span>
+<span id="cb3-20"><a></a></span>
+<span id="cb3-21"><a></a>    <span class="bu">print</span>(<span class="ss">f"N=</span><span class="sc">{</span>N<span class="sc">:&gt;10,}</span><span class="ss">  GPU=</span><span class="sc">{</span>gpu_ms<span class="sc">:.3f}</span><span class="ss"> ms  NumPy=</span><span class="sc">{</span>cpu_ms<span class="sc">:.3f}</span><span class="ss"> ms"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section class="slide level2">
 
@@ -1048,7 +682,7 @@ thread 3 sees 3.0</code></pre>
       }</style></aside>
 </div>
 </section>
-<section id="this-week-1" class="slide level2">
+<section id="this-week" class="slide level2">
 <h2>This Week</h2>
 <ul>
 <li class="fragment"><strong>Lab 06 (Fri, Oct 9):</strong> Correct timing, launch-configuration sweep on Lab 5’s matmul kernel, <em>bottleneck diagnosis</em> — <strong>CK-06</strong> same day</li>
@@ -1094,396 +728,13 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section class="slide level2">
 
-</section></section>
-<section>
-<section id="session-3-oct-14-stencil-kernels" class="title-slide slide level1 center">
-<h1>Session 3 · Oct 14 · Stencil Kernels</h1>
-
-</section>
-<section id="todays-plan-2" class="slide level2">
-<h2>Today’s Plan</h2>
-<ul>
-<li class="fragment">A new kernel shape: outputs that depend on a <em>neighborhood</em> of inputs, not just one</li>
-<li class="fragment">The boundary problem — what happens at the edges of the data, and how to handle it</li>
-<li class="fragment">A 1D warm-up (moving average), then the 2D case (image blur) — this session’s motivating example</li>
-</ul>
-<aside class="notes">
-<p>~1 min. First class meeting after Fall Reading Days (Oct 12 holiday). Full 50-min session.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="beyond-element-wise-what-is-a-stencil" class="slide level2">
-<h2>Beyond Element-wise: What Is a Stencil?</h2>
-<ul>
-<li class="fragment">Every kernel so far has been <strong>element-wise</strong>: output <code>i</code> depends <em>only on input <code>i</code></em> (or input <code>(row, col)</code>) — no thread needs to look at its neighbors</li>
-<li class="fragment">A <strong>stencil</strong> breaks that pattern: output <code>i</code> depends on a small <em>neighborhood</em> of nearby inputs</li>
-<li class="fragment">Classic examples: a <em>moving average</em> (each output = average of nearby inputs), <em>image blur</em> (each output pixel = weighted average of nearby pixels), <em>numerical derivatives</em> (a weighted combination of neighboring values)</li>
-<li class="fragment">The “one thread, one output” launch pattern (Oct 5) still applies — what changes is <em>what each thread reads</em>, not how many threads you launch</li>
-</ul>
-<aside class="notes">
-<p>~3 min. Frame this explicitly as “the launch pattern you already know, applied to a kernel body that reads more than one input” — students shouldn’t feel like they’re learning an entirely new launch mechanic, just a new kernel-body shape.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="the-boundary-problem" class="slide level2">
-<h2>The Boundary Problem</h2>
-
-<img data-src="diags/stencil-boundary.svg" alt="A row of 14 square cells labeled with indices -2 through 11. Cells 0 through 9 are solid blue and labeled below as the real array: indices 0 – 9. Cells -2, -1, 10 and 11 are dashed gray boxes containing question marks, each pair labeled neighbors that don't exist. Above the row, a red bracket spans cells -2 through 2 with an arrow down to cell 0, labeled radius-2 window for i = 0, X 2 of 5 taps fall off the edge. A green bracket spans cells 3 through 7 with an arrow down to cell 5, labeled radius-2 window for i = 5, check mark, all 5 taps are real." width="900" class="r-stretch"><p>Every interior cell has real neighbors on both sides. <em>Cells near the edges do not.</em></p>
-</section>
-<section class="slide level2">
-
-<ul>
-<li class="fragment">A stencil reads a neighborhood around each position — but positions near the edge have neighbors that fall <em>outside the array</em> entirely</li>
-<li class="fragment">Every stencil kernel needs an <em>explicit boundary policy</em> — there is <em>no “correct” default</em>, only different reasonable choices with different tradeoffs</li>
-</ul>
-<div class="fragment">
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Policy</th>
-<th>Out-of-range neighbor becomes…</th>
-<th>Array of 10: neighbor index −1 reads</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Clamp</strong></td>
-<td>the <em>nearest valid edge</em> value</td>
-<td><code>arr[0]</code></td>
-</tr>
-<tr class="even">
-<td><strong>Zero-pad</strong></td>
-<td><em>zero</em></td>
-<td><code>0</code></td>
-</tr>
-<tr class="odd">
-<td><strong>Wrap</strong></td>
-<td>the value from the <em>other side</em> (circular)</td>
-<td><code>arr[9]</code></td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p>~3 min across both sub-slides. Don’t rush past “there is no correct default” — this is a genuine design decision, not a fact to memorize. Different applications legitimately prefer different policies (image processing usually clamps or wraps; some signal-processing contexts zero-pad).</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="our-policy-clamping" class="slide level2">
-<h2>Our Policy: Clamping</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="kw">def</span> clamp(x, lo, hi):</span>
-<span id="cb12-2"><a></a>    <span class="cf">return</span> <span class="bu">min</span>(<span class="bu">max</span>(x, lo), hi)</span>
-<span id="cb12-3"><a></a></span>
-<span id="cb12-4"><a></a>clamp(<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">9</span>)   <span class="co"># → 0  (snapped up)</span></span>
-<span id="cb12-5"><a></a>clamp(<span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">9</span>)    <span class="co"># → 5  (unchanged)</span></span>
-<span id="cb12-6"><a></a>clamp(<span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">9</span>)   <span class="co"># → 9  (snapped down)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment">This course uses <strong>clamping</strong> (also called <em>edge-replication</em>) throughout</li>
-<li class="fragment">Any neighbor index outside the valid range is <em>snapped to the nearest valid edge</em> index</li>
-<li class="fragment">Edge values get their “missing” neighbors filled with a <em>repeat of the nearest real value</em> — not a fabricated zero or a wraparound</li>
-</ul>
-</div></div>
-</section>
-<section class="slide level2">
-
-<ul>
-<li class="fragment">A kernel can’t call an <em>ordinary</em> Python function like <code>clamp()</code> above. Either write the logic <em>inline</em> — <code>min(max(i + d, 0), n - 1)</code> — or mark the helper <code>@cuda.jit(device=True)</code> so Numba compiles it for the GPU</li>
-<li class="fragment">Lab 7 writes the clamp <em>inline</em>, which is what the kernels on the next slides do</li>
-<li class="fragment">CK-07 deliberately switches to <strong>zero-padding</strong>, so make sure you understand <em>the policies themselves</em>, not just one line of code</li>
-</ul>
-<div class="fragment">
-<p>The other two policies, inside the same neighbor loop:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># zero-pad: only add neighbors that exist (missing ones count as 0)</span></span>
-<span id="cb13-2"><a></a>j <span class="op">=</span> i <span class="op">+</span> d</span>
-<span id="cb13-3"><a></a><span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> j <span class="op">&lt;</span> n:</span>
-<span id="cb13-4"><a></a>    total <span class="op">+=</span> arr[j]</span>
-<span id="cb13-5"><a></a></span>
-<span id="cb13-6"><a></a><span class="co"># wrap: Python's % is never negative for positive n  (-1 % 10 == 9)</span></span>
-<span id="cb13-7"><a></a>j <span class="op">=</span> (i <span class="op">+</span> d) <span class="op">%</span> n</span>
-<span id="cb13-8"><a></a>total <span class="op">+=</span> arr[j]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<aside class="notes">
-<p>~2 min across both sub-slides. Numba CUDA kernels can only call other GPU-compiled code — a plain Python <code>def</code> fails with a TypingError, but a <code>@cuda.jit(device=True)</code> function works fine. Inlining is just the simplest option for a one-liner like clamp, and it’s what Lab 7 does.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="a-1d-warm-up-moving-average" class="slide level2">
-<h2>A 1D Warm-up: Moving Average</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb14-2"><a></a><span class="kw">def</span> moving_average_1d(arr, out, n, radius):</span>
-<span id="cb14-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb14-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
-<span id="cb14-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
-<span id="cb14-6"><a></a>        <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb14-7"><a></a>            j <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(i <span class="op">+</span> d, <span class="dv">0</span>), n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp</span></span>
-<span id="cb14-8"><a></a>            total <span class="op">+=</span> arr[j]</span>
-<span id="cb14-9"><a></a>        out[i] <span class="op">=</span> total <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:40%;">
-<ul>
-<li class="fragment">Each output <code>i</code> averages <em><code>2*radius + 1</code></em> neighboring inputs — radius 2 means a <em>5-wide window</em> (2 before, the center, 2 after)</li>
-<li class="fragment">The <code>min(max(...))</code> clamp appears <em>inside the loop</em>, once per neighbor read</li>
-</ul>
-</div></div>
-</section>
-<section class="slide level2">
-
-<p><strong>Trace</strong> <code>i = 0</code>, <code>radius = 2</code>, with <code>arr = [10, 20, 30, 40, 50, …]</code>:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th><code>d</code></th>
-<th>−2</th>
-<th>−1</th>
-<th>0</th>
-<th>1</th>
-<th>2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>i + d</code></td>
-<td>−2</td>
-<td>−1</td>
-<td>0</td>
-<td>1</td>
-<td>2</td>
-</tr>
-<tr class="even">
-<td><code>j</code> (clamped)</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>2</td>
-</tr>
-<tr class="odd">
-<td><code>arr[j]</code></td>
-<td>10</td>
-<td>10</td>
-<td>10</td>
-<td>20</td>
-<td>30</td>
-</tr>
-</tbody>
-</table>
-<div class="fragment">
-<p><code>out[0] = (10 + 10 + 10 + 20 + 30) / 5 = 16.0</code></p>
-<ul>
-<li class="fragment">Three of the five taps are the <em>same repeated edge value</em> — that’s the clamping policy visibly at work, <em>not a bug</em></li>
-</ul>
-<aside class="notes">
-<p>~3 min across both sub-slides. This is Lab 07 Part 3’s warm-up, shown here as a worked example before the lab. Have students fill in the j row themselves before revealing the result.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="from-1d-to-2d-box-blur" class="slide level2">
-<h2>From 1D to 2D: Box Blur</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb15-2"><a></a><span class="kw">def</span> box_blur_2d(img, out, H, W, radius):</span>
-<span id="cb15-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
-<span id="cb15-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> H <span class="kw">and</span> col <span class="op">&lt;</span> W:</span>
-<span id="cb15-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
-<span id="cb15-6"><a></a>        <span class="cf">for</span> dr <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb15-7"><a></a>            <span class="cf">for</span> dc <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb15-8"><a></a>                r <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(row <span class="op">+</span> dr, <span class="dv">0</span>), H <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp row</span></span>
-<span id="cb15-9"><a></a>                c <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(col <span class="op">+</span> dc, <span class="dv">0</span>), W <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp col</span></span>
-<span id="cb15-10"><a></a>                total <span class="op">+=</span> img[r, c]</span>
-<span id="cb15-11"><a></a>        out[row, col] <span class="op">=</span> total <span class="op">/</span> ((<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>) <span class="op">**</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li class="fragment">Same idea as 1D, doubled: a <em><code>(2·radius+1) × (2·radius+1)</code> square</em>, clamped <em>independently on row and column</em></li>
-<li class="fragment">This is <strong>image convolution</strong>. A box blur is the simplest one: <em>every neighbor weighted equally</em></li>
-<li class="fragment">Radius 1 → 3×3 window (9 taps). Radius 2 → 5×5 (25 taps). Bigger radius means <em>more blur</em>, but also <em>many more memory reads</em> per pixel</li>
-</ul>
-<aside class="notes">
-<p>~3 min. This is Lab 07’s Exercise 1 pattern, shown as a worked example. The nested loop (row neighborhood × col neighborhood) is the main new syntactic idea versus the 1D case — walk through it explicitly.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="radius-vs.-cost" class="slide level2">
-<h2>Radius vs.&nbsp;Cost</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Radius</th>
-<th>Window size</th>
-<th>Taps per output pixel</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td>3×3</td>
-<td>9</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>5×5</td>
-<td>25</td>
-</tr>
-<tr class="odd">
-<td>4</td>
-<td>9×9</td>
-<td>81</td>
-</tr>
-<tr class="even">
-<td>8</td>
-<td>17×17</td>
-<td>289</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li class="fragment">Taps per pixel grows with the <strong>square</strong> of the radius — <em>doubling the radius roughly quadruples</em> the memory reads and arithmetic per output</li>
-<li class="fragment">Every tap is a <em>separate global-memory read</em> in the naive version — exactly the traffic Module 4’s <em>shared-memory tiling</em> is built to reduce</li>
-<li class="fragment">Lab 7 has you compare blur strength across a few radii and <em>connect the visual result</em> back to this table</li>
-</ul>
-<aside class="notes">
-<p>~2 min. Worth an explicit callback: “this naive stencil re-reads overlapping neighborhoods from global memory constantly, with heavy reuse between adjacent output pixels — sound familiar?” — it’s the same reuse-without-caching problem Oct 7’s naive-matmul diagnosis identified, just in a different kernel shape.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="module-3-wrap-up" class="slide level2">
-<h2>Module 3 Wrap-Up</h2>
-<ul>
-<li class="fragment"><strong>Oct 5:</strong> <em>One thread, one output</em> is the default kernel shape; the <em>grid-stride loop</em> is the one to recognize. Debug at <em>tiny N</em>, and use the <em>CUDA simulator</em> for <code>print()</code>/<code>pdb</code></li>
-<li class="fragment"><strong>Oct 7:</strong> Kernel launches are <em>asynchronous</em> — warm up, then time with <em><code>cuda.synchronize()</code></em>. Bandwidth = bytes ÷ seconds; intensity <em>below the ridge point</em> means memory-bound; <em>Amdahl’s</em> <span class="math inline">\(1/(1-p)\)</span> caps any speedup</li>
-<li class="fragment"><strong>Oct 14:</strong> A <em>stencil</em> reads a neighborhood; every stencil needs a <em>boundary policy</em> (clamp, zero-pad, wrap); cost grows with the <em>square of the radius</em></li>
-</ul>
-<aside class="notes">
-<p>~1 min. Good slide to leave up while students ask midterm questions — Modules 0-3 are all on the Oct 19 midterm.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="this-week-2" class="slide level2">
-<h2>This Week</h2>
-<ul>
-<li class="fragment"><strong>Lab 07 (Fri, Oct 16):</strong> Implement the 2D box-blur kernel above on a synthetic test image, explore <em>radius vs.&nbsp;blur strength</em>, and (bonus) swap in Gaussian weighting — <strong>CK-07</strong> same day</li>
-<li class="fragment"><strong>This closes Module 3.</strong> Next up: the <em>Midterm (Mon, Oct 19)</em>, covering Modules 0-3</li>
-</ul>
-<aside class="notes">
-<p>~1 min. Remind students EL-03 (due the Sunday before, Oct 18) directly supports midterm prep — the Amdahl’s Law reading/calculation from Oct 7 is squarely midterm material.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="checkpoint-preview-1" class="slide level2">
-<h2>Checkpoint Preview</h2>
-<p>Checkpoint CK-07 will ask you to:</p>
-<ul>
-<li class="fragment">Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with weights given as a 3×3 array)</li>
-<li class="fragment">Handle the boundary with one of today’s three policies, which won’t necessarily be the one Lab 7 uses</li>
-</ul>
-<aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 07 (Oct 16). REWRITTEN 2026-10-02: it was the 1D moving-average demo with blanks. Now a weighted 3×3 stencil with ZERO-PADDING, so students transfer the idea instead of recalling the lab’s clamp line.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 
 
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-
+<p>COSC435 · Module 2 · CUDA Kernels</p>
 </div>
 </div></div>
 
@@ -1538,7 +789,7 @@ thread 3 sees 3.0</code></pre>
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c/t',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',
