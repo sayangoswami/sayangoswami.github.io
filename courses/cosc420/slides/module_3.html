@@ -718,11 +718,47 @@ SI
       }</style></aside>
 </div>
 </section>
+<section id="map-shuffle-reduce-step-by-step" class="slide level2">
+<h2>Map, Shuffle, Reduce, step by step</h2>
+<iframe src="anims/03-mr-phases.html" width="940" height="610" style="border:0" title="Three chunks each go to their own map(), which emits (key, 1) pairs: chunk 1 gives (A,1) and (B,1), chunk 2 gives (A,1) twice, chunk 3 gives (B,1). In the shuffle, every A pair travels to reduce(A) and every B pair to reduce(B). The reducers output A = 3 and B = 2. Labels underneath: map and reduce are written by you and run locally in parallel; the shuffle is done by the framework and is the only phase that crosses the network.">
+</iframe>
+<aside class="notes">
+<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section class="slide level2">
 
 <p>Monday’s Round 2, redrawn with the new names (salad left out to save space):</p>
 
 <img data-src="diags/03-mapreduce-flow.svg" alt="Three horizontal bands, top to bottom. Above them, three gray boxes: &quot;Branch 1: raw tickets&quot;, &quot;Branch 2: raw tickets&quot;, &quot;Branch 3: raw tickets&quot;, each with an arrow down into the Map band. Map band, subtitled &quot;alone, in parallel&quot;: each branch has its own yellow tally box — Branch 1: burger 5, fries 3, pizza 2; Branch 2: burger 2, fries 6, pizza 5; Branch 3: burger 3, fries 2, pizza 1. No arrows connect branches in this band. Shuffle band, subtitled &quot;the only trips&quot;: nine crossing arrows, color-coded by item, carry each branch's burger tally to one owner, each fries tally to a second owner, and each pizza tally to a third. Reduce band, subtitled &quot;one owner per key&quot;: three blue boxes &quot;owns burger&quot;, &quot;owns fries&quot;, &quot;owns pizza&quot;, with results burger = 10, fries = 11, pizza = 8. Caption: &quot;Same shape as Monday, just relabeled.&quot;" width="720" class="r-stretch"></section>
+<section id="mondays-kitchen-step-by-step" class="slide level2">
+<h2>Monday’s kitchen, step by step</h2>
+<iframe src="anims/03-mapreduce-flow.html" width="940" height="630" style="border:0" title="Three branches each tally their own tickets in parallel: Branch 1 burger 5, fries 3, pizza 2; Branch 2 burger 2, fries 6, pizza 5; Branch 3 burger 3, fries 2, pizza 1. Then one item at a time, all three tallies for that item travel to its single owner: 9 trips in total, the only trips. Each owner sums its item: burger = 10, fries = 11, pizza = 8.">
+</iframe>
+<aside class="notes">
+<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="the-map-phase-one-record-in-zero-or-more-pairs-out" class="slide level2">
 <h2>The Map Phase: One Record In, Zero or More Pairs Out</h2>
 <p>A <strong>map function</strong> takes one input record and emits <strong>(key, value)</strong> pairs — nothing more.</p>
@@ -916,14 +952,13 @@ the fox jumped over the lazy dog</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section class="slide level2">
-
-<h3 id="answer">Answer</h3>
+<section id="answer" class="slide level2">
+<h2>Answer</h2>
 <ul>
 <li><strong><code>map</code>:</strong> <code>emit(movieId, rating)</code> — same shape as word count and sales-per-region.</li>
 <li><strong><code>reduce</code>:</strong> <code>emit(movieId, sum(values) / len(values))</code>. Movie 31 gets <code>[2.5, 4.0]</code> → <code>3.25</code>.</li>
 </ul>
-<p>. . .</p>
+<div class="fragment">
 <p><strong>Follow-up: no.</strong> Averaging averages is wrong whenever the groups are <em>different sizes</em>:</p>
 <table class="caption-top">
 <thead>
@@ -947,8 +982,10 @@ the fox jumped over the lazy dog</code></pre>
 </tbody>
 </table>
 <p>Average of averages = (5 + 1) / 2 = <strong>3</strong>. True average = 21 / 5 = <strong>4.2</strong>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Fix:</strong> each machine sends a <em><code>(sum, count)</code> pair</em> per movie — here <code>(20, 4)</code> and <code>(1, 1)</code>. The reducer adds them, <code>(21, 5)</code>, and <em>divides once at the end</em>. Sums and counts can be combined early; averages can’t. Spark’s <code>avg()</code> (Module 4) does exactly this for you.</p>
+</div>
 </section>
 <section id="why-this-scales" class="slide level2">
 <h2>Why This Scales</h2>
@@ -980,13 +1017,13 @@ the fox jumped over the lazy dog</code></pre>
       }</style></aside>
 </div>
 </section>
-<section class="slide level2">
-
-<h3 id="data-locality-move-the-computation-not-the-data">Data locality: move the computation, not the data</h3>
+<section id="data-locality-move-the-computation-not-the-data" class="slide level2">
+<h2>Data locality: move the computation, not the data</h2>
 <p>On a real cluster, each map task runs <em>on the same machine that already holds its chunk</em> of data. This is called <strong>data locality</strong>: compute goes <em>to</em> the data, not data to the compute.</p>
-<p>. . .</p>
+<div class="fragment">
 <p><strong>Kitchen picture:</strong> send the recipe to the branch that <em>already has the ingredients</em> — don’t ship the ingredients to one central kitchen.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1013,6 +1050,7 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="what-the-framework-handles-for-you" class="slide level2">
 <h2>What the Framework Handles For You</h2>
@@ -1289,11 +1327,28 @@ the fox jumped over the lazy dog</code></pre>
       }</style></aside>
 </div>
 </section>
-<section class="slide level2">
-
-<h3 id="reading-a-file-from-hdfs">Reading a file from HDFS</h3>
+<section id="reading-a-file-from-hdfs" class="slide level2">
+<h2>Reading a file from HDFS</h2>
 
 <img data-src="diags/03-hdfs-read.svg" alt="A Client box on the left, a NameNode box labeled &quot;(address book)&quot; at the top, and four DataNode boxes labeled A, B, C, D on the right. Step 1: an arrow from the Client to the NameNode labeled &quot;1. Where are the blocks of ratings.csv?&quot;. Step 2: a dashed arrow back from the NameNode to the Client labeled &quot;2. Block 1: A, C, E; Block 2: B, D, A ...&quot;. Step 3: two thick arrows go from the Client straight to DataNode A and DataNode B, bypassing the NameNode, labeled &quot;3. Read block data directly&quot;. Caption: &quot;Ask the address book, then go straight to the data. The NameNode never touches the file's bytes.&quot;" width="560" class="r-stretch"><p>The client reads blocks <em>directly from the DataNodes</em>. The NameNode only answers the lookup.</p>
+</section>
+<section id="reading-a-file-from-hdfs-step-by-step" class="slide level2">
+<h2>Reading a file from HDFS, step by step</h2>
+<iframe src="anims/03-hdfs-read.html" width="900" height="620" style="border:0" title="The client asks the NameNode where the blocks of ratings.csv are, and the NameNode returns only the block list: B1 on A, C, E; B2 on B, D, A; B3 on C, E, B; B4 on D, A, C. The client then reads block 1 from DataNode A, block 2 from B, block 3 from C and block 4 from D, each straight from the DataNode. Ends with all 4 blocks at the client and the NameNode never having touched the file's bytes.">
+</iframe>
+<aside class="notes">
+<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
 <section id="hdfs-commands-demo" class="slide level2">
 <h2>HDFS Commands Demo</h2>
@@ -1321,24 +1376,25 @@ hdfs dfs -get /user/alice/ratings.csv .   # download: HDFS → local file</code>
           display:block!important;
       }</style></aside>
 </section>
-<section class="slide level2">
-
-<h3 id="what-the-output-looks-like">What the output looks like</h3>
+<section id="what-the-output-looks-like" class="slide level2">
+<h2>What the output looks like</h2>
 <pre><code>$ hdfs dfs -ls /user/alice/
 Found 1 items
 -rw-r--r--   3 alice supergroup    2483723 2026-10-14 10:02 /user/alice/ratings.csv</code></pre>
-<p>. . .</p>
+<div class="fragment">
 <ul>
 <li>The <code>3</code> is the file’s <em>replication factor</em> (on the classroom server you’ll see <code>1</code>).</li>
 <li><code>2483723</code> is the size in bytes (about 2.4 MB — the MovieLens sample you’ll use in the capstone).</li>
 </ul>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <pre><code>$ hdfs dfs -cat /user/alice/ratings.csv | head -4
 userId,movieId,rating,timestamp
 1,1,4.0,964982703
 1,3,4.0,964981247
 1,6,4.0,964982224</code></pre>
 <p><code>-cat</code> prints the whole file; piping it to <code>head</code> shows just the first lines.</p>
+</div>
 </section>
 <section id="hdfs-design-principles" class="slide level2">
 <h2>HDFS Design Principles</h2>
@@ -1395,14 +1451,15 @@ userId,movieId,rating,timestamp
           display:block!important;
       }</style></aside>
 </section>
-<section class="slide level2">
-
-<h3 id="answers">Answers</h3>
+<section id="answers" class="slide level2">
+<h2>Answers</h2>
 <p><strong>(a)</strong> 1024 MB ÷ 128 MB = <strong>8 blocks</strong>. With 3 copies each, that’s 24 block copies — about <strong>3 GB</strong> of raw disk.</p>
-<p>. . .</p>
+<div class="fragment">
 <p><strong>(b)</strong> <em>Nothing is lost.</em> Every block on the dead node still has 2 copies elsewhere. HDFS notices the node has gone silent and <em>re-replicates</em> its blocks from the surviving copies until each is back to 3. Data is lost only if <em>all 3 holders</em> of the same block die before that finishes.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>(c)</strong> <em>No.</em> Every byte is still on the DataNodes, but nothing knows which blocks make up which file, or where they are — the address book is gone. That makes a lone NameNode a <strong>single point of failure</strong>, so production clusters run a <em>standby NameNode</em> to take over. (Compare DNS: when it’s down, every website still exists, but you can’t find any of them.)</p>
+</div>
 </section>
 <section id="yarn-who-actually-runs-the-job" class="slide level2">
 <h2>YARN: Who Actually Runs the Job?</h2>
@@ -1426,11 +1483,28 @@ userId,movieId,rating,timestamp
           display:block!important;
       }</style></aside>
 </section>
-<section class="slide level2">
-
-<h3 id="one-job-step-by-step">One job, step by step</h3>
+<section id="one-job-step-by-step" class="slide level2">
+<h2>One job, step by step</h2>
 
 <img data-src="diags/03-yarn.svg" alt="A Client box sends an arrow labeled &quot;1. submit job&quot; to a ResourceManager box labeled &quot;(one per cluster)&quot;. The ResourceManager has three arrows labeled &quot;2. hand out room to run tasks&quot; going down to three large boxes: &quot;Worker 1: NodeManager&quot;, &quot;Worker 2: NodeManager&quot;, &quot;Worker 3: NodeManager&quot;. Worker 1 holds a yellow &quot;ApplicationMaster (this job only)&quot; box and one Map task. Worker 2 holds two Map tasks. Worker 3 holds one Map task and one Reduce task. Dashed lines from the ApplicationMaster connect to every task, labeled &quot;3. tracks progress&quot;. Caption: &quot;YARN decides WHERE tasks run. (HDFS decides where data lives.)&quot;" width="820" class="r-stretch"></section>
+<section id="one-job-on-yarn-step-by-step" class="slide level2">
+<h2>One job on YARN, step by step</h2>
+<iframe src="anims/03-yarn.html" width="940" height="610" style="border:0" title="The client submits a job to the ResourceManager. The ResourceManager gives room on Worker 1 for the job's ApplicationMaster, which asks for room for 4 map tasks. The ResourceManager places Map 1 on Worker 1, Maps 2 and 3 on Worker 2 and Map 4 on Worker 3; the ApplicationMaster tracks them all. The maps finish, then a Reduce task runs on Worker 3 and finishes. YARN decided where each task ran; HDFS decides where data lives.">
+</iframe>
+<aside class="notes">
+<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="a-mapreduce-job-in-practice" class="slide level2">
 <h2>A MapReduce Job in Practice</h2>
 <p>The output directory of a completed Hadoop MapReduce job:</p>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pyxcd</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: 'Virgil', 'Comic Sans MS', cursive;
+    padding: 16px;
+  }
+  #pyxcd-wrapper {
+    background: #fafaf9;
+    border-radius: 12px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+  }
+  #pyxcd-canvas {
+    display: block;
+    background: #fafaf9;
+  }
+  #pyxcd-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.06);
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  #pyxcd-controls button {
+    background: #3d3d5c;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  #pyxcd-controls button:hover { background: #5c5c8a; }
+  #pyxcd-step-label {
+    flex: 1;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+  }
+  #pyxcd-hint {
+    margin-top: 10px;
+    color: #7070a0;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div id="pyxcd-wrapper">
+  <svg id="pyxcd-canvas" width="860" height="500"
+       xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="pyxcd-controls">
+    <button id="pyxcd-btn-reset" title="Restart (R)">&#9664;&#9664;</button>
+    <button id="pyxcd-btn-prev"  title="Previous step (&#8592;)">&#9664;</button>
+    <span id="pyxcd-step-label">0 / 12</span>
+    <button id="pyxcd-btn-next"  title="Next step (&#8594;)">&#9654;</button>
+    <button id="pyxcd-btn-play"  title="Play/Pause (Space)">&#9654;&#9474;</button>
+  </div>
+</div>
+<div id="pyxcd-hint">&#8592; &#8594; to step &nbsp;|&nbsp; Space to play &nbsp;|&nbsp; R to restart</div>
+
+<!-- Rough.js -->
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+
+<!-- pyxcd runtime -->
+<script>
+
+(function () {
+  'use strict';
+
+  const TIMELINE = [{"type":"play","title":"The cluster","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Pid9gyhQrNJ1IPbdWm39","seed":2032169916,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":693.0,"h":25.0,"text":"ratings.csv is 4 blocks, each stored on 3 of the DataNodes A-E.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"6OyjOAltz6RnAxOJA0aL","effect":"fade_in","duration":400},{"mob_id":"gYeOnBOJYIG7Eou5ZWDJ","effect":"draw_on","duration":600},{"mob_id":"aul6iPQMeaAGkjh71dvn","effect":"draw_on","duration":600},{"mob_id":"WgvmGU1IqiMwSicg1QwQ","effect":"fade_in","duration":400},{"mob_id":"3bbmLKmbybbPGhJigTkq","effect":"draw_on","duration":600},{"mob_id":"nQmngY4J2rrYJs9Zh7Rf","effect":"draw_on","duration":600},{"mob_id":"Yx25pVol4Ria4ty2WHvS","effect":"draw_on","duration":600},{"mob_id":"FYK8VonVTFiowXwpu8Vw","effect":"draw_on","duration":600},{"mob_id":"i7E2zAxm7bcPFafFdmsD","effect":"draw_on","duration":600},{"mob_id":"Pid9gyhQrNJ1IPbdWm39","effect":"fade_in","duration":400}]},{"type":"play","title":"1. Ask the address book","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"E23BiJmEsuWvEvmfIkjw","seed":1640737934,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":616.0,"h":25.0,"text":"Step 1: the client asks the NameNode, not the DataNodes.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"KshYdH9HCUTm6hFBMuTB","effect":"draw_on","duration":600},{"mob_id":"TmCLE1CS26H0xINye9Gc","effect":"fade_in","duration":400},{"mob_id":"gYeOnBOJYIG7Eou5ZWDJ","effect":"indicate","color":"#f08c00","revert_to":"#ffec99","duration":300},{"mob_id":"E23BiJmEsuWvEvmfIkjw","effect":"fade_in","duration":400}]},{"type":"play","title":"2. NameNode returns the block list","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"N5YwBaIC6FCjJg5wmPIN","seed":777608692,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":781.0000000000001,"h":25.0,"text":"Step 2: the NameNode answers with WHERE each block lives. No file data.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"40pDgqyz3uCvWZmGH6HP","effect":"draw_on","duration":600},{"mob_id":"v8oGrCspeNS0L7D4zDjo","effect":"fade_in","duration":400},{"mob_id":"M1JhvvlP7mbvFBzXpZ6s","effect":"fade_in","duration":400},{"mob_id":"nXB8uPR5DjSKoRGWPYKa","effect":"fade_in","duration":400},{"mob_id":"FVggLMpwdtaRgdEQfQ1C","effect":"fade_in","duration":400},{"mob_id":"nsR1XLt74OsNt6OvDBi4","effect":"fade_in","duration":400},{"mob_id":"yiwhJEUy1XNLS5aRmmAU","effect":"fade_in","duration":400},{"mob_id":"N5YwBaIC6FCjJg5wmPIN","effect":"fade_in","duration":400}]},{"type":"play","title":"3. Read block 1 from DataNode A","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":716.0,"y":81.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"stPXSZ2qfoJDufEIPIys","seed":2069595213,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 1 lives on A, C, E; read it straight from DataNode A.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"f890Ok5fwlflUYx7IqwR","effect":"draw_on","duration":600},{"mob_id":"vv2iVE7KnITDWeJfSdD7","effect":"fade_in","duration":400},{"mob_id":"3bbmLKmbybbPGhJigTkq","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"ccBE5gM3sT4W4Muc0YTE","effect":"fade_in","duration":400},{"mob_id":"stPXSZ2qfoJDufEIPIys","effect":"fade_in","duration":400}]},{"type":"play","title":"Block 1 arrives at the client","duration":500,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"stPXSZ2qfoJDufEIPIys","seed":2069595213,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 1 lives on A, C, E; read it straight from DataNode A.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"vv2iVE7KnITDWeJfSdD7","effect":"translate","dx":-674.0,"dy":155.0,"duration":500}]},{"type":"play","title":"3. Read block 2 from DataNode B","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":716.0,"y":147.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"1V4qSeqkQJtuBS2y2fXU","seed":1974648624,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 2 lives on B, D, A; read it straight from DataNode B.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"HsjAEpnYCYZvDFh3Bc04","effect":"draw_on","duration":600},{"mob_id":"2SnEBvYf43m4j13d9ayj","effect":"fade_in","duration":400},{"mob_id":"nQmngY4J2rrYJs9Zh7Rf","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"1V4qSeqkQJtuBS2y2fXU","effect":"fade_in","duration":400}]},{"type":"play","title":"Block 2 arrives at the client","duration":500,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"1V4qSeqkQJtuBS2y2fXU","seed":1974648624,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 2 lives on B, D, A; read it straight from DataNode B.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"2SnEBvYf43m4j13d9ayj","effect":"translate","dx":-630.0,"dy":89.0,"duration":500}]},{"type":"play","title":"3. Read block 3 from DataNode C","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"dH3KMGTlYZov2pgQhujg","seed":2045293021,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,228.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"GIzDrZtxu7IiBRnmflDT","seed":783001817,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":716.0,"y":213.0,"w":38,"h":30,"rounded":false,"label":"B3","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"peF1OZkD0CpHXpsTXkPw","seed":501187780,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 3 lives on C, E, B; read it straight from DataNode C.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"dH3KMGTlYZov2pgQhujg","effect":"draw_on","duration":600},{"mob_id":"GIzDrZtxu7IiBRnmflDT","effect":"fade_in","duration":400},{"mob_id":"Yx25pVol4Ria4ty2WHvS","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"peF1OZkD0CpHXpsTXkPw","effect":"fade_in","duration":400}]},{"type":"play","title":"Block 3 arrives at the client","duration":500,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"dH3KMGTlYZov2pgQhujg","seed":2045293021,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,228.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"GIzDrZtxu7IiBRnmflDT","seed":783001817,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":130.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B3","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"peF1OZkD0CpHXpsTXkPw","seed":501187780,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 3 lives on C, E, B; read it straight from DataNode C.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"GIzDrZtxu7IiBRnmflDT","effect":"translate","dx":-586.0,"dy":23.0,"duration":500}]},{"type":"play","title":"3. Read block 4 from DataNode D","duration":600,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"dH3KMGTlYZov2pgQhujg","seed":2045293021,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,228.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"GIzDrZtxu7IiBRnmflDT","seed":783001817,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":130.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B3","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"cGgzH7pJwKnN5v03aUtc","seed":633357328,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,294.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"QajolrJkMvrcyQ4ywSR8","seed":91088819,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":716.0,"y":279.0,"w":38,"h":30,"rounded":false,"label":"B4","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"3CuJE2jccSdAZnaKITmQ","seed":1954467426,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 4 lives on D, A, C; read it straight from DataNode D.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"cGgzH7pJwKnN5v03aUtc","effect":"draw_on","duration":600},{"mob_id":"QajolrJkMvrcyQ4ywSR8","effect":"fade_in","duration":400},{"mob_id":"FYK8VonVTFiowXwpu8Vw","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"3CuJE2jccSdAZnaKITmQ","effect":"fade_in","duration":400}]},{"type":"play","title":"Block 4 arrives at the client","duration":500,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"dH3KMGTlYZov2pgQhujg","seed":2045293021,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,228.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"GIzDrZtxu7IiBRnmflDT","seed":783001817,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":130.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B3","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"cGgzH7pJwKnN5v03aUtc","seed":633357328,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,294.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"QajolrJkMvrcyQ4ywSR8","seed":91088819,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":174.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B4","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"3CuJE2jccSdAZnaKITmQ","seed":1954467426,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":737.0000000000001,"h":25.0,"text":"Step 3: block 4 lives on D, A, C; read it straight from DataNode D.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"QajolrJkMvrcyQ4ywSR8","effect":"translate","dx":-542.0,"dy":-43.0,"duration":500}]},{"type":"play","title":"The NameNode never touched the bytes","duration":400,"snapshot":[{"id":"6OyjOAltz6RnAxOJA0aL","seed":445753579,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":430.0,"y":14,"w":446.6,"h":35.0,"text":"Reading ratings.csv from HDFS","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"gYeOnBOJYIG7Eou5ZWDJ","seed":2103730265,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":300,"y":70,"w":250,"h":64,"rounded":true,"label":"NameNode (address book)","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"aul6iPQMeaAGkjh71dvn","seed":2132114064,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":190,"w":190,"h":100,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"WgvmGU1IqiMwSicg1QwQ","seed":1605573040,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":196,"w":66.0,"h":25.0,"text":"Client","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"3bbmLKmbybbPGhJigTkq","seed":1093842279,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":70,"w":170,"h":52,"rounded":true,"label":"DataNode A","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"nQmngY4J2rrYJs9Zh7Rf","seed":1548019302,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":136,"w":170,"h":52,"rounded":true,"label":"DataNode B","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"Yx25pVol4Ria4ty2WHvS","seed":258598216,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":202,"w":170,"h":52,"rounded":true,"label":"DataNode C","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"FYK8VonVTFiowXwpu8Vw","seed":1012115161,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":268,"w":170,"h":52,"rounded":true,"label":"DataNode D","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i7E2zAxm7bcPFafFdmsD","seed":2041488955,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":650,"y":334,"w":170,"h":52,"rounded":true,"label":"DataNode E","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"KshYdH9HCUTm6hFBMuTB","seed":643491052,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[120,190],[300,100]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"TmCLE1CS26H0xINye9Gc","seed":1684092897,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":20,"y":112,"w":224.4,"h":21.25,"text":"1. where are its blocks?","font_size":17,"font_family":1,"align":"left","color":"#1971c2"},{"id":"40pDgqyz3uCvWZmGH6HP","seed":1949472904,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[340,134],[222,200]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"v8oGrCspeNS0L7D4zDjo","seed":254984379,"stroke":"#7048e8","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":345,"y":148,"w":121.55000000000001,"h":21.25,"text":"2. block list","font_size":17,"font_family":1,"align":"left","color":"#7048e8"},{"id":"M1JhvvlP7mbvFBzXpZ6s","seed":1627226977,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":306,"w":102.85000000000001,"h":21.25,"text":"block list:","font_size":17,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"nXB8uPR5DjSKoRGWPYKa","seed":583533995,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":332,"w":121.55000000000001,"h":21.25,"text":"B1 -> A, C, E","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"FVggLMpwdtaRgdEQfQ1C","seed":343599138,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":356,"w":121.55000000000001,"h":21.25,"text":"B2 -> B, D, A","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"nsR1XLt74OsNt6OvDBi4","seed":1413924150,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":380,"w":121.55000000000001,"h":21.25,"text":"B3 -> C, E, B","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"yiwhJEUy1XNLS5aRmmAU","seed":597726112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":404,"w":121.55000000000001,"h":21.25,"text":"B4 -> D, A, C","font_size":17,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"f890Ok5fwlflUYx7IqwR","seed":686064930,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,96.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"vv2iVE7KnITDWeJfSdD7","seed":2077273369,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":42.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B1","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"ccBE5gM3sT4W4Muc0YTE","seed":958524284,"stroke":"#099268","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":420,"y":336,"w":149.60000000000002,"h":21.25,"text":"3. read directly","font_size":17,"font_family":1,"align":"left","color":"#099268"},{"id":"HsjAEpnYCYZvDFh3Bc04","seed":848706622,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,162.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"2SnEBvYf43m4j13d9ayj","seed":809172412,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":86.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B2","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"dH3KMGTlYZov2pgQhujg","seed":2045293021,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,228.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"GIzDrZtxu7IiBRnmflDT","seed":783001817,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":130.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B3","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"cGgzH7pJwKnN5v03aUtc","seed":633357328,"stroke":"#099268","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[222,278],[650,294.0]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"QajolrJkMvrcyQ4ywSR8","seed":91088819,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":174.0,"y":236.0,"w":38,"h":30,"rounded":false,"label":"B4","font_size":16,"font_family":3,"label_color":"#1e1e1e"},{"id":"TWNQdMOryK8ngEtuZoUV","seed":1483215155,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":448,"w":627.0,"h":25.0,"text":"All 4 blocks read. The NameNode only answered the lookup.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"gYeOnBOJYIG7Eou5ZWDJ","effect":"indicate","color":"#ced4da","revert_to":"#ffec99","duration":300},{"mob_id":"TWNQdMOryK8ngEtuZoUV","effect":"fade_in","duration":400}]}];
+  const WIDTH    = 860;
+  const HEIGHT   = 500;
+  const BG       = "#fafaf9";
+
+  // ── Rough.js options per shape ──────────────────────────────────────────
+  function roughOpts(spec) {
+    return {
+      roughness:   spec.roughness  != null ? spec.roughness  : 1.0,
+      stroke:      spec.stroke     || '#1e1e1e',
+      strokeWidth: spec.stroke_width != null ? spec.stroke_width : 2,
+      fill:        (spec.fill && spec.fill !== 'transparent') ? spec.fill : null,
+      fillStyle:   'solid',
+      seed:        spec.seed || 1,
+    };
+  }
+
+  // ── Arrowhead polygon ────────────────────────────────────────────────────
+  function makeArrowhead(svg, x, y, tx, ty, size) {
+    // tx,ty is unit tangent pointing toward the tip
+    const angle = Math.atan2(ty, tx);
+    const spread = Math.PI / 7;
+    const len = size || 14;
+    const p1x = x - len * Math.cos(angle - spread);
+    const p1y = y - len * Math.sin(angle - spread);
+    const p2x = x - len * Math.cos(angle + spread);
+    const p2y = y - len * Math.sin(angle + spread);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${x},${y} ${p1x},${p1y} ${p2x},${p2y}`);
+    poly.setAttribute('fill', '#1e1e1e');
+    poly.style.pointerEvents = 'none';
+    return poly;
+  }
+
+  // ── Font family map ───────────────────────────────────────────────────────
+  const FONTS = {
+    1: "'Virgil', 'Comic Sans MS', cursive",
+    2: "Helvetica, Arial, sans-serif",
+    3: "'Cascadia Code', 'Fira Code', monospace",
+  };
+
+  // ── Render a single mob spec → SVG group ────────────────────────────────
+  function renderSpec(rc, svg, spec) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-mob-id', spec.id);
+    g.style.opacity = spec.opacity != null ? spec.opacity / 100 : 1;
+
+    const opts = roughOpts(spec);
+    let node = null;
+
+    if (spec.shape === 'rectangle') {
+      node = rc.rectangle(spec.x, spec.y, spec.w, spec.h, opts);
+    } else if (spec.shape === 'ellipse') {
+      node = rc.ellipse(spec.x + spec.w / 2, spec.y + spec.h / 2, spec.w, spec.h, opts);
+    } else if (spec.shape === 'diamond') {
+      const cx = spec.x + spec.w / 2, cy = spec.y + spec.h / 2;
+      const pts = [[cx, spec.y], [spec.x + spec.w, cy], [cx, spec.y + spec.h], [spec.x, cy]];
+      node = rc.polygon(pts, opts);
+    } else if (spec.shape === 'line') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.line(pts[0][0], pts[0][1], pts[pts.length-1][0], pts[pts.length-1][1], opts);
+      }
+    } else if (spec.shape === 'arrow') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.linearPath(pts, opts);
+        const last = pts[pts.length - 1];
+        const prev = pts[pts.length - 2];
+        const tx = last[0] - prev[0], ty = last[1] - prev[1];
+        const len = Math.hypot(tx, ty) || 1;
+        g.appendChild(makeArrowhead(svg, last[0], last[1], tx/len, ty/len));
+        if (spec.start_arrowhead) {
+          const sf = pts[0], sn = pts[1];
+          const stx = sf[0]-sn[0], sty = sf[1]-sn[1];
+          const sl = Math.hypot(stx,sty)||1;
+          g.appendChild(makeArrowhead(svg, sf[0], sf[1], stx/sl, sty/sl));
+        }
+      }
+    } else if (spec.shape === 'path') {
+      node = rc.path(spec.d, opts);
+      // Arrowheads for curves
+      if (spec.end_arrowhead && spec.end_point && spec.end_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.end_point[0], spec.end_point[1],
+          spec.end_tangent[0], spec.end_tangent[1]));
+      }
+      if (spec.start_arrowhead && spec.start_point && spec.start_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.start_point[0], spec.start_point[1],
+          -spec.start_tangent[0], -spec.start_tangent[1]));
+      }
+    } else if (spec.shape === 'text') {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', spec.x);
+      t.setAttribute('y', spec.y + (spec.h || spec.font_size || 20));
+      t.setAttribute('fill', spec.color || spec.stroke || '#1e1e1e');
+      t.setAttribute('font-size', spec.font_size || 20);
+      t.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      const align = spec.align || 'left';
+      t.setAttribute('text-anchor', align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start');
+      t.textContent = spec.text || '';
+      g.appendChild(t);
+    }
+
+    if (node) {
+      // Setup stroke-dashoffset for draw-on animation
+      node.querySelectorAll('path').forEach(p => {
+        const len = p.getTotalLength ? p.getTotalLength() : 0;
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.dataset.pathLen = len;
+      });
+      g.appendChild(node);
+    }
+
+    // Inline label (for shapes)
+    if (spec.label) {
+      const lx = spec.x + (spec.w || 0) / 2;
+      const ly = spec.y + (spec.h || 0) / 2 + (spec.font_size || 20) / 3;
+      const lt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lt.setAttribute('x', lx);
+      lt.setAttribute('y', ly);
+      lt.setAttribute('text-anchor', 'middle');
+      lt.setAttribute('fill', spec.label_color || '#1e1e1e');
+      lt.setAttribute('font-size', spec.font_size || 20);
+      lt.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      lt.textContent = spec.label;
+      g.appendChild(lt);
+    }
+
+    svg.appendChild(g);
+    return g;
+  }
+
+  // ── Animation helpers ────────────────────────────────────────────────────
+
+  function drawOn(g, duration) {
+    const paths = g.querySelectorAll('path');
+    if (!paths.length) { return Promise.resolve(); }
+    return new Promise(resolve => {
+      let done = 0;
+      paths.forEach(p => {
+        const len = parseFloat(p.dataset.pathLen || p.getTotalLength());
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        const anim = p.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        anim.onfinish = () => {
+          p.style.strokeDashoffset = 0;
+          if (++done === paths.length) resolve();
+        };
+      });
+    });
+  }
+
+  function fadeInEl(g, duration) {
+    return new Promise(resolve => {
+      g.style.opacity = 0;
+      const anim = g.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 1; resolve(); };
+    });
+  }
+
+  function fadeOutEl(g, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 0; resolve(); };
+    });
+  }
+
+  function indicateEl(g, color, duration) {
+    return new Promise(resolve => {
+      const els = [...g.querySelectorAll('path,rect,ellipse,polygon')];
+      const origFills = els.map(el => el.getAttribute('fill'));
+      els.forEach(el => el.setAttribute('fill', color));
+      setTimeout(() => {
+        els.forEach((el, i) => el.setAttribute('fill', origFills[i]));
+        resolve();
+      }, duration);
+    });
+  }
+
+  function swapLabels(g1, g2, duration) {
+    // Find the label <text> element in each cell group (direct child, not inside Rough.js paths)
+    const lbl1 = [...g1.children].find(el => el.tagName.toLowerCase() === 'text');
+    const lbl2 = [...g2.children].find(el => el.tagName.toLowerCase() === 'text');
+    if (!lbl1 || !lbl2) return Promise.resolve();
+
+    const x1 = parseFloat(lbl1.getAttribute('x') || 0);
+    const y1 = parseFloat(lbl1.getAttribute('y') || 0);
+    const x2 = parseFloat(lbl2.getAttribute('x') || 0);
+    const y2 = parseFloat(lbl2.getAttribute('y') || 0);
+    const dx = x2 - x1;
+    const arcH = Math.min(Math.abs(dx) * 0.4, 60);
+
+    // Clone labels to SVG root so they float above everything
+    const fly1 = lbl1.cloneNode(true);
+    const fly2 = lbl2.cloneNode(true);
+    svgEl.appendChild(fly1);
+    svgEl.appendChild(fly2);
+
+    // Hide originals during flight
+    lbl1.style.opacity = '0';
+    lbl2.style.opacity = '0';
+
+    return Promise.all([
+      new Promise(res => {
+        const a = fly1.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${dx/2}px,${-arcH}px)` },
+           { transform: `translate(${dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly1.remove(); res(); };
+      }),
+      new Promise(res => {
+        const a = fly2.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${-dx/2}px,${arcH}px)` },
+           { transform: `translate(${-dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly2.remove(); res(); };
+      }),
+    ]);
+  }
+
+  function translateEl(g, dx, dy, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ transform: 'translate(0px,0px)' },
+         { transform: `translate(${dx}px,${dy}px)` }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => resolve();
+    });
+  }
+
+  function fillChangeEl(g, toColor, duration) {
+    const els = [...g.querySelectorAll('path,rect,polygon')].filter(el => {
+      const f = el.getAttribute('fill');
+      return f && f !== 'none';
+    });
+    if (!els.length) return Promise.resolve();
+    return Promise.all(els.map(el => new Promise(resolve => {
+      const from = el.getAttribute('fill') || 'transparent';
+      const anim = el.animate(
+        [{ fill: from }, { fill: toColor }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { el.setAttribute('fill', toColor); resolve(); };
+    })));
+  }
+
+  // ── Main runtime ─────────────────────────────────────────────────────────
+
+  let svgEl, rc;
+  let currentStep = -1;   // -1 = blank (before first step)
+  let isPlaying   = false;
+  let playTimer   = null;
+
+  function findGroup(mobId) {
+    return svgEl.querySelector(`[data-mob-id="${mobId}"]`);
+  }
+
+  function clearScene() {
+    const toRemove = [...svgEl.querySelectorAll('[data-mob-id]')];
+    toRemove.forEach(el => el.remove());
+  }
+
+  function renderSnapshot(snapshot) {
+    clearScene();
+    snapshot.forEach(spec => renderSpec(rc, svgEl, spec));
+    // After render, show all paths fully drawn (dash = 0)
+    svgEl.querySelectorAll('[data-mob-id] path').forEach(p => {
+      p.style.strokeDashoffset = 0;
+    });
+  }
+
+  async function runEffects(step) {
+    const effects = step.effects || [];
+    const promises = [];
+
+    for (const eff of effects) {
+      if (eff.effect === 'succession') continue;
+      const dur = eff.duration || step.duration || 500;
+
+      // Swap needs two groups
+      if (eff.effect === 'swap') {
+        const g1 = findGroup(eff.mob_id_1);
+        const g2 = findGroup(eff.mob_id_2);
+        if (g1 && g2) promises.push(swapLabels(g1, g2, dur));
+        continue;
+      }
+
+      const g = findGroup(eff.mob_id);
+      if (!g) continue;
+      if (eff.effect === 'draw_on')          promises.push(drawOn(g, dur));
+      else if (eff.effect === 'fade_in')     promises.push(fadeInEl(g, dur));
+      else if (eff.effect === 'fade_out')    promises.push(fadeOutEl(g, dur));
+      else if (eff.effect === 'indicate')    promises.push(indicateEl(g, eff.color, dur));
+      else if (eff.effect === 'fill_change') promises.push(fillChangeEl(g, eff.to, dur));
+      else if (eff.effect === 'translate')   promises.push(translateEl(g, eff.dx, eff.dy, dur));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async function goToStep(idx, animate) {
+    if (idx < 0 || idx >= TIMELINE.length) return;
+    const step = TIMELINE[idx];
+    currentStep = idx;
+
+    // Render snapshot first (full scene for this step, paths will draw on)
+    if (animate) {
+      renderSnapshotForAnimation(step);
+      await runEffects(step);
+      // Reconcile DOM with snapshot: updates labels/fills on existing mobs that
+      // changed (e.g. after swap). Seeds are stable so Rough.js re-renders identically.
+      renderSnapshot(step.snapshot);
+    } else {
+      renderSnapshot(step.snapshot);
+    }
+
+    updateUI();
+  }
+
+  function renderSnapshotForAnimation(step) {
+    // Figures out which mob IDs are new vs already on screen
+    const existing = new Set([...svgEl.querySelectorAll('[data-mob-id]')]
+      .map(g => g.getAttribute('data-mob-id')));
+    const incoming = new Set((step.snapshot || []).map(s => s.id));
+
+    // Remove mobs that are no longer in the snapshot
+    [...svgEl.querySelectorAll('[data-mob-id]')].forEach(g => {
+      if (!incoming.has(g.getAttribute('data-mob-id'))) g.remove();
+    });
+
+    // Add new mobs
+    (step.snapshot || []).forEach(spec => {
+      if (!existing.has(spec.id)) {
+        renderSpec(rc, svgEl, spec);
+      }
+    });
+  }
+
+  function updateUI() {
+    const stepLabel = document.getElementById('pyxcd-step-label');
+    if (stepLabel) {
+      const step = currentStep >= 0 ? TIMELINE[currentStep] : null;
+      stepLabel.textContent = step
+        ? `${currentStep + 1} / ${TIMELINE.length}  ${step.title || ''}`
+        : `0 / ${TIMELINE.length}`;
+    }
+  }
+
+  // ── Controls ─────────────────────────────────────────────────────────────
+
+  function next() {
+    if (currentStep < TIMELINE.length - 1) goToStep(currentStep + 1, true);
+  }
+
+  function prev() {
+    if (currentStep > 0) goToStep(currentStep - 1, false);
+    else if (currentStep === 0) { clearScene(); currentStep = -1; updateUI(); }
+  }
+
+  function restart() {
+    stopPlay();
+    clearScene();
+    currentStep = -1;
+    updateUI();
+  }
+
+  function startPlay() {
+    if (isPlaying) return;
+    isPlaying = true;
+    async function tick() {
+      if (!isPlaying) return;
+      if (currentStep >= TIMELINE.length - 1) { stopPlay(); return; }
+      await goToStep(currentStep + 1, true);
+      const dur = TIMELINE[currentStep].duration || 500;
+      playTimer = setTimeout(tick, dur + 100);
+    }
+    tick();
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    clearTimeout(playTimer);
+  }
+
+  function togglePlay() {
+    if (isPlaying) stopPlay(); else startPlay();
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+
+  function init() {
+    svgEl = document.getElementById('pyxcd-canvas');
+    if (!svgEl) return;
+    rc = rough.svg(svgEl);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { stopPlay(); next(); }
+      else if (e.key === 'ArrowLeft')  { stopPlay(); prev(); }
+      else if (e.key === ' ')          { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'r' || e.key === 'R') restart();
+    });
+
+    const btnPrev  = document.getElementById('pyxcd-btn-prev');
+    const btnNext  = document.getElementById('pyxcd-btn-next');
+    const btnPlay  = document.getElementById('pyxcd-btn-play');
+    const btnReset = document.getElementById('pyxcd-btn-reset');
+    if (btnPrev)  btnPrev.addEventListener('click',  () => { stopPlay(); prev(); });
+    if (btnNext)  btnNext.addEventListener('click',  () => { stopPlay(); next(); });
+    if (btnPlay)  btnPlay.addEventListener('click',  togglePlay);
+    if (btnReset) btnReset.addEventListener('click', restart);
+
+    updateUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

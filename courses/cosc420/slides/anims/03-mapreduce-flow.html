@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pyxcd</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: 'Virgil', 'Comic Sans MS', cursive;
+    padding: 16px;
+  }
+  #pyxcd-wrapper {
+    background: #fafaf9;
+    border-radius: 12px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+  }
+  #pyxcd-canvas {
+    display: block;
+    background: #fafaf9;
+  }
+  #pyxcd-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.06);
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  #pyxcd-controls button {
+    background: #3d3d5c;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  #pyxcd-controls button:hover { background: #5c5c8a; }
+  #pyxcd-step-label {
+    flex: 1;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+  }
+  #pyxcd-hint {
+    margin-top: 10px;
+    color: #7070a0;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div id="pyxcd-wrapper">
+  <svg id="pyxcd-canvas" width="900" height="510"
+       xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="pyxcd-controls">
+    <button id="pyxcd-btn-reset" title="Restart (R)">&#9664;&#9664;</button>
+    <button id="pyxcd-btn-prev"  title="Previous step (&#8592;)">&#9664;</button>
+    <span id="pyxcd-step-label">0 / 8</span>
+    <button id="pyxcd-btn-next"  title="Next step (&#8594;)">&#9654;</button>
+    <button id="pyxcd-btn-play"  title="Play/Pause (Space)">&#9654;&#9474;</button>
+  </div>
+</div>
+<div id="pyxcd-hint">&#8592; &#8594; to step &nbsp;|&nbsp; Space to play &nbsp;|&nbsp; R to restart</div>
+
+<!-- Rough.js -->
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+
+<!-- pyxcd runtime -->
+<script>
+
+(function () {
+  'use strict';
+
+  const TIMELINE = [{"type":"play","title":"Three branches, three piles","duration":600,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"uRkhb1NU7jjqObk66Uvk","seed":1119262943,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":594.0,"h":25.0,"text":"Three branches, each with its own pile of raw tickets.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"4HfGwU9n3PMikQKqfPJx","effect":"fade_in","duration":400},{"mob_id":"WK3kem7TFOZPPpBFqVKA","effect":"draw_on","duration":600},{"mob_id":"IdnIWPidT2T8hDKEwiRS","effect":"draw_on","duration":600},{"mob_id":"PwfItAmiaX5NCWOFcorY","effect":"draw_on","duration":600},{"mob_id":"uRkhb1NU7jjqObk66Uvk","effect":"fade_in","duration":400}]},{"type":"play","title":"Map: tally your own pile","duration":600,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"YWaepQh0LWXOVFbq6QO6","seed":975366890,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":627.0,"h":25.0,"text":"Map: each branch tallies only its own pile. No trips yet.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"IgqKU0oO1LspIi9jjjS2","effect":"draw_on","duration":600},{"mob_id":"asgKWkuwdYUq7WtiHtJe","effect":"draw_on","duration":600},{"mob_id":"urfYGPV7KH6LIbzkNP34","effect":"draw_on","duration":600},{"mob_id":"5F6V54cFLFY1eq1tBapk","effect":"draw_on","duration":600},{"mob_id":"T1OKzz22kxHapQUlGlu6","effect":"draw_on","duration":600},{"mob_id":"DariU50EpMDkEkan3IJM","effect":"draw_on","duration":600},{"mob_id":"uFKq2IfuxOyBAeylmFSp","effect":"fade_in","duration":400},{"mob_id":"7eakGOPLq6w3eefBywsy","effect":"fade_in","duration":400},{"mob_id":"FfpOIYP53Im9zb6wN2K0","effect":"fade_in","duration":400},{"mob_id":"2EL0Uv5wubGx6ZzMeVRe","effect":"fade_in","duration":400},{"mob_id":"cmHjlmgidA5qoel7lJOr","effect":"fade_in","duration":400},{"mob_id":"YIySsc2Pk3lgm25DcpMm","effect":"fade_in","duration":400},{"mob_id":"7mMZJnvpJu3PTDKkzoe3","effect":"fade_in","duration":400},{"mob_id":"gqlVxrHL07d2O5mXPeaZ","effect":"fade_in","duration":400},{"mob_id":"fk4Jjtn6c5RgHoV4VSru","effect":"fade_in","duration":400},{"mob_id":"u5mY4Q6qDT3mROJZYjo5","effect":"fade_in","duration":400},{"mob_id":"8DHdN0B3CMMIjdoQjnKz","effect":"fade_in","duration":400},{"mob_id":"YWaepQh0LWXOVFbq6QO6","effect":"fade_in","duration":400}]},{"type":"play","title":"One owner per key","duration":600,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":138,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"ef9E9b4wHMQFZlTuavF4","seed":1907457357,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":429.00000000000006,"h":25.0,"text":"Each item (key) gets exactly one owner.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"7g681dGb5s56y1y52wvO","effect":"draw_on","duration":600},{"mob_id":"TZtbhnX7H9xQmaUu0UOu","effect":"draw_on","duration":600},{"mob_id":"LNdKf1J2KJnxxXFkIryl","effect":"draw_on","duration":600},{"mob_id":"biY6GVy0eVRsZlVZZTbD","effect":"fade_in","duration":400},{"mob_id":"5XsNQJEjTwzd5VQ17GAM","effect":"fade_in","duration":400},{"mob_id":"fkleQLG0RWrK3Kjeh88Z","effect":"fade_in","duration":400},{"mob_id":"MP2v3pqkwHKxf6i7Q4yt","effect":"fade_in","duration":400},{"mob_id":"GtJ9fme6g1HkArCNEgwJ","effect":"fade_in","duration":400},{"mob_id":"ef9E9b4wHMQFZlTuavF4","effect":"fade_in","duration":400}]},{"type":"play","title":"Shuffle: burger tallies travel","duration":500,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":172,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"r6pee1IBfBAoLDUqSHfA","seed":1936926030,"stroke":"#e03131","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":262,"w":84.7,"h":27.5,"text":"Shuffle","font_size":22,"font_family":1,"align":"left","color":"#e03131"},{"id":"lALB5a2Kormruf23Znbd","seed":1843632113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":292,"w":115.50000000000001,"h":18.75,"text":"the only trips","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"KgEXiETOTZzh5BIqyfyx","seed":337004323,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":770.0000000000001,"h":25.0,"text":"Shuffle: all 3 burger tallies go to the burger owner (3 trips so far).","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"uFKq2IfuxOyBAeylmFSp","effect":"translate","dx":-33.0,"dy":236,"duration":500},{"mob_id":"2EL0Uv5wubGx6ZzMeVRe","effect":"translate","dx":-273.0,"dy":266,"duration":500},{"mob_id":"7mMZJnvpJu3PTDKkzoe3","effect":"translate","dx":-513.0,"dy":296,"duration":500},{"mob_id":"r6pee1IBfBAoLDUqSHfA","effect":"fade_in","duration":400},{"mob_id":"lALB5a2Kormruf23Znbd","effect":"fade_in","duration":400},{"mob_id":"KgEXiETOTZzh5BIqyfyx","effect":"fade_in","duration":400}]},{"type":"play","title":"Shuffle: fries tallies travel","duration":500,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":225.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":465.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":705.0,"y":206,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"r6pee1IBfBAoLDUqSHfA","seed":1936926030,"stroke":"#e03131","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":262,"w":84.7,"h":27.5,"text":"Shuffle","font_size":22,"font_family":1,"align":"left","color":"#e03131"},{"id":"lALB5a2Kormruf23Znbd","seed":1843632113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":292,"w":115.50000000000001,"h":18.75,"text":"the only trips","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"KDmkLtlj88n7u60z6xUp","seed":1607008985,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":748.0000000000001,"h":25.0,"text":"Shuffle: all 3 fries tallies go to the fries owner (6 trips so far).","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"7eakGOPLq6w3eefBywsy","effect":"translate","dx":207.0,"dy":202,"duration":500},{"mob_id":"cmHjlmgidA5qoel7lJOr","effect":"translate","dx":-33.0,"dy":232,"duration":500},{"mob_id":"gqlVxrHL07d2O5mXPeaZ","effect":"translate","dx":-273.0,"dy":262,"duration":500},{"mob_id":"KDmkLtlj88n7u60z6xUp","effect":"fade_in","duration":400}]},{"type":"play","title":"Shuffle: pizza tallies travel","duration":500,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"r6pee1IBfBAoLDUqSHfA","seed":1936926030,"stroke":"#e03131","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":262,"w":84.7,"h":27.5,"text":"Shuffle","font_size":22,"font_family":1,"align":"left","color":"#e03131"},{"id":"lALB5a2Kormruf23Znbd","seed":1843632113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":292,"w":115.50000000000001,"h":18.75,"text":"the only trips","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"DHloQcIX7Xac7AfvUClW","seed":1134537646,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":748.0000000000001,"h":25.0,"text":"Shuffle: all 3 pizza tallies go to the pizza owner (9 trips so far).","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"FfpOIYP53Im9zb6wN2K0","effect":"translate","dx":447.0,"dy":168,"duration":500},{"mob_id":"YIySsc2Pk3lgm25DcpMm","effect":"translate","dx":207.0,"dy":198,"duration":500},{"mob_id":"fk4Jjtn6c5RgHoV4VSru","effect":"translate","dx":-33.0,"dy":228,"duration":500},{"mob_id":"DHloQcIX7Xac7AfvUClW","effect":"fade_in","duration":400}]},{"type":"play","title":"Reduce: sum per key","duration":400,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"r6pee1IBfBAoLDUqSHfA","seed":1936926030,"stroke":"#e03131","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":262,"w":84.7,"h":27.5,"text":"Shuffle","font_size":22,"font_family":1,"align":"left","color":"#e03131"},{"id":"lALB5a2Kormruf23Znbd","seed":1843632113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":292,"w":115.50000000000001,"h":18.75,"text":"the only trips","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"lmV3pvdaDocOfL6DsWzu","seed":1146945772,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":312,"y":402,"w":52.800000000000004,"h":30.0,"text":"= 10","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"8B9QS2vXosCAkj2E8zWb","seed":1917973038,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":552,"y":402,"w":52.800000000000004,"h":30.0,"text":"= 11","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"OtyOiojQlvA1GRqaeZq4","seed":1143753885,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":792,"y":402,"w":39.6,"h":30.0,"text":"= 8","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"KAarmGLeIgGMkEqqyD3y","seed":1415600427,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":759.0000000000001,"h":25.0,"text":"Reduce: each owner adds up its own key. burger 10, fries 11, pizza 8.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"lmV3pvdaDocOfL6DsWzu","effect":"fade_in","duration":400},{"mob_id":"8B9QS2vXosCAkj2E8zWb","effect":"fade_in","duration":400},{"mob_id":"OtyOiojQlvA1GRqaeZq4","effect":"fade_in","duration":400},{"mob_id":"7g681dGb5s56y1y52wvO","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"TZtbhnX7H9xQmaUu0UOu","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"LNdKf1J2KJnxxXFkIryl","effect":"indicate","color":"#f08c00","revert_to":"#a5d8ff","duration":300},{"mob_id":"KAarmGLeIgGMkEqqyD3y","effect":"fade_in","duration":400}]},{"type":"play","title":"Same shape as Monday","duration":400,"snapshot":[{"id":"4HfGwU9n3PMikQKqfPJx","seed":1976873380,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":10,"w":462.00000000000006,"h":35.0,"text":"Monday's kitchen, as MapReduce","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"WK3kem7TFOZPPpBFqVKA","seed":418969415,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 1: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IdnIWPidT2T8hDKEwiRS","seed":1343076597,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 2: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"PwfItAmiaX5NCWOFcorY","seed":1466612621,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":58,"w":200,"h":42,"rounded":true,"label":"Branch 3: raw tickets","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"IgqKU0oO1LspIi9jjjS2","seed":891945762,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[280.0,100],[280.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"asgKWkuwdYUq7WtiHtJe","seed":609206748,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[520.0,100],[520.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"urfYGPV7KH6LIbzkNP34","seed":1600369932,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[760.0,100],[760.0,128]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"5F6V54cFLFY1eq1tBapk","seed":885210901,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"T1OKzz22kxHapQUlGlu6","seed":301480112,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"DariU50EpMDkEkan3IJM","seed":1245384981,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":128,"w":200,"h":116,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"u5mY4Q6qDT3mROJZYjo5","seed":1480395777,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":148,"w":36.300000000000004,"h":27.5,"text":"Map","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"8DHdN0B3CMMIjdoQjnKz","seed":1019701003,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":178,"w":148.5,"h":18.75,"text":"alone, in parallel","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"7g681dGb5s56y1y52wvO","seed":1181839280,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":180,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"TZtbhnX7H9xQmaUu0UOu","seed":517024436,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":420,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"LNdKf1J2KJnxxXFkIryl","seed":48535259,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":660,"y":340,"w":200,"h":125,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"biY6GVy0eVRsZlVZZTbD","seed":108862758,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":192,"y":344,"w":108.9,"h":22.5,"text":"owns burger","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"5XsNQJEjTwzd5VQ17GAM","seed":869496501,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":432,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns fries","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"fkleQLG0RWrK3Kjeh88Z","seed":937628530,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":672,"y":344,"w":99.00000000000001,"h":22.5,"text":"owns pizza","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"MP2v3pqkwHKxf6i7Q4yt","seed":281994686,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":370,"w":72.60000000000001,"h":27.5,"text":"Reduce","font_size":22,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"GtJ9fme6g1HkArCNEgwJ","seed":1274722113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":400,"w":140.25,"h":18.75,"text":"one owner per key","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"uFKq2IfuxOyBAeylmFSp","seed":779720651,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"burger 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7eakGOPLq6w3eefBywsy","seed":2080746252,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"fries 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"FfpOIYP53Im9zb6wN2K0","seed":1152248156,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":374.0,"w":110,"h":26,"rounded":false,"label":"pizza 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"2EL0Uv5wubGx6ZzMeVRe","seed":1452172286,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"burger 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"cmHjlmgidA5qoel7lJOr","seed":1752169418,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"fries 6","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"YIySsc2Pk3lgm25DcpMm","seed":1955573117,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":404.0,"w":110,"h":26,"rounded":false,"label":"pizza 5","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"7mMZJnvpJu3PTDKkzoe3","seed":244906004,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":192.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"burger 3","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"gqlVxrHL07d2O5mXPeaZ","seed":1740651798,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":432.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"fries 2","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"fk4Jjtn6c5RgHoV4VSru","seed":1047082434,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"stroke_style":"solid","roughness":0.6,"opacity":100,"shape":"rectangle","x":672.0,"y":434.0,"w":110,"h":26,"rounded":false,"label":"pizza 1","font_size":15,"font_family":3,"label_color":"#1e1e1e"},{"id":"r6pee1IBfBAoLDUqSHfA","seed":1936926030,"stroke":"#e03131","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":262,"w":84.7,"h":27.5,"text":"Shuffle","font_size":22,"font_family":1,"align":"left","color":"#e03131"},{"id":"lALB5a2Kormruf23Znbd","seed":1843632113,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":292,"w":115.50000000000001,"h":18.75,"text":"the only trips","font_size":15,"font_family":1,"align":"left","color":"#868e96"},{"id":"lmV3pvdaDocOfL6DsWzu","seed":1146945772,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":312,"y":402,"w":52.800000000000004,"h":30.0,"text":"= 10","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"8B9QS2vXosCAkj2E8zWb","seed":1917973038,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":552,"y":402,"w":52.800000000000004,"h":30.0,"text":"= 11","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"OtyOiojQlvA1GRqaeZq4","seed":1143753885,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":792,"y":402,"w":39.6,"h":30.0,"text":"= 8","font_size":24,"font_family":3,"align":"left","color":"#1e1e1e"},{"id":"M0OU6QYHuLT1xxzbvRP6","seed":18647384,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":16,"y":474,"w":748.0000000000001,"h":25.0,"text":"Same shape as Monday, just relabeled. Only the shuffle needed trips.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"r6pee1IBfBAoLDUqSHfA","effect":"indicate","color":"#ffc9c9","revert_to":"transparent","duration":300},{"mob_id":"lALB5a2Kormruf23Znbd","effect":"indicate","color":"#ffc9c9","revert_to":"transparent","duration":300},{"mob_id":"M0OU6QYHuLT1xxzbvRP6","effect":"fade_in","duration":400}]}];
+  const WIDTH    = 900;
+  const HEIGHT   = 510;
+  const BG       = "#fafaf9";
+
+  // ── Rough.js options per shape ──────────────────────────────────────────
+  function roughOpts(spec) {
+    return {
+      roughness:   spec.roughness  != null ? spec.roughness  : 1.0,
+      stroke:      spec.stroke     || '#1e1e1e',
+      strokeWidth: spec.stroke_width != null ? spec.stroke_width : 2,
+      fill:        (spec.fill && spec.fill !== 'transparent') ? spec.fill : null,
+      fillStyle:   'solid',
+      seed:        spec.seed || 1,
+    };
+  }
+
+  // ── Arrowhead polygon ────────────────────────────────────────────────────
+  function makeArrowhead(svg, x, y, tx, ty, size) {
+    // tx,ty is unit tangent pointing toward the tip
+    const angle = Math.atan2(ty, tx);
+    const spread = Math.PI / 7;
+    const len = size || 14;
+    const p1x = x - len * Math.cos(angle - spread);
+    const p1y = y - len * Math.sin(angle - spread);
+    const p2x = x - len * Math.cos(angle + spread);
+    const p2y = y - len * Math.sin(angle + spread);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${x},${y} ${p1x},${p1y} ${p2x},${p2y}`);
+    poly.setAttribute('fill', '#1e1e1e');
+    poly.style.pointerEvents = 'none';
+    return poly;
+  }
+
+  // ── Font family map ───────────────────────────────────────────────────────
+  const FONTS = {
+    1: "'Virgil', 'Comic Sans MS', cursive",
+    2: "Helvetica, Arial, sans-serif",
+    3: "'Cascadia Code', 'Fira Code', monospace",
+  };
+
+  // ── Render a single mob spec → SVG group ────────────────────────────────
+  function renderSpec(rc, svg, spec) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-mob-id', spec.id);
+    g.style.opacity = spec.opacity != null ? spec.opacity / 100 : 1;
+
+    const opts = roughOpts(spec);
+    let node = null;
+
+    if (spec.shape === 'rectangle') {
+      node = rc.rectangle(spec.x, spec.y, spec.w, spec.h, opts);
+    } else if (spec.shape === 'ellipse') {
+      node = rc.ellipse(spec.x + spec.w / 2, spec.y + spec.h / 2, spec.w, spec.h, opts);
+    } else if (spec.shape === 'diamond') {
+      const cx = spec.x + spec.w / 2, cy = spec.y + spec.h / 2;
+      const pts = [[cx, spec.y], [spec.x + spec.w, cy], [cx, spec.y + spec.h], [spec.x, cy]];
+      node = rc.polygon(pts, opts);
+    } else if (spec.shape === 'line') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.line(pts[0][0], pts[0][1], pts[pts.length-1][0], pts[pts.length-1][1], opts);
+      }
+    } else if (spec.shape === 'arrow') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.linearPath(pts, opts);
+        const last = pts[pts.length - 1];
+        const prev = pts[pts.length - 2];
+        const tx = last[0] - prev[0], ty = last[1] - prev[1];
+        const len = Math.hypot(tx, ty) || 1;
+        g.appendChild(makeArrowhead(svg, last[0], last[1], tx/len, ty/len));
+        if (spec.start_arrowhead) {
+          const sf = pts[0], sn = pts[1];
+          const stx = sf[0]-sn[0], sty = sf[1]-sn[1];
+          const sl = Math.hypot(stx,sty)||1;
+          g.appendChild(makeArrowhead(svg, sf[0], sf[1], stx/sl, sty/sl));
+        }
+      }
+    } else if (spec.shape === 'path') {
+      node = rc.path(spec.d, opts);
+      // Arrowheads for curves
+      if (spec.end_arrowhead && spec.end_point && spec.end_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.end_point[0], spec.end_point[1],
+          spec.end_tangent[0], spec.end_tangent[1]));
+      }
+      if (spec.start_arrowhead && spec.start_point && spec.start_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.start_point[0], spec.start_point[1],
+          -spec.start_tangent[0], -spec.start_tangent[1]));
+      }
+    } else if (spec.shape === 'text') {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', spec.x);
+      t.setAttribute('y', spec.y + (spec.h || spec.font_size || 20));
+      t.setAttribute('fill', spec.color || spec.stroke || '#1e1e1e');
+      t.setAttribute('font-size', spec.font_size || 20);
+      t.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      const align = spec.align || 'left';
+      t.setAttribute('text-anchor', align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start');
+      t.textContent = spec.text || '';
+      g.appendChild(t);
+    }
+
+    if (node) {
+      // Setup stroke-dashoffset for draw-on animation
+      node.querySelectorAll('path').forEach(p => {
+        const len = p.getTotalLength ? p.getTotalLength() : 0;
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.dataset.pathLen = len;
+      });
+      g.appendChild(node);
+    }
+
+    // Inline label (for shapes)
+    if (spec.label) {
+      const lx = spec.x + (spec.w || 0) / 2;
+      const ly = spec.y + (spec.h || 0) / 2 + (spec.font_size || 20) / 3;
+      const lt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lt.setAttribute('x', lx);
+      lt.setAttribute('y', ly);
+      lt.setAttribute('text-anchor', 'middle');
+      lt.setAttribute('fill', spec.label_color || '#1e1e1e');
+      lt.setAttribute('font-size', spec.font_size || 20);
+      lt.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      lt.textContent = spec.label;
+      g.appendChild(lt);
+    }
+
+    svg.appendChild(g);
+    return g;
+  }
+
+  // ── Animation helpers ────────────────────────────────────────────────────
+
+  function drawOn(g, duration) {
+    const paths = g.querySelectorAll('path');
+    if (!paths.length) { return Promise.resolve(); }
+    return new Promise(resolve => {
+      let done = 0;
+      paths.forEach(p => {
+        const len = parseFloat(p.dataset.pathLen || p.getTotalLength());
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        const anim = p.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        anim.onfinish = () => {
+          p.style.strokeDashoffset = 0;
+          if (++done === paths.length) resolve();
+        };
+      });
+    });
+  }
+
+  function fadeInEl(g, duration) {
+    return new Promise(resolve => {
+      g.style.opacity = 0;
+      const anim = g.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 1; resolve(); };
+    });
+  }
+
+  function fadeOutEl(g, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 0; resolve(); };
+    });
+  }
+
+  function indicateEl(g, color, duration) {
+    return new Promise(resolve => {
+      const els = [...g.querySelectorAll('path,rect,ellipse,polygon')];
+      const origFills = els.map(el => el.getAttribute('fill'));
+      els.forEach(el => el.setAttribute('fill', color));
+      setTimeout(() => {
+        els.forEach((el, i) => el.setAttribute('fill', origFills[i]));
+        resolve();
+      }, duration);
+    });
+  }
+
+  function swapLabels(g1, g2, duration) {
+    // Find the label <text> element in each cell group (direct child, not inside Rough.js paths)
+    const lbl1 = [...g1.children].find(el => el.tagName.toLowerCase() === 'text');
+    const lbl2 = [...g2.children].find(el => el.tagName.toLowerCase() === 'text');
+    if (!lbl1 || !lbl2) return Promise.resolve();
+
+    const x1 = parseFloat(lbl1.getAttribute('x') || 0);
+    const y1 = parseFloat(lbl1.getAttribute('y') || 0);
+    const x2 = parseFloat(lbl2.getAttribute('x') || 0);
+    const y2 = parseFloat(lbl2.getAttribute('y') || 0);
+    const dx = x2 - x1;
+    const arcH = Math.min(Math.abs(dx) * 0.4, 60);
+
+    // Clone labels to SVG root so they float above everything
+    const fly1 = lbl1.cloneNode(true);
+    const fly2 = lbl2.cloneNode(true);
+    svgEl.appendChild(fly1);
+    svgEl.appendChild(fly2);
+
+    // Hide originals during flight
+    lbl1.style.opacity = '0';
+    lbl2.style.opacity = '0';
+
+    return Promise.all([
+      new Promise(res => {
+        const a = fly1.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${dx/2}px,${-arcH}px)` },
+           { transform: `translate(${dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly1.remove(); res(); };
+      }),
+      new Promise(res => {
+        const a = fly2.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${-dx/2}px,${arcH}px)` },
+           { transform: `translate(${-dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly2.remove(); res(); };
+      }),
+    ]);
+  }
+
+  function translateEl(g, dx, dy, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ transform: 'translate(0px,0px)' },
+         { transform: `translate(${dx}px,${dy}px)` }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => resolve();
+    });
+  }
+
+  function fillChangeEl(g, toColor, duration) {
+    const els = [...g.querySelectorAll('path,rect,polygon')].filter(el => {
+      const f = el.getAttribute('fill');
+      return f && f !== 'none';
+    });
+    if (!els.length) return Promise.resolve();
+    return Promise.all(els.map(el => new Promise(resolve => {
+      const from = el.getAttribute('fill') || 'transparent';
+      const anim = el.animate(
+        [{ fill: from }, { fill: toColor }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { el.setAttribute('fill', toColor); resolve(); };
+    })));
+  }
+
+  // ── Main runtime ─────────────────────────────────────────────────────────
+
+  let svgEl, rc;
+  let currentStep = -1;   // -1 = blank (before first step)
+  let isPlaying   = false;
+  let playTimer   = null;
+
+  function findGroup(mobId) {
+    return svgEl.querySelector(`[data-mob-id="${mobId}"]`);
+  }
+
+  function clearScene() {
+    const toRemove = [...svgEl.querySelectorAll('[data-mob-id]')];
+    toRemove.forEach(el => el.remove());
+  }
+
+  function renderSnapshot(snapshot) {
+    clearScene();
+    snapshot.forEach(spec => renderSpec(rc, svgEl, spec));
+    // After render, show all paths fully drawn (dash = 0)
+    svgEl.querySelectorAll('[data-mob-id] path').forEach(p => {
+      p.style.strokeDashoffset = 0;
+    });
+  }
+
+  async function runEffects(step) {
+    const effects = step.effects || [];
+    const promises = [];
+
+    for (const eff of effects) {
+      if (eff.effect === 'succession') continue;
+      const dur = eff.duration || step.duration || 500;
+
+      // Swap needs two groups
+      if (eff.effect === 'swap') {
+        const g1 = findGroup(eff.mob_id_1);
+        const g2 = findGroup(eff.mob_id_2);
+        if (g1 && g2) promises.push(swapLabels(g1, g2, dur));
+        continue;
+      }
+
+      const g = findGroup(eff.mob_id);
+      if (!g) continue;
+      if (eff.effect === 'draw_on')          promises.push(drawOn(g, dur));
+      else if (eff.effect === 'fade_in')     promises.push(fadeInEl(g, dur));
+      else if (eff.effect === 'fade_out')    promises.push(fadeOutEl(g, dur));
+      else if (eff.effect === 'indicate')    promises.push(indicateEl(g, eff.color, dur));
+      else if (eff.effect === 'fill_change') promises.push(fillChangeEl(g, eff.to, dur));
+      else if (eff.effect === 'translate')   promises.push(translateEl(g, eff.dx, eff.dy, dur));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async function goToStep(idx, animate) {
+    if (idx < 0 || idx >= TIMELINE.length) return;
+    const step = TIMELINE[idx];
+    currentStep = idx;
+
+    // Render snapshot first (full scene for this step, paths will draw on)
+    if (animate) {
+      renderSnapshotForAnimation(step);
+      await runEffects(step);
+      // Reconcile DOM with snapshot: updates labels/fills on existing mobs that
+      // changed (e.g. after swap). Seeds are stable so Rough.js re-renders identically.
+      renderSnapshot(step.snapshot);
+    } else {
+      renderSnapshot(step.snapshot);
+    }
+
+    updateUI();
+  }
+
+  function renderSnapshotForAnimation(step) {
+    // Figures out which mob IDs are new vs already on screen
+    const existing = new Set([...svgEl.querySelectorAll('[data-mob-id]')]
+      .map(g => g.getAttribute('data-mob-id')));
+    const incoming = new Set((step.snapshot || []).map(s => s.id));
+
+    // Remove mobs that are no longer in the snapshot
+    [...svgEl.querySelectorAll('[data-mob-id]')].forEach(g => {
+      if (!incoming.has(g.getAttribute('data-mob-id'))) g.remove();
+    });
+
+    // Add new mobs
+    (step.snapshot || []).forEach(spec => {
+      if (!existing.has(spec.id)) {
+        renderSpec(rc, svgEl, spec);
+      }
+    });
+  }
+
+  function updateUI() {
+    const stepLabel = document.getElementById('pyxcd-step-label');
+    if (stepLabel) {
+      const step = currentStep >= 0 ? TIMELINE[currentStep] : null;
+      stepLabel.textContent = step
+        ? `${currentStep + 1} / ${TIMELINE.length}  ${step.title || ''}`
+        : `0 / ${TIMELINE.length}`;
+    }
+  }
+
+  // ── Controls ─────────────────────────────────────────────────────────────
+
+  function next() {
+    if (currentStep < TIMELINE.length - 1) goToStep(currentStep + 1, true);
+  }
+
+  function prev() {
+    if (currentStep > 0) goToStep(currentStep - 1, false);
+    else if (currentStep === 0) { clearScene(); currentStep = -1; updateUI(); }
+  }
+
+  function restart() {
+    stopPlay();
+    clearScene();
+    currentStep = -1;
+    updateUI();
+  }
+
+  function startPlay() {
+    if (isPlaying) return;
+    isPlaying = true;
+    async function tick() {
+      if (!isPlaying) return;
+      if (currentStep >= TIMELINE.length - 1) { stopPlay(); return; }
+      await goToStep(currentStep + 1, true);
+      const dur = TIMELINE[currentStep].duration || 500;
+      playTimer = setTimeout(tick, dur + 100);
+    }
+    tick();
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    clearTimeout(playTimer);
+  }
+
+  function togglePlay() {
+    if (isPlaying) stopPlay(); else startPlay();
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+
+  function init() {
+    svgEl = document.getElementById('pyxcd-canvas');
+    if (!svgEl) return;
+    rc = rough.svg(svgEl);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { stopPlay(); next(); }
+      else if (e.key === 'ArrowLeft')  { stopPlay(); prev(); }
+      else if (e.key === ' ')          { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'r' || e.key === 'R') restart();
+    });
+
+    const btnPrev  = document.getElementById('pyxcd-btn-prev');
+    const btnNext  = document.getElementById('pyxcd-btn-next');
+    const btnPlay  = document.getElementById('pyxcd-btn-play');
+    const btnReset = document.getElementById('pyxcd-btn-reset');
+    if (btnPrev)  btnPrev.addEventListener('click',  () => { stopPlay(); prev(); });
+    if (btnNext)  btnNext.addEventListener('click',  () => { stopPlay(); next(); });
+    if (btnPlay)  btnPlay.addEventListener('click',  togglePlay);
+    if (btnReset) btnReset.addEventListener('click', restart);
+
+    updateUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

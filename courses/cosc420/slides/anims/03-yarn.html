@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pyxcd</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: 'Virgil', 'Comic Sans MS', cursive;
+    padding: 16px;
+  }
+  #pyxcd-wrapper {
+    background: #fafaf9;
+    border-radius: 12px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+  }
+  #pyxcd-canvas {
+    display: block;
+    background: #fafaf9;
+  }
+  #pyxcd-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.06);
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  #pyxcd-controls button {
+    background: #3d3d5c;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  #pyxcd-controls button:hover { background: #5c5c8a; }
+  #pyxcd-step-label {
+    flex: 1;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+  }
+  #pyxcd-hint {
+    margin-top: 10px;
+    color: #7070a0;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div id="pyxcd-wrapper">
+  <svg id="pyxcd-canvas" width="900" height="490"
+       xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="pyxcd-controls">
+    <button id="pyxcd-btn-reset" title="Restart (R)">&#9664;&#9664;</button>
+    <button id="pyxcd-btn-prev"  title="Previous step (&#8592;)">&#9664;</button>
+    <span id="pyxcd-step-label">0 / 9</span>
+    <button id="pyxcd-btn-next"  title="Next step (&#8594;)">&#9654;</button>
+    <button id="pyxcd-btn-play"  title="Play/Pause (Space)">&#9654;&#9474;</button>
+  </div>
+</div>
+<div id="pyxcd-hint">&#8592; &#8594; to step &nbsp;|&nbsp; Space to play &nbsp;|&nbsp; R to restart</div>
+
+<!-- Rough.js -->
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+
+<!-- pyxcd runtime -->
+<script>
+
+(function () {
+  'use strict';
+
+  const TIMELINE = [{"type":"play","title":"The cluster","duration":600,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"7xXZ6Ea60IAY6LJsoX75","seed":2130879663,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":462.00000000000006,"h":25.0,"text":"One ResourceManager for the whole cluster;","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"1tIzV8jKlSDUQKyzCiYu","seed":444702018,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":440.00000000000006,"h":25.0,"text":"one NodeManager on every worker machine.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"NDnTDTzsJTtpFtvpOZIY","effect":"fade_in","duration":400},{"mob_id":"GQaSoFBFYWhE2BWWA1N3","effect":"draw_on","duration":600},{"mob_id":"W2IBsX7EeK96FZZe4OBw","effect":"draw_on","duration":600},{"mob_id":"q6g64wit9oIAQ7TXkfrM","effect":"draw_on","duration":600},{"mob_id":"E9MML8Il30eq7MPoT8Kt","effect":"draw_on","duration":600},{"mob_id":"qxZY8W0WXeF1o2me2y6D","effect":"draw_on","duration":600},{"mob_id":"GHXoVhX8UdkPHLIfhsg7","effect":"fade_in","duration":400},{"mob_id":"uto6v9vevqjIcSVX5Mr2","effect":"fade_in","duration":400},{"mob_id":"mhiUY0swoqiDqEWdFcEr","effect":"fade_in","duration":400},{"mob_id":"7xXZ6Ea60IAY6LJsoX75","effect":"fade_in","duration":400},{"mob_id":"1tIzV8jKlSDUQKyzCiYu","effect":"fade_in","duration":400}]},{"type":"play","title":"1. Submit the job","duration":600,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"h5ypb3M9zH0EqUO93VG6","seed":1934720538,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":561.0,"h":25.0,"text":"1. The client hands the job to the ResourceManager.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"jlmBI7xZSxZmDqws914G","seed":7726994,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":10.0,"h":25.0,"text":"","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"FkyAG2thVwSMy0N41vFY","effect":"draw_on","duration":600},{"mob_id":"lRvvoAHV2gV1HSs1yp7k","effect":"fade_in","duration":400},{"mob_id":"W2IBsX7EeK96FZZe4OBw","effect":"indicate","color":"#f08c00","revert_to":"#bac8ff","duration":300},{"mob_id":"h5ypb3M9zH0EqUO93VG6","effect":"fade_in","duration":400},{"mob_id":"jlmBI7xZSxZmDqws914G","effect":"fade_in","duration":400}]},{"type":"play","title":"2. Start the ApplicationMaster","duration":600,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"HHvwzsOcTVZ9y2lEuTlf","seed":141416359,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":715.0000000000001,"h":25.0,"text":"2. The RM gives the job room on Worker 1 for its own coordinator,","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"gbilkBaj2BMxbTDvzRyQ","seed":955692650,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":561.0,"h":25.0,"text":"the ApplicationMaster (one per job, this job only).","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"fIdohteKBRrGiQ63IXqT","effect":"draw_on","duration":600},{"mob_id":"hORZhus3s3FZa2ODCrhd","effect":"fade_in","duration":400},{"mob_id":"q2UeyCyAiPrTG2EDweoZ","effect":"draw_on","duration":600},{"mob_id":"HHvwzsOcTVZ9y2lEuTlf","effect":"fade_in","duration":400},{"mob_id":"gbilkBaj2BMxbTDvzRyQ","effect":"fade_in","duration":400}]},{"type":"play","title":"AM requests room for 4 maps","duration":400,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"kfD577JDuLW9mpE47t7S","seed":1130332786,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":517.0,"h":25.0,"text":"The AM asks the RM for room to run 4 map tasks.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"RXXfVoHxAchvEVHQ3Vt4","seed":922768030,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":572.0,"h":25.0,"text":"It only asks; the RM decides which workers get them.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"q2UeyCyAiPrTG2EDweoZ","effect":"indicate","color":"#f08c00","revert_to":"#ffec99","duration":300},{"mob_id":"W2IBsX7EeK96FZZe4OBw","effect":"indicate","color":"#f08c00","revert_to":"#bac8ff","duration":300},{"mob_id":"kfD577JDuLW9mpE47t7S","effect":"fade_in","duration":400},{"mob_id":"RXXfVoHxAchvEVHQ3Vt4","effect":"fade_in","duration":400}]},{"type":"play","title":"2. Room handed out: 4 map tasks","duration":600,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"F2di2wXaNU4Oz9d0QNhH","seed":70653041,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[450.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"b038DaPIb8av7ZjjFuiw","seed":1769231265,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[745.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"iadqrMNzWpvWCFt89N52","seed":1863993595,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 1","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"XOguqpcXG8nN5upnqSok","seed":895199983,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 2","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i6jSA76zJG3ICvWEmz9r","seed":103175841,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 3","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"0b5Zg4eOtRdsJhLr6QK6","seed":347495279,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 4","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"bgIMolWjaRo3tpj4F3lc","seed":551026164,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":473.00000000000006,"h":25.0,"text":"The RM hands out room on all three workers.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"v0r6HvWUQzETZmL03OnV","seed":417270984,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":660.0,"h":25.0,"text":"Each NodeManager starts the map tasks placed on its machine.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"F2di2wXaNU4Oz9d0QNhH","effect":"draw_on","duration":600},{"mob_id":"b038DaPIb8av7ZjjFuiw","effect":"draw_on","duration":600},{"mob_id":"iadqrMNzWpvWCFt89N52","effect":"draw_on","duration":600},{"mob_id":"XOguqpcXG8nN5upnqSok","effect":"draw_on","duration":600},{"mob_id":"i6jSA76zJG3ICvWEmz9r","effect":"draw_on","duration":600},{"mob_id":"0b5Zg4eOtRdsJhLr6QK6","effect":"draw_on","duration":600},{"mob_id":"bgIMolWjaRo3tpj4F3lc","effect":"fade_in","duration":400},{"mob_id":"v0r6HvWUQzETZmL03OnV","effect":"fade_in","duration":400}]},{"type":"play","title":"3. AM tracks progress","duration":400,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"F2di2wXaNU4Oz9d0QNhH","seed":70653041,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[450.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"b038DaPIb8av7ZjjFuiw","seed":1769231265,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[745.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"iadqrMNzWpvWCFt89N52","seed":1863993595,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 1","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"XOguqpcXG8nN5upnqSok","seed":895199983,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 2","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"i6jSA76zJG3ICvWEmz9r","seed":103175841,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 3","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"0b5Zg4eOtRdsJhLr6QK6","seed":347495279,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 4","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"cSIBpTSQvNJrlbRxWXYG","seed":472252018,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":627.0,"h":25.0,"text":"3. The AM tracks progress of every task, on every worker.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"34l7OTBAak3Bpg2k9VRm","seed":624464911,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":550.0,"h":25.0,"text":"If a task fails, the AM asks for room to rerun it.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"iadqrMNzWpvWCFt89N52","effect":"indicate","color":"#e8b339","revert_to":"#b2f2bb","duration":300},{"mob_id":"XOguqpcXG8nN5upnqSok","effect":"indicate","color":"#e8b339","revert_to":"#b2f2bb","duration":300},{"mob_id":"i6jSA76zJG3ICvWEmz9r","effect":"indicate","color":"#e8b339","revert_to":"#b2f2bb","duration":300},{"mob_id":"0b5Zg4eOtRdsJhLr6QK6","effect":"indicate","color":"#e8b339","revert_to":"#b2f2bb","duration":300},{"mob_id":"cSIBpTSQvNJrlbRxWXYG","effect":"fade_in","duration":400},{"mob_id":"34l7OTBAak3Bpg2k9VRm","effect":"fade_in","duration":400}]},{"type":"play","title":"Map tasks finish","duration":400,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"F2di2wXaNU4Oz9d0QNhH","seed":70653041,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[450.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"b038DaPIb8av7ZjjFuiw","seed":1769231265,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[745.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"jLNOz4bSYNQYk7iqgg9q","seed":1571960233,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 1","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"wNkVVHUoYYLtaMQsONP3","seed":1752398689,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 2","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"MAT4Ey3Z6GZwLucIq6lh","seed":589158330,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 3","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"RtL4MpfeO5ghLiHPZKIg","seed":2102391891,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 4","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"3kxtlFLsAz1ow3g4J2hi","seed":575436672,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":715.0000000000001,"h":25.0,"text":"All 4 map tasks are done (gray). Their output waits on local disk","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"CsDcoxGPfUXO5wILlaOd","seed":275813409,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":176.0,"h":25.0,"text":"for the shuffle.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"jLNOz4bSYNQYk7iqgg9q","effect":"fade_in","duration":400},{"mob_id":"wNkVVHUoYYLtaMQsONP3","effect":"fade_in","duration":400},{"mob_id":"MAT4Ey3Z6GZwLucIq6lh","effect":"fade_in","duration":400},{"mob_id":"RtL4MpfeO5ghLiHPZKIg","effect":"fade_in","duration":400},{"mob_id":"3kxtlFLsAz1ow3g4J2hi","effect":"fade_in","duration":400},{"mob_id":"CsDcoxGPfUXO5wILlaOd","effect":"fade_in","duration":400}]},{"type":"play","title":"2. Room handed out: 1 reduce task","duration":600,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"F2di2wXaNU4Oz9d0QNhH","seed":70653041,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[450.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"b038DaPIb8av7ZjjFuiw","seed":1769231265,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[745.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"jLNOz4bSYNQYk7iqgg9q","seed":1571960233,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 1","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"wNkVVHUoYYLtaMQsONP3","seed":1752398689,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 2","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"MAT4Ey3Z6GZwLucIq6lh","seed":589158330,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 3","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"RtL4MpfeO5ghLiHPZKIg","seed":2102391891,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 4","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"yMsJNUuNukXAIVTi5b5h","seed":1525188921,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":320,"w":220,"h":46,"rounded":true,"label":"Reduce","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"EcAVb7uIzWjHHQCocJNS","seed":1665031491,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":759.0000000000001,"h":25.0,"text":"The AM asks for room for 1 reduce task; the RM places it on Worker 3.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"yFXmIY0uq3Z0Yh0RMeqV","seed":2065325984,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":231.00000000000003,"h":25.0,"text":"The AM tracks it too.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"yMsJNUuNukXAIVTi5b5h","effect":"draw_on","duration":600},{"mob_id":"W2IBsX7EeK96FZZe4OBw","effect":"indicate","color":"#f08c00","revert_to":"#bac8ff","duration":300},{"mob_id":"EcAVb7uIzWjHHQCocJNS","effect":"fade_in","duration":400},{"mob_id":"yFXmIY0uq3Z0Yh0RMeqV","effect":"fade_in","duration":400}]},{"type":"play","title":"Job done","duration":400,"snapshot":[{"id":"NDnTDTzsJTtpFtvpOZIY","seed":635120499,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":14,"w":385.00000000000006,"h":35.0,"text":"One MapReduce job on YARN","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"GQaSoFBFYWhE2BWWA1N3","seed":1034852781,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":66,"w":150,"h":60,"rounded":true,"label":"Client","font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"W2IBsX7EeK96FZZe4OBw","seed":817504241,"stroke":"#1e1e1e","fill":"#bac8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":320,"y":62,"w":290,"h":68,"rounded":true,"label":"ResourceManager (one per cluster)","font_size":17,"font_family":1,"label_color":"#1e1e1e"},{"id":"q6g64wit9oIAQ7TXkfrM","seed":274201862,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":30,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"E9MML8Il30eq7MPoT8Kt","seed":841997735,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":325,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"qxZY8W0WXeF1o2me2y6D","seed":199640417,"stroke":"#1e1e1e","fill":"#a5d8ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":620,"y":210,"w":250,"h":175,"rounded":true,"label":null,"font_size":20,"font_family":1,"label_color":"#1e1e1e"},{"id":"GHXoVhX8UdkPHLIfhsg7","seed":1177634608,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":44,"y":218,"w":207.9,"h":22.5,"text":"Worker 1: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"uto6v9vevqjIcSVX5Mr2","seed":1787696405,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":339,"y":218,"w":207.9,"h":22.5,"text":"Worker 2: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"mhiUY0swoqiDqEWdFcEr","seed":536297591,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":634,"y":218,"w":207.9,"h":22.5,"text":"Worker 3: NodeManager","font_size":18,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"FkyAG2thVwSMy0N41vFY","seed":1028505159,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[180,96],[320,96]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"lRvvoAHV2gV1HSs1yp7k","seed":1283396977,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":188,"y":106,"w":114.4,"h":20.0,"text":"1. submit job","font_size":16,"font_family":1,"align":"left","color":"#1971c2"},{"id":"fIdohteKBRrGiQ63IXqT","seed":1129522792,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[155.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"hORZhus3s3FZa2ODCrhd","seed":316955904,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":622,"y":84,"w":140.8,"h":20.0,"text":"2. hand out room","font_size":16,"font_family":1,"align":"left","color":"#3b5bdb"},{"id":"q2UeyCyAiPrTG2EDweoZ","seed":1775833602,"stroke":"#1e1e1e","fill":"#ffec99","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":260,"w":220,"h":46,"rounded":true,"label":"ApplicationMaster","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"F2di2wXaNU4Oz9d0QNhH","seed":70653041,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[450.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"b038DaPIb8av7ZjjFuiw","seed":1769231265,"stroke":"#3b5bdb","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"arrow","points":[[465,130],[745.0,210]],"start_arrowhead":null,"end_arrowhead":"arrow"},{"id":"jLNOz4bSYNQYk7iqgg9q","seed":1571960233,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":45,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 1","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"wNkVVHUoYYLtaMQsONP3","seed":1752398689,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 2","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"MAT4Ey3Z6GZwLucIq6lh","seed":589158330,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":340,"y":320,"w":220,"h":46,"rounded":true,"label":"Map 3","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"RtL4MpfeO5ghLiHPZKIg","seed":2102391891,"stroke":"#1e1e1e","fill":"#ced4da","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":260,"w":220,"h":46,"rounded":true,"label":"Map 4","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"rpob6APql4TQMJZZQFmE","seed":2041927296,"stroke":"#1e1e1e","fill":"#b2f2bb","stroke_width":2,"stroke_style":"solid","roughness":0.8,"opacity":100,"shape":"rectangle","x":635,"y":320,"w":220,"h":46,"rounded":true,"label":"Reduce","font_size":18,"font_family":1,"label_color":"#1e1e1e"},{"id":"s7zhusk1CqYnU5KKzgBV","seed":939101166,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":410,"w":726.0000000000001,"h":25.0,"text":"Reduce done, so the job is done. YARN decided WHERE each task ran.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"},{"id":"a6eIMZ0XvhgZAv8Y8HLw","seed":838906812,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":30,"y":440,"w":396.00000000000006,"h":25.0,"text":"(HDFS decides where the data lives.)","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"rpob6APql4TQMJZZQFmE","effect":"fade_in","duration":400},{"mob_id":"s7zhusk1CqYnU5KKzgBV","effect":"fade_in","duration":400},{"mob_id":"a6eIMZ0XvhgZAv8Y8HLw","effect":"fade_in","duration":400}]}];
+  const WIDTH    = 900;
+  const HEIGHT   = 490;
+  const BG       = "#fafaf9";
+
+  // ── Rough.js options per shape ──────────────────────────────────────────
+  function roughOpts(spec) {
+    return {
+      roughness:   spec.roughness  != null ? spec.roughness  : 1.0,
+      stroke:      spec.stroke     || '#1e1e1e',
+      strokeWidth: spec.stroke_width != null ? spec.stroke_width : 2,
+      fill:        (spec.fill && spec.fill !== 'transparent') ? spec.fill : null,
+      fillStyle:   'solid',
+      seed:        spec.seed || 1,
+    };
+  }
+
+  // ── Arrowhead polygon ────────────────────────────────────────────────────
+  function makeArrowhead(svg, x, y, tx, ty, size) {
+    // tx,ty is unit tangent pointing toward the tip
+    const angle = Math.atan2(ty, tx);
+    const spread = Math.PI / 7;
+    const len = size || 14;
+    const p1x = x - len * Math.cos(angle - spread);
+    const p1y = y - len * Math.sin(angle - spread);
+    const p2x = x - len * Math.cos(angle + spread);
+    const p2y = y - len * Math.sin(angle + spread);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${x},${y} ${p1x},${p1y} ${p2x},${p2y}`);
+    poly.setAttribute('fill', '#1e1e1e');
+    poly.style.pointerEvents = 'none';
+    return poly;
+  }
+
+  // ── Font family map ───────────────────────────────────────────────────────
+  const FONTS = {
+    1: "'Virgil', 'Comic Sans MS', cursive",
+    2: "Helvetica, Arial, sans-serif",
+    3: "'Cascadia Code', 'Fira Code', monospace",
+  };
+
+  // ── Render a single mob spec → SVG group ────────────────────────────────
+  function renderSpec(rc, svg, spec) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-mob-id', spec.id);
+    g.style.opacity = spec.opacity != null ? spec.opacity / 100 : 1;
+
+    const opts = roughOpts(spec);
+    let node = null;
+
+    if (spec.shape === 'rectangle') {
+      node = rc.rectangle(spec.x, spec.y, spec.w, spec.h, opts);
+    } else if (spec.shape === 'ellipse') {
+      node = rc.ellipse(spec.x + spec.w / 2, spec.y + spec.h / 2, spec.w, spec.h, opts);
+    } else if (spec.shape === 'diamond') {
+      const cx = spec.x + spec.w / 2, cy = spec.y + spec.h / 2;
+      const pts = [[cx, spec.y], [spec.x + spec.w, cy], [cx, spec.y + spec.h], [spec.x, cy]];
+      node = rc.polygon(pts, opts);
+    } else if (spec.shape === 'line') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.line(pts[0][0], pts[0][1], pts[pts.length-1][0], pts[pts.length-1][1], opts);
+      }
+    } else if (spec.shape === 'arrow') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.linearPath(pts, opts);
+        const last = pts[pts.length - 1];
+        const prev = pts[pts.length - 2];
+        const tx = last[0] - prev[0], ty = last[1] - prev[1];
+        const len = Math.hypot(tx, ty) || 1;
+        g.appendChild(makeArrowhead(svg, last[0], last[1], tx/len, ty/len));
+        if (spec.start_arrowhead) {
+          const sf = pts[0], sn = pts[1];
+          const stx = sf[0]-sn[0], sty = sf[1]-sn[1];
+          const sl = Math.hypot(stx,sty)||1;
+          g.appendChild(makeArrowhead(svg, sf[0], sf[1], stx/sl, sty/sl));
+        }
+      }
+    } else if (spec.shape === 'path') {
+      node = rc.path(spec.d, opts);
+      // Arrowheads for curves
+      if (spec.end_arrowhead && spec.end_point && spec.end_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.end_point[0], spec.end_point[1],
+          spec.end_tangent[0], spec.end_tangent[1]));
+      }
+      if (spec.start_arrowhead && spec.start_point && spec.start_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.start_point[0], spec.start_point[1],
+          -spec.start_tangent[0], -spec.start_tangent[1]));
+      }
+    } else if (spec.shape === 'text') {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', spec.x);
+      t.setAttribute('y', spec.y + (spec.h || spec.font_size || 20));
+      t.setAttribute('fill', spec.color || spec.stroke || '#1e1e1e');
+      t.setAttribute('font-size', spec.font_size || 20);
+      t.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      const align = spec.align || 'left';
+      t.setAttribute('text-anchor', align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start');
+      t.textContent = spec.text || '';
+      g.appendChild(t);
+    }
+
+    if (node) {
+      // Setup stroke-dashoffset for draw-on animation
+      node.querySelectorAll('path').forEach(p => {
+        const len = p.getTotalLength ? p.getTotalLength() : 0;
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.dataset.pathLen = len;
+      });
+      g.appendChild(node);
+    }
+
+    // Inline label (for shapes)
+    if (spec.label) {
+      const lx = spec.x + (spec.w || 0) / 2;
+      const ly = spec.y + (spec.h || 0) / 2 + (spec.font_size || 20) / 3;
+      const lt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lt.setAttribute('x', lx);
+      lt.setAttribute('y', ly);
+      lt.setAttribute('text-anchor', 'middle');
+      lt.setAttribute('fill', spec.label_color || '#1e1e1e');
+      lt.setAttribute('font-size', spec.font_size || 20);
+      lt.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      lt.textContent = spec.label;
+      g.appendChild(lt);
+    }
+
+    svg.appendChild(g);
+    return g;
+  }
+
+  // ── Animation helpers ────────────────────────────────────────────────────
+
+  function drawOn(g, duration) {
+    const paths = g.querySelectorAll('path');
+    if (!paths.length) { return Promise.resolve(); }
+    return new Promise(resolve => {
+      let done = 0;
+      paths.forEach(p => {
+        const len = parseFloat(p.dataset.pathLen || p.getTotalLength());
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        const anim = p.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        anim.onfinish = () => {
+          p.style.strokeDashoffset = 0;
+          if (++done === paths.length) resolve();
+        };
+      });
+    });
+  }
+
+  function fadeInEl(g, duration) {
+    return new Promise(resolve => {
+      g.style.opacity = 0;
+      const anim = g.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 1; resolve(); };
+    });
+  }
+
+  function fadeOutEl(g, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 0; resolve(); };
+    });
+  }
+
+  function indicateEl(g, color, duration) {
+    return new Promise(resolve => {
+      const els = [...g.querySelectorAll('path,rect,ellipse,polygon')];
+      const origFills = els.map(el => el.getAttribute('fill'));
+      els.forEach(el => el.setAttribute('fill', color));
+      setTimeout(() => {
+        els.forEach((el, i) => el.setAttribute('fill', origFills[i]));
+        resolve();
+      }, duration);
+    });
+  }
+
+  function swapLabels(g1, g2, duration) {
+    // Find the label <text> element in each cell group (direct child, not inside Rough.js paths)
+    const lbl1 = [...g1.children].find(el => el.tagName.toLowerCase() === 'text');
+    const lbl2 = [...g2.children].find(el => el.tagName.toLowerCase() === 'text');
+    if (!lbl1 || !lbl2) return Promise.resolve();
+
+    const x1 = parseFloat(lbl1.getAttribute('x') || 0);
+    const y1 = parseFloat(lbl1.getAttribute('y') || 0);
+    const x2 = parseFloat(lbl2.getAttribute('x') || 0);
+    const y2 = parseFloat(lbl2.getAttribute('y') || 0);
+    const dx = x2 - x1;
+    const arcH = Math.min(Math.abs(dx) * 0.4, 60);
+
+    // Clone labels to SVG root so they float above everything
+    const fly1 = lbl1.cloneNode(true);
+    const fly2 = lbl2.cloneNode(true);
+    svgEl.appendChild(fly1);
+    svgEl.appendChild(fly2);
+
+    // Hide originals during flight
+    lbl1.style.opacity = '0';
+    lbl2.style.opacity = '0';
+
+    return Promise.all([
+      new Promise(res => {
+        const a = fly1.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${dx/2}px,${-arcH}px)` },
+           { transform: `translate(${dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly1.remove(); res(); };
+      }),
+      new Promise(res => {
+        const a = fly2.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${-dx/2}px,${arcH}px)` },
+           { transform: `translate(${-dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly2.remove(); res(); };
+      }),
+    ]);
+  }
+
+  function translateEl(g, dx, dy, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ transform: 'translate(0px,0px)' },
+         { transform: `translate(${dx}px,${dy}px)` }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => resolve();
+    });
+  }
+
+  function fillChangeEl(g, toColor, duration) {
+    const els = [...g.querySelectorAll('path,rect,polygon')].filter(el => {
+      const f = el.getAttribute('fill');
+      return f && f !== 'none';
+    });
+    if (!els.length) return Promise.resolve();
+    return Promise.all(els.map(el => new Promise(resolve => {
+      const from = el.getAttribute('fill') || 'transparent';
+      const anim = el.animate(
+        [{ fill: from }, { fill: toColor }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { el.setAttribute('fill', toColor); resolve(); };
+    })));
+  }
+
+  // ── Main runtime ─────────────────────────────────────────────────────────
+
+  let svgEl, rc;
+  let currentStep = -1;   // -1 = blank (before first step)
+  let isPlaying   = false;
+  let playTimer   = null;
+
+  function findGroup(mobId) {
+    return svgEl.querySelector(`[data-mob-id="${mobId}"]`);
+  }
+
+  function clearScene() {
+    const toRemove = [...svgEl.querySelectorAll('[data-mob-id]')];
+    toRemove.forEach(el => el.remove());
+  }
+
+  function renderSnapshot(snapshot) {
+    clearScene();
+    snapshot.forEach(spec => renderSpec(rc, svgEl, spec));
+    // After render, show all paths fully drawn (dash = 0)
+    svgEl.querySelectorAll('[data-mob-id] path').forEach(p => {
+      p.style.strokeDashoffset = 0;
+    });
+  }
+
+  async function runEffects(step) {
+    const effects = step.effects || [];
+    const promises = [];
+
+    for (const eff of effects) {
+      if (eff.effect === 'succession') continue;
+      const dur = eff.duration || step.duration || 500;
+
+      // Swap needs two groups
+      if (eff.effect === 'swap') {
+        const g1 = findGroup(eff.mob_id_1);
+        const g2 = findGroup(eff.mob_id_2);
+        if (g1 && g2) promises.push(swapLabels(g1, g2, dur));
+        continue;
+      }
+
+      const g = findGroup(eff.mob_id);
+      if (!g) continue;
+      if (eff.effect === 'draw_on')          promises.push(drawOn(g, dur));
+      else if (eff.effect === 'fade_in')     promises.push(fadeInEl(g, dur));
+      else if (eff.effect === 'fade_out')    promises.push(fadeOutEl(g, dur));
+      else if (eff.effect === 'indicate')    promises.push(indicateEl(g, eff.color, dur));
+      else if (eff.effect === 'fill_change') promises.push(fillChangeEl(g, eff.to, dur));
+      else if (eff.effect === 'translate')   promises.push(translateEl(g, eff.dx, eff.dy, dur));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async function goToStep(idx, animate) {
+    if (idx < 0 || idx >= TIMELINE.length) return;
+    const step = TIMELINE[idx];
+    currentStep = idx;
+
+    // Render snapshot first (full scene for this step, paths will draw on)
+    if (animate) {
+      renderSnapshotForAnimation(step);
+      await runEffects(step);
+      // Reconcile DOM with snapshot: updates labels/fills on existing mobs that
+      // changed (e.g. after swap). Seeds are stable so Rough.js re-renders identically.
+      renderSnapshot(step.snapshot);
+    } else {
+      renderSnapshot(step.snapshot);
+    }
+
+    updateUI();
+  }
+
+  function renderSnapshotForAnimation(step) {
+    // Figures out which mob IDs are new vs already on screen
+    const existing = new Set([...svgEl.querySelectorAll('[data-mob-id]')]
+      .map(g => g.getAttribute('data-mob-id')));
+    const incoming = new Set((step.snapshot || []).map(s => s.id));
+
+    // Remove mobs that are no longer in the snapshot
+    [...svgEl.querySelectorAll('[data-mob-id]')].forEach(g => {
+      if (!incoming.has(g.getAttribute('data-mob-id'))) g.remove();
+    });
+
+    // Add new mobs
+    (step.snapshot || []).forEach(spec => {
+      if (!existing.has(spec.id)) {
+        renderSpec(rc, svgEl, spec);
+      }
+    });
+  }
+
+  function updateUI() {
+    const stepLabel = document.getElementById('pyxcd-step-label');
+    if (stepLabel) {
+      const step = currentStep >= 0 ? TIMELINE[currentStep] : null;
+      stepLabel.textContent = step
+        ? `${currentStep + 1} / ${TIMELINE.length}  ${step.title || ''}`
+        : `0 / ${TIMELINE.length}`;
+    }
+  }
+
+  // ── Controls ─────────────────────────────────────────────────────────────
+
+  function next() {
+    if (currentStep < TIMELINE.length - 1) goToStep(currentStep + 1, true);
+  }
+
+  function prev() {
+    if (currentStep > 0) goToStep(currentStep - 1, false);
+    else if (currentStep === 0) { clearScene(); currentStep = -1; updateUI(); }
+  }
+
+  function restart() {
+    stopPlay();
+    clearScene();
+    currentStep = -1;
+    updateUI();
+  }
+
+  function startPlay() {
+    if (isPlaying) return;
+    isPlaying = true;
+    async function tick() {
+      if (!isPlaying) return;
+      if (currentStep >= TIMELINE.length - 1) { stopPlay(); return; }
+      await goToStep(currentStep + 1, true);
+      const dur = TIMELINE[currentStep].duration || 500;
+      playTimer = setTimeout(tick, dur + 100);
+    }
+    tick();
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    clearTimeout(playTimer);
+  }
+
+  function togglePlay() {
+    if (isPlaying) stopPlay(); else startPlay();
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+
+  function init() {
+    svgEl = document.getElementById('pyxcd-canvas');
+    if (!svgEl) return;
+    rc = rough.svg(svgEl);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { stopPlay(); next(); }
+      else if (e.key === 'ArrowLeft')  { stopPlay(); prev(); }
+      else if (e.key === ' ')          { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'r' || e.key === 'R') restart();
+    });
+
+    const btnPrev  = document.getElementById('pyxcd-btn-prev');
+    const btnNext  = document.getElementById('pyxcd-btn-next');
+    const btnPlay  = document.getElementById('pyxcd-btn-play');
+    const btnReset = document.getElementById('pyxcd-btn-reset');
+    if (btnPrev)  btnPrev.addEventListener('click',  () => { stopPlay(); prev(); });
+    if (btnNext)  btnNext.addEventListener('click',  () => { stopPlay(); next(); });
+    if (btnPlay)  btnPlay.addEventListener('click',  togglePlay);
+    if (btnReset) btnReset.addEventListener('click', restart);
+
+    updateUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

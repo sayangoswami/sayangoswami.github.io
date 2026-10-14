@@ -189,11 +189,21 @@
 </section>
 <section id="recap-the-pipeline-stage-two" class="slide level2">
 <h2>Recap: The Pipeline, Stage Two</h2>
-<p>Week 1’s opening story: a manager at “StreamBase” hands you a pipeline diagram with six stages and asks you to build it. Modules 1 and 2 built everything <em>underneath</em> that diagram — threads (Module 1), and how separate machines talk to each other at all (Module 2). Starting today, we build the diagram itself, one stage at a time.</p>
 
-<img data-src="diags/03-pipeline.svg" alt="The course pipeline as five boxes left to right, joined by arrows. Box 1, gray: &quot;ratings.csv + movies.csv&quot;, captioned &quot;too big for one machine&quot;. An arrow labeled with the command &quot;hdfs dfs -put&quot; leads to box 2, highlighted yellow: &quot;HDFS&quot;, captioned in red &quot;Module 3: you are here&quot;. An arrow labeled &quot;%%spark&quot; leads to box 3, &quot;Apache Spark&quot;, captioned &quot;Module 4&quot;. Then box 4, &quot;MongoDB&quot;, captioned &quot;Module 5&quot;, and box 5, &quot;Flask API + Dashboard&quot;, captioned &quot;Module 6&quot;." width="1000" class="r-stretch"><p>HDFS is where the next two weeks live.</p>
-<div class="fragment">
+<img data-src="diags/03-pipeline.svg" alt="The course pipeline as five boxes left to right, joined by arrows. Box 1, gray: &quot;ratings.csv + movies.csv&quot;, captioned &quot;too big for one machine&quot;. An arrow labeled with the command &quot;hdfs dfs -put&quot; leads to box 2, highlighted yellow: &quot;HDFS&quot;, captioned in red &quot;Module 3: you are here&quot;. An arrow labeled &quot;%%spark&quot; leads to box 3, &quot;Apache Spark&quot;, captioned &quot;Module 4&quot;. Then box 4, &quot;MongoDB&quot;, captioned &quot;Module 5&quot;, and box 5, &quot;Flask API + Dashboard&quot;, captioned &quot;Module 6&quot;." width="1000" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>Week 1’s opening story: a manager at “StreamBase” hands you a pipeline diagram with six stages and asks you to build it.</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>Modules 1 and 2 built everything <em>underneath</em> that diagram — threads (Module 1), and how separate machines talk to each other at all (Module 2).</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>Starting today, we build the diagram itself, one stage at a time. HDFS is where the next two weeks live.</p>
+</div>
+<div class="fragment fade-in-then-out">
 <p><strong>Today’s question, stage one:</strong> before we can even talk about storing a file across many machines, why does a file need that at all — why isn’t one machine enough?</p>
+</div>
+</div>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Just re-anchor Week 1’s bookmark slide — don’t redraw the whole six-stage diagram from memory, just enough to point at HDFS and say “that’s where we are now.”</p>
 <style type="text/css">
@@ -207,7 +217,6 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
 <section id="recap-why-one-machine-isnt-enough" class="slide level2">
 <h2>Recap: Why One Machine Isn’t Enough</h2>
@@ -296,13 +305,9 @@
 <ul>
 <li class="fragment"><strong>Streaming:</strong> handle each new piece of data <em>the instant it arrives</em> (out of scope this course).</li>
 <li class="fragment"><strong>Batch processing:</strong> <em>collect a pile</em> of it, then process the whole pile at once (this module and Module 4).</li>
-</ul>
-<div class="fragment">
-<ul>
 <li class="fragment"><strong>Kitchen picture:</strong> a meal-prep Sunday cooks a whole week’s worth of a dish <em>in one big batch</em>; a restaurant cooks each dish fresh <em>the instant the order comes in</em>. Batch processing is the meal-prep Sunday.</li>
 <li class="fragment"><strong>Classic example:</strong> process <em>yesterday’s entire log file overnight</em>, results ready by morning. Nobody needs the answer in the next 10 milliseconds, so batching is simpler and more efficient.</li>
 </ul>
-</div>
 <div class="fragment">
 <p><strong>MapReduce</strong> (Google, 2004 — the paper behind Week 1’s Google vignette) is the framework that made batch processing on thousands of machines practical and programmable. You’re about to invent a version of it yourself.</p>
 <aside class="notes">
@@ -362,7 +367,7 @@
 </section>
 <section class="slide level2">
 
-<p>Monday’s Round 2, redrawn with the new names (salad left out to save space):</p>
+<!-- Monday's Round 2, redrawn with the new names (salad left out to save space): -->
 
 <img data-src="diags/03-mapreduce-flow.svg" alt="Three horizontal bands, top to bottom. Above them, three gray boxes: &quot;Branch 1: raw tickets&quot;, &quot;Branch 2: raw tickets&quot;, &quot;Branch 3: raw tickets&quot;, each with an arrow down into the Map band. Map band, subtitled &quot;alone, in parallel&quot;: each branch has its own yellow tally box — Branch 1: burger 5, fries 3, pizza 2; Branch 2: burger 2, fries 6, pizza 5; Branch 3: burger 3, fries 2, pizza 1. No arrows connect branches in this band. Shuffle band, subtitled &quot;the only trips&quot;: nine crossing arrows, color-coded by item, carry each branch's burger tally to one owner, each fries tally to a second owner, and each pizza tally to a third. Reduce band, subtitled &quot;one owner per key&quot;: three blue boxes &quot;owns burger&quot;, &quot;owns fries&quot;, &quot;owns pizza&quot;, with results burger = 10, fries = 11, pizza = 8. Caption: &quot;Same shape as Monday, just relabeled.&quot;" width="720" class="r-stretch"></section>
 <section id="the-map-phase-one-record-in-zero-or-more-pairs-out" class="slide level2">
@@ -437,7 +442,6 @@
 <section id="the-shufflesort-phase-the-frameworks-job" class="slide level2">
 <h2>The Shuffle/Sort Phase: The Framework’s Job</h2>
 <p>After every machine finishes its map phase, all the (key, value) pairs must end up <em>grouped by key</em> — every value for <code>"gmail.com"</code> in one place, every value for <code>"yahoo.com"</code> in another — <em>regardless of which machine emitted them.</em></p>
-<div class="fragment">
 <ul>
 <li class="fragment">It’s Monday’s “carry your tally to whoever owns that key” step — except the <em>framework</em> does the carrying, across a real network.</li>
 <li class="fragment"><strong>You never write this step yourself.</strong> Hadoop and Spark do shuffle/sort <em>automatically</em> — it’s the one phase with no function you implement.</li>
@@ -456,7 +460,6 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
 <section id="the-reduce-phase-combine-each-group-into-one-answer" class="slide level2">
 <h2>The Reduce Phase: Combine Each Group Into One Answer</h2>
@@ -464,7 +467,6 @@
 <pre><code>reduce(key, values):
     total = sum(values)
     emit(key, total)</code></pre>
-<div class="fragment">
 <ul>
 <li class="fragment">It runs <em>once per key</em>, on whichever machine the shuffle sent that key’s values to — like the Monday teammate who “owned” a suit or menu item.</li>
 <li class="fragment">Reduce doesn’t have to mean “sum”: it could be a <em>maximum, an average, a count of distinct values</em> — anything that combines a list into one answer.</li>
@@ -482,7 +484,6 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
 <section id="word-count-walkthrough" class="slide level2">
 <h2>Word Count Walkthrough</h2>
@@ -565,7 +566,7 @@ the fox jumped over the lazy dog</code></pre>
 <li class="fragment"><strong><code>map</code>:</strong> <code>emit(movieId, rating)</code> — same shape as word count and sales-per-region.</li>
 <li class="fragment"><strong><code>reduce</code>:</strong> <code>emit(movieId, sum(values) / len(values))</code>. Movie 31 gets <code>[2.5, 4.0]</code> → <code>3.25</code>.</li>
 </ul>
-<p>. . .</p>
+<div class="fragment">
 <p><strong>Follow-up: no.</strong> Averaging averages is wrong whenever the groups are <em>different sizes</em>:</p>
 <table class="caption-top">
 <thead>
@@ -589,8 +590,10 @@ the fox jumped over the lazy dog</code></pre>
 </tbody>
 </table>
 <p>Average of averages = (5 + 1) / 2 = <strong>3</strong>. True average = 21 / 5 = <strong>4.2</strong>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Fix:</strong> each machine sends a <em><code>(sum, count)</code> pair</em> per movie — here <code>(20, 4)</code> and <code>(1, 1)</code>. The reducer adds them, <code>(21, 5)</code>, and <em>divides once at the end</em>. Sums and counts can be combined early; averages can’t. Spark’s <code>avg()</code> (Module 4) does exactly this for you.</p>
+</div>
 </section>
 <section id="why-this-scales" class="slide level2">
 <h2>Why This Scales</h2>
@@ -599,8 +602,8 @@ the fox jumped over the lazy dog</code></pre>
 <li class="fragment"><strong>Scaling out:</strong> add <em>more machines</em>.</li>
 <li class="fragment"><strong>Scaling up:</strong> buy <em>one bigger machine</em>.</li>
 </ul>
-<p>MapReduce is the mechanism that makes scaling out work for <em>processing</em>, not just storage.</p>
 <div class="fragment">
+<p>MapReduce is the mechanism that makes scaling out work for <em>processing</em>, not just storage.</p>
 <ul>
 <li class="fragment"><strong>Map tasks run in parallel</strong>, one per input chunk.</li>
 <li class="fragment"><strong>Reduce tasks also run in parallel</strong>, one per key (or range of keys).</li>
@@ -622,13 +625,13 @@ the fox jumped over the lazy dog</code></pre>
       }</style></aside>
 </div>
 </section>
-<section class="slide level2">
-
-<h3 id="data-locality-move-the-computation-not-the-data">Data locality: move the computation, not the data</h3>
-<p>On a real cluster, each map task runs <em>on the same machine that already holds its chunk</em> of data. This is called <strong>data locality</strong>: compute goes <em>to</em> the data, not data to the compute.</p>
-<p>. . .</p>
-<p><strong>Kitchen picture:</strong> send the recipe to the branch that <em>already has the ingredients</em> — don’t ship the ingredients to one central kitchen.</p>
-<p>. . .</p>
+<section id="data-locality-move-the-computation-not-the-data" class="slide level2">
+<h2>Data locality: move the computation, not the data</h2>
+<p>On a real cluster, each map task runs <em>on the same machine that already holds its chunk</em> of data. This is called <strong>data locality</strong>: compute goes <em>to</em> the data, not data to the compute</p>
+<div class="fragment">
+<p><strong>Kitchen picture:</strong> send the recipe to the branch that <em>already has the ingredients</em> — don’t ship the ingredients to one central kitchen</p>
+</div>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -655,6 +658,7 @@ the fox jumped over the lazy dog</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="what-the-framework-handles-for-you" class="slide level2">
 <h2>What the Framework Handles For You</h2>
