@@ -253,6 +253,14 @@ REWRITTEN 2026-10-07: "Why a Middle Block Size Often Wins" (occupancy
 argument, false on a T4) replaced by "Why 16x16 Won Here" (warp memory
 footprint vs. in-block data sharing), moved to directly follow the profiler
 table; diags/warp-footprint.svg. Lab 06 Ex 3 Q2 + lab-key updated to match.
+AUDIT PASS 2026-10-14 (Session 3 only): no code in columns any more (code was
+cropped) — code goes full width, explanations below in r-stack fragments or on
+the next sub-slide. Step-through line highlights on both kernels plus a
+line-by-line explanation sub-slide. Added: device-function clamp, policy
+tradeoffs, no-bounds-checking warning, 1D launch + output, i = 9 exercise,
+4x4 blur test with output. New figures (diags/, .excalidraw alongside):
+elementwise-vs-stencil, boundary-policies, clamp-mapping, box-blur-window,
+stencil-overlap.
 -->
 </section>
 <section>
@@ -1123,14 +1131,25 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section id="beyond-element-wise-what-is-a-stencil" class="slide level2">
 <h2>Beyond Element-wise: What Is a Stencil?</h2>
+
+<img data-src="diags/elementwise-vs-stencil.svg" alt="Two side-by-side panels, each with a row of seven input cells labeled in, indices 0 to 6, above a row of seven output cells labeled out. Left panel, titled Element-wise, formula out[i] = f(in[i]): input cell 3 is highlighted yellow, and a single arrow goes straight down to output cell 3, highlighted green. Caption: thread 3 reads 1 input. Right panel, titled Stencil (radius 1), formula out[i] = f(in[i-1], in[i], in[i+1]): input cells 2, 3 and 4 are highlighted yellow, and three arrows converge on output cell 3, highlighted green. Caption: thread 3 reads 3 neighboring inputs." width="860" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Element-wise</strong> (every kernel so far): output <code>i</code> depends <em>only on input <code>i</code></em>. No thread ever looks at its neighbors.</p>
+</div>
+<div class="fragment">
+<p><strong>Stencil:</strong> output <code>i</code> depends on a small <em>neighborhood</em> of inputs around <code>i</code>. The neighborhood’s half-width is the <em>radius</em>.</p>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
 <ul>
-<li class="fragment">Every kernel so far has been <strong>element-wise</strong>: output <code>i</code> depends <em>only on input <code>i</code></em> (or input <code>(row, col)</code>) — no thread needs to look at its neighbors</li>
-<li class="fragment">A <strong>stencil</strong> breaks that pattern: output <code>i</code> depends on a small <em>neighborhood</em> of nearby inputs</li>
 <li class="fragment">Classic examples: a <em>moving average</em> (each output = average of nearby inputs), <em>image blur</em> (each output pixel = weighted average of nearby pixels), <em>numerical derivatives</em> (a weighted combination of neighboring values)</li>
-<li class="fragment">The “one thread, one output” launch pattern (Oct 5) still applies — what changes is <em>what each thread reads</em>, not how many threads you launch</li>
+<li class="fragment">The “one thread, one output” launch pattern (Oct 5) <em>still applies</em>. What changes is <em>what each thread reads</em>, not how many threads you launch</li>
+<li class="fragment">Neighborhoods <em>overlap</em>: in the figure, <code>in[3]</code> also feeds <code>out[2]</code> and <code>out[4]</code>. That’s harmless for correctness (threads only <em>read</em> shared inputs, and each writes its own output) — but it matters for speed, as we’ll see at the end</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Frame this explicitly as “the launch pattern you already know, applied to a kernel body that reads more than one input” — students shouldn’t feel like they’re learning an entirely new launch mechanic, just a new kernel-body shape.</p>
+<p>~3 min across both sub-slides. Frame this explicitly as “the launch pattern you already know, applied to a kernel body that reads more than one input” — students shouldn’t feel like they’re learning an entirely new launch mechanic, just a new kernel-body shape. The overlap bullet plants the Radius vs.&nbsp;Cost slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1152,6 +1171,7 @@ thread 3 sees 3.0</code></pre>
 
 <ul>
 <li class="fragment">A stencil reads a neighborhood around each position — but positions near the edge have neighbors that fall <em>outside the array</em> entirely</li>
+<li class="fragment">A kernel won’t warn you: <code>arr[-1]</code> silently becomes the <em>last element</em> (Python-style negative indexing — an accidental wrap), and <code>arr[n]</code> reads <em>past the end</em> with no error, because Numba CUDA does <em>no bounds checking</em></li>
 <li class="fragment">Every stencil kernel needs an <em>explicit boundary policy</em> — there is <em>no “correct” default</em>, only different reasonable choices with different tradeoffs</li>
 </ul>
 <div class="fragment">
@@ -1186,8 +1206,24 @@ thread 3 sees 3.0</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/boundary-policies.svg" alt="Three rows, one per policy, each showing the same array of 10 blue cells with values 10, 20, 30, 40, 50, then an ellipsis, then 90 and 100, under index labels 0 to 4, 8 and 9. To the left of index 0, each row has two dashed orange cells at indices -2 and -1 showing what a missing neighbor reads. Clamp row: 10 and 10, labeled both read arr[0]. Zero-pad row: 0 and 0, labeled both count as 0. Wrap row: 90 and 100, labeled read arr[8], arr[9]. Caption: blue = the real array (n = 10), dashed orange = what the missing neighbor reads." width="820" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Clamp:</strong> edges <em>repeat themselves</em>. No fake values enter the average, so a flat edge stays flat. The usual choice for images.</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Zero-pad:</strong> missing neighbors <em>add nothing</em>. Simple, but averages near the edge get <em>pulled toward 0</em> (an image blurred this way gets a dark border).</p>
+</div>
+<div class="fragment">
+<p><strong>Wrap:</strong> the array is treated as a <em>circle</em>. Right for <em>periodic</em> data (angles, a ring of sensors, a tiling texture); wrong for a photo, where the left edge has nothing to do with the right.</p>
+</div>
+</div>
 <aside class="notes">
-<p>~3 min across both sub-slides. Don’t rush past “there is no correct default” — this is a genuine design decision, not a fact to memorize. Different applications legitimately prefer different policies (image processing usually clamps or wraps; some signal-processing contexts zero-pad).</p>
+<p>~4 min across the three sub-slides. Don’t rush past “there is no correct default” — this is a genuine design decision, not a fact to memorize. Different applications legitimately prefer different policies (image processing usually clamps or wraps; some signal-processing contexts zero-pad). The no-bounds-checking bullet is why “just read arr[i-1]” isn’t an option: a negative index quietly wraps to the end of the array, and an index &gt;= n reads whatever memory follows (garbage, or a later crash) instead of raising IndexError.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1199,45 +1235,68 @@ thread 3 sees 3.0</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
 <section id="our-policy-clamping" class="slide level2">
 <h2>Our Policy: Clamping</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="kw">def</span> clamp(x, lo, hi):</span>
 <span id="cb12-2"><a></a>    <span class="cf">return</span> <span class="bu">min</span>(<span class="bu">max</span>(x, lo), hi)</span>
 <span id="cb12-3"><a></a></span>
 <span id="cb12-4"><a></a>clamp(<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">9</span>)   <span class="co"># → 0  (snapped up)</span></span>
 <span id="cb12-5"><a></a>clamp(<span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">9</span>)    <span class="co"># → 5  (unchanged)</span></span>
 <span id="cb12-6"><a></a>clamp(<span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">9</span>)   <span class="co"># → 9  (snapped down)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment">This course uses <strong>clamping</strong> (also called <em>edge-replication</em>) throughout</li>
-<li class="fragment">Any neighbor index outside the valid range is <em>snapped to the nearest valid edge</em> index</li>
-<li class="fragment">Edge values get their “missing” neighbors filled with a <em>repeat of the nearest real value</em> — not a fabricated zero or a wraparound</li>
-</ul>
-</div></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>This course uses <strong>clamping</strong> (also called <em>edge-replication</em>) throughout. Any neighbor index outside <code>[lo, hi]</code> is <em>snapped to the nearest valid edge</em>.</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p>Read it inside-out: <code>max(x, lo)</code> fixes indices that are <em>too small</em> (−1 → 0); then <code>min(…, hi)</code> fixes ones that are <em>too large</em> (15 → 9). An index already in range passes through both <em>unchanged</em>.</p>
+</div>
+<div class="fragment">
+<p>Edge values get their “missing” neighbors filled with a <em>repeat of the nearest real value</em> — not a fabricated zero or a wraparound.</p>
+</div>
+</div>
 </section>
 <section class="slide level2">
 
-<ul>
-<li class="fragment">A kernel can’t call an <em>ordinary</em> Python function like <code>clamp()</code> above. Either write the logic <em>inline</em> — <code>min(max(i + d, 0), n - 1)</code> — or mark the helper <code>@cuda.jit(device=True)</code> so Numba compiles it for the GPU</li>
-<li class="fragment">Lab 7 writes the clamp <em>inline</em>, which is what the kernels on the next slides do</li>
-<li class="fragment">CK-07 deliberately switches to <strong>zero-padding</strong>, so make sure you understand <em>the policies themselves</em>, not just one line of code</li>
-</ul>
+<p>A kernel can’t call an <em>ordinary</em> Python function like <code>clamp()</code> above. Two ways around it:</p>
 <div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># Option 1: write the logic inline, right where the index is used</span></span>
+<span id="cb13-2"><a></a>j <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(i <span class="op">+</span> d, <span class="dv">0</span>), n <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a><span class="co"># Option 2: compile the helper for the GPU as a *device function*</span></span>
+<span id="cb13-5"><a></a><span class="at">@cuda.jit</span>(device<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-6"><a></a><span class="kw">def</span> clamp(x, lo, hi):</span>
+<span id="cb13-7"><a></a>    <span class="cf">return</span> <span class="bu">min</span>(<span class="bu">max</span>(x, lo), hi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">A <em>device function</em> runs on the GPU and is called <em>from a kernel</em> (it can’t be launched with <code>[blocks, threads]</code>), and it can return a value — a kernel can’t</li>
+<li class="fragment">Lab 7 writes the clamp <em>inline</em>, which is what the kernels on the next slides do</li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
 <p>The other two policies, inside the same neighbor loop:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># zero-pad: only add neighbors that exist (missing ones count as 0)</span></span>
-<span id="cb13-2"><a></a>j <span class="op">=</span> i <span class="op">+</span> d</span>
-<span id="cb13-3"><a></a><span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> j <span class="op">&lt;</span> n:</span>
-<span id="cb13-4"><a></a>    total <span class="op">+=</span> arr[j]</span>
-<span id="cb13-5"><a></a></span>
-<span id="cb13-6"><a></a><span class="co"># wrap: Python's % is never negative for positive n  (-1 % 10 == 9)</span></span>
-<span id="cb13-7"><a></a>j <span class="op">=</span> (i <span class="op">+</span> d) <span class="op">%</span> n</span>
-<span id="cb13-8"><a></a>total <span class="op">+=</span> arr[j]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="co"># zero-pad: only add neighbors that exist (missing ones count as 0)</span></span>
+<span id="cb14-2"><a></a>j <span class="op">=</span> i <span class="op">+</span> d</span>
+<span id="cb14-3"><a></a><span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> j <span class="op">&lt;</span> n:</span>
+<span id="cb14-4"><a></a>    total <span class="op">+=</span> arr[j]</span>
+<span id="cb14-5"><a></a></span>
+<span id="cb14-6"><a></a><span class="co"># wrap: Python's % is never negative for positive n  (-1 % 10 == 9)</span></span>
+<span id="cb14-7"><a></a>j <span class="op">=</span> (i <span class="op">+</span> d) <span class="op">%</span> n</span>
+<span id="cb14-8"><a></a>total <span class="op">+=</span> arr[j]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Zero-pad</strong> <em>skips</em> the read entirely when <code>j</code> is out of range. Skipping a tap is the same as adding 0 — and the guard keeps us from ever touching <code>arr[-1]</code>.</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Wrap</strong> uses <code>%</code> to fold the index back into <code>0 … n−1</code>: <code>-1 % 10 == 9</code> and <code>10 % 10 == 0</code>. (C’s <code>%</code> <em>can</em> return negatives; Python’s — and Numba’s — can’t.)</p>
+</div>
+<div class="fragment">
+<p><strong>CK-07</strong> deliberately switches to <em>zero-padding</em>, so make sure you understand <em>the policies themselves</em>, not just one line of code.</p>
+</div>
+</div>
 <aside class="notes">
-<p>~2 min across both sub-slides. Numba CUDA kernels can only call other GPU-compiled code — a plain Python <code>def</code> fails with a TypingError, but a <code>@cuda.jit(device=True)</code> function works fine. Inlining is just the simplest option for a one-liner like clamp, and it’s what Lab 7 does.</p>
+<p>~4 min across the three sub-slides. Numba CUDA kernels can only call other GPU-compiled code — a plain Python <code>def</code> fails with a TypingError, but a <code>@cuda.jit(device=True)</code> function works fine. Inlining is just the simplest option for a one-liner like clamp, and it’s what Lab 7 does. Wrap via % assumes radius &lt; n (true in every lab/checkpoint here).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1249,31 +1308,65 @@ thread 3 sees 3.0</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
 </section>
 <section id="a-1d-warm-up-moving-average" class="slide level2">
 <h2>A 1D Warm-up: Moving Average</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb14-2"><a></a><span class="kw">def</span> moving_average_1d(arr, out, n, radius):</span>
-<span id="cb14-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb14-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
-<span id="cb14-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
-<span id="cb14-6"><a></a>        <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb14-7"><a></a>            j <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(i <span class="op">+</span> d, <span class="dv">0</span>), n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp</span></span>
-<span id="cb14-8"><a></a>            total <span class="op">+=</span> arr[j]</span>
-<span id="cb14-9"><a></a>        out[i] <span class="op">=</span> total <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div><div class="column" style="width:40%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb15-2"><a></a><span class="kw">def</span> moving_average_1d(arr, out, n, radius):</span>
+<span id="cb15-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb15-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
+<span id="cb15-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
+<span id="cb15-6"><a></a>        <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb15-7"><a></a>            j <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(i <span class="op">+</span> d, <span class="dv">0</span>), n <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp</span></span>
+<span id="cb15-8"><a></a>            total <span class="op">+=</span> arr[j]</span>
+<span id="cb15-9"><a></a>        out[i] <span class="op">=</span> total <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li class="fragment">Each output <code>i</code> averages <em><code>2*radius + 1</code></em> neighboring inputs — radius 2 means a <em>5-wide window</em> (2 before, the center, 2 after)</li>
-<li class="fragment">The <code>min(max(...))</code> clamp appears <em>inside the loop</em>, once per neighbor read</li>
+<li class="fragment"><strong>Lines 3–4:</strong> <em>one thread, one output</em> — the same global index and bounds guard as every 1D kernel since Oct 5</li>
+<li class="fragment"><strong>Line 5:</strong> a <em><code>float32</code> accumulator</em> — a plain <code>0.0</code> would make it <code>float64</code>, the slow-on-a-T4 trap from Lab 05</li>
+<li class="fragment"><strong>Line 6:</strong> <code>d</code> runs from <code>-radius</code> to <code>+radius</code> <em>inclusive</em> (<code>range</code> stops one short, hence <code>radius + 1</code>): <em><code>2*radius + 1</code> taps</em>. Radius 2 → a 5-wide window</li>
+<li class="fragment"><strong>Line 7:</strong> the <em>clamp</em>, applied <em>once per neighbor read</em>, before the index is used</li>
+<li class="fragment"><strong>Line 8:</strong> <em>accumulate</em> the neighbor’s value</li>
+<li class="fragment"><strong>Line 9:</strong> divide by the <em>full window size</em>. Clamping always supplies <code>2*radius + 1</code> real values, so even the edges are a true average</li>
 </ul>
-</div></div>
 </section>
 <section class="slide level2">
 
-<p><strong>Trace</strong> <code>i = 0</code>, <code>radius = 2</code>, with <code>arr = [10, 20, 30, 40, 50, …]</code>:</p>
+<!-- What each line in `moving_average_1d` does:
+
+- **Lines 3–4:** *one thread, one output* — the same global index and bounds guard as every 1D kernel since Oct 5
+- **Line 5:** a *`float32` accumulator* — a plain `0.0` would make it `float64`, the slow-on-a-T4 trap from Lab 05
+- **Line 6:** `d` runs from `-radius` to `+radius` *inclusive* (`range` stops one short, hence `radius + 1`): *`2*radius + 1` taps*. Radius 2 → a 5-wide window
+- **Line 7:** the *clamp*, applied *once per neighbor read*, before the index is used
+- **Line 8:** *accumulate* the neighbor's value
+- **Line 9:** divide by the *full window size*. Clamping always supplies `2*radius + 1` real values, so even the edges are a true average
+
+--- -->
+<p>Launching it on <code>[10, 20, …, 100]</code> with <code>radius = 2</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a>arr <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">101</span>, <span class="dv">10</span>, dtype<span class="op">=</span>np.float32)   <span class="co"># [10, 20, ..., 100]</span></span>
+<span id="cb16-2"><a></a>n <span class="op">=</span> arr.size</span>
+<span id="cb16-3"><a></a>d_arr <span class="op">=</span> cuda.to_device(arr)</span>
+<span id="cb16-4"><a></a>d_out <span class="op">=</span> cuda.device_array_like(d_arr)            <span class="co"># GPU array, same shape/dtype, no copy</span></span>
+<span id="cb16-5"><a></a></span>
+<span id="cb16-6"><a></a>threads <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb16-7"><a></a>blocks <span class="op">=</span> (n <span class="op">+</span> threads <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> threads            <span class="co"># ceiling division: 1 block here</span></span>
+<span id="cb16-8"><a></a>moving_average_1d[blocks, threads](d_arr, d_out, n, <span class="dv">2</span>)</span>
+<span id="cb16-9"><a></a><span class="bu">print</span>(d_out.copy_to_host())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<pre><code>[16. 22. 30. 40. 50. 60. 70. 80. 88. 94.]</code></pre>
+<ul>
+<li class="fragment">The middle is a <em>steady +10</em> (the input is a straight line, and averaging a straight line leaves it alone)</li>
+<li class="fragment">The ends are <em>pulled toward the edge value</em>: 16 instead of 30, 94 instead of 80. That’s clamping — the next slides trace exactly why</li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Trace</strong> <code>i = 0</code>, <code>radius = 2</code>:</p>
+
+<img data-src="diags/clamp-mapping.svg" alt="Top row, labeled i + d: five boxes holding -2, -1, 0, 1, 2. The boxes -2 and -1 are dashed red and labeled off the edge, X. Bottom row, labeled arr[j]: array cells holding 10, 20, 30, 40, 50, 60 with labels j=0 to j=5 underneath; cells 10, 20 and 30 are blue. Two thick red arrows go from -2 and -1 diagonally down into cell j=0; blue arrows go straight down from 0 to j=0, 1 to j=1 and 2 to j=2. Text on the right: j = min(max(i + d, 0), n - 1); i = 0, radius = 2; -2 and -1 snap up to 0: arr[0] is read 3 times." width="760" class="r-stretch"></section>
+<section class="slide level2">
+
+<p>The same trace as a table:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -1313,12 +1406,13 @@ thread 3 sees 3.0</code></pre>
 </tbody>
 </table>
 <div class="fragment">
-<p><code>out[0] = (10 + 10 + 10 + 20 + 30) / 5 = 16.0</code></p>
+<p><code>out[0] = (10 + 10 + 10 + 20 + 30) / 5 = 16.0</code> — the first value printed above</p>
 <ul>
 <li class="fragment">Three of the five taps are the <em>same repeated edge value</em> — that’s the clamping policy visibly at work, <em>not a bug</em></li>
+<li class="fragment">Try <code>i = 9</code> yourself: <code>j</code> = 7, 8, 9, 9, 9 → <code>(80 + 90 + 100 + 100 + 100) / 5 = 94.0</code></li>
 </ul>
 <aside class="notes">
-<p>~3 min across both sub-slides. This is Lab 07 Part 3’s warm-up, shown here as a worked example before the lab. Have students fill in the j row themselves before revealing the result.</p>
+<p>~6 min across the five sub-slides. This is Lab 07 Part 3’s warm-up, shown here as a worked example before the lab. Step through the code highlight line by line on the first sub-slide; the second sub-slide is the written version for students reviewing later. On the trace table, have students fill in the j row themselves before revealing the result, then do i = 9 on their own.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1334,24 +1428,71 @@ thread 3 sees 3.0</code></pre>
 </section>
 <section id="from-1d-to-2d-box-blur" class="slide level2">
 <h2>From 1D to 2D: Box Blur</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb15-2"><a></a><span class="kw">def</span> box_blur_2d(img, out, H, W, radius):</span>
-<span id="cb15-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
-<span id="cb15-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> H <span class="kw">and</span> col <span class="op">&lt;</span> W:</span>
-<span id="cb15-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
-<span id="cb15-6"><a></a>        <span class="cf">for</span> dr <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb15-7"><a></a>            <span class="cf">for</span> dc <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb15-8"><a></a>                r <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(row <span class="op">+</span> dr, <span class="dv">0</span>), H <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp row</span></span>
-<span id="cb15-9"><a></a>                c <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(col <span class="op">+</span> dc, <span class="dv">0</span>), W <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp col</span></span>
-<span id="cb15-10"><a></a>                total <span class="op">+=</span> img[r, c]</span>
-<span id="cb15-11"><a></a>        out[row, col] <span class="op">=</span> total <span class="op">/</span> ((<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>) <span class="op">**</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb18-2"><a></a><span class="kw">def</span> box_blur_2d(img, out, H, W, radius):</span>
+<span id="cb18-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
+<span id="cb18-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> H <span class="kw">and</span> col <span class="op">&lt;</span> W:</span>
+<span id="cb18-5"><a></a>        total <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
+<span id="cb18-6"><a></a>        <span class="cf">for</span> dr <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb18-7"><a></a>            <span class="cf">for</span> dc <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>radius, radius <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb18-8"><a></a>                r <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(row <span class="op">+</span> dr, <span class="dv">0</span>), H <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp row</span></span>
+<span id="cb18-9"><a></a>                c <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(col <span class="op">+</span> dc, <span class="dv">0</span>), W <span class="op">-</span> <span class="dv">1</span>)   <span class="co"># clamp col</span></span>
+<span id="cb18-10"><a></a>                total <span class="op">+=</span> img[r, c]</span>
+<span id="cb18-11"><a></a>        out[row, col] <span class="op">=</span> total <span class="op">/</span> ((<span class="dv">2</span> <span class="op">*</span> radius <span class="op">+</span> <span class="dv">1</span>) <span class="op">**</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What changed from the 1D version:</p>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 3–4:</strong> <code>cuda.grid(2)</code> gives each thread a <em><code>(row, col)</code></em> pair; the guard now checks <em>both</em> dimensions (Module 2’s 2D launch)</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 6–7:</strong> <em>two nested loops</em>: <code>dr</code> walks the rows of the window, <code>dc</code> its columns — a <em><code>(2·radius+1) × (2·radius+1)</code> square</em></p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 8–9:</strong> the row and column are clamped <em>independently</em>: a pixel on the top edge clamps only <code>r</code>; a corner pixel clamps both</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Line 11:</strong> divide by the number of taps, now the <em>square</em> of the window width</p>
+</div>
+</div>
+<div class="fragment">
+<p>This is <strong>image convolution</strong>. A box blur is the simplest one: <em>every neighbor weighted equally</em>. (A Gaussian blur — Lab 7’s bonus — just multiplies each tap by a weight)</p>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/box-blur-window.svg" alt="Two 6 by 6 pixel grids. Left, titled Interior pixel (3, 3): a thick blue 3x3 window is centered on pixel (3, 3), shown green, with its eight neighbors blue. Caption: 3x3 window: 9 real taps, check mark. Right, titled Corner pixel (0, 0): the 3x3 window is centered on the top-left pixel (0, 0), shown green, so it hangs one row above and one column left of the image. The five window cells outside the image are dashed orange and each shows the clamped coordinate it reads: top row 0,0 then 0,0 then 0,1; left column 0,0 and 1,0. A note at right: dashed cells are outside the image; each one reads the clamped (r, c) written inside it. Caption: 5 of 9 taps clamped: img[0,0] counted 4 times." width="820" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>An <em>interior</em> pixel needs no clamping: all 9 taps are real pixels.</p>
+</div>
+<div class="fragment">
+<p>At the <em>corner</em>, 5 of the 9 taps fall off the image. Clamping turns them into reads of <code>img[0,0]</code> (×4 total), <code>img[0,1]</code> (×2) and <code>img[1,0]</code> (×2), plus the one real <code>img[1,1]</code>.</p>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>A tiny test you can check by hand — a 4×4 image, <code>radius = 1</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a>img <span class="op">=</span> np.arange(<span class="dv">16</span>, dtype<span class="op">=</span>np.float32).reshape(<span class="dv">4</span>, <span class="dv">4</span>)   <span class="co"># rows: 0-3, 4-7, 8-11, 12-15</span></span>
+<span id="cb19-2"><a></a>H, W <span class="op">=</span> img.shape</span>
+<span id="cb19-3"><a></a>d_img <span class="op">=</span> cuda.to_device(img)</span>
+<span id="cb19-4"><a></a>d_out <span class="op">=</span> cuda.device_array_like(d_img)</span>
+<span id="cb19-5"><a></a></span>
+<span id="cb19-6"><a></a>threads <span class="op">=</span> (<span class="dv">16</span>, <span class="dv">16</span>)                                     <span class="co"># 256 threads per block</span></span>
+<span id="cb19-7"><a></a>blocks <span class="op">=</span> ((H <span class="op">+</span> <span class="dv">15</span>) <span class="op">//</span> <span class="dv">16</span>, (W <span class="op">+</span> <span class="dv">15</span>) <span class="op">//</span> <span class="dv">16</span>)              <span class="co"># (rows of blocks, cols of blocks)</span></span>
+<span id="cb19-8"><a></a>box_blur_2d[blocks, threads](d_img, d_out, H, W, <span class="dv">1</span>)</span>
+<span id="cb19-9"><a></a><span class="bu">print</span>(d_out.copy_to_host().<span class="bu">round</span>(<span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<pre><code>[[ 1.67  2.33  3.33  4.  ]
+ [ 4.33  5.    6.    6.67]
+ [ 8.33  9.   10.   10.67]
+ [11.   11.67 12.67 13.33]]</code></pre>
 <ul>
-<li class="fragment">Same idea as 1D, doubled: a <em><code>(2·radius+1) × (2·radius+1)</code> square</em>, clamped <em>independently on row and column</em></li>
-<li class="fragment">This is <strong>image convolution</strong>. A box blur is the simplest one: <em>every neighbor weighted equally</em></li>
-<li class="fragment">Radius 1 → 3×3 window (9 taps). Radius 2 → 5×5 (25 taps). Bigger radius means <em>more blur</em>, but also <em>many more memory reads</em> per pixel</li>
+<li class="fragment">Corner <code>out[0,0]</code> matches the figure: <code>(4·img[0,0] + 2·img[0,1] + 2·img[1,0] + img[1,1]) / 9 = (0 + 2 + 8 + 5) / 9 ≈ 1.67</code></li>
+<li class="fragment">Interior <code>out[1,1] = 5.0</code> — the plain average of the 3×3 block around it, <em>no clamping</em></li>
 </ul>
 <aside class="notes">
-<p>~3 min. This is Lab 07’s Exercise 1 pattern, shown as a worked example. The nested loop (row neighborhood × col neighborhood) is the main new syntactic idea versus the 1D case — walk through it explicitly.</p>
+<p>~6 min across the four sub-slides. This is Lab 07’s Exercise 1 pattern, shown as a worked example. The nested loop (row neighborhood × col neighborhood) is the main new syntactic idea versus the 1D case — step through it with the line highlights. The corner figure is exactly the “sketch which pixels feed out[0, 0]” prompt from Lab 07 Ex 1; the 4x4 test lets students check their lab kernel on something small before the 128x128 image (Oct 5’s “shrink N and verify by hand” technique).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1363,6 +1504,7 @@ thread 3 sees 3.0</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="radius-vs.-cost" class="slide level2">
 <h2>Radius vs.&nbsp;Cost</h2>
@@ -1398,12 +1540,23 @@ thread 3 sees 3.0</code></pre>
 </tbody>
 </table>
 <ul>
-<li class="fragment">Taps per pixel grows with the <strong>square</strong> of the radius — <em>doubling the radius roughly quadruples</em> the memory reads and arithmetic per output</li>
-<li class="fragment">Every tap is a <em>separate global-memory read</em> in the naive version — exactly the traffic Module 4’s <em>shared-memory tiling</em> is built to reduce</li>
+<li class="fragment">Taps per pixel = <span class="math inline">\((2r+1)^2\)</span>: it grows with the <strong>square</strong> of the radius — <em>doubling the radius roughly quadruples</em> the memory reads and arithmetic per output</li>
 <li class="fragment">Lab 7 has you compare blur strength across a few radii and <em>connect the visual result</em> back to this table</li>
 </ul>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/stencil-overlap.svg" alt="A row of 11 input cells labeled in, indices 0 to 10, with cell 5 highlighted yellow. Below, five stacked horizontal blue bars labeled out[3] through out[7]; each bar spans the five inputs that thread reads with radius 2 (out[3] spans 1 to 5, out[7] spans 5 to 9), with a small green marker under the output position. A dashed orange vertical line drops from in[5] through all five bars. Note at right: in[5] lands inside 5 different windows, so 5 threads each fetch it from global memory. Caption: blue bar = the inputs one thread reads (radius 2); green = the output it writes." width="820" class="r-stretch"><div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p>Neighboring windows <em>overlap</em>: every input is read by <em><code>2r+1</code> threads</em> in 1D, and <em><code>(2r+1)²</code> threads</em> in 2D.</p>
+</div>
+<div class="fragment">
+<p>In the naive kernel each of those is a <em>separate global-memory read</em> of the same value. Loading a neighborhood <em>once</em> into fast on-chip memory is exactly what Module 4’s <em>shared-memory tiling</em> does.</p>
+</div>
+</div>
 <aside class="notes">
-<p>~2 min. Worth an explicit callback: “this naive stencil re-reads overlapping neighborhoods from global memory constantly, with heavy reuse between adjacent output pixels — sound familiar?” — it’s the same reuse-without-caching problem Oct 7’s naive-matmul diagnosis identified, just in a different kernel shape.</p>
+<p>~3 min across both sub-slides. Worth an explicit callback: “this naive stencil re-reads overlapping neighborhoods from global memory constantly, with heavy reuse between adjacent output pixels — sound familiar?” — it’s the same reuse-without-caching problem Oct 7’s naive-matmul diagnosis identified, just in a different kernel shape. (L1/L2 catch some of this reuse in practice, as they did for matmul; shared memory makes it explicit.)</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1461,8 +1614,8 @@ thread 3 sees 3.0</code></pre>
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-07 will ask you to:</p>
 <ul>
-<li class="fragment">Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with weights given as a 3×3 array)</li>
-<li class="fragment">Handle the boundary with one of today’s three policies, which won’t necessarily be the one Lab 7 uses</li>
+<li class="fragment">Write a 2D <strong>weighted</strong> stencil kernel (an edge filter, with <em>weights given as a 3×3 array</em>)</li>
+<li class="fragment">Handle the boundary with one of today’s three policies, which <em>won’t necessarily be the one Lab 7 uses</em></li>
 </ul>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 07 (Oct 16). REWRITTEN 2026-10-02: it was the 1D moving-average demo with blanks. Now a weighted 3×3 stencil with ZERO-PADDING, so students transfer the idea instead of recalling the lab’s clamp line.</p>

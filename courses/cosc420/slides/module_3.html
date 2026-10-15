@@ -720,10 +720,9 @@ SI
 </section>
 <section id="map-shuffle-reduce-step-by-step" class="slide level2">
 <h2>Map, Shuffle, Reduce, step by step</h2>
-<iframe src="anims/03-mr-phases.html" width="940" height="610" style="border:0" title="Three chunks each go to their own map(), which emits (key, 1) pairs: chunk 1 gives (A,1) and (B,1), chunk 2 gives (A,1) twice, chunk 3 gives (B,1). In the shuffle, every A pair travels to reduce(A) and every B pair to reduce(B). The reducers output A = 3 and B = 2. Labels underneath: map and reduce are written by you and run locally in parallel; the shuffle is done by the framework and is the only phase that crosses the network.">
-</iframe>
-<aside class="notes">
-<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+
+<img data-src="anims/03-mr-phases.svg" alt="Three chunks each go to their own map(), which emits (key, 1) pairs: chunk 1 gives (A,1) and (B,1), chunk 2 gives (A,1) twice, chunk 3 gives (B,1). In the shuffle, every A pair travels to reduce(A) and every B pair to reduce(B). The reducers output A = 3 and B = 2. Labels underneath: map and reduce are written by you and run locally in parallel; the shuffle is done by the framework and is the only phase that crosses the network." class="r-stretch"><aside class="notes">
+<p>The animation plays on its own and loops; it restarts each time this slide is shown, and clicking it restarts it too. The bar underneath shows the step number and title. Works offline.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -743,10 +742,9 @@ SI
 <img data-src="diags/03-mapreduce-flow.svg" alt="Three horizontal bands, top to bottom. Above them, three gray boxes: &quot;Branch 1: raw tickets&quot;, &quot;Branch 2: raw tickets&quot;, &quot;Branch 3: raw tickets&quot;, each with an arrow down into the Map band. Map band, subtitled &quot;alone, in parallel&quot;: each branch has its own yellow tally box — Branch 1: burger 5, fries 3, pizza 2; Branch 2: burger 2, fries 6, pizza 5; Branch 3: burger 3, fries 2, pizza 1. No arrows connect branches in this band. Shuffle band, subtitled &quot;the only trips&quot;: nine crossing arrows, color-coded by item, carry each branch's burger tally to one owner, each fries tally to a second owner, and each pizza tally to a third. Reduce band, subtitled &quot;one owner per key&quot;: three blue boxes &quot;owns burger&quot;, &quot;owns fries&quot;, &quot;owns pizza&quot;, with results burger = 10, fries = 11, pizza = 8. Caption: &quot;Same shape as Monday, just relabeled.&quot;" width="720" class="r-stretch"></section>
 <section id="mondays-kitchen-step-by-step" class="slide level2">
 <h2>Monday’s kitchen, step by step</h2>
-<iframe src="anims/03-mapreduce-flow.html" width="940" height="630" style="border:0" title="Three branches each tally their own tickets in parallel: Branch 1 burger 5, fries 3, pizza 2; Branch 2 burger 2, fries 6, pizza 5; Branch 3 burger 3, fries 2, pizza 1. Then one item at a time, all three tallies for that item travel to its single owner: 9 trips in total, the only trips. Each owner sums its item: burger = 10, fries = 11, pizza = 8.">
-</iframe>
-<aside class="notes">
-<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+
+<img data-src="anims/03-mapreduce-flow.svg" alt="Three branches each tally their own tickets in parallel: Branch 1 burger 5, fries 3, pizza 2; Branch 2 burger 2, fries 6, pizza 5; Branch 3 burger 3, fries 2, pizza 1. Then one item at a time, all three tallies for that item travel to its single owner: 9 trips in total, the only trips. Each owner sums its item: burger = 10, fries = 11, pizza = 8." class="r-stretch"><aside class="notes">
+<p>The animation plays on its own and loops; it restarts each time this slide is shown, and clicking it restarts it too. The bar underneath shows the step number and title. Works offline.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1334,10 +1332,9 @@ the fox jumped over the lazy dog</code></pre>
 </section>
 <section id="reading-a-file-from-hdfs-step-by-step" class="slide level2">
 <h2>Reading a file from HDFS, step by step</h2>
-<iframe src="anims/03-hdfs-read.html" width="900" height="620" style="border:0" title="The client asks the NameNode where the blocks of ratings.csv are, and the NameNode returns only the block list: B1 on A, C, E; B2 on B, D, A; B3 on C, E, B; B4 on D, A, C. The client then reads block 1 from DataNode A, block 2 from B, block 3 from C and block 4 from D, each straight from the DataNode. Ends with all 4 blocks at the client and the NameNode never having touched the file's bytes.">
-</iframe>
-<aside class="notes">
-<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+
+<img data-src="anims/03-hdfs-read.svg" alt="The client asks the NameNode where the blocks of ratings.csv are, and the NameNode returns only the block list: B1 on A, C, E; B2 on B, D, A; B3 on C, E, B; B4 on D, A, C. The client then reads block 1 from DataNode A, block 2 from B, block 3 from C and block 4 from D, each straight from the DataNode. Ends with all 4 blocks at the client and the NameNode never having touched the file's bytes." class="r-stretch"><aside class="notes">
+<p>The animation plays on its own and loops; it restarts each time this slide is shown, and clicking it restarts it too. The bar underneath shows the step number and title. Works offline.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1489,10 +1486,9 @@ userId,movieId,rating,timestamp
 <img data-src="diags/03-yarn.svg" alt="A Client box sends an arrow labeled &quot;1. submit job&quot; to a ResourceManager box labeled &quot;(one per cluster)&quot;. The ResourceManager has three arrows labeled &quot;2. hand out room to run tasks&quot; going down to three large boxes: &quot;Worker 1: NodeManager&quot;, &quot;Worker 2: NodeManager&quot;, &quot;Worker 3: NodeManager&quot;. Worker 1 holds a yellow &quot;ApplicationMaster (this job only)&quot; box and one Map task. Worker 2 holds two Map tasks. Worker 3 holds one Map task and one Reduce task. Dashed lines from the ApplicationMaster connect to every task, labeled &quot;3. tracks progress&quot;. Caption: &quot;YARN decides WHERE tasks run. (HDFS decides where data lives.)&quot;" width="820" class="r-stretch"></section>
 <section id="one-job-on-yarn-step-by-step" class="slide level2">
 <h2>One job on YARN, step by step</h2>
-<iframe src="anims/03-yarn.html" width="940" height="610" style="border:0" title="The client submits a job to the ResourceManager. The ResourceManager gives room on Worker 1 for the job's ApplicationMaster, which asks for room for 4 map tasks. The ResourceManager places Map 1 on Worker 1, Maps 2 and 3 on Worker 2 and Map 4 on Worker 3; the ApplicationMaster tracks them all. The maps finish, then a Reduce task runs on Worker 3 and finishes. YARN decided where each task ran; HDFS decides where data lives.">
-</iframe>
-<aside class="notes">
-<p>Click inside the animation, then →/← to step through it (Space plays it). Click outside it (or Esc) to get the arrow keys back for changing slides. Needs internet (Rough.js loads from a CDN).</p>
+
+<img data-src="anims/03-yarn.svg" alt="The client submits a job to the ResourceManager. The ResourceManager gives room on Worker 1 for the job's ApplicationMaster, which asks for room for 4 map tasks. The ResourceManager places Map 1 on Worker 1, Maps 2 and 3 on Worker 2 and Map 4 on Worker 3; the ApplicationMaster tracks them all. The maps finish, then a Reduce task runs on Worker 3 and finishes. YARN decided where each task ran; HDFS decides where data lives." class="r-stretch"><aside class="notes">
+<p>The animation plays on its own and loops; it restarts each time this slide is shown, and clicking it restarts it too. The bar underneath shows the step number and title. Works offline.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1908,6 +1904,26 @@ userId,movieId,rating,timestamp
           RevealZoom
         ]
       });
+    </script>
+    <script>
+    // The animated SVGs in anims/ start playing as soon as the deck loads, so by the
+    // time their slide comes up they're mid-loop. Restart them when their slide is
+    // shown, and when clicked. (A new query string makes the browser reload the image,
+    // which restarts its CSS animation.)
+    (function () {
+      function restart(img) {
+        img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now();
+      }
+      function restartIn(slide) {
+        if (slide) slide.querySelectorAll('img[src*="anims/"][src*=".svg"]').forEach(restart);
+      }
+      Reveal.on('ready', e => restartIn(e.currentSlide));
+      Reveal.on('slidechanged', e => restartIn(e.currentSlide));
+      document.addEventListener('click', e => {
+        const img = e.target.closest && e.target.closest('img[src*="anims/"][src*=".svg"]');
+        if (img) restart(img);
+      });
+    })();
     </script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {

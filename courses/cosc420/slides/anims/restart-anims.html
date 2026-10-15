@@ -1,0 +1,20 @@
+<script>
+// The animated SVGs in anims/ start playing as soon as the deck loads, so by the
+// time their slide comes up they're mid-loop. Restart them when their slide is
+// shown, and when clicked. (A new query string makes the browser reload the image,
+// which restarts its CSS animation.)
+(function () {
+  function restart(img) {
+    img.src = img.getAttribute('src').split('?')[0] + '?r=' + Date.now();
+  }
+  function restartIn(slide) {
+    if (slide) slide.querySelectorAll('img[src*="anims/"][src*=".svg"]').forEach(restart);
+  }
+  Reveal.on('ready', e => restartIn(e.currentSlide));
+  Reveal.on('slidechanged', e => restartIn(e.currentSlide));
+  document.addEventListener('click', e => {
+    const img = e.target.closest && e.target.closest('img[src*="anims/"][src*=".svg"]');
+    if (img) restart(img);
+  });
+})();
+</script>
