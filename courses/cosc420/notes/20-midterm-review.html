@@ -406,7 +406,44 @@
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-1-solution" class="slide level2 scrollable">
+<h2>Practice 1: Solution</h2>
+<p><strong>Yes, this can deadlock.</strong> One interleaving that does it:</p>
+<ol type="1">
+<li class="fragment">Thread A locks <code>alice</code> (its <code>from</code>).</li>
+<li class="fragment">Thread B locks <code>bob</code> (its <code>from</code>).</li>
+<li class="fragment">Thread A tries to lock <code>bob</code>, which B holds, so A waits.</li>
+<li class="fragment">Thread B tries to lock <code>alice</code>, which A holds, so B waits.</li>
+</ol>
+<div class="fragment">
+<p>Each thread holds what the other needs: a <strong>circular wait</strong>. Neither ever lets go.</p>
+</div>
+<div class="fragment">
+<p><strong>The fix:</strong> acquire the two locks <strong>in the same order everywhere</strong>, no matter which account is <code>from</code>. For example, always lock the account with the smaller <code>id</code> first:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a>Account first  <span class="op">=</span> <span class="op">(</span>from<span class="op">.</span><span class="fu">id</span> <span class="op">&lt;</span> to<span class="op">.</span><span class="fu">id</span><span class="op">)</span> <span class="op">?</span> from <span class="op">:</span> to<span class="op">;</span></span>
+<span id="cb2-2"><a></a>Account second <span class="op">=</span> <span class="op">(</span>from<span class="op">.</span><span class="fu">id</span> <span class="op">&lt;</span> to<span class="op">.</span><span class="fu">id</span><span class="op">)</span> <span class="op">?</span> to   <span class="op">:</span> from<span class="op">;</span></span>
+<span id="cb2-3"><a></a><span class="kw">synchronized</span> <span class="op">(</span>first<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-4"><a></a>    <span class="kw">synchronized</span> <span class="op">(</span>second<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-5"><a></a>        from<span class="op">.</span><span class="fu">balance</span> <span class="op">-=</span> amount<span class="op">;</span></span>
+<span id="cb2-6"><a></a>        to<span class="op">.</span><span class="fu">balance</span>   <span class="op">+=</span> amount<span class="op">;</span></span>
+<span id="cb2-7"><a></a>    <span class="op">}</span></span>
+<span id="cb2-8"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now both threads try to lock <code>alice</code> first (or both <code>bob</code> first). Whoever gets it also gets the second lock. The other thread just waits its turn.</p>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> This is the Session 4 knife-and-cutting-board picture with real objects. Point out that the deadlock depends on the <em>arguments</em>: two transfers in the same direction never deadlock, which is why bugs like this survive testing.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="practice-2-name-that-failure" class="slide level2">
 <h2>Practice 2: Name That Failure</h2>
 <p>Each scenario describes a program that misbehaves. Match it to <strong>race condition</strong>, <strong>deadlock</strong>, <strong>livelock</strong>, or <strong>starvation</strong>.</p>
@@ -431,7 +468,43 @@
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-2-solution" class="slide level2">
+<h2>Practice 2: Solution</h2>
+<ul>
+<li class="fragment"><strong>(a) Deadlock.</strong> The clue: <em>0% CPU</em> and <em>each waits on a lock the other holds</em>. Frozen threads use no CPU.</li>
+<li class="fragment"><strong>(b) Livelock.</strong> The clue: <em>100% CPU</em> but <em>no progress</em>. The threads are busy reacting to each other, like two people stepping aside in a doorway forever.</li>
+<li class="fragment"><strong>(c) Race condition.</strong> The clue: <em>only sometimes</em>, and it <em>disappears under the debugger</em>, which changes the timing. That’s a Heisenbug. Two threads both read “14C is free” before either wrote “sold.”</li>
+<li class="fragment"><strong>(d) Starvation.</strong> The clue: the <em>system overall is making progress</em>; only <em>one</em> thread never gets a turn.</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Quick rule: <strong>frozen</strong> → deadlock. <strong>Busy but stuck</strong> → livelock. <strong>Everyone else fine</strong> → starvation. <strong>Wrong sometimes</strong> → race condition.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> If a pair said (c) was a deadlock, ask: “Did anything get stuck?” A race condition produces <em>wrong</em> results. The other three produce <em>no</em> results.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="practice-3-trace-the-thread-pool" class="slide level2">
 <h2>Practice 3: Trace the Thread Pool</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a><span class="co">// main is declared "throws Exception"</span></span>
@@ -472,7 +545,28 @@
       }</style></aside>
 </div>
 </section>
-</section>
+<section id="practice-3-solution" class="slide level2">
+<h2>Practice 3: Solution</h2>
+<ul>
+<li class="fragment"><strong>(a) Right away.</strong> <code>submit()</code> doesn’t wait for the task. It puts the task in the queue and hands back a <code>Future</code> (an order ticket) immediately.</li>
+<li class="fragment"><strong>(b) About 2 seconds.</strong> Two workers, four 1-second tasks: tasks 1 and 2 run together, then tasks 3 and 4 run together. That’s two rounds.</li>
+<li class="fragment"><strong>(c)</strong> 4 threads: <strong>about 1 second</strong> (all four run at once). 1 thread: <strong>about 4 seconds</strong> (one at a time). The pool size caps how many tasks run at once. Extra tasks <em>wait in the queue</em>.</li>
+<li class="fragment"><strong>(d) <code>10, 20, 30, 40</code></strong>, in that order, every time. The loop calls <code>.get()</code> on the futures in the order they were submitted, and <code>.get()</code> <em>blocks</em> until that particular result is ready. Even if task 2 finished a moment before task 1, its value isn’t printed until task 1’s <code>.get()</code> returns.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Part (d) is the subtle one. The tasks may <em>finish</em> in any order, but the <em>printing</em> order is set by the order of the <code>.get()</code> calls.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
 <section>
 <section id="module-2-distributed-systems-concepts" class="title-slide slide level1 section center">
 <h1>Module 2: Distributed Systems Concepts</h1>
@@ -564,7 +658,28 @@
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-4-solution" class="slide level2">
+<h2>Practice 4: Solution</h2>
+<ul>
+<li class="fragment"><strong>(a) Fallacy 2: “latency is zero.”</strong> Each call’s round trip is tiny on fast Wi-Fi, but 40 of them in a row add up. A design that assumed network calls are free breaks as soon as latency is real.</li>
+<li class="fragment"><strong>(b) Fallacy 5: “topology doesn’t change.”</strong> Machines move, get replaced, and change addresses. Hard-coding where things are assumes they never will. (This is part of why DNS exists: look the address up by name instead.)</li>
+<li class="fragment"><strong>(c) Byzantine failure.</strong> The node <em>looks</em> healthy (prompt, normal responses) but returns <em>wrong data</em>. That’s why it’s the hardest type to defend against: nothing looks broken.</li>
+<li class="fragment"><strong>(d) Omission failure.</strong> The node is alive and working, but it drops some messages. Compare crash, where it would answer <em>none</em> of them.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> For (c), ask “how would you even notice?” A crashed node goes silent. A Byzantine node keeps talking, so you need some way to cross-check its answers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="practice-5-make-the-cap-call" class="slide level2">
 <h2>Practice 5: Make the CAP Call</h2>
 <p>The network between two datacenters has just split: a <strong>partition</strong>. For each system, would you favor <strong>consistency</strong> or <strong>availability</strong>? Describe what a user on the cut-off side <em>actually sees</em>.</p>
@@ -589,11 +704,48 @@
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-5-solution" class="slide level2">
+<h2>Practice 5: Solution</h2>
+<ul>
+<li class="fragment"><strong>(a) Favor consistency.</strong> Two sides of the split could each give away the last seat, so the section ends up over its cap. User sees: <em>“Registration is temporarily unavailable, try again shortly.”</em></li>
+<li class="fragment"><strong>(b) Favor availability.</strong> A car icon a few seconds out of date is harmless; a blank map is useless. User sees: <em>the map loads, but some cars may be slightly out of place.</em></li>
+<li class="fragment"><strong>(c) Favor consistency.</strong> If both sides each pick their own leader, you get <strong>split-brain</strong>: two leaders accepting conflicting writes. That’s the case study from Session 3. User sees: <em>some servers refuse writes until the partition heals.</em></li>
+<li class="fragment"><strong>(d) Favor availability.</strong> If a new review doesn’t show up for a minute, nobody is harmed. User sees: <em>the page loads; the newest reviews may be missing for a while.</em></li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>The choice only matters <em>during a partition</em>. When the network is healthy, a well-built system gives you both. The real design question is: <strong>when the split happens, which is worse, wrong or silent?</strong></p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Connect (c) back to the case study by name. It’s the clearest example in the module of a wrong answer being far worse than no answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="practice-6-pick-the-verb-predict-the-status" class="slide level2">
 <h2>Practice 6: Pick the Verb, Predict the Status</h2>
 <p>A campus library has a REST API at <code>https://api.campuslib.edu</code>.</p>
-<p><strong># - What the client wants to do (or what happens)</strong> <strong>a -</strong> Sign up a brand-new library patron</p>
+<p><strong># - What the client wants to do (or what happens)</strong></p>
+<p><strong>a -</strong> Sign up a brand-new library patron</p>
 <p><strong>b -</strong> Change <em>only</em> patron 88’s email address, leaving everything else alone</p>
 <p><strong>c -</strong> Cancel hold #301</p>
 <p><strong>d -</strong> Patron 88’s app sends a valid request, but its login token expired yesterday</p>
@@ -615,7 +767,70 @@
       }</style></aside>
 </div>
 </section>
-</section>
+<section id="practice-6-solution" class="slide level2">
+<h2>Practice 6: Solution</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Verb + path</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>a</td>
+<td><code>POST /patrons</code> (patron details in the request body)</td>
+<td><code>201 Created</code></td>
+</tr>
+<tr class="even">
+<td>b</td>
+<td><code>PATCH /patrons/88</code> (body: just the new email)</td>
+<td><code>200 OK</code></td>
+</tr>
+<tr class="odd">
+<td>c</td>
+<td><code>DELETE /holds/301</code></td>
+<td><code>200 OK</code></td>
+</tr>
+<tr class="even">
+<td>d</td>
+<td>(any)</td>
+<td><code>401 Unauthorized</code></td>
+</tr>
+<tr class="odd">
+<td>e</td>
+<td>(any)</td>
+<td><code>500 Internal Server Error</code> (or <code>503 Service Unavailable</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>(b):</strong> <code>PUT</code> would <em>replace the whole patron record</em> with what you send, so any field you left out could be wiped. <code>PATCH</code> changes only what you send.</li>
+<li class="fragment"><strong>Retry (d)?</strong> <strong>No.</strong> A 4xx means <em>your request</em> is the problem. Sending the same expired token again fails again. Log in again for a new token, <em>then</em> retry.</li>
+<li class="fragment"><strong>Retry (e)?</strong> <strong>Maybe, yes</strong>, after a short wait. A 5xx means the server broke, and that’s often temporary.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The 4xx/5xx retry rule is the practical payoff of the status-code ranges. It’s how real client code decides what to do next.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
 <section>
 <section id="module-3-big-data-mapreduce" class="title-slide slide level1 section center">
 <h1>Module 3: Big Data &amp; MapReduce</h1>
@@ -712,7 +927,40 @@ reduce(word, docIds):
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-7-solution" class="slide level2">
+<h2>Practice 7: Solution</h2>
+<p><strong>(1) Map</strong>: one mapper per document:</p>
+<pre><code>d1 → (big,d1) (data,d1) (big,d1) (ideas,d1)
+d2 → (data,d2) (moves,d2)
+d3 → (ideas,d3) (move,d3) (data,d3)</code></pre>
+<div class="fragment">
+<p><strong>(2) Shuffle/Sort</strong>: grouped by key:</p>
+<pre><code>(big,[d1,d1])  (data,[d1,d2,d3])  (ideas,[d1,d3])  (move,[d3])  (moves,[d2])</code></pre>
+</div>
+<div class="fragment">
+<p><strong>(3) Reduce</strong>: distinct docs per word:</p>
+<pre><code>big → [d1]   data → [d1,d2,d3]   ideas → [d1,d3]   move → [d3]   moves → [d2]</code></pre>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><code>big</code> appears <strong>twice</strong> in <code>d1</code>, so its list has <code>d1</code> twice. That’s why reduce keeps only <em>distinct</em> IDs.</li>
+<li class="fragment"><code>move</code> and <code>moves</code> are <strong>different keys</strong>. Shuffle matches keys <em>exactly</em>. It doesn’t know they’re related words.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> The <code>move</code>/<code>moves</code> point is worth a sentence: real search engines normalize words <em>in the map step</em> (lowercasing, stemming) for exactly this reason. Any cleanup you want has to happen before the key is emitted.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="practice-8-find-the-bug" class="slide level2">
 <h2>Practice 8: Find the Bug</h2>
 <p>A web server log has one line per page view: <code>time, userId, page</code>. The goal is the number of <strong>different users</strong> who visited each page.</p>
@@ -740,7 +988,47 @@ reduce(page, values): emit(page, sum(values))</code></pre>
       }</style></aside>
 </div>
 </section>
-
+<section id="practice-8-solution" class="slide level2">
+<h2>Practice 8: Solution</h2>
+<p><strong>Teammate’s output:</strong> <code>/home → 3</code>, <code>/about → 1</code>. <strong>Correct:</strong> <code>/home → 2</code> (u7 and u3), <code>/about → 1</code>. The job counts <strong>visits</strong>, not <strong>visitors</strong>: u7’s two visits count twice.</p>
+<div class="fragment">
+<p><strong>Fix</strong>: keep <em>who</em> visited, then count distinct values in reduce:</p>
+<pre><code>map(line):            emit(page, userId)
+reduce(page, values): emit(page, number of distinct values)</code></pre>
+<p><code>/home</code> receives <code>[u7, u7, u3]</code> → 2 distinct users.</p>
+</div>
+<div class="fragment">
+<p><strong>Emitting <code>(userId, page)</code>?</strong> <strong>No.</strong> The key decides the grouping. Keying on <code>userId</code> puts each <em>user’s</em> pages together, which answers a different question: “how many pages did each user visit?”</p>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Designing a MapReduce job starts with one question: <strong>“What am I grouping by?”</strong> That’s your key. Then ask: <strong>“What does reduce need to see to compute the answer?”</strong> That’s your value.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> Like the Session 2 average-of-averages problem: reduce isn’t always a sum. Here it’s “count distinct.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="practice-9-hdfs-by-the-numbers" class="slide level2">
 <h2>Practice 9: HDFS by the Numbers</h2>
 <p>A <strong>300 MB</strong> file is uploaded to an HDFS cluster with <strong>5 DataNodes</strong>, the default <strong>128 MB</strong> block size, and <strong>replication factor 3</strong>.</p>
@@ -765,10 +1053,58 @@ reduce(page, values): emit(page, sum(values))</code></pre>
       }</style></aside>
 </div>
 </section>
-
-
-
+<section id="practice-9-solution" class="slide level2">
+<h2>Practice 9: Solution</h2>
+<ul>
+<li class="fragment"><strong>(a) 3 blocks</strong>: 128 MB + 128 MB + 44 MB. Each is stored 3 times, so 9 block copies, about <strong>900 MB</strong> of raw disk. The last block only uses the 44 MB it needs, not a full 128 MB.</li>
+<li class="fragment"><strong>(b) Nothing is lost.</strong> Each block’s 3 copies are on 3 <em>different</em> machines, so losing 2 machines leaves at least one copy of every block. HDFS notices the dead nodes and <strong>re-replicates</strong> the affected blocks from the surviving copies until each is back to 3. (If 3 machines died at once, a block whose 3 copies were all on those 3 could be lost.)</li>
+<li class="fragment"><strong>(c) No.</strong> The client asks the NameNode <em>where</em> the blocks are, then reads them <strong>directly from the DataNodes</strong>. The NameNode is the address book, not a relay.</li>
+<li class="fragment"><strong>(d)</strong> The classroom cluster is <strong>one machine</strong>, so it’s configured with replication factor 1. There’s nowhere to put a second copy.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min.</strong> (c) is the one students most often get backwards. If time allows, ask the follow-up from the lecture: what if the <em>NameNode</em> dies instead? (Data intact but unfindable: a single point of failure.)</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
+
+
+<section id="before-monday" class="slide level2">
+<h2>Before Monday</h2>
+<p><strong>Midterm: Monday, Oct 19, in class, on Blackboard. Covers Modules 1–3.</strong></p>
+<ul>
+<li class="fragment"><strong>Re-do, don’t re-read.</strong> Work Checkpoints 1–3 and Quizzes 1–3 again without looking at the answers.</li>
+<li class="fragment"><strong>Explain the three summary tables</strong> from today in your own words, row by row.</li>
+<li class="fragment"><strong>Trace by hand:</strong> one thread interleaving, one map → shuffle → reduce. Writing it out is how you find what you don’t actually understand yet.</li>
+<li class="fragment"><strong>Select-all questions:</strong> treat every option as its own true/false question. Read each one carefully.</li>
+</ul>
+<div class="fragment">
+<p>Questions this weekend? Email me or come to office hours.</p>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> Keep logistics short. If students ask what’s “on it,” point them back to the three summary tables: every exam question practices something on one of them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
+</div>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

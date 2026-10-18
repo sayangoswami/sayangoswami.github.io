@@ -9247,6 +9247,13 @@
     "text": "Practice 1: The Bank Transfer\nvoid transfer(Account from, Account to, int amount) {\n    synchronized (from) {\n        synchronized (to) {\n            from.balance -= amount;\n            to.balance   += amount;\n        }\n    }\n}\n\n// Thread A:  transfer(alice, bob, 10);\n// Thread B:  transfer(bob, alice, 20);   // at the same time\nBoth balances are protected by locks, so there’s no race condition on them.\n\nWith a partner (2–3 min): can this program get stuck forever? If so, trace the steps that cause it, name the failure, and fix transfer() so it can’t happen.\n\nTiming: 4 min including pair discussion. Most pairs will spot the problem; push them on the fix. “Synchronize the whole method” doesn’t fix it here, because the method locks two different objects each call."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-1-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-1-solution",
+    "title": "Midterm Review",
+    "section": "Practice 1: Solution",
+    "text": "Practice 1: Solution\nYes, this can deadlock. One interleaving that does it:\n\nThread A locks alice (its from).\nThread B locks bob (its from).\nThread A tries to lock bob, which B holds, so A waits.\nThread B tries to lock alice, which A holds, so B waits.\n\n\nEach thread holds what the other needs: a circular wait. Neither ever lets go.\n\n\nThe fix: acquire the two locks in the same order everywhere, no matter which account is from. For example, always lock the account with the smaller id first:\nAccount first  = (from.id &lt; to.id) ? from : to;\nAccount second = (from.id &lt; to.id) ? to   : from;\nsynchronized (first) {\n    synchronized (second) {\n        from.balance -= amount;\n        to.balance   += amount;\n    }\n}\nNow both threads try to lock alice first (or both bob first). Whoever gets it also gets the second lock. The other thread just waits its turn.\n\nTiming: 4 min. This is the Session 4 knife-and-cutting-board picture with real objects. Point out that the deadlock depends on the arguments: two transfers in the same direction never deadlock, which is why bugs like this survive testing."
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-2-name-that-failure",
     "href": "cosc420/notes/20-midterm-review.html#practice-2-name-that-failure",
     "title": "Midterm Review",
@@ -9254,11 +9261,25 @@
     "text": "Practice 2: Name That Failure\nEach scenario describes a program that misbehaves. Match it to race condition, deadlock, livelock, or starvation.\n(a) A server hangs. CPU usage drops to 0%. A thread dump shows two threads, each BLOCKED waiting on a lock the other one holds.\n(b) CPU usage is pinned at 100%. The log fills with “conflict detected, backing off, retrying” from two threads, millions of times. No work ever finishes.\n(c) A ticket-sale program sells seat 14C to two different customers about once a week. When a developer steps through it in a debugger, it never happens.\n(d) A low-priority “nightly report” thread has been waiting for three days. The server is busy handling a steady flood of high-priority requests, and all of those are completing normally.\n\nWith a partner (2–3 min): name each one, and say which clue gave it away.\n\nTiming: 4 min including pair discussion. The clue is the point, not just the label. Ask pairs to report the clue first."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-2-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-2-solution",
+    "title": "Midterm Review",
+    "section": "Practice 2: Solution",
+    "text": "Practice 2: Solution\n\n(a) Deadlock. The clue: 0% CPU and each waits on a lock the other holds. Frozen threads use no CPU.\n(b) Livelock. The clue: 100% CPU but no progress. The threads are busy reacting to each other, like two people stepping aside in a doorway forever.\n(c) Race condition. The clue: only sometimes, and it disappears under the debugger, which changes the timing. That’s a Heisenbug. Two threads both read “14C is free” before either wrote “sold.”\n(d) Starvation. The clue: the system overall is making progress; only one thread never gets a turn.\n\n\n\n\n\n\n\n\nTip\n\n\nQuick rule: frozen → deadlock. Busy but stuck → livelock. Everyone else fine → starvation. Wrong sometimes → race condition.\n\n\n\n\nTiming: 4 min. If a pair said (c) was a deadlock, ask: “Did anything get stuck?” A race condition produces wrong results. The other three produce no results."
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-3-trace-the-thread-pool",
     "href": "cosc420/notes/20-midterm-review.html#practice-3-trace-the-thread-pool",
     "title": "Midterm Review",
     "section": "Practice 3: Trace the Thread Pool",
     "text": "Practice 3: Trace the Thread Pool\n// main is declared \"throws Exception\"\nExecutorService pool = Executors.newFixedThreadPool(2);\nList&lt;Future&lt;Integer&gt;&gt; results = new ArrayList&lt;&gt;();\n\nfor (int i = 1; i &lt;= 4; i++) {\n    final int n = i;\n    results.add(pool.submit(() -&gt; {\n        Thread.sleep(1000);      // each task takes ~1 second\n        return n * 10;\n    }));\n}\nSystem.out.println(\"all submitted\");\n\nfor (Future&lt;Integer&gt; f : results) {\n    System.out.println(f.get());\n}\npool.shutdown();\n\nWith a partner (2–3 min):\n(a) Does \"all submitted\" print right away, or after the tasks finish?\n(b) Roughly how long until the last number prints?\n(c) What if the pool had 4 threads instead? What about 1?\n(d) In what order do the numbers print?\n\nTiming: 4 min including pair discussion. Draw the 2-worker queue on the board if pairs are stuck on (b): the same picture as the Session 5 queue trace."
+  },
+  {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-3-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-3-solution",
+    "title": "Midterm Review",
+    "section": "Practice 3: Solution",
+    "text": "Practice 3: Solution\n\n(a) Right away. submit() doesn’t wait for the task. It puts the task in the queue and hands back a Future (an order ticket) immediately.\n(b) About 2 seconds. Two workers, four 1-second tasks: tasks 1 and 2 run together, then tasks 3 and 4 run together. That’s two rounds.\n(c) 4 threads: about 1 second (all four run at once). 1 thread: about 4 seconds (one at a time). The pool size caps how many tasks run at once. Extra tasks wait in the queue.\n(d) 10, 20, 30, 40, in that order, every time. The loop calls .get() on the futures in the order they were submitted, and .get() blocks until that particular result is ready. Even if task 2 finished a moment before task 1, its value isn’t printed until task 1’s .get() returns.\n\n\nTiming: 4 min. Part (d) is the subtle one. The tasks may finish in any order, but the printing order is set by the order of the .get() calls."
   },
   {
     "objectID": "cosc420/notes/20-midterm-review.html#module-2-summary",
@@ -9275,6 +9296,13 @@
     "text": "Practice 4: Diagnose the Distributed Bug\nFor each scenario, name the failure type (crash, omission, timing, Byzantine) or the fallacy of distributed computing the developer believed.\n(a) A phone app makes 40 API calls, one after another, to draw a single screen. On campus Wi-Fi it feels instant. On a train it takes 12 seconds.\n(b) A service has its database server’s IP address hard-coded. The ops team moves the database to a new machine, and the service breaks.\n(c) One replica in a cluster has a faulty memory chip. It answers every request promptly and normally, but some of the account balances it returns are garbage.\n(d) A node receives “are you alive?” heartbeat messages, but only replies to about half of them.\n\nWith a partner (2–3 min): name each one, and say how you’d tell it apart from the others.\n\nTiming: 4 min including pair discussion. (a) and (b) are fallacies; (c) and (d) are failure types. Don’t tell pairs that split up front — let them figure out which list each belongs to."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-4-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-4-solution",
+    "title": "Midterm Review",
+    "section": "Practice 4: Solution",
+    "text": "Practice 4: Solution\n\n(a) Fallacy 2: “latency is zero.” Each call’s round trip is tiny on fast Wi-Fi, but 40 of them in a row add up. A design that assumed network calls are free breaks as soon as latency is real.\n(b) Fallacy 5: “topology doesn’t change.” Machines move, get replaced, and change addresses. Hard-coding where things are assumes they never will. (This is part of why DNS exists: look the address up by name instead.)\n(c) Byzantine failure. The node looks healthy (prompt, normal responses) but returns wrong data. That’s why it’s the hardest type to defend against: nothing looks broken.\n(d) Omission failure. The node is alive and working, but it drops some messages. Compare crash, where it would answer none of them.\n\n\nTiming: 4 min. For (c), ask “how would you even notice?” A crashed node goes silent. A Byzantine node keeps talking, so you need some way to cross-check its answers."
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-5-make-the-cap-call",
     "href": "cosc420/notes/20-midterm-review.html#practice-5-make-the-cap-call",
     "title": "Midterm Review",
@@ -9282,11 +9310,25 @@
     "text": "Practice 5: Make the CAP Call\nThe network between two datacenters has just split: a partition. For each system, would you favor consistency or availability? Describe what a user on the cut-off side actually sees.\n(a) A university course-registration system. Each section has a hard seat cap.\n(b) A ride-share app’s map showing the positions of nearby drivers.\n(c) A coordination service that tells every server in a cluster which one is the current “leader” allowed to accept writes.\n(d) The customer-review section under each product on a shopping site.\n\nWith a partner (2–3 min): decide each one, and justify it with the cost of being wrong vs. the cost of not answering.\n\nTiming: 4 min including pair discussion. Reasonable people can argue (a) either way. If a pair argues availability for (a), ask what happens to the 31st student in a 30-seat section. The reasoning matters more than the label."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-5-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-5-solution",
+    "title": "Midterm Review",
+    "section": "Practice 5: Solution",
+    "text": "Practice 5: Solution\n\n(a) Favor consistency. Two sides of the split could each give away the last seat, so the section ends up over its cap. User sees: “Registration is temporarily unavailable, try again shortly.”\n(b) Favor availability. A car icon a few seconds out of date is harmless; a blank map is useless. User sees: the map loads, but some cars may be slightly out of place.\n(c) Favor consistency. If both sides each pick their own leader, you get split-brain: two leaders accepting conflicting writes. That’s the case study from Session 3. User sees: some servers refuse writes until the partition heals.\n(d) Favor availability. If a new review doesn’t show up for a minute, nobody is harmed. User sees: the page loads; the newest reviews may be missing for a while.\n\n\n\n\n\n\n\n\nTip\n\n\nThe choice only matters during a partition. When the network is healthy, a well-built system gives you both. The real design question is: when the split happens, which is worse, wrong or silent?\n\n\n\n\nTiming: 4 min. Connect (c) back to the case study by name. It’s the clearest example in the module of a wrong answer being far worse than no answer."
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-6-pick-the-verb-predict-the-status",
     "href": "cosc420/notes/20-midterm-review.html#practice-6-pick-the-verb-predict-the-status",
     "title": "Midterm Review",
     "section": "Practice 6: Pick the Verb, Predict the Status",
-    "text": "Practice 6: Pick the Verb, Predict the Status\nA campus library has a REST API at https://api.campuslib.edu.\n# - What the client wants to do (or what happens) a - Sign up a brand-new library patron\nb - Change only patron 88’s email address, leaving everything else alone\nc - Cancel hold #301\nd - Patron 88’s app sends a valid request, but its login token expired yesterday\ne - A valid request arrives, but the library’s database server has crashed\n\nWith a partner (2–3 min): for (a)–(c), give the HTTP verb, a sensible URL path, and the success status code. For (d)–(e), give the status code you’d expect back. Then: for (d) and (e), should the client just retry the same request?\n\nTiming: 4 min including pair discussion. (b) is the one to listen for: PATCH vs. PUT. Ask pairs what PUT would do to the patron’s other fields."
+    "text": "Practice 6: Pick the Verb, Predict the Status\nA campus library has a REST API at https://api.campuslib.edu.\n# - What the client wants to do (or what happens)\na - Sign up a brand-new library patron\nb - Change only patron 88’s email address, leaving everything else alone\nc - Cancel hold #301\nd - Patron 88’s app sends a valid request, but its login token expired yesterday\ne - A valid request arrives, but the library’s database server has crashed\n\nWith a partner (2–3 min): for (a)–(c), give the HTTP verb, a sensible URL path, and the success status code. For (d)–(e), give the status code you’d expect back. Then: for (d) and (e), should the client just retry the same request?\n\nTiming: 4 min including pair discussion. (b) is the one to listen for: PATCH vs. PUT. Ask pairs what PUT would do to the patron’s other fields."
+  },
+  {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-6-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-6-solution",
+    "title": "Midterm Review",
+    "section": "Practice 6: Solution",
+    "text": "Practice 6: Solution\n\n\n\n\n\n\n\n\n#\nVerb + path\nStatus\n\n\n\n\na\nPOST /patrons (patron details in the request body)\n201 Created\n\n\nb\nPATCH /patrons/88 (body: just the new email)\n200 OK\n\n\nc\nDELETE /holds/301\n200 OK\n\n\nd\n(any)\n401 Unauthorized\n\n\ne\n(any)\n500 Internal Server Error (or 503 Service Unavailable)\n\n\n\n\n\n(b): PUT would replace the whole patron record with what you send, so any field you left out could be wiped. PATCH changes only what you send.\nRetry (d)? No. A 4xx means your request is the problem. Sending the same expired token again fails again. Log in again for a new token, then retry.\nRetry (e)? Maybe, yes, after a short wait. A 5xx means the server broke, and that’s often temporary.\n\n\nTiming: 4 min. The 4xx/5xx retry rule is the practical payoff of the status-code ranges. It’s how real client code decides what to do next."
   },
   {
     "objectID": "cosc420/notes/20-midterm-review.html#module-3-summary",
@@ -9303,6 +9345,13 @@
     "text": "Practice 7: Build a Search Index\nA search engine needs to know, for every word, which documents contain it: an inverted index.\nd1:  big data big ideas\nd2:  data moves\nd3:  ideas move data\nmap(docId, text):\n    for each word in text:\n        emit(word, docId)\n\nreduce(word, docIds):\n    emit(word, sorted list of distinct docIds)\n\nWith a partner (2–3 min): write out (1) the map output for each document, (2) the groups after shuffle/sort, and (3) the final reduce output.\n\nTiming: 4 min including pair discussion. Same three-step trace as the word-count walkthrough, but the value is a document ID instead of a 1. Students who only memorized word count will need to think here, and that’s the point."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-7-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-7-solution",
+    "title": "Midterm Review",
+    "section": "Practice 7: Solution",
+    "text": "Practice 7: Solution\n(1) Map: one mapper per document:\nd1 → (big,d1) (data,d1) (big,d1) (ideas,d1)\nd2 → (data,d2) (moves,d2)\nd3 → (ideas,d3) (move,d3) (data,d3)\n\n(2) Shuffle/Sort: grouped by key:\n(big,[d1,d1])  (data,[d1,d2,d3])  (ideas,[d1,d3])  (move,[d3])  (moves,[d2])\n\n\n(3) Reduce: distinct docs per word:\nbig → [d1]   data → [d1,d2,d3]   ideas → [d1,d3]   move → [d3]   moves → [d2]\n\n\n\nbig appears twice in d1, so its list has d1 twice. That’s why reduce keeps only distinct IDs.\nmove and moves are different keys. Shuffle matches keys exactly. It doesn’t know they’re related words.\n\n\nTiming: 4 min. The move/moves point is worth a sentence: real search engines normalize words in the map step (lowercasing, stemming) for exactly this reason. Any cleanup you want has to happen before the key is emitted."
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-8-find-the-bug",
     "href": "cosc420/notes/20-midterm-review.html#practice-8-find-the-bug",
     "title": "Midterm Review",
@@ -9310,11 +9359,32 @@
     "text": "Practice 8: Find the Bug\nA web server log has one line per page view: time, userId, page. The goal is the number of different users who visited each page.\n09:01,u7,/home\n09:02,u7,/home\n09:05,u3,/home\n09:06,u7,/about\nA teammate writes:\nmap(line):            emit(page, 1)\nreduce(page, values): emit(page, sum(values))\n\nWith a partner (2–3 min): what does the teammate’s job output for this data, and what should it output? Fix map and reduce. Then: would emitting (userId, page) from map work instead?\n\nTiming: 4 min including pair discussion. Let pairs actually run the four lines by hand. The bug only shows up because u7 visited /home twice."
   },
   {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-8-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-8-solution",
+    "title": "Midterm Review",
+    "section": "Practice 8: Solution",
+    "text": "Practice 8: Solution\nTeammate’s output: /home → 3, /about → 1. Correct: /home → 2 (u7 and u3), /about → 1. The job counts visits, not visitors: u7’s two visits count twice.\n\nFix: keep who visited, then count distinct values in reduce:\nmap(line):            emit(page, userId)\nreduce(page, values): emit(page, number of distinct values)\n/home receives [u7, u7, u3] → 2 distinct users.\n\n\nEmitting (userId, page)? No. The key decides the grouping. Keying on userId puts each user’s pages together, which answers a different question: “how many pages did each user visit?”\n\n\n\n\n\n\n\n\nTip\n\n\nDesigning a MapReduce job starts with one question: “What am I grouping by?” That’s your key. Then ask: “What does reduce need to see to compute the answer?” That’s your value.\n\n\n\n\nTiming: 4 min. Like the Session 2 average-of-averages problem: reduce isn’t always a sum. Here it’s “count distinct.”"
+  },
+  {
     "objectID": "cosc420/notes/20-midterm-review.html#practice-9-hdfs-by-the-numbers",
     "href": "cosc420/notes/20-midterm-review.html#practice-9-hdfs-by-the-numbers",
     "title": "Midterm Review",
     "section": "Practice 9: HDFS by the Numbers",
     "text": "Practice 9: HDFS by the Numbers\nA 300 MB file is uploaded to an HDFS cluster with 5 DataNodes, the default 128 MB block size, and replication factor 3.\n\nWith a partner (2–3 min):\n(a) How many blocks is the file split into? How much raw disk does it use across the cluster?\n(b) Two DataNodes die at the same moment. Can any part of the file be lost? What does HDFS do next?\n(c) A client reads the whole file. Do the file’s bytes pass through the NameNode?\n(d) On our classroom server, hdfs dfs -ls shows a 1 where a real cluster shows 3. Why?\n\nTiming: 4 min including pair discussion. Different numbers from the 1 GB example in the Session 3 lecture. For (a), watch for pairs who say “3 × 128 MB = 384 MB per copy.” The last block is smaller."
+  },
+  {
+    "objectID": "cosc420/notes/20-midterm-review.html#practice-9-solution",
+    "href": "cosc420/notes/20-midterm-review.html#practice-9-solution",
+    "title": "Midterm Review",
+    "section": "Practice 9: Solution",
+    "text": "Practice 9: Solution\n\n(a) 3 blocks: 128 MB + 128 MB + 44 MB. Each is stored 3 times, so 9 block copies, about 900 MB of raw disk. The last block only uses the 44 MB it needs, not a full 128 MB.\n(b) Nothing is lost. Each block’s 3 copies are on 3 different machines, so losing 2 machines leaves at least one copy of every block. HDFS notices the dead nodes and re-replicates the affected blocks from the surviving copies until each is back to 3. (If 3 machines died at once, a block whose 3 copies were all on those 3 could be lost.)\n(c) No. The client asks the NameNode where the blocks are, then reads them directly from the DataNodes. The NameNode is the address book, not a relay.\n(d) The classroom cluster is one machine, so it’s configured with replication factor 1. There’s nowhere to put a second copy.\n\n\nTiming: 4 min. (c) is the one students most often get backwards. If time allows, ask the follow-up from the lecture: what if the NameNode dies instead? (Data intact but unfindable: a single point of failure.)"
+  },
+  {
+    "objectID": "cosc420/notes/20-midterm-review.html#before-monday",
+    "href": "cosc420/notes/20-midterm-review.html#before-monday",
+    "title": "Midterm Review",
+    "section": "Before Monday",
+    "text": "Before Monday\nMidterm: Monday, Oct 19, in class, on Blackboard. Covers Modules 1–3.\n\nRe-do, don’t re-read. Work Checkpoints 1–3 and Quizzes 1–3 again without looking at the answers.\nExplain the three summary tables from today in your own words, row by row.\nTrace by hand: one thread interleaving, one map → shuffle → reduce. Writing it out is how you find what you don’t actually understand yet.\nSelect-all questions: treat every option as its own true/false question. Read each one carefully.\n\n\nQuestions this weekend? Email me or come to office hours.\n\nTiming: 2 min. Keep logistics short. If students ask what’s “on it,” point them back to the three summary tables: every exam question practices something on one of them."
   },
   {
     "objectID": "cosc420/notes/index.html",
