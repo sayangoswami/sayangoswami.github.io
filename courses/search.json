@@ -7018,14 +7018,14 @@
     "href": "cosc120/notes/midterm-review.html#warm-up-1-trace-it",
     "title": "Midterm Review",
     "section": "Warm-up 1 — Trace It",
-    "text": "Warm-up 1 — Trace It\n\nPaper only. n = 15 prints “Three” because 15 % 3 == 0 is checked first, so 15 never reaches the && branch. Make the point that the order decides the answer. n = 10 prints “Five”; n = 7 prints “7 is plain”.\n\nWhat does this print when n is 15? 10? 7?\nvoid main() {\n    int n = Integer.parseInt(IO.readln());\n\n    if (n % 3 == 0) {\n        IO.println(\"Three\");\n    } else if (n % 5 == 0) {\n        IO.println(\"Five\");\n    } else if (n % 3 == 0 && n % 5 == 0) {\n        IO.println(\"Both\");\n    } else {\n        IO.println(n + \" is plain\");\n    }\n}"
+    "text": "Warm-up 1 — Trace It\n\nPaper only. n = 15 prints “Three” because 15 % 3 == 0 is checked first, so 15 never reaches the && branch. Make the point that the order decides the answer. n = 10 prints “Five”; n = 7 prints “7 is plain”.\n\nWhat does this print when n is 15? 10? 7?\nvoid main() {\n    int n = Integer.parseInt(IO.readln());\n\n    if (n % 3 == 0) {\n        IO.println(\"Three\");\n    } else if (n % 5 == 0) {\n        IO.println(\"Five\");\n    } else if (n % 3 == 0 && n % 5 == 0) {\n        IO.println(\"Both\");\n    } else {\n        IO.println(n + \" is plain\");\n    }\n}\n\nAnswers: 15 → Three · 10 → Five · 7 → 7 is plain\n\n\nThe \"Both\" branch can never run. Any number divisible by 3 is caught by the first branch. Fix: move the && test to the top."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#warm-up-2-spot-the-bugs",
     "href": "cosc120/notes/midterm-review.html#warm-up-2-spot-the-bugs",
     "title": "Midterm Review",
     "section": "Warm-up 2 — Spot the Bugs",
-    "text": "Warm-up 2 — Spot the Bugs\n\nThree bugs: (1) == on Strings; (2) toLowerCase result thrown away; (3) substring(1, 2) gets the second character, not the first. Have students find all three before revealing.\n\nThe program should read a word and print Starts with a vowel if its first letter is a or e (any case). Find three bugs.\nvoid main() {\n    String word = IO.readln();\n    word.toLowerCase();\n    String first = word.substring(1, 2);\n\n    if (first == \"a\" || first == \"e\") {\n        IO.println(\"Starts with a vowel\");\n    } else {\n        IO.println(\"Starts with a consonant\");\n    }\n}"
+    "text": "Warm-up 2 — Spot the Bugs\n\nThree bugs: (1) == on Strings; (2) toLowerCase result thrown away; (3) substring(1, 2) gets the second character, not the first. Have students find all three before revealing.\n\nThe program should read a word and print Starts with a vowel if its first letter is a or e (any case). Find three bugs.\nvoid main() {\n    String word = IO.readln();\n    word.toLowerCase();\n    String first = word.substring(1, 2);\n\n    if (first == \"a\" || first == \"e\") {\n        IO.println(\"Starts with a vowel\");\n    } else {\n        IO.println(\"Starts with a consonant\");\n    }\n}\n\n\nword.toLowerCase(); throws its result away. Use word = word.toLowerCase();\nsubstring(1, 2) is the second character. Use substring(0, 1).\n== on Strings. Use first.equals(\"a\") || first.equals(\"e\")."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-1-point-location",
@@ -7035,11 +7035,25 @@
     "text": "Practice 1 — Point Location\n\nGive students about 8 minutes. Walk around and look for the ordering mistake: students who check x &gt; 0 && y &gt; 0 first are fine, but students who check y == 0 before the origin case will print “On the x-axis” for (0, 0).\n\nRead two ints, x then y (no prompts). Print where the point is:\n\n\n\nCondition\nOutput\n\n\n\n\nboth are 0\nOrigin\n\n\nonly y is 0\nOn the x-axis\n\n\nonly x is 0\nOn the y-axis\n\n\nx &gt; 0, y &gt; 0\nQuadrant I\n\n\nx &lt; 0, y &gt; 0\nQuadrant II\n\n\nx &lt; 0, y &lt; 0\nQuadrant III\n\n\nx &gt; 0, y &lt; 0\nQuadrant IV\n\n\n\nExample: input -3 and 5 → Quadrant II\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-1-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-1-solution",
+    "title": "Midterm Review",
+    "section": "Practice 1 — Solution",
+    "text": "Practice 1 — Solution\nvoid main() {\n    int x = Integer.parseInt(IO.readln());\n    int y = Integer.parseInt(IO.readln());\n\n    if (x == 0 && y == 0) {\n        IO.println(\"Origin\");\n    } else if (y == 0) {\n        IO.println(\"On the x-axis\");\n    } else if (x == 0) {\n        IO.println(\"On the y-axis\");\n    } else if (x &gt; 0 && y &gt; 0) {\n        IO.println(\"Quadrant I\");\n    } else if (x &lt; 0 && y &gt; 0) {\n        IO.println(\"Quadrant II\");\n    } else if (x &lt; 0) {\n        IO.println(\"Quadrant III\");\n    } else {\n        IO.println(\"Quadrant IV\");\n    }\n}\n\nWhy the origin goes first: if y == 0 were checked first, (0, 0) would print On the x-axis.\n\n\nWhy else if (x &lt; 0) is enough for Quadrant III: by that line we already know neither is 0 and y is not positive."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-2-order-of-three",
     "href": "cosc120/notes/midterm-review.html#practice-2-order-of-three",
     "title": "Midterm Review",
     "section": "Practice 2 — Order of Three",
     "text": "Practice 2 — Order of Three\n\nThe trap is the word “strictly”. 1, 1, 2 is Mixed, not Increasing. Students who write a &lt;= b && b &lt;= c get it wrong. Also test 7, 7, 7: All equal must be checked before the others (though with strict &lt; it would fall to Mixed anyway, so the bug shows up as a wrong label).\n\nRead three ints a, b, c (no prompts). Print:\n\nAll equal: all three are the same\nIncreasing: a &lt; b &lt; c, strictly\nDecreasing: a &gt; b &gt; c, strictly\nMixed: anything else\n\nExamples: 2 5 9 → Increasing · 4 1 4 → Mixed · 1 1 2 → Mixed\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-2-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-2-solution",
+    "title": "Midterm Review",
+    "section": "Practice 2 — Solution",
+    "text": "Practice 2 — Solution\nvoid main() {\n    int a = Integer.parseInt(IO.readln());\n    int b = Integer.parseInt(IO.readln());\n    int c = Integer.parseInt(IO.readln());\n\n    if (a == b && b == c) {\n        IO.println(\"All equal\");\n    } else if (a &lt; b && b &lt; c) {\n        IO.println(\"Increasing\");\n    } else if (a &gt; b && b &gt; c) {\n        IO.println(\"Decreasing\");\n    } else {\n        IO.println(\"Mixed\");\n    }\n}\n\nCommon mistake: writing a &lt; b &lt; c. Java won’t compile it. You need two comparisons joined with &&: a &lt; b && b &lt; c."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-3-username-check",
@@ -7049,11 +7063,25 @@
     "text": "Practice 3 — Username Check\n\nTwo ideas here: checking rules in a fixed order (else if), and building a new String from pieces. “ab” should print ”Too short”, not ”Cannot start with ”, because rule 1 comes first. That’s the ordering lesson again.\n\nRead a username (no prompts). Check these rules in order and print the message for the first one that fails:\n\nfewer than 5 characters → Too short\nmore than 12 characters → Too long\nstarts with _ → Cannot start with _\n\nIf all pass, print Welcome, followed by the name with the first letter upper case and the rest lower case.\nExamples: jORDAN → Welcome, Jordan · _ghost → Cannot start with _ · _ab → Too short\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-3-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-3-solution",
+    "title": "Midterm Review",
+    "section": "Practice 3 — Solution",
+    "text": "Practice 3 — Solution\nvoid main() {\n    String name = IO.readln();\n\n    if (name.length() &lt; 5) {\n        IO.println(\"Too short\");\n    } else if (name.length() &gt; 12) {\n        IO.println(\"Too long\");\n    } else if (name.substring(0, 1).equals(\"_\")) {\n        IO.println(\"Cannot start with _\");\n    } else {\n        String fixed = name.substring(0, 1).toUpperCase()\n                     + name.substring(1).toLowerCase();\n        IO.println(\"Welcome, \" + fixed);\n    }\n}\n\nname.substring(0, 1) is the first character as a String, so we can compare it with .equals()."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-4-phone-number-formatter",
     "href": "cosc120/notes/midterm-review.html#practice-4-phone-number-formatter",
     "title": "Midterm Review",
     "section": "Practice 4 — Phone Number Formatter",
     "text": "Practice 4 — Phone Number Formatter\n\nPractice with substring boundaries: (0,3), (3,6), (6). Draw the index boxes 0-9 on the board. Then an OR chain of .equals() calls. Watch for students who write area.equals(“410” || “443”), which does not compile.\n\nRead a phone number typed as digits only, e.g. 4105551234 (no prompts).\n\nNot exactly 10 characters → print Invalid number\nOtherwise print (AAA) BBB-CCCC, then on the next line Maryland if the area code is 410, 443, 240, or 301, else Out of state\n\nInput:  4105551234        Input:  2125550199\nOutput: (410) 555-1234    Output: (212) 555-0199\n        Maryland                  Out of state\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-4-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-4-solution",
+    "title": "Midterm Review",
+    "section": "Practice 4 — Solution",
+    "text": "Practice 4 — Solution\nvoid main() {\n    String phone = IO.readln();\n\n    if (phone.length() != 10) {\n        IO.println(\"Invalid number\");\n    } else {\n        String area = phone.substring(0, 3);\n        IO.println(\"(\" + area + \") \" + phone.substring(3, 6) + \"-\" + phone.substring(6));\n\n        if (area.equals(\"410\") || area.equals(\"443\")\n                || area.equals(\"240\") || area.equals(\"301\")) {\n            IO.println(\"Maryland\");\n        } else {\n            IO.println(\"Out of state\");\n        }\n    }\n}\n\nCommon mistake: area.equals(\"410\" || \"443\") won’t compile. Each check needs its own .equals().\n\n\nCheck the length first. Calling substring(6) on a 5-character String crashes the program."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#exam-checklist",
