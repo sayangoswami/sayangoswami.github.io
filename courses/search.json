@@ -9534,20 +9534,6 @@
     "text": "Submission\nUpload to Blackboard:\n\nScreenshot — successful javac/jar compilation (no errors)\nScreenshot — the job running and cat output/part-r-00000 showing your counts\nYour EmailDomainCount.java — the completed file\nAnswers — paste your 3 answers into the Blackboard text box"
   },
   {
-    "objectID": "cosc420/notes/21-lab4.html#sample-solution-instructor-use-only",
-    "href": "cosc420/notes/21-lab4.html#sample-solution-instructor-use-only",
-    "title": "Lab 4: Write Your Own MapReduce Job",
-    "section": "Sample Solution (Instructor Use Only)",
-    "text": "Sample Solution (Instructor Use Only)\npublic void map(Object key, Text value, Context context)\n        throws IOException, InterruptedException {\n    String email = value.toString().trim();\n    if (email.isEmpty()) return;\n    int at = email.indexOf('@');\n    if (at &lt; 0) return;\n    domain.set(email.substring(at + 1));\n    context.write(domain, one);\n}\npublic void reduce(Text key, Iterable&lt;IntWritable&gt; values, Context context)\n        throws IOException, InterruptedException {\n    int sum = 0;\n    for (IntWritable val : values) {\n        sum += val.get();\n    }\n    context.write(key, new IntWritable(sum));\n}\nExpected output:\ncompany.com     2\ngmail.com       4\nyahoo.com       2\nAnswers: Q1: n/a (verification question). Q2: The shuffle/sort phase groups all values for a key together before handing them to a single reduce call — without it, a reducer might see only some of a key’s values and undercount. Q3: Swap the local input/output paths for HDFS paths and add -D mapreduce.framework.name=yarn (or simply drop the local-mode flags, since the cluster’s default config already points at YARN/HDFS) — the Mapper and Reducer code itself doesn’t change at all, which is the point of the MapReduce abstraction. Q4 (driver): the driver configures which classes to use as Mapper/Reducer, the output key/value types, and the input/output paths — Hadoop needs this wiring to know how to run the job; it isn’t inferred from the Mapper/Reducer classes alone."
-  },
-  {
-    "objectID": "cosc420/notes/21-lab4.html#grading-rubric",
-    "href": "cosc420/notes/21-lab4.html#grading-rubric",
-    "title": "Lab 4: Write Your Own MapReduce Job",
-    "section": "Grading Rubric",
-    "text": "Grading Rubric\n\n\n\n\n\n\n\nScore\nCriteria\n\n\n\n\n10/10\nCompiles and runs; correct output; .java file submitted; all 3 answers reasonable\n\n\n7/10\nCompiles and runs with instructor help; output mostly correct; 2 answers present\n\n\n4/10\nCode written but doesn’t compile/run; partial attempt submitted\n\n\n0/10\nNot submitted"
-  },
-  {
     "objectID": "cosc420/notes/index.html",
     "href": "cosc420/notes/index.html",
     "title": "COSC420 — Slides",

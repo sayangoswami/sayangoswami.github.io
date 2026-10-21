@@ -185,8 +185,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#task-3-compile-and-run-20-min" id="toc-task-3-compile-and-run-20-min" class="nav-link" data-scroll-target="#task-3-compile-and-run-20-min">Task 3 — Compile and Run (20 min)</a></li>
   <li><a href="#questions" id="toc-questions" class="nav-link" data-scroll-target="#questions">Questions</a></li>
   <li><a href="#submission" id="toc-submission" class="nav-link" data-scroll-target="#submission">Submission</a></li>
-  <li><a href="#sample-solution-instructor-use-only" id="toc-sample-solution-instructor-use-only" class="nav-link" data-scroll-target="#sample-solution-instructor-use-only">Sample Solution <em>(Instructor Use Only)</em></a></li>
-  <li><a href="#grading-rubric" id="toc-grading-rubric" class="nav-link" data-scroll-target="#grading-rubric">Grading Rubric</a></li>
   </ul>
 </nav>
     </div>
@@ -357,65 +355,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Answers</strong> — paste your 3 answers into the Blackboard text box</li>
 </ol>
 <hr>
-</section>
-<section id="sample-solution-instructor-use-only" class="level2">
-<h2 class="anchored" data-anchor-id="sample-solution-instructor-use-only">Sample Solution <em>(Instructor Use Only)</em></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">map</span><span class="op">(</span><span class="bu">Object</span> key<span class="op">,</span> <span class="bu">Text</span> value<span class="op">,</span> <span class="bu">Context</span> context<span class="op">)</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="kw">throws</span> <span class="bu">IOException</span><span class="op">,</span> <span class="bu">InterruptedException</span> <span class="op">{</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email <span class="op">=</span> value<span class="op">.</span><span class="fu">toString</span><span class="op">().</span><span class="fu">trim</span><span class="op">();</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>email<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="cf">return</span><span class="op">;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> at <span class="op">=</span> email<span class="op">.</span><span class="fu">indexOf</span><span class="op">(</span><span class="ch">'@'</span><span class="op">);</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>at <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span><span class="op">;</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    domain<span class="op">.</span><span class="fu">set</span><span class="op">(</span>email<span class="op">.</span><span class="fu">substring</span><span class="op">(</span>at <span class="op">+</span> <span class="dv">1</span><span class="op">));</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    context<span class="op">.</span><span class="fu">write</span><span class="op">(</span>domain<span class="op">,</span> one<span class="op">);</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">reduce</span><span class="op">(</span><span class="bu">Text</span> key<span class="op">,</span> <span class="bu">Iterable</span><span class="op">&lt;</span>IntWritable<span class="op">&gt;</span> values<span class="op">,</span> <span class="bu">Context</span> context<span class="op">)</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        <span class="kw">throws</span> <span class="bu">IOException</span><span class="op">,</span> <span class="bu">InterruptedException</span> <span class="op">{</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>IntWritable val <span class="op">:</span> values<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        sum <span class="op">+=</span> val<span class="op">.</span><span class="fu">get</span><span class="op">();</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    context<span class="op">.</span><span class="fu">write</span><span class="op">(</span>key<span class="op">,</span> <span class="kw">new</span> <span class="fu">IntWritable</span><span class="op">(</span>sum<span class="op">));</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Expected output:</strong></p>
-<pre><code>company.com     2
-gmail.com       4
-yahoo.com       2</code></pre>
-<p><em>Answers:</em> Q1: n/a (verification question). Q2: The shuffle/sort phase groups all values for a key together before handing them to a single reduce call — without it, a reducer might see only some of a key’s values and undercount. Q3: Swap the local input/output paths for HDFS paths and add <code>-D mapreduce.framework.name=yarn</code> (or simply drop the local-mode flags, since the cluster’s default config already points at YARN/HDFS) — the Mapper and Reducer code itself doesn’t change at all, which is the point of the MapReduce abstraction. Q4 (driver): the driver configures which classes to use as Mapper/Reducer, the output key/value types, and the input/output paths — Hadoop needs this wiring to know how to run the job; it isn’t inferred from the Mapper/Reducer classes alone.</p>
-<hr>
-</section>
-<section id="grading-rubric" class="level2">
-<h2 class="anchored" data-anchor-id="grading-rubric">Grading Rubric</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Score</th>
-<th>Criteria</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>10/10</td>
-<td>Compiles and runs; correct output; <code>.java</code> file submitted; all 3 answers reasonable</td>
-</tr>
-<tr class="even">
-<td>7/10</td>
-<td>Compiles and runs with instructor help; output mostly correct; 2 answers present</td>
-</tr>
-<tr class="odd">
-<td>4/10</td>
-<td>Code written but doesn’t compile/run; partial attempt submitted</td>
-</tr>
-<tr class="even">
-<td>0/10</td>
-<td>Not submitted</td>
-</tr>
-</tbody>
-</table>
 
 
 </section>
