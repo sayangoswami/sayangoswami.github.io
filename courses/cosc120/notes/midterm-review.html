@@ -957,10 +957,14 @@ if (document.readyState === 'loading') {
 <td>write <code>if</code> / <code>else if</code> / <code>else</code> chains in the right order</td>
 </tr>
 <tr class="even">
-<td>Boolean logic</td>
-<td>combine conditions with <code>&amp;&amp;</code>, <code>\|\|</code>, <code>!</code></td>
+<td>Nested conditionals</td>
+<td>put an <code>if</code> inside another <code>if</code> when one decision depends on another</td>
 </tr>
 <tr class="odd">
+<td>Boolean logic</td>
+<td>combine conditions with <code>&amp;&amp;</code>, <code>||</code>, <code>!</code></td>
+</tr>
+<tr class="even">
 <td>Strings</td>
 <td><code>.length()</code>, <code>.substring()</code>, <code>.charAt()</code>, <code>.toUpperCase()</code>, <code>.toLowerCase()</code>, <code>.equals()</code></td>
 </tr>
@@ -1021,7 +1025,7 @@ if (document.readyState === 'loading') {
 <td><em>both</em> are true</td>
 </tr>
 <tr class="even">
-<td><code>a \|\| b</code></td>
+<td><code>a || b</code></td>
 <td>OR</td>
 <td><em>at least one</em> is true</td>
 </tr>
@@ -1247,35 +1251,7 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-<section id="practice-1-solution" class="slide level2">
-<h2>Practice 1 — Solution</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb6-2"><a></a>    <span class="dt">int</span> x <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
-<span id="cb6-3"><a></a>    <span class="dt">int</span> y <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
-<span id="cb6-4"><a></a></span>
-<span id="cb6-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>x <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-6"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Origin"</span><span class="op">);</span></span>
-<span id="cb6-7"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>y <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-8"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"On the x-axis"</span><span class="op">);</span></span>
-<span id="cb6-9"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-10"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"On the y-axis"</span><span class="op">);</span></span>
-<span id="cb6-11"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-12"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant I"</span><span class="op">);</span></span>
-<span id="cb6-13"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-14"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant II"</span><span class="op">);</span></span>
-<span id="cb6-15"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-16"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant III"</span><span class="op">);</span></span>
-<span id="cb6-17"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb6-18"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant IV"</span><span class="op">);</span></span>
-<span id="cb6-19"><a></a>    <span class="op">}</span></span>
-<span id="cb6-20"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p><strong>Why the origin goes first:</strong> if <code>y == 0</code> were checked first, <code>(0, 0)</code> would print <code>On the x-axis</code>.</p>
-</div>
-<div class="fragment">
-<p><strong>Why <code>else if (x &lt; 0)</code> is enough for Quadrant III:</strong> by that line we already know neither is 0 and <code>y</code> is not positive.</p>
-</div>
-</section>
+
 <section id="practice-2-order-of-three" class="slide level2">
 <h2>Practice 2 — Order of Three</h2>
 <aside class="notes">
@@ -1321,27 +1297,7 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-<section id="practice-2-solution" class="slide level2">
-<h2>Practice 2 — Solution</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb7-2"><a></a>    <span class="dt">int</span> a <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
-<span id="cb7-3"><a></a>    <span class="dt">int</span> b <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
-<span id="cb7-4"><a></a>    <span class="dt">int</span> c <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
-<span id="cb7-5"><a></a></span>
-<span id="cb7-6"><a></a>    <span class="cf">if</span> <span class="op">(</span>a <span class="op">==</span> b <span class="op">&amp;&amp;</span> b <span class="op">==</span> c<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"All equal"</span><span class="op">);</span></span>
-<span id="cb7-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>a <span class="op">&lt;</span> b <span class="op">&amp;&amp;</span> b <span class="op">&lt;</span> c<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-9"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Increasing"</span><span class="op">);</span></span>
-<span id="cb7-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>a <span class="op">&gt;</span> b <span class="op">&amp;&amp;</span> b <span class="op">&gt;</span> c<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-11"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Decreasing"</span><span class="op">);</span></span>
-<span id="cb7-12"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb7-13"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Mixed"</span><span class="op">);</span></span>
-<span id="cb7-14"><a></a>    <span class="op">}</span></span>
-<span id="cb7-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p><strong>Common mistake:</strong> writing <code>a &lt; b &lt; c</code>. Java won’t compile it. You need two comparisons joined with <code>&amp;&amp;</code>: <code>a &lt; b &amp;&amp; b &lt; c</code>.</p>
-</div>
-</section></section>
+</section>
 <section>
 <section id="practice-ifelse-with-strings" class="title-slide slide level1 center">
 <h1>Practice: <code>if</code>/<code>else</code> with Strings</h1>
@@ -1392,27 +1348,7 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-<section id="practice-3-solution" class="slide level2">
-<h2>Practice 3 — Solution</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb8-2"><a></a>    <span class="bu">String</span> name <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
-<span id="cb8-3"><a></a></span>
-<span id="cb8-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">5</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Too short"</span><span class="op">);</span></span>
-<span id="cb8-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&gt;</span> <span class="dv">12</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Too long"</span><span class="op">);</span></span>
-<span id="cb8-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span><span class="fu">equals</span><span class="op">(</span><span class="st">"_"</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-9"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Cannot start with _"</span><span class="op">);</span></span>
-<span id="cb8-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb8-11"><a></a>        <span class="bu">String</span> fixed <span class="op">=</span> name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span><span class="fu">toUpperCase</span><span class="op">()</span></span>
-<span id="cb8-12"><a></a>                     <span class="op">+</span> name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">1</span><span class="op">).</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
-<span id="cb8-13"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Welcome, "</span> <span class="op">+</span> fixed<span class="op">);</span></span>
-<span id="cb8-14"><a></a>    <span class="op">}</span></span>
-<span id="cb8-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<p><code>name.substring(0, 1)</code> is the first character <strong>as a String</strong>, so we can compare it with <code>.equals()</code>.</p>
-</div>
-</section>
+
 <section id="practice-4-phone-number-formatter" class="slide level2">
 <h2>Practice 4 — Phone Number Formatter</h2>
 <aside class="notes">
@@ -1458,32 +1394,859 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-<section id="practice-4-solution" class="slide level2">
-<h2>Practice 4 — Solution</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb10-2"><a></a>    <span class="bu">String</span> phone <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
-<span id="cb10-3"><a></a></span>
-<span id="cb10-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>phone<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">!=</span> <span class="dv">10</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb10-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Invalid number"</span><span class="op">);</span></span>
-<span id="cb10-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb10-7"><a></a>        <span class="bu">String</span> area <span class="op">=</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span>
-<span id="cb10-8"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"("</span> <span class="op">+</span> area <span class="op">+</span> <span class="st">") "</span> <span class="op">+</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">)</span> <span class="op">+</span> <span class="st">"-"</span> <span class="op">+</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">6</span><span class="op">));</span></span>
-<span id="cb10-9"><a></a></span>
-<span id="cb10-10"><a></a>        <span class="cf">if</span> <span class="op">(</span>area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"410"</span><span class="op">)</span> <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"443"</span><span class="op">)</span></span>
-<span id="cb10-11"><a></a>                <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"240"</span><span class="op">)</span> <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"301"</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb10-12"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Maryland"</span><span class="op">);</span></span>
-<span id="cb10-13"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb10-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Out of state"</span><span class="op">);</span></span>
-<span id="cb10-15"><a></a>        <span class="op">}</span></span>
-<span id="cb10-16"><a></a>    <span class="op">}</span></span>
-<span id="cb10-17"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section>
+<section id="practice-nested-ifelse" class="title-slide slide level1 center">
+<h1>Practice: Nested <code>if</code>/<code>else</code></h1>
+
+</section>
+<section id="why-nest" class="slide level2">
+<h2>Why Nest?</h2>
+<aside class="notes">
+<p>Frame the whole session around one question students should ask before writing any code: is the second decision a different value of the same thing (else if), or does it only make sense once the first decision is known (nested if)? Every problem in this deck has at least one decision that only makes sense inside another branch.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>An <code>if</code> goes <strong>inside</strong> another <code>if</code> when the second question only makes sense <strong>after</strong> the first one is answered.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a></a><span class="cf">if</span> <span class="op">(</span>outer condition<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a></a>    <span class="cf">if</span> <span class="op">(</span>inner condition<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-3"><a></a>        <span class="co">// outer true AND inner true</span></span>
+<span id="cb11-4"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb11-5"><a></a>        <span class="co">// outer true AND inner false</span></span>
+<span id="cb11-6"><a></a>    <span class="op">}</span></span>
+<span id="cb11-7"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb11-8"><a></a>    <span class="co">// outer false: the inner question is never asked</span></span>
+<span id="cb11-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
-<p><strong>Common mistake:</strong> <code>area.equals("410" || "443")</code> won’t compile. Each check needs its own <code>.equals()</code>.</p>
-</div>
-<div class="fragment">
-<p><strong>Check the length first.</strong> Calling <code>substring(6)</code> on a 5-character String crashes the program.</p>
+<ul>
+<li>Different values of the <strong>same thing</strong> (score → grade)? Use an <code>else if</code> chain.</li>
+<li>One answer <strong>changes which question comes next</strong> (member? → then which fee?)? Nest.</li>
+</ul>
 </div>
 </section>
+<section id="plan-before-you-type" class="slide level2 scrollable">
+<h2>Plan Before You Type</h2>
+<aside class="notes">
+<p>Have students do this on paper for the first problem. Most of the bugs from the midterm came from starting to type before deciding what the outer question was, then patching cases with &amp;&amp; until the logic broke.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<ol type="1">
+<li><strong>What is the first question?</strong> Usually: is the input valid? Or: which category/mode is it?</li>
+<li><strong>For each answer, what do I need to ask next?</strong> That becomes the inner <code>if</code>.</li>
+<li><strong>Write the outer skeleton first</strong>, with empty braces. Then fill each branch.</li>
+<li><strong>Indent one level per nesting level.</strong> If you can’t tell which <code>else</code> goes with which <code>if</code>, neither can the reader.</li>
+</ol>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a></a><span class="cf">if</span> <span class="op">(</span>days <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-2"><a></a>    <span class="co">// step 1: no fee, done</span></span>
+<span id="cb12-3"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>member<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb12-4"><a></a>    <span class="co">// step 2: member rules go here</span></span>
+<span id="cb12-5"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-6"><a></a>    <span class="co">// step 2: non-member rules go here</span></span>
+<span id="cb12-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="warm-up-3-trace-the-nesting" class="slide level2">
+<h2>Warm-up 3 — Trace the Nesting</h2>
+<aside class="notes">
+<p>Paper only. a = 5, b = 2 prints “B”; a = 5, b = 9 prints “C”; a = -1, b = 9 prints “D”. The point: the inner if/else is a single statement of the outer if, so for a = -1 the inner code is skipped completely. Ask what happens for a = -1, b = -1 (still D, because the inner question is never asked).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>What does this print for <code>a = 5, b = 2</code>? <code>a = 5, b = 9</code>? <code>a = -1, b = 9</code>?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a></a><span class="cf">if</span> <span class="op">(</span>a <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-2"><a></a>    <span class="cf">if</span> <span class="op">(</span>b <span class="op">&lt;</span> a<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"B"</span><span class="op">);</span></span>
+<span id="cb13-4"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb13-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"C"</span><span class="op">);</span></span>
+<span id="cb13-6"><a></a>    <span class="op">}</span></span>
+<span id="cb13-7"><a></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb13-8"><a></a>    IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"D"</span><span class="op">);</span></span>
+<span id="cb13-9"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Answers:</strong> <code>5, 2</code> → <code>B</code> · <code>5, 9</code> → <code>C</code> · <code>-1, 9</code> → <code>D</code></p>
+</div>
+<div class="fragment">
+<p>When <code>a</code> is <code>-1</code>, the inner <code>if</code> is <strong>never even looked at</strong>. The outer <code>else</code> runs instead.</p>
+</div>
+</section></section>
+<section>
+<section id="nested-ifelse-with-numbers" class="title-slide slide level1 center">
+<h1>Nested <code>if</code>/<code>else</code> with Numbers</h1>
+
+</section>
+<section id="practice-5-sign-and-parity" class="slide level2">
+<h2>Practice 5 — Sign and Parity</h2>
+<aside class="notes">
+<p>Warm-up. The outer decision is the sign; the even/odd question is asked inside each branch. The trap: students who write n % 2 == 1 for odd get -7 wrong, because -7 % 2 is -1 in Java. Testing == 0 for even and using else avoids it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read one integer and describe it with <strong>two</strong> facts: its sign and whether it is even or odd.</p>
+<ul>
+<li>If the number is <code>0</code>, print <code>Zero</code>.</li>
+<li>If it is positive, print <code>Positive even</code> or <code>Positive odd</code>.</li>
+<li>If it is negative, print <code>Negative even</code> or <code>Negative odd</code>.</li>
+</ul>
+<p><em>Careful: in Java, <code>-7 % 2</code> is <code>-1</code>, not <code>1</code>. Test for even with <code>n % 2 == 0</code>.</em></p>
+<p><strong>Input</strong> (no prompts): One line containing one <code>int</code>.</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>8</code></td>
+<td><code>Positive even</code></td>
+</tr>
+<tr class="even">
+<td><code>-7</code></td>
+<td><code>Negative odd</code></td>
+</tr>
+<tr class="odd">
+<td><code>0</code></td>
+<td><code>Zero</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-5" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-6-phone-battery" class="slide level2">
+<h2>Practice 6 — Phone Battery</h2>
+<aside class="notes">
+<p>The outer if splits on the String, the inner decisions are on the number. Point out that the inner chain on the ‘no’ side is an ordinary else-if chain, just indented one level. Ordering matters inside it: &lt;= 5 must come before &lt;= 20.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read a phone’s battery level (0 to 100) and whether it is plugged in (<code>yes</code> or <code>no</code>). Print a status message:</p>
+<ul>
+<li><strong>Plugged in</strong> (<code>yes</code>):
+<ul>
+<li>level is 100 → <code>Fully charged</code></li>
+<li>otherwise → <code>Charging: &lt;level&gt;%</code></li>
+</ul></li>
+<li><strong>Not plugged in</strong> (<code>no</code>):
+<ul>
+<li>level is 5 or less → <code>Critical: plug in now</code></li>
+<li>level is 20 or less → <code>Low battery: &lt;level&gt;%</code></li>
+<li>otherwise → <code>Battery: &lt;level&gt;%</code></li>
+</ul></li>
+</ul>
+<p><strong>Input</strong> (no prompts): Two lines: an <code>int</code> (the battery level, 0 to 100), then a <code>String</code> (<code>yes</code> or <code>no</code>, always lower case).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>42</code><br><code>yes</code></td>
+<td><code>Charging: 42%</code></td>
+</tr>
+<tr class="even">
+<td><code>15</code><br><code>no</code></td>
+<td><code>Low battery: 15%</code></td>
+</tr>
+<tr class="odd">
+<td><code>3</code><br><code>no</code></td>
+<td><code>Critical: plug in now</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-6" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-7-elevator" class="slide level2">
+<h2>Practice 7 — Elevator</h2>
+<aside class="notes">
+<p>Validity check first (an || of four comparisons), then the direction, then a nested singular/plural decision inside each direction. Watch for students who compute requested - current for both directions and print a negative number.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A building has floors 1 through 10. Read the floor the elevator is on and the floor someone requested.</p>
+<ul>
+<li>If <strong>either</strong> floor is outside 1–10, print <code>Invalid floor</code>.</li>
+<li>Otherwise, if they are the same floor, print <code>Already on floor &lt;floor&gt;</code>.</li>
+<li>Otherwise, print <code>Going up</code> or <code>Going down</code>, followed by how many floors it moves. Use the word <code>floor</code> when it moves exactly 1, and <code>floors</code> otherwise.</li>
+</ul>
+<p><strong>Input</strong> (no prompts): Two lines, each containing one <code>int</code>: the current floor, then the requested floor.</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>3</code><br><code>7</code></td>
+<td><code>Going up 4 floors</code></td>
+</tr>
+<tr class="even">
+<td><code>5</code><br><code>4</code></td>
+<td><code>Going down 1 floor</code></td>
+</tr>
+<tr class="odd">
+<td><code>6</code><br><code>6</code></td>
+<td><code>Already on floor 6</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-7" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-8-state-of-water" class="slide level2">
+<h2>Practice 8 — State of Water</h2>
+<aside class="notes">
+<p>Same shape inside each outer branch, with different numbers. Converting the unit to upper case once, right after reading it, means every later .equals() only has to check one spelling.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read a temperature and its unit, then print whether water at that temperature is <code>Ice</code>, <code>Liquid water</code>, or <code>Steam</code>. The unit is <code>C</code> (Celsius) or <code>F</code> (Fahrenheit), typed in either upper or lower case.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Unit</th>
+<th><code>Ice</code></th>
+<th><code>Liquid water</code></th>
+<th><code>Steam</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>C</code></td>
+<td>0 or below</td>
+<td>above 0 and below 100</td>
+<td>100 or above</td>
+</tr>
+<tr class="even">
+<td><code>F</code></td>
+<td>32 or below</td>
+<td>above 32 and below 212</td>
+<td>212 or above</td>
+</tr>
+</tbody>
+</table>
+<p>If the unit is anything else, print <code>Unknown unit</code>.</p>
+<p><strong>Input</strong> (no prompts): Two lines: an <code>int</code> (the temperature), then a <code>String</code> (the unit).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>25</code><br><code>C</code></td>
+<td><code>Liquid water</code></td>
+</tr>
+<tr class="even">
+<td><code>212</code><br><code>f</code></td>
+<td><code>Steam</code></td>
+</tr>
+<tr class="odd">
+<td><code>50</code><br><code>K</code></td>
+<td><code>Unknown unit</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-8" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+</section>
+<section>
+<section id="nested-ifelse-with-numbers-and-strings" class="title-slide slide level1 center">
+<h1>Nested <code>if</code>/<code>else</code> with Numbers and Strings</h1>
+
+</section>
+<section id="practice-9-library-late-fee" class="slide level2">
+<h2>Practice 9 — Library Late Fee</h2>
+<aside class="notes">
+<p>Three levels of decision: late at all? member or not? over the cap? The cap check is nested inside each membership branch because the cap and the rate depend on membership. Boundary to test: exactly at the cap (10 days for a member) prints no ‘(maximum)’.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A library charges for late books. Read how many days late a book is and whether the borrower is a member (<code>yes</code> or <code>no</code>).</p>
+<ul>
+<li>If the book is 0 or fewer days late, print <code>No fee</code>.</li>
+<li>Members pay <strong>$1 per day</strong>, up to a maximum of <strong>$10</strong>.</li>
+<li>Non-members pay <strong>$2 per day</strong>, up to a maximum of <strong>$20</strong>.</li>
+</ul>
+<p>If the per-day fee would be <strong>more than</strong> the maximum, the borrower pays the maximum instead and the line ends with <code>(maximum)</code>. A fee exactly equal to the maximum does <strong>not</strong> get <code>(maximum)</code>.</p>
+<p><strong>Input</strong> (no prompts): Two lines: an <code>int</code> (days late), then a <code>String</code> (<code>yes</code> or <code>no</code>, always lower case).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>3</code><br><code>yes</code></td>
+<td><code>Fee: $3</code></td>
+</tr>
+<tr class="even">
+<td><code>4</code><br><code>no</code></td>
+<td><code>Fee: $8</code></td>
+</tr>
+<tr class="odd">
+<td><code>15</code><br><code>yes</code></td>
+<td><code>Fee: $10 (maximum)</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-9" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-10-speeding-fine" class="slide level2">
+<h2>Practice 10 — Speeding Fine</h2>
+<aside class="notes">
+<p>New idea: a nested block that does more than print. The else branch computes ‘over’, picks a fine with a chain, then adjusts it with a separate if. Point out that ‘int fine;’ is declared before the chain so every branch can assign it. Also: three input lines, count the readln calls.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read a speed limit, a driver’s speed, and whether they were in a school zone (<code>yes</code> or <code>no</code>).</p>
+<p>If the driver was at or under the limit, print <code>No ticket</code>. Otherwise, work out how many mph over the limit they were and the fine:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>mph over the limit</th>
+<th>Fine</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 to 10</td>
+<td>$50</td>
+</tr>
+<tr class="even">
+<td>11 to 20</td>
+<td>$100</td>
+</tr>
+<tr class="odd">
+<td>more than 20</td>
+<td>$200</td>
+</tr>
+</tbody>
+</table>
+<p>In a school zone the fine is <strong>doubled</strong>.</p>
+<p><strong>Input</strong> (no prompts): Three lines: an <code>int</code> (the speed limit), an <code>int</code> (the driver’s speed), then a <code>String</code> (<code>yes</code> or <code>no</code>, always lower case).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>30</code><br><code>35</code><br><code>no</code></td>
+<td><code>Over by 5 mph</code><br><code>Fine: $50</code></td>
+</tr>
+<tr class="even">
+<td><code>25</code><br><code>40</code><br><code>yes</code></td>
+<td><code>Over by 15 mph</code><br><code>Fine: $200</code></td>
+</tr>
+<tr class="odd">
+<td><code>55</code><br><code>55</code><br><code>no</code></td>
+<td><code>No ticket</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-10" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-11-thermostat" class="slide level2">
+<h2>Practice 11 — Thermostat</h2>
+<aside class="notes">
+<p>This is where nested vs.&nbsp;flattened matters. A student who writes ‘else if (mode.equals(“heat”) &amp;&amp; current &lt; target)’ and then ‘else if (mode.equals(“cool”) &amp;&amp; …)’ sends heat-mode-already-warm to the next branch and eventually prints ‘Invalid mode’. Nesting keeps ‘which mode?’ separate from ‘what does that mode do?’.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>A smart thermostat reads the current temperature, the target temperature, and its mode. The mode is <code>heat</code>, <code>cool</code>, or <code>off</code>, typed in any mix of upper and lower case.</p>
+<ul>
+<li><code>off</code> → <code>System off</code></li>
+<li><code>heat</code> → if the current temperature is <strong>below</strong> the target, <code>Heating to &lt;target&gt;</code>; otherwise <code>Idle</code></li>
+<li><code>cool</code> → if the current temperature is <strong>above</strong> the target, <code>Cooling to &lt;target&gt;</code>; otherwise <code>Idle</code></li>
+<li>any other mode → <code>Invalid mode</code></li>
+</ul>
+<p><strong>Input</strong> (no prompts): Three lines: an <code>int</code> (current temperature), an <code>int</code> (target temperature), then a <code>String</code> (the mode).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>64</code><br><code>70</code><br><code>heat</code></td>
+<td><code>Heating to 70</code></td>
+</tr>
+<tr class="even">
+<td><code>75</code><br><code>70</code><br><code>COOL</code></td>
+<td><code>Cooling to 70</code></td>
+</tr>
+<tr class="odd">
+<td><code>72</code><br><code>70</code><br><code>Heat</code></td>
+<td><code>Idle</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-11" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-11-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+</section>
+<section>
+<section id="nested-ifelse-with-strings" class="title-slide slide level1 center">
+<h1>Nested <code>if</code>/<code>else</code> with Strings</h1>
+
+</section>
+<section id="practice-12-compare-two-words" class="slide level2">
+<h2>Practice 12 — Compare Two Words</h2>
+<aside class="notes">
+<p>Inner chain order is the lesson: the exact .equals() check must come before the case-insensitive one, because identical words also match ignoring case. Also print the original word, not a lower-cased copy.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read two words and compare them.</p>
+<ul>
+<li>If they have the <strong>same length</strong>:
+<ul>
+<li>exactly the same (same letters, same case) → <code>Identical</code></li>
+<li>the same if you ignore upper/lower case → <code>Same word, different case</code></li>
+<li>otherwise → <code>Same length, different words</code></li>
+</ul></li>
+<li>If they have <strong>different lengths</strong>, print the longer word followed by <code>is longer</code>.</li>
+</ul>
+<p><strong>Input</strong> (no prompts): Two lines, each containing one <code>String</code> (a single word, no spaces).</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Java</code><br><code>java</code></td>
+<td><code>Same word, different case</code></td>
+</tr>
+<tr class="even">
+<td><code>cat</code><br><code>dog</code></td>
+<td><code>Same length, different words</code></td>
+</tr>
+<tr class="odd">
+<td><code>apple</code><br><code>kiwi</code></td>
+<td><code>apple is longer</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-12" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-12-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-13-rock-paper-scissors" class="slide level2">
+<h2>Practice 13 — Rock, Paper, Scissors</h2>
+<aside class="notes">
+<p>The payoff of checking invalid and tie first: inside each of player 1’s branches there are only two possible player 2 moves left, so one if/else decides it. Storing the validity checks in boolean variables keeps the first condition readable.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read the moves of two players. Each move is <code>rock</code>, <code>paper</code>, or <code>scissors</code>, typed in any mix of upper and lower case.</p>
+<ul>
+<li>If either move is not one of those three words, print <code>Invalid move</code>.</li>
+<li>Otherwise, if both moves are the same, print <code>Tie</code>.</li>
+<li>Otherwise, decide the winner: <strong>rock beats scissors, scissors beats paper, paper beats rock</strong>. Print <code>Player 1 wins</code> or <code>Player 2 wins</code>.</li>
+</ul>
+<p><em>Hint: once you know the moves are valid and different, look at player 1’s move first. For each of player 1’s three moves there is exactly one player 2 move that loses to it.</em></p>
+<p><strong>Input</strong> (no prompts): Two lines, each containing one <code>String</code>: player 1’s move, then player 2’s move.</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rock</code><br><code>scissors</code></td>
+<td><code>Player 1 wins</code></td>
+</tr>
+<tr class="even">
+<td><code>Paper</code><br><code>SCISSORS</code></td>
+<td><code>Player 2 wins</code></td>
+</tr>
+<tr class="odd">
+<td><code>rock</code><br><code>Rock</code></td>
+<td><code>Tie</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-13" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-13-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
+<section id="practice-14-days-in-a-month" class="slide level2">
+<h2>Practice 14 — Days in a Month</h2>
+<aside class="notes">
+<p>Strings + nesting + capitalization. Only February has an inner decision. The capitalization line uses the same substring(0,1).toUpperCase() + substring(1) pattern from the Strings lecture. Since every valid month is exactly 3 letters, substring is safe for all inputs we test; mention that an empty input would crash it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<p>Read a three-letter month abbreviation (<code>jan</code>, <code>feb</code>, …, <code>dec</code>, typed in any mix of upper and lower case) and whether the year is a leap year (<code>yes</code> or <code>no</code>). Print how many days that month has:</p>
+<ul>
+<li><code>feb</code> → 29 in a leap year, 28 otherwise</li>
+<li><code>apr</code>, <code>jun</code>, <code>sep</code>, <code>nov</code> → 30</li>
+<li><code>jan</code>, <code>mar</code>, <code>may</code>, <code>jul</code>, <code>aug</code>, <code>oct</code>, <code>dec</code> → 31</li>
+<li>anything else → print <code>Unknown month</code></li>
+</ul>
+<p>Print the month with its <strong>first letter upper case and the other two lower case</strong>, e.g.&nbsp;<code>Feb has 29 days</code>.</p>
+<p><strong>Input</strong> (no prompts): Two lines, each containing one <code>String</code>: the month abbreviation, then <code>yes</code> or <code>no</code> (always lower case). The second line is always present, even though only February uses it.</p>
+<p><strong>Examples</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>feb</code><br><code>yes</code></td>
+<td><code>Feb has 29 days</code></td>
+</tr>
+<tr class="even">
+<td><code>JUN</code><br><code>no</code></td>
+<td><code>Jun has 30 days</code></td>
+</tr>
+<tr class="odd">
+<td><code>oct</code><br><code>no</code></td>
+<td><code>Oct has 31 days</code></td>
+</tr>
+</tbody>
+</table>
+<div class="jr-block" id="jr-14" data-type="java">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Java</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Java code">▶ Run</button>
+      <button type="button" class="jr-stop-btn" aria-label="Stop running program" disabled="">■ Stop</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-14-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
+  </div>
+  <div class="jr-terminal">
+    <div class="jr-terminal-bar">
+      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
+      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
+      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
+    </div>
+    <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
+  </div>
+</div>
+</section>
+
 <section id="exam-checklist" class="slide level2">
 <h2>Exam Checklist</h2>
 <aside class="notes">
@@ -1505,12 +2268,14 @@ Output: (410) 555-1234    Output: (212) 555-0199
 <li><label><input type="checkbox"><strong>Count your inputs.</strong> One <code>IO.readln()</code> per input line, in the order given.</label></li>
 <li><label><input type="checkbox"><strong>Exact output.</strong> Spelling, capitals, spaces, and punctuation must match the examples.</label></li>
 <li><label><input type="checkbox"><strong>Special cases first.</strong> Invalid input and “all equal” style cases go at the top of the chain.</label></li>
+<li><label><input type="checkbox"><strong>Decide the outer question first.</strong> For nested decisions, write the outer <code>if</code>/<code>else</code> skeleton with empty braces, then fill each branch.</label></li>
+<li><label><input type="checkbox"><strong>Indent every level.</strong> One extra indent per nested <code>if</code>, so each <code>else</code> visibly lines up with its <code>if</code>.</label></li>
 <li><label><input type="checkbox"><strong>Strings use <code>.equals()</code>.</strong> Never <code>==</code>.</label></li>
 <li><label><input type="checkbox"><strong>Save results.</strong> <code>s = s.toUpperCase();</code>, not just <code>s.toUpperCase();</code></label></li>
-<li><label><input type="checkbox"><strong>Test the edges.</strong> Try every example, then the boundaries (0, equal values, the shortest and longest inputs).</label></li>
+<li><label><input type="checkbox"><strong>Test the edges.</strong> Try every example, then one input per branch, then the boundaries (0, equal values, exactly the limit, the shortest and longest inputs).</label></li>
 </ul>
 <div class="fragment">
-<!-- The same four practice problems are on CodeCheck for autograded practice. -->
+<!-- The same fourteen practice problems are on CodeCheck (problems/midterm-review/) for autograded practice. -->
 
 
 </div>
