@@ -12,6 +12,24 @@
     ]
   },
   {
+    "listing": "/cosc120/notes/index.html",
+    "items": [
+      "/cosc120/notes/01-intro.html",
+      "/cosc120/notes/02-variables.html",
+      "/cosc120/notes/03-arithmetic.html",
+      "/cosc120/notes/04-type-conversion.html",
+      "/cosc120/notes/05-conditionals.html",
+      "/cosc120/notes/06-boolean-logic.html",
+      "/cosc120/notes/06.html",
+      "/cosc120/notes/07-strings.html",
+      "/cosc120/notes/08-methods-void.html",
+      "/cosc120/notes/09-methods-parameters.html",
+      "/cosc120/notes/09-worksheet-methods.html",
+      "/cosc120/notes/midterm-review.html",
+      "/cosc120/notes/worksheet-input-processing-output.html"
+    ]
+  },
+  {
     "listing": "/cosc420/notes/index.html",
     "items": [
       "/cosc420/notes/01-intro.html",
@@ -40,24 +58,6 @@
     ]
   },
   {
-    "listing": "/cosc120/notes/index.html",
-    "items": [
-      "/cosc120/notes/01-intro.html",
-      "/cosc120/notes/02-variables.html",
-      "/cosc120/notes/03-arithmetic.html",
-      "/cosc120/notes/04-type-conversion.html",
-      "/cosc120/notes/05-conditionals.html",
-      "/cosc120/notes/06-boolean-logic.html",
-      "/cosc120/notes/06.html",
-      "/cosc120/notes/07-strings.html",
-      "/cosc120/notes/08-methods-void.html",
-      "/cosc120/notes/09-methods-parameters.html",
-      "/cosc120/notes/09-worksheet-methods.html",
-      "/cosc120/notes/midterm-review.html",
-      "/cosc120/notes/worksheet-input-processing-output.html"
-    ]
-  },
-  {
     "listing": "/cosc435/notes/index.html",
     "items": [
       "/cosc435/notes/01-intro.html",
@@ -72,6 +72,7 @@
       "/cosc435/notes/11.html",
       "/cosc435/notes/12.html",
       "/cosc435/notes/13.html",
+      "/cosc435/notes/14.html",
       "/cosc435/notes/el1.html",
       "/cosc435/notes/el2.html"
     ]
