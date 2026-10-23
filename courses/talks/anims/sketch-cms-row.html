@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pyxcd</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #ffffff; }
+  #pyxcd-canvas { display: block; width: 100vw; height: 100vh; cursor: pointer; }
+  #pyxcd-step-count {
+    position: fixed; right: 10px; bottom: 6px; pointer-events: none;
+    font: 12px system-ui, sans-serif; color: rgba(0, 0, 0, 0.35);
+  }
+</style>
+</head>
+<body>
+<svg id="pyxcd-canvas" viewBox="0 0 900 540" preserveAspectRatio="xMidYMid meet"
+     xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="pyxcd-step-count">0 / 11</div>
+
+<!-- Rough.js -->
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+
+<!-- pyxcd runtime -->
+<script>window.PYXCD_EMBED = true;</script>
+<script>
+
+(function () {
+  'use strict';
+
+  const TIMELINE = [{"type":"play","title":"The same stream","duration":600,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"JTebXOyhQ49fhShggVN6","seed":494135214,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"qm78pFRRVaTf16hTwS4l","seed":828056868,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"oM9pip84nF7Xw7rqSOou","seed":983760465,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":535,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":700,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":865,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":1030,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"}],"effects":[{"mob_id":"rQpDlggOCnXDwTWJaAM5","effect":"fade_in","duration":400},{"mob_id":"iQJwPvuETS1IAtlbtYi7","effect":"draw_on","duration":600},{"mob_id":"LYkoNIsdSJIyRRgrgt6z","effect":"fade_in","duration":400},{"mob_id":"JTebXOyhQ49fhShggVN6","effect":"draw_on","duration":600},{"mob_id":"qm78pFRRVaTf16hTwS4l","effect":"draw_on","duration":600},{"mob_id":"oM9pip84nF7Xw7rqSOou","effect":"draw_on","duration":600},{"mob_id":"G5GinVVv8WfMV5peSZ31","effect":"draw_on","duration":600},{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"draw_on","duration":600},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"draw_on","duration":600},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"draw_on","duration":600}]},{"type":"play","title":"4 counters, all 0","duration":600,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"JTebXOyhQ49fhShggVN6","seed":494135214,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"qm78pFRRVaTf16hTwS4l","seed":828056868,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"oM9pip84nF7Xw7rqSOou","seed":983760465,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":535,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":700,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":865,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":1030,"y":95,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"ucBB7LILvVOhMkDpTRZE","seed":1231488709,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":473.00000000000006,"h":25.0,"text":"Memory: 4 counters, no matter how many IPs.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"OFhiQksZ6tu7AaqPw0mn","effect":"draw_on","duration":600},{"mob_id":"BpgmPvmXNh8XkgMu6AUk","effect":"draw_on","duration":600},{"mob_id":"csKBOqjth46waHGJbkjh","effect":"draw_on","duration":600},{"mob_id":"kVY90U3ekKMHaOpwwAk6","effect":"draw_on","duration":600},{"mob_id":"BShJchGJYbcc4bsB3w0Z","effect":"draw_on","duration":600},{"mob_id":"zdg9XC5q2W7ehiXsJMGk","effect":"draw_on","duration":600},{"mob_id":"xhNXogFv19bk1Jp570hi","effect":"draw_on","duration":600},{"mob_id":"KTg22yZjOn3IrsuK5fD1","effect":"draw_on","duration":600},{"mob_id":"dDbjOfFoIu2xuOTOfMnh","effect":"fade_in","duration":400},{"mob_id":"ucBB7LILvVOhMkDpTRZE","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 1: 10.0.0.7","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"JTebXOyhQ49fhShggVN6","seed":494135214,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"qm78pFRRVaTf16hTwS4l","seed":828056868,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"oM9pip84nF7Xw7rqSOou","seed":983760465,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":535.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":700.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":865.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"EPweeCC95T5Z8z4K42qw","seed":599126011,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.7) = 0","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"0B9C2LUU2qaQGbbiDSP4","seed":358346552,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 0.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"JTebXOyhQ49fhShggVN6","effect":"translate","dx":0,"dy":130,"duration":500},{"mob_id":"qm78pFRRVaTf16hTwS4l","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"oM9pip84nF7Xw7rqSOou","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"G5GinVVv8WfMV5peSZ31","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"OFhiQksZ6tu7AaqPw0mn","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"EPweeCC95T5Z8z4K42qw","effect":"fade_in","duration":400},{"mob_id":"0B9C2LUU2qaQGbbiDSP4","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 2: 10.0.0.3","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"qm78pFRRVaTf16hTwS4l","seed":828056868,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"oM9pip84nF7Xw7rqSOou","seed":983760465,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":535.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":700.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"cmmixGx6dWH3o8yWgrBd","seed":488829739,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.3) = 2","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"Z9HppYk8wStozPfHWlQZ","seed":1508460023,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 2.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"qm78pFRRVaTf16hTwS4l","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"oM9pip84nF7Xw7rqSOou","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"G5GinVVv8WfMV5peSZ31","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"BShJchGJYbcc4bsB3w0Z","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"cmmixGx6dWH3o8yWgrBd","effect":"fade_in","duration":400},{"mob_id":"Z9HppYk8wStozPfHWlQZ","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 3: 10.0.0.7","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"oM9pip84nF7Xw7rqSOou","seed":983760465,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":535.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"2","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"1K7IlZ1qhQ541mnsgqiT","seed":302497228,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.7) = 0","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"wRXd0fm1zKS0cBXSVbqY","seed":775769695,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 0.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"oM9pip84nF7Xw7rqSOou","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"G5GinVVv8WfMV5peSZ31","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"OFhiQksZ6tu7AaqPw0mn","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"1K7IlZ1qhQ541mnsgqiT","effect":"fade_in","duration":400},{"mob_id":"wRXd0fm1zKS0cBXSVbqY","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 4: 10.0.0.9","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"G5GinVVv8WfMV5peSZ31","seed":892373417,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.9","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":370.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"2","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"2","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"hWrrEOMSuiePBsvQ22Wz","seed":2048071700,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.9) = 2","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"6JHwKZ84orFQEjlz4GO2","seed":331574206,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 2.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"G5GinVVv8WfMV5peSZ31","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"BShJchGJYbcc4bsB3w0Z","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"hWrrEOMSuiePBsvQ22Wz","effect":"fade_in","duration":400},{"mob_id":"6JHwKZ84orFQEjlz4GO2","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 5: 10.0.0.3","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"HFrWsyaQ2vdDpV5UHV3m","seed":1746808295,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.3","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":205.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"2","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"iVUq8wV0UHv6H4larqXi","seed":1408026526,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.3) = 2","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"LuWeo4oNZdYOStBAV2CW","seed":1644499785,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 2.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"HFrWsyaQ2vdDpV5UHV3m","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"BShJchGJYbcc4bsB3w0Z","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"iVUq8wV0UHv6H4larqXi","effect":"fade_in","duration":400},{"mob_id":"LuWeo4oNZdYOStBAV2CW","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 6: 10.0.0.7","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"K3x39XYnSEaB4HWfwHOQ","seed":1450081896,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.7","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":95.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"xPOdup8o3hdgNyJkc0s7","seed":1010696506,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.7) = 0","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"SxBiiBETd9xBrb87AEYs","seed":311858411,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 0.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"K3x39XYnSEaB4HWfwHOQ","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":-165,"dy":0.0,"duration":500},{"mob_id":"OFhiQksZ6tu7AaqPw0mn","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"xPOdup8o3hdgNyJkc0s7","effect":"fade_in","duration":400},{"mob_id":"SxBiiBETd9xBrb87AEYs","effect":"fade_in","duration":400}]},{"type":"play","title":"Item 7: 10.0.0.1","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"KfivG7pPU8oc6WxnliWI","seed":866521747,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"rectangle","x":40.0,"y":225.0,"w":150,"h":44,"rounded":false,"label":"10.0.0.1","font_size":20,"font_family":3,"label_color":"#1e1e1e"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"nycVDuUY27wCLo0GzYdR","seed":1506821022,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.1) = 3","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"HAJYQLpGllnEFHnYSjOA","seed":1482262560,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":198.00000000000003,"h":25.0,"text":"Add 1 to column 3.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"KfivG7pPU8oc6WxnliWI","effect":"translate","dx":0.0,"dy":130.0,"duration":500},{"mob_id":"xhNXogFv19bk1Jp570hi","effect":"indicate","color":"#e8b339","duration":300},{"mob_id":"nycVDuUY27wCLo0GzYdR","effect":"fade_in","duration":400},{"mob_id":"HAJYQLpGllnEFHnYSjOA","effect":"fade_in","duration":400}]},{"type":"play","title":"Query: 10.0.0.3","duration":500,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"NwJN9pdJkwSqRZyYtxLa","seed":188697373,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.3) = 2","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"dwEZUiLrldgMe8nhtnRr","seed":1324751488,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":660.0,"h":25.0,"text":"How many 10.0.0.3? Read column 2: it says 3. The truth is 2.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"BShJchGJYbcc4bsB3w0Z","effect":"fill_change","to":"#ffc9c9","duration":300},{"mob_id":"NwJN9pdJkwSqRZyYtxLa","effect":"fade_in","duration":400},{"mob_id":"dwEZUiLrldgMe8nhtnRr","effect":"fade_in","duration":400}]},{"type":"play","title":"A collision","duration":400,"snapshot":[{"id":"rQpDlggOCnXDwTWJaAM5","seed":1220036898,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":450.0,"y":18,"w":600.6,"h":35.0,"text":"Counting how often: one row of counters","font_size":28,"font_family":1,"align":"center","color":"#1e1e1e"},{"id":"iQJwPvuETS1IAtlbtYi7","seed":1675894264,"stroke":"#1e1e1e","fill":"transparent","stroke_width":3,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"line","points":[[20,147],[880,147]],"start_arrowhead":null,"end_arrowhead":null},{"id":"LYkoNIsdSJIyRRgrgt6z","seed":51908127,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":560,"y":55,"w":316.8,"h":22.5,"text":"stream arrives from the right  \u2190","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"OFhiQksZ6tu7AaqPw0mn","seed":1911445782,"shape":"rectangle","x":330.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"BpgmPvmXNh8XkgMu6AUk","seed":1,"shape":"text","x":375.0,"y":297.0,"w":90.0,"h":24,"text":"0","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"csKBOqjth46waHGJbkjh","seed":1596506371,"shape":"rectangle","x":420.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"0","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"kVY90U3ekKMHaOpwwAk6","seed":1,"shape":"text","x":465.0,"y":297.0,"w":90.0,"h":24,"text":"1","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"BShJchGJYbcc4bsB3w0Z","seed":760019104,"shape":"rectangle","x":510.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#ffc9c9","stroke_width":2,"roughness":1.0,"opacity":100,"label":"3","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"zdg9XC5q2W7ehiXsJMGk","seed":1,"shape":"text","x":555.0,"y":297.0,"w":90.0,"h":24,"text":"2","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"xhNXogFv19bk1Jp570hi","seed":124777617,"shape":"rectangle","x":600.0,"y":235.0,"w":90.0,"h":60.0,"stroke":"#1e1e1e","fill":"#dbe4ff","stroke_width":2,"roughness":1.0,"opacity":100,"label":"1","font_size":24,"font_family":3,"label_color":"#1e1e1e","rounded":false},{"id":"KTg22yZjOn3IrsuK5fD1","seed":1,"shape":"text","x":645.0,"y":297.0,"w":90.0,"h":24,"text":"3","font_size":20,"font_family":3,"color":"#888","align":"center","opacity":100},{"id":"dDbjOfFoIu2xuOTOfMnh","seed":910241413,"stroke":"#868e96","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":199,"w":405.90000000000003,"h":22.5,"text":"4 counters; a hash h(ip) picks the column","font_size":18,"font_family":1,"align":"left","color":"#868e96"},{"id":"NwJN9pdJkwSqRZyYtxLa","seed":188697373,"stroke":"#1971c2","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":330,"y":345,"w":181.50000000000003,"h":27.5,"text":"h(10.0.0.3) = 2","font_size":22,"font_family":1,"align":"left","color":"#1971c2"},{"id":"ZSXh70pNgS2k7966BIX4","seed":2109071025,"stroke":"#1e1e1e","fill":"transparent","stroke_width":2,"stroke_style":"solid","roughness":1.0,"opacity":100,"shape":"text","x":40,"y":470,"w":803.0000000000001,"h":25.0,"text":"10.0.0.9 also hashes to 2. Collisions only add: too big, never too small.","font_size":20,"font_family":1,"align":"left","color":"#1e1e1e"}],"effects":[{"mob_id":"ZSXh70pNgS2k7966BIX4","effect":"fade_in","duration":400}]}];
+  const WIDTH    = 900;
+  const HEIGHT   = 540;
+  const BG       = "#ffffff";
+
+  // ── Rough.js options per shape ──────────────────────────────────────────
+  function roughOpts(spec) {
+    return {
+      roughness:   spec.roughness  != null ? spec.roughness  : 1.0,
+      stroke:      spec.stroke     || '#1e1e1e',
+      strokeWidth: spec.stroke_width != null ? spec.stroke_width : 2,
+      fill:        (spec.fill && spec.fill !== 'transparent') ? spec.fill : null,
+      fillStyle:   'solid',
+      seed:        spec.seed || 1,
+    };
+  }
+
+  // ── Arrowhead polygon ────────────────────────────────────────────────────
+  function makeArrowhead(svg, x, y, tx, ty, size) {
+    // tx,ty is unit tangent pointing toward the tip
+    const angle = Math.atan2(ty, tx);
+    const spread = Math.PI / 7;
+    const len = size || 14;
+    const p1x = x - len * Math.cos(angle - spread);
+    const p1y = y - len * Math.sin(angle - spread);
+    const p2x = x - len * Math.cos(angle + spread);
+    const p2y = y - len * Math.sin(angle + spread);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${x},${y} ${p1x},${p1y} ${p2x},${p2y}`);
+    poly.setAttribute('fill', '#1e1e1e');
+    poly.style.pointerEvents = 'none';
+    return poly;
+  }
+
+  // ── Font family map ───────────────────────────────────────────────────────
+  const FONTS = {
+    1: "'Virgil', 'Comic Sans MS', cursive",
+    2: "Helvetica, Arial, sans-serif",
+    3: "'Cascadia Code', 'Fira Code', monospace",
+  };
+
+  // ── Render a single mob spec → SVG group ────────────────────────────────
+  function renderSpec(rc, svg, spec) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-mob-id', spec.id);
+    g.style.opacity = spec.opacity != null ? spec.opacity / 100 : 1;
+
+    const opts = roughOpts(spec);
+    let node = null;
+
+    if (spec.shape === 'rectangle') {
+      node = rc.rectangle(spec.x, spec.y, spec.w, spec.h, opts);
+    } else if (spec.shape === 'ellipse') {
+      node = rc.ellipse(spec.x + spec.w / 2, spec.y + spec.h / 2, spec.w, spec.h, opts);
+    } else if (spec.shape === 'diamond') {
+      const cx = spec.x + spec.w / 2, cy = spec.y + spec.h / 2;
+      const pts = [[cx, spec.y], [spec.x + spec.w, cy], [cx, spec.y + spec.h], [spec.x, cy]];
+      node = rc.polygon(pts, opts);
+    } else if (spec.shape === 'line') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.line(pts[0][0], pts[0][1], pts[pts.length-1][0], pts[pts.length-1][1], opts);
+      }
+    } else if (spec.shape === 'arrow') {
+      const pts = spec.points || [];
+      if (pts.length >= 2) {
+        node = rc.linearPath(pts, opts);
+        const last = pts[pts.length - 1];
+        const prev = pts[pts.length - 2];
+        const tx = last[0] - prev[0], ty = last[1] - prev[1];
+        const len = Math.hypot(tx, ty) || 1;
+        g.appendChild(makeArrowhead(svg, last[0], last[1], tx/len, ty/len));
+        if (spec.start_arrowhead) {
+          const sf = pts[0], sn = pts[1];
+          const stx = sf[0]-sn[0], sty = sf[1]-sn[1];
+          const sl = Math.hypot(stx,sty)||1;
+          g.appendChild(makeArrowhead(svg, sf[0], sf[1], stx/sl, sty/sl));
+        }
+      }
+    } else if (spec.shape === 'path') {
+      node = rc.path(spec.d, opts);
+      // Arrowheads for curves
+      if (spec.end_arrowhead && spec.end_point && spec.end_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.end_point[0], spec.end_point[1],
+          spec.end_tangent[0], spec.end_tangent[1]));
+      }
+      if (spec.start_arrowhead && spec.start_point && spec.start_tangent) {
+        g.appendChild(makeArrowhead(svg,
+          spec.start_point[0], spec.start_point[1],
+          -spec.start_tangent[0], -spec.start_tangent[1]));
+      }
+    } else if (spec.shape === 'text') {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', spec.x);
+      t.setAttribute('y', spec.y + (spec.h || spec.font_size || 20));
+      t.setAttribute('fill', spec.color || spec.stroke || '#1e1e1e');
+      t.setAttribute('font-size', spec.font_size || 20);
+      t.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      const align = spec.align || 'left';
+      t.setAttribute('text-anchor', align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start');
+      t.textContent = spec.text || '';
+      g.appendChild(t);
+    }
+
+    if (node) {
+      // Setup stroke-dashoffset for draw-on animation
+      node.querySelectorAll('path').forEach(p => {
+        const len = p.getTotalLength ? p.getTotalLength() : 0;
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.dataset.pathLen = len;
+      });
+      g.appendChild(node);
+    }
+
+    // Inline label (for shapes)
+    if (spec.label) {
+      const lx = spec.x + (spec.w || 0) / 2;
+      const ly = spec.y + (spec.h || 0) / 2 + (spec.font_size || 20) / 3;
+      const lt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lt.setAttribute('x', lx);
+      lt.setAttribute('y', ly);
+      lt.setAttribute('text-anchor', 'middle');
+      lt.setAttribute('fill', spec.label_color || '#1e1e1e');
+      lt.setAttribute('font-size', spec.font_size || 20);
+      lt.setAttribute('font-family', FONTS[spec.font_family] || FONTS[1]);
+      lt.textContent = spec.label;
+      g.appendChild(lt);
+    }
+
+    svg.appendChild(g);
+    return g;
+  }
+
+  // ── Animation helpers ────────────────────────────────────────────────────
+
+  function drawOn(g, duration) {
+    const paths = g.querySelectorAll('path');
+    if (!paths.length) { return Promise.resolve(); }
+    return new Promise(resolve => {
+      let done = 0;
+      paths.forEach(p => {
+        const len = parseFloat(p.dataset.pathLen || p.getTotalLength());
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        const anim = p.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        anim.onfinish = () => {
+          p.style.strokeDashoffset = 0;
+          if (++done === paths.length) resolve();
+        };
+      });
+    });
+  }
+
+  function fadeInEl(g, duration) {
+    return new Promise(resolve => {
+      g.style.opacity = 0;
+      const anim = g.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 1; resolve(); };
+    });
+  }
+
+  function fadeOutEl(g, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { g.style.opacity = 0; resolve(); };
+    });
+  }
+
+  function indicateEl(g, color, duration) {
+    return new Promise(resolve => {
+      const els = [...g.querySelectorAll('path,rect,ellipse,polygon')];
+      const origFills = els.map(el => el.getAttribute('fill'));
+      els.forEach(el => el.setAttribute('fill', color));
+      setTimeout(() => {
+        els.forEach((el, i) => el.setAttribute('fill', origFills[i]));
+        resolve();
+      }, duration);
+    });
+  }
+
+  function swapLabels(g1, g2, duration) {
+    // Find the label <text> element in each cell group (direct child, not inside Rough.js paths)
+    const lbl1 = [...g1.children].find(el => el.tagName.toLowerCase() === 'text');
+    const lbl2 = [...g2.children].find(el => el.tagName.toLowerCase() === 'text');
+    if (!lbl1 || !lbl2) return Promise.resolve();
+
+    const x1 = parseFloat(lbl1.getAttribute('x') || 0);
+    const y1 = parseFloat(lbl1.getAttribute('y') || 0);
+    const x2 = parseFloat(lbl2.getAttribute('x') || 0);
+    const y2 = parseFloat(lbl2.getAttribute('y') || 0);
+    const dx = x2 - x1;
+    const arcH = Math.min(Math.abs(dx) * 0.4, 60);
+
+    // Clone labels to SVG root so they float above everything
+    const fly1 = lbl1.cloneNode(true);
+    const fly2 = lbl2.cloneNode(true);
+    svgEl.appendChild(fly1);
+    svgEl.appendChild(fly2);
+
+    // Hide originals during flight
+    lbl1.style.opacity = '0';
+    lbl2.style.opacity = '0';
+
+    return Promise.all([
+      new Promise(res => {
+        const a = fly1.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${dx/2}px,${-arcH}px)` },
+           { transform: `translate(${dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly1.remove(); res(); };
+      }),
+      new Promise(res => {
+        const a = fly2.animate(
+          [{ transform: 'translate(0,0)' },
+           { transform: `translate(${-dx/2}px,${arcH}px)` },
+           { transform: `translate(${-dx}px,0px)` }],
+          { duration, easing: 'ease-in-out', fill: 'forwards' }
+        );
+        a.onfinish = () => { fly2.remove(); res(); };
+      }),
+    ]);
+  }
+
+  function translateEl(g, dx, dy, duration) {
+    return new Promise(resolve => {
+      const anim = g.animate(
+        [{ transform: 'translate(0px,0px)' },
+         { transform: `translate(${dx}px,${dy}px)` }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => resolve();
+    });
+  }
+
+  function fillChangeEl(g, toColor, duration) {
+    const els = [...g.querySelectorAll('path,rect,polygon')].filter(el => {
+      const f = el.getAttribute('fill');
+      return f && f !== 'none';
+    });
+    if (!els.length) return Promise.resolve();
+    return Promise.all(els.map(el => new Promise(resolve => {
+      const from = el.getAttribute('fill') || 'transparent';
+      const anim = el.animate(
+        [{ fill: from }, { fill: toColor }],
+        { duration, easing: 'ease-in-out', fill: 'forwards' }
+      );
+      anim.onfinish = () => { el.setAttribute('fill', toColor); resolve(); };
+    })));
+  }
+
+  // ── Main runtime ─────────────────────────────────────────────────────────
+
+  let svgEl, rc;
+  let currentStep = -1;   // -1 = blank (before first step)
+  let isPlaying   = false;
+  let playTimer   = null;
+  // Embed mode (set by render_html(chrome="embed")): no player chrome, opens on
+  // step 1, and a host page (e.g. a reveal.js deck) drives it via postMessage.
+  const EMBED = !!window.PYXCD_EMBED;
+
+  function findGroup(mobId) {
+    return svgEl.querySelector(`[data-mob-id="${mobId}"]`);
+  }
+
+  function clearScene() {
+    const toRemove = [...svgEl.querySelectorAll('[data-mob-id]')];
+    toRemove.forEach(el => el.remove());
+  }
+
+  function renderSnapshot(snapshot) {
+    clearScene();
+    snapshot.forEach(spec => renderSpec(rc, svgEl, spec));
+    // After render, show all paths fully drawn (dash = 0)
+    svgEl.querySelectorAll('[data-mob-id] path').forEach(p => {
+      p.style.strokeDashoffset = 0;
+    });
+  }
+
+  async function runEffects(step) {
+    const effects = step.effects || [];
+    const promises = [];
+
+    for (const eff of effects) {
+      if (eff.effect === 'succession') continue;
+      const dur = eff.duration || step.duration || 500;
+
+      // Swap needs two groups
+      if (eff.effect === 'swap') {
+        const g1 = findGroup(eff.mob_id_1);
+        const g2 = findGroup(eff.mob_id_2);
+        if (g1 && g2) promises.push(swapLabels(g1, g2, dur));
+        continue;
+      }
+
+      const g = findGroup(eff.mob_id);
+      if (!g) continue;
+      if (eff.effect === 'draw_on')          promises.push(drawOn(g, dur));
+      else if (eff.effect === 'fade_in')     promises.push(fadeInEl(g, dur));
+      else if (eff.effect === 'fade_out')    promises.push(fadeOutEl(g, dur));
+      else if (eff.effect === 'indicate')    promises.push(indicateEl(g, eff.color, dur));
+      else if (eff.effect === 'fill_change') promises.push(fillChangeEl(g, eff.to, dur));
+      else if (eff.effect === 'translate')   promises.push(translateEl(g, eff.dx, eff.dy, dur));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async function goToStep(idx, animate) {
+    if (idx < 0 || idx >= TIMELINE.length) return;
+    const step = TIMELINE[idx];
+    currentStep = idx;
+
+    // Render snapshot first (full scene for this step, paths will draw on)
+    if (animate) {
+      renderSnapshotForAnimation(step);
+      await runEffects(step);
+      // Reconcile DOM with snapshot: updates labels/fills on existing mobs that
+      // changed (e.g. after swap). Seeds are stable so Rough.js re-renders identically.
+      renderSnapshot(step.snapshot);
+    } else {
+      renderSnapshot(step.snapshot);
+    }
+
+    updateUI();
+  }
+
+  function renderSnapshotForAnimation(step) {
+    // Figures out which mob IDs are new vs already on screen
+    const existing = new Set([...svgEl.querySelectorAll('[data-mob-id]')]
+      .map(g => g.getAttribute('data-mob-id')));
+    const incoming = new Set((step.snapshot || []).map(s => s.id));
+
+    // Remove mobs that are no longer in the snapshot
+    [...svgEl.querySelectorAll('[data-mob-id]')].forEach(g => {
+      if (!incoming.has(g.getAttribute('data-mob-id'))) g.remove();
+    });
+
+    // Add new mobs
+    (step.snapshot || []).forEach(spec => {
+      if (!existing.has(spec.id)) {
+        renderSpec(rc, svgEl, spec);
+      }
+    });
+  }
+
+  function updateUI() {
+    const stepCount = document.getElementById('pyxcd-step-count');
+    if (stepCount) stepCount.textContent = `${currentStep + 1} / ${TIMELINE.length}`;
+    const stepLabel = document.getElementById('pyxcd-step-label');
+    if (stepLabel) {
+      const step = currentStep >= 0 ? TIMELINE[currentStep] : null;
+      stepLabel.textContent = step
+        ? `${currentStep + 1} / ${TIMELINE.length}  ${step.title || ''}`
+        : `0 / ${TIMELINE.length}`;
+    }
+  }
+
+  // ── Controls ─────────────────────────────────────────────────────────────
+
+  // next()/prev() return whether they moved, so a host knows when it's at an end.
+  function next() {
+    if (currentStep >= TIMELINE.length - 1) return false;
+    goToStep(currentStep + 1, true);
+    return true;
+  }
+
+  function prev() {
+    if (currentStep > 0) { goToStep(currentStep - 1, false); return true; }
+    if (currentStep === 0 && !EMBED) { clearScene(); currentStep = -1; updateUI(); return true; }
+    return false;
+  }
+
+  function restart() {
+    stopPlay();
+    if (EMBED && TIMELINE.length) { goToStep(0, false); return; }
+    clearScene();
+    currentStep = -1;
+    updateUI();
+  }
+
+  function startPlay() {
+    if (isPlaying) return;
+    isPlaying = true;
+    async function tick() {
+      if (!isPlaying) return;
+      if (currentStep >= TIMELINE.length - 1) { stopPlay(); return; }
+      await goToStep(currentStep + 1, true);
+      const dur = TIMELINE[currentStep].duration || 500;
+      playTimer = setTimeout(tick, dur + 100);
+    }
+    tick();
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    clearTimeout(playTimer);
+  }
+
+  function togglePlay() {
+    if (isPlaying) stopPlay(); else startPlay();
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+
+  function init() {
+    svgEl = document.getElementById('pyxcd-canvas');
+    if (!svgEl) return;
+    rc = rough.svg(svgEl);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { stopPlay(); next(); }
+      else if (e.key === 'ArrowLeft')  { stopPlay(); prev(); }
+      else if (e.key === ' ')          { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'r' || e.key === 'R') restart();
+    });
+
+    const btnPrev  = document.getElementById('pyxcd-btn-prev');
+    const btnNext  = document.getElementById('pyxcd-btn-next');
+    const btnPlay  = document.getElementById('pyxcd-btn-play');
+    const btnReset = document.getElementById('pyxcd-btn-reset');
+    if (btnPrev)  btnPrev.addEventListener('click',  () => { stopPlay(); prev(); });
+    if (btnNext)  btnNext.addEventListener('click',  () => { stopPlay(); next(); });
+    if (btnPlay)  btnPlay.addEventListener('click',  togglePlay);
+    if (btnReset) btnReset.addEventListener('click', restart);
+
+    // Host protocol: {pyxcd: 'next' | 'prev' | 'restart', id} -> reply
+    // {pyxcd: 'reply', id, moved}. moved = false means "at the end, your turn".
+    // On load (and on {pyxcd: 'ping'}) an embedded player says {pyxcd: 'hello'}
+    // so the host knows which iframes are pyxcd animations.
+    const hello = target => target.postMessage({ pyxcd: 'hello' }, '*');
+    if (window.parent !== window) hello(window.parent);
+    window.addEventListener('message', e => {
+      const msg = e.data;
+      if (!msg || typeof msg.pyxcd !== 'string' || msg.pyxcd === 'reply') return;
+      if (msg.pyxcd === 'ping') { if (e.source) hello(e.source); return; }
+      stopPlay();
+      let moved = false;
+      if (msg.pyxcd === 'next') moved = next();
+      else if (msg.pyxcd === 'prev') moved = prev();
+      else if (msg.pyxcd === 'restart') { restart(); moved = true; }
+      if (e.source) e.source.postMessage({ pyxcd: 'reply', id: msg.id, moved }, '*');
+    });
+
+    if (EMBED) {
+      svgEl.addEventListener('click', () => { stopPlay(); next(); });
+      if (TIMELINE.length) { goToStep(0, false); return; }
+    }
+
+    updateUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

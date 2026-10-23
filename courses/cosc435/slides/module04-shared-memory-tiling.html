@@ -102,6 +102,8 @@
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -114,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -208,15 +211,49 @@
 <!--
 INSTRUCTOR NOTES
 ================
-The "Session · Oct 21 · Memory Coalescing" section immediately below was
-MOVED here this session from slides/module03-memory-timing.qmd, where it had
-been misplaced — schedule.md assigns "intro to memory coalescing" to this
-module's Oct 21 lecture (midterm debrief + coalescing), paired with Lab 8 and
-CK-08, not to Module 3. It has been promoted to the course's current slide
-standard (visible explanations, timed speaker notes, detailed diagram
-descriptions) while being moved. The rest of this deck (from "# The Memory
-Wall" onward) is thematic, not yet date-divided, and full Module 4 promotion
-of that remaining content is still a separate future pass.
+The "Session · Oct 21 · Memory Coalescing" section was MOVED here from
+slides/module03-memory-timing.qmd, where it had been misplaced — schedule.md
+assigns "intro to memory coalescing" to this module's Oct 21 lecture (midterm
+debrief + coalescing), paired with Lab 8 and CK-08.
+
+AUDIT PASS 2026-10-21 (slide-audit, whole deck): YAML now matches module03
+(incremental lists, chalkboard, scrollable). Code goes full width with
+"Lines N–M" bullets below or on the next sub-slide (module03's convention).
+Crowded slides split into sub-slides; italic keywords on long bullets.
+Fixed:
+  - 2D Access Patterns had coalesced/strided BACKWARDS (the same bug Lab 08
+    Ex 3 was rewritten to fix on 2026-10-02): with `row, col = cuda.grid(2)`,
+    `mat[row, col]` is the strided read. Rewritten around the two facts Lab 08
+    Ex 3 uses; the coalesced kernel itself is left for students to write in
+    the lab (the slide states the rule, not the code).
+  - Tiled kernel now uses x → col, y → row, matching Lab 09 Part 2, CK-09 and
+    solutions/lab-key.md (it used the uncoalesced x → row layout). Verified in
+    the CUDA simulator on 40×30 @ 30×20.
+  - Strided slide: stride-128 neighbours are 512 B apart and a warp spans
+    ~16 KB (was "4,096 bytes"); kernel now matches Lab 08's `% n` version so
+    both kernels do the same work. "32× the traffic" softened to "up to 32
+    transactions"; measured slowdown is 4–8× (Lab 08 notes).
+  - Declaring Shared Memory example called syncthreads() inside an `if` —
+    the exact divergent-barrier bug the next slides warn about. Rewritten
+    (offset_from_first), with launch + output (simulator-verified).
+  - syncthreads-in-a-branch: "causes a deadlock" → undefined behavior (may
+    hang or silently misbehave).
+  - Roofline / "coalescing isn't enough" now use the T4 numbers from
+    module03's ridge-point slide (320 GB/s, 8,100 GFLOP/s, 25.3 FLOP/byte)
+    instead of "2 TB/s"; intensity cross-ref is Oct 7 (was "Module 1").
+    Tiled matmul at TILE=16 is 4 FLOP/byte: 16× better but STILL below the
+    ridge — the old placeholder implied it reached the compute roof.
+  - Naive-reuse figure: A[0,2] is reused by row 0 of C (placeholder said
+    column 2).
+  - TILE-size slide: shared memory (8 KB at TILE=32 vs 64 KB/SM on a T4) is
+    not the limiter; threads per block is (1 resident block at TILE=32).
+    Matches module03 "Why 16×16 Won Here" and the Lab 09 Ex 3 key.
+  - Capstone slide uses CK-14's real kernel name/signature.
+Added: Oct 21 "This Week" slide, block-max launch + output, loop-line
+walkthrough for the tiled kernel, bank-conflict check for today's kernel.
+Figures (diags/, .excalidraw alongside): coalesced-vs-strided,
+syncthreads-race, bank-conflicts, naive-reuse, tiling-idea,
+two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
 -->
 </section>
 <section>
@@ -227,10 +264,10 @@ of that remaining content is still a separate future pass.
 <section id="todays-plan" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Midterm debrief (quick — full discussion happens separately)</li>
-<li>Why <em>how</em> threads access global memory matters as much as <em>how much</em> they access</li>
-<li>Coalesced vs.&nbsp;strided access, in 1D and 2D</li>
-<li>Why this sets up everything Module 4 does with shared memory</li>
+<li class="fragment">Midterm debrief (quick — full discussion happens separately)</li>
+<li class="fragment">Why <em>how</em> threads access global memory matters as much as <em>how much</em> they access</li>
+<li class="fragment">Coalesced vs.&nbsp;strided access, in 1D and 2D</li>
+<li class="fragment">Why this sets up everything Module 4 does with shared memory</li>
 </ul>
 <aside class="notes">
 <p>~2 min. This lecture follows the midterm (Oct 19) by two days — budget a few minutes for debrief/questions before diving in; the content below assumes a full ~45 min once that’s done.</p>
@@ -248,15 +285,19 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="why-access-pattern-matters" class="slide level2">
 <h2>Why Access Pattern Matters</h2>
-<p>[DIAGRAM] — 32 threads in a single warp, each about to read one float from global memory. <em>Top scenario, “coalesced”:</em> all 32 threads’ target addresses are drawn as 32 consecutive slots in one contiguous 128-byte memory block, with a single arrow labeled “1 memory transaction” pointing from the whole block to the warp. <em>Bottom scenario, “strided”:</em> the 32 threads’ target addresses are drawn scattered across a much wider span of memory (gaps between each), with 32 separate arrows each labeled “1 transaction,” captioned “32 transactions — 32× the bandwidth cost for the same 32 floats.”</p>
 <ul>
-<li>The GPU doesn’t fetch memory one float at a time — it fetches in fixed-size blocks (transactions), and ideally serves an entire warp’s requests from as few transactions as possible</li>
-<li>When 32 threads in a warp request 32 <em>consecutive</em> addresses, the hardware can often satisfy all of them with a single transaction — this is called <strong>coalesced access</strong></li>
-<li>When those same 32 threads request addresses scattered far apart, the hardware needs a separate transaction per address (or per small cluster) — up to 32× the memory traffic for the identical amount of useful data</li>
-<li>This is the single most important hardware fact for writing fast kernels — every memory-access decision from here through the rest of the course traces back to this slide</li>
+<li class="fragment">The GPU doesn’t fetch global memory one float at a time. It fetches in fixed-size chunks called <em>transactions</em>; one <em>128-byte cache line</em> holds 32 float32 values</li>
+<li class="fragment">It serves a whole <em>warp’s</em> 32 requests together, using <em>as few transactions</em> as it can</li>
+<li class="fragment">32 threads asking for 32 <em>consecutive</em> addresses: one transaction can serve them all. This is <strong>coalesced access</strong></li>
+<li class="fragment">32 threads asking for addresses <em>scattered far apart</em>: one transaction <em>per address</em>, up to 32 for the same 32 floats</li>
 </ul>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/coalesced-vs-strided.svg" alt="Two panels, each with a row of eight thread boxes labeled t0 to t7, then '… t31', labeled warp. Top panel, titled '✓ Coalesced: thread i reads arr[i]': each thread has an arrow straight down to its own cell in a row of adjacent blue cells arr[0] to arr[7], followed by '…[31]'; the whole row is outlined in green as one box. Caption: 'one 128-byte cache line holds arr[0] … arr[31] → 1 transaction'. Bottom panel, titled '✗ Strided (stride 128): thread i reads arr[128·i]': each thread's arrow goes to a separate yellow cell, labeled [0], [128], [256], [384], [512], [640], [768], [896], each inside its own dashed red outline. A bracket between the first two is labeled '512 B apart'. Caption: 'each read lands in its own cache line → up to 32 transactions, and only 4 of each line's 128 bytes are used'." width="820" class="r-stretch"><p>Same 32 floats, same useful work. The only difference is <em>which thread reads which address</em>, and every memory decision for the rest of the course traces back to this picture.</p>
 <aside class="notes">
-<p>~4 min. Worth pausing on: this isn’t about <em>how much</em> data a kernel reads — it’s purely about the <em>pattern</em> of addresses across threads in the same warp. Two kernels reading the identical set of bytes can differ by 32× in transaction count depending only on which thread reads which address.</p>
+<p>~4 min across both sub-slides. Worth pausing on: this isn’t about <em>how much</em> data a kernel reads — it’s purely about the <em>pattern</em> of addresses across threads in the same warp. Two kernels reading the identical set of useful bytes can differ by up to 32× in transaction count depending only on which thread reads which address.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -272,17 +313,17 @@ of that remaining content is still a separate future pass.
 <section id="coalesced-access" class="slide level2">
 <h2>Coalesced Access</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb1-2"><a></a><span class="kw">def</span> coalesced_kernel(arr, out):</span>
+<span id="cb1-2"><a></a><span class="kw">def</span> coalesced_kernel(arr, out, n):</span>
 <span id="cb1-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb1-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb1-5"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span>   <span class="co"># thread i reads element i</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
+<span id="cb1-5"><a></a>        out[i] <span class="op">=</span> arr[i] <span class="op">*</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">1.0</span>       <span class="co"># thread i reads element i</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Thread 0 reads element 0, thread 1 reads element 1, …, thread 31 reads element 31 — 32 consecutive threads, 32 consecutive addresses</li>
-<li>This falls into a single memory transaction (or a small, fixed number) covering one contiguous cache line</li>
-<li>Every element-wise kernel you’ve written since Module 2 (<code>arr[i] = arr[i] * scalar</code>, <code>out[i] = a[i] + b[i]</code>) already has this property — you’ve been writing coalesced kernels without necessarily naming the pattern</li>
+<li class="fragment">Thread 0 reads element 0, thread 1 reads element 1, … thread 31 reads element 31: <em>consecutive threads, consecutive addresses</em></li>
+<li class="fragment">The whole warp is served by <em>one 128-byte transaction</em></li>
+<li class="fragment">Every element-wise kernel since Lab 4 (<code>out[i] = a[i] + b[i]</code>) already has this property: you’ve been writing <em>coalesced kernels</em> all along</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Reassuring framing: this isn’t a new skill to learn from scratch, it’s a name for something students have already been doing correctly since Lab 4. What’s new is recognizing <em>when</em> a kernel accidentally breaks this pattern (next slide).</p>
+<p>~2 min. Reassuring framing: this isn’t a new skill to learn from scratch, it’s a name for something students have already been doing correctly since Lab 4. What’s new is recognizing <em>when</em> a kernel accidentally breaks this pattern (next slide). The kernel matches Lab 08 Part 2 exactly, so students recognize it on Friday.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -297,21 +338,19 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="strided-access" class="slide level2">
 <h2>Strided Access</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a>STRIDE <span class="op">=</span> <span class="dv">128</span></span>
-<span id="cb2-2"><a></a></span>
-<span id="cb2-3"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb2-4"><a></a><span class="kw">def</span> strided_kernel(arr, out):</span>
-<span id="cb2-5"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb2-6"><a></a>    idx <span class="op">=</span> i <span class="op">*</span> STRIDE</span>
-<span id="cb2-7"><a></a>    <span class="cf">if</span> idx <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb2-8"><a></a>        out[i] <span class="op">=</span> arr[idx] <span class="op">*</span> <span class="fl">2.0</span>   <span class="co"># thread i reads element i*128</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb2-2"><a></a><span class="kw">def</span> strided_kernel(arr, out, n, stride):</span>
+<span id="cb2-3"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb2-4"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> n:</span>
+<span id="cb2-5"><a></a>        out[i] <span class="op">=</span> arr[(i <span class="op">*</span> stride) <span class="op">%</span> n] <span class="op">*</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">1.0</span>   <span class="co"># thread i reads element i*stride</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Thread 0 reads element 0, thread 1 reads element 128, thread 2 reads element 256, … — 32 consecutive threads, but addresses spread across 4,096 bytes</li>
-<li>Each of those 32 reads typically needs its own memory transaction — roughly 32× the memory traffic of the coalesced version, for the exact same 32 useful values</li>
-<li>Lab 8 has you time both versions directly and measure this ratio empirically — the slowdown is a hardware specification, not a fluke of one run</li>
+<li class="fragment">With <code>stride = 128</code>: thread 0 reads element 0, thread 1 element 128, thread 2 element 256, … Neighbours are <em>512 bytes apart</em>, and one warp’s reads spread over <em>about 16 KB</em></li>
+<li class="fragment">The <code>% n</code> wraps around, so <em>every thread still does one read</em>: the same work as the coalesced kernel, only the pattern differs</li>
+<li class="fragment">Each read lands in its <em>own cache line</em>: up to <em>32 transactions</em> instead of 1, and most of every fetched line is wasted</li>
+<li class="fragment">The measured slowdown is smaller than 32× (Lab 8 typically sees <em>4–8×</em>). Lab 8 has you sweep the stride and <em>explain the curve</em></li>
 </ul>
 <aside class="notes">
-<p>~3 min. Lab 08 Exercise 1 sweeps a range of stride values and has students interpret the resulting time-vs-stride curve — this slide is the theory that curve is confirming.</p>
+<p>~3 min. Lab 08 Part 2 times exactly these two kernels at N = 2^26; Exercise 1 sweeps stride ∈ {1, …, 128} and Exercise 2 asks students to interpret the curve (why stride 32 ≈ stride 128; what fraction of fetched bytes is used). Don’t pre-answer those questions here. The “less than 32×” point is honest: caches and the memory system’s own parallelism absorb part of the extra traffic.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -324,29 +363,66 @@ of that remaining content is still a separate future pass.
           display:block!important;
       }</style></aside>
 </section>
-<section id="d-access-patterns" class="slide level2">
+<section id="d-access-patterns" class="slide level2 scrollable">
 <h2>2D Access Patterns</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a><span class="co"># Row access: consecutive in memory — coalesced ✓</span></span>
-<span id="cb3-2"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb3-3"><a></a><span class="kw">def</span> row_kernel(mat, out):</span>
-<span id="cb3-4"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
-<span id="cb3-5"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> mat.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> mat.shape[<span class="dv">1</span>]:</span>
-<span id="cb3-6"><a></a>        out[row, col] <span class="op">=</span> mat[row, col] <span class="op">*</span> <span class="fl">2.0</span></span>
-<span id="cb3-7"><a></a></span>
-<span id="cb3-8"><a></a><span class="co"># Column access: strided in memory — not coalesced ✗</span></span>
-<span id="cb3-9"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb3-10"><a></a><span class="kw">def</span> col_kernel(mat, out):</span>
-<span id="cb3-11"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
-<span id="cb3-12"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> mat.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> mat.shape[<span class="dv">1</span>]:</span>
-<span id="cb3-13"><a></a>        out[col, row] <span class="op">=</span> mat[row, col]   <span class="co"># transpose — watch the indices</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two facts decide whether a 2D kernel is coalesced:</p>
+<ol type="1">
+<li class="fragment">Within a block, <em><code>threadIdx.x</code> varies fastest</em>. A warp is (mostly) threads with <em>consecutive <code>x</code></em> and the same <code>y</code></li>
+<li class="fragment">NumPy arrays are <em>row-major</em>: <code>mat[r, c]</code> sits at offset <code>r * n_cols + c</code>, so <code>mat[r, c]</code> and <code>mat[r, c+1]</code> are <em>neighbours</em>, while <code>mat[r+1, c]</code> is <em><code>n_cols</code> elements away</em></li>
+</ol>
+<div class="fragment">
+<p>So a warp is coalesced when <em><code>x</code> walks along the last index</em> (the columns).</p>
+<aside class="notes">
+<p>~2 min. Write the row-major offset formula on the board — it’s the concrete arithmetic reason one direction is coalesced and the other isn’t, rather than something to take on faith.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<p>The convention every 2D kernel has used so far:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb3-2"><a></a><span class="kw">def</span> scale_rows_fast(mat, out, rows, cols):</span>
+<span id="cb3-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)              <span class="co"># cuda.grid(2) returns (x, y): x → row</span></span>
+<span id="cb3-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> rows <span class="kw">and</span> col <span class="op">&lt;</span> cols:</span>
+<span id="cb3-5"><a></a>        out[row, col] <span class="op">=</span> mat[row, col] <span class="op">*</span> <span class="fl">2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>NumPy (and Numba) arrays are <strong>row-major</strong> by default: element <code>[r, c]</code> sits at memory offset <code>r * n_cols + c</code></li>
-<li>Consecutive threads with the <em>same row</em>, increasing <em>column</em> → consecutive memory offsets → coalesced (the <code>row_kernel</code> above)</li>
-<li>Consecutive threads with the <em>same column</em>, increasing <em>row</em> → offsets that jump by <code>n_cols</code> each time → strided, not coalesced (the transpose pattern in <code>col_kernel</code>)</li>
-<li>Lab 8’s Exercise 3 has you measure exactly this row-vs-column contrast on a real matrix</li>
+<li class="fragment"><code>cuda.grid(2)</code> returns <em><code>(x, y)</code></em>, so this puts the fast-varying <em>x on <code>row</code></em></li>
+<li class="fragment">Neighbouring threads in a warp have <em>consecutive <code>row</code></em> and the same <code>col</code>: their addresses are <em><code>n_cols</code> elements apart</em>. For a 1,000-column matrix that’s 4,000 bytes. This kernel is <strong>strided</strong>, not coalesced</li>
+<li class="fragment">The fix is to make <em>x walk the columns</em> instead. In Lab 8 Exercise 3 you write that kernel, time both, and check the outputs match</li>
 </ul>
 <aside class="notes">
-<p>~3 min. The row-major offset formula (<code>r * n_cols + c</code>) is worth writing out explicitly — it’s the concrete arithmetic reason “same row, varying column” is coalesced and “same column, varying row” isn’t, rather than something to take on faith.</p>
+<p>~3 min. FIXED 2026-10-21: this slide used to label the x → row kernel “coalesced ✓” and its transpose “not coalesced ✗” — backwards, the same mistake Lab 08 Ex 3 was rewritten to fix. Deliberately not showing the coalesced kernel: writing it (and remembering to change the launch grid too) is Lab 08 Ex 3. The 1,000-column example is chosen so it doesn’t pre-answer the lab’s 4096-column prediction question.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<p><strong>What about a transpose?</strong> <code>out[c, r] = mat[r, c]</code> reads along one direction and writes along the other.</p>
+<ul>
+<li class="fragment">Whichever way you map <code>x</code>, <em>one side is coalesced and the other is strided</em>: no choice of indices fixes both</li>
+<li class="fragment">The real fix is to <em>stage a tile in shared memory</em>: read it coalesced, then write it out coalesced. That is exactly the tool the rest of this module builds</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Students met transpose in Lab 05. This is a forward pointer only — we don’t build the shared-memory transpose in this course, but it’s the cleanest one-line motivation for why shared memory exists beyond matmul.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -362,13 +438,33 @@ of that remaining content is still a separate future pass.
 <section id="why-this-sets-up-shared-memory" class="slide level2">
 <h2>Why This Sets Up Shared Memory</h2>
 <ul>
-<li>Coalescing helps every global-memory read be as cheap as possible — but it doesn’t reduce <em>how many</em> reads happen</li>
-<li>The tiled matrix multiply later in this module attacks a different problem: the same global-memory element gets read by many different threads (Lab 5’s naive matmul reads each row of A and column of B repeatedly, once per output element that needs it)</li>
-<li>Shared memory (next section) lets a block load each needed element from global memory <strong>once</strong>, then have every thread in the block reuse that one load — cutting the <em>number</em> of global reads, not just making each one cheaper</li>
-<li>Coalescing and shared-memory reuse are complementary, not competing, techniques — a well-tuned kernel uses both</li>
+<li class="fragment">Coalescing makes each global-memory read <em>as cheap as possible</em>, but it doesn’t reduce <em>how many</em> reads happen</li>
+<li class="fragment">Lab 5’s naive matmul has a different problem: the <em>same element is read by many threads</em>, once per output element that needs it</li>
+<li class="fragment">Shared memory (Oct 26) lets a block load each element from global memory <strong>once</strong>, then have every thread in the block <em>reuse that one load</em></li>
+<li class="fragment">The two are <em>complementary</em>: coalescing makes each read cheaper, shared memory makes there be fewer reads. A well-tuned kernel uses both</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Bridge slide into the rest of the (not-yet-fully-promoted) deck below — makes explicit that “access pattern” (this session) and “reuse via shared memory” (rest of module) are two different levers on the same underlying memory-wall problem, not two separate topics.</p>
+<p>~2 min. Bridge slide into the rest of the deck — makes explicit that “access pattern” (this session) and “reuse via shared memory” (rest of module) are two different levers on the same underlying memory-wall problem, not two separate topics.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-week" class="slide level2">
+<h2>This Week</h2>
+<ul>
+<li class="fragment"><strong>Lab 08 (Fri, Oct 23):</strong> Time coalesced vs.&nbsp;strided kernels, <em>sweep the stride</em>, and write a <em>coalesced 2D kernel</em> yourself — <strong>CK-08</strong> same day</li>
+<li class="fragment"><strong>Quiz 4 (Mon, Oct 26):</strong> opens the next lecture; covers <em>Module 3 and today’s coalescing</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min. Quick pointer slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -385,8 +481,8 @@ of that remaining content is still a separate future pass.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-08 will ask you to:</p>
 <ul>
-<li>Restructure an <strong>array of structs</strong> (every particle’s fields stored together) into a <strong>struct of arrays</strong> (each field contiguous), so a kernel’s warp reads become coalesced</li>
-<li>Time both layouts correctly and explain the difference in terms of the bytes DRAM actually delivers</li>
+<li class="fragment">Restructure an <strong>array of structs</strong> (every particle’s fields stored together) into a <strong>struct of arrays</strong> (each field contiguous), so a kernel’s <em>warp reads become coalesced</em></li>
+<li class="fragment">Time both layouts correctly and explain the difference in terms of the <em>bytes DRAM actually delivers</em></li>
 </ul>
 <aside class="notes">
 <p>~1 min. 20-minute timed, paired with Lab 08 (Oct 23). REWRITTEN 2026-10-02 (it used to re-type the lab’s kernels). Define AoS vs.&nbsp;SoA in one sentence here; the checkpoint’s Background repeats it. Note the date gap: this lecture is Oct 21 (Wed), but Lab 8/CK-8 land Oct 23 (Fri) — the same two-day lecture-then-lab rhythm as every other module.</p>
@@ -413,10 +509,10 @@ of that remaining content is still a separate future pass.
 <section id="todays-plan-1" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Quiz 4 first (15 min, Blackboard) — covers Module 3 and Oct 21’s coalescing content</li>
-<li>Then: why coalescing alone isn’t enough, and what shared memory buys you on top of it</li>
-<li>Declaring and using shared memory in Numba, and the synchronization it requires</li>
-<li>Shared memory banks and bank conflicts — the one subtlety that can silently undercut a shared-memory kernel</li>
+<li class="fragment">Quiz 4 first (15 min, Blackboard) — covers Module 3 and Oct 21’s coalescing content</li>
+<li class="fragment">Then: why coalescing alone isn’t enough, and what shared memory buys you on top of it</li>
+<li class="fragment">Declaring and using shared memory in Numba, and the <em>barrier</em> it requires</li>
+<li class="fragment">Shared memory <em>banks</em> and <em>bank conflicts</em> — the one subtlety that can silently undercut a shared-memory kernel</li>
 </ul>
 <aside class="notes">
 <p>~1 min. ~35 min of lecture time after the quiz. This session sets up Oct 28’s tiled matmul directly — everything here is the “why” and “how” that tiling then applies to a real kernel.</p>
@@ -434,14 +530,15 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="why-coalescing-alone-isnt-enough" class="slide level2">
 <h2>Why Coalescing Alone Isn’t Enough</h2>
+<p>Colab’s T4, from Oct 7:</p>
 <ul>
-<li>Global memory delivers roughly 2 TB/s of bandwidth on a modern GPU — but a single float32 is only 4 bytes, so that’s “only” on the order of 500 billion individual float reads per second at peak</li>
-<li>ALUs can execute billions of FLOPs per second — often <em>far</em> more than 500 billion, if each one only needed one memory read to do its job</li>
-<li><strong>Arithmetic intensity</strong> (FLOPs performed per byte moved, previewed back in Module 1) is what determines whether you can actually reach that ALU speed, or whether memory bandwidth caps you first</li>
-<li>Oct 21’s coalescing makes each individual memory transaction as cheap as possible — but it does nothing to reduce <em>how many</em> transactions a kernel needs. That’s the gap shared memory closes</li>
+<li class="fragment">Global memory delivers <em>320 GB/s</em>. At 4 bytes per float32, that’s about <em>80 billion floats per second</em></li>
+<li class="fragment">The ALUs can do <em>8,100 GFLOP/s</em>: about <em>100 FLOPs for every float</em> memory can deliver</li>
+<li class="fragment"><strong>Arithmetic intensity</strong> (FLOPs per byte moved, Oct 7) decides which limit you hit. Below the T4’s <em>ridge point of 25.3 FLOP/byte</em>, memory runs out first</li>
+<li class="fragment">Coalescing makes each transaction as cheap as possible, but does nothing to the <em>number of bytes</em> a kernel needs. That’s the gap shared memory closes</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Explicit framing: coalescing (last session) and shared-memory reuse (this session) are two different levers on the same memory-wall problem — one makes each access cheaper, the other reduces the number of accesses needed at all.</p>
+<p>~3 min. Explicit framing: coalescing (last session) and shared-memory reuse (this session) are two different levers on the same memory-wall problem — one makes each access cheaper, the other reduces the number of accesses needed at all. Numbers deliberately match module03’s ridge-point slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -454,17 +551,34 @@ of that remaining content is still a separate future pass.
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-roofline-intuition" class="slide level2">
-<h2>The Roofline Intuition</h2>
-<p>[DIAGRAM] — A roofline chart: x-axis “arithmetic intensity (FLOPs/byte),” log scale; y-axis “achieved performance (FLOPs/s),” log scale. Two “roof” lines meeting at a corner: a rising diagonal line on the left labeled “memory bandwidth roof,” which transitions into a flat horizontal line on the right labeled “compute (peak FLOPS) roof.” Two points are plotted underneath the roofline: one labeled “naive matmul,” sitting low and to the left, close to the diagonal memory roof; another labeled “tiled matmul,” sitting further right and higher, closer to the flat compute roof.</p>
+<section id="the-roofline" class="slide level2">
+<h2>The Roofline</h2>
+
+<img data-src="diags/roofline-t4.svg" alt="Line chart titled 'Roofline for a Colab T4: the lower roof sets the ceiling'. Both axes are log scale: x is arithmetic intensity in FLOPs per byte from DRAM, from 0.01 to 1,000; y is performance ceiling in GFLOP/s, from 1 to 10,000. A black line rises diagonally, labeled 'memory roof: 320 GB/s × intensity', until it meets a flat line at 8,100 GFLOP/s labeled 'compute roof: 8,100 GFLOP/s'. A dashed vertical line where they meet is labeled 'ridge point 25.3 FLOP/byte'. Two dots sit on the diagonal: an orange one labeled 'naive matmul: 0.25 FLOP/byte, ceiling 80 GFLOP/s', and a blue one further up and right labeled 'tiled, TILE = 16: 4 FLOP/byte, ceiling 1,280 GFLOP/s'. A curved arrow from the orange dot to the blue dot is labeled 'tiling: 16× more FLOPs per byte'. Both dots are left of the ridge point." width="820" class="r-stretch"><p>Oct 7’s ridge point, drawn as a picture: a kernel’s ceiling is <em>whichever roof is lower</em> at its intensity.</p>
+<aside class="notes">
+<p>~2 min. This is the roofline that module03 promised (“formalized as the roofline in Module 4”). Point at the corner: it’s exactly the ridge point students computed on Oct 7.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <ul>
-<li>Any kernel’s achieved performance is capped by whichever roof it’s under: if arithmetic intensity is low, the diagonal memory-bandwidth roof caps you regardless of how fast your ALUs are; if arithmetic intensity is high enough, the flat compute roof becomes the real limit</li>
-<li><strong>Naive matmul</strong> (Lab 5/Module 2) sits on the memory-bound side — Oct 7’s bottleneck diagnosis already established this: lots of global reads, little reuse per read</li>
-<li><strong>Tiled matmul</strong> (Oct 28) doesn’t add any new arithmetic — it does the <em>same</em> multiplications — but by reusing data out of shared memory instead of re-reading global memory, it raises effective arithmetic intensity and moves the achieved performance point up and to the right, toward the compute roof</li>
-<li>We won’t formally derive this model (that’s beyond this course’s scope) — the picture is what matters: tiling’s entire purpose is to move a kernel’s dot rightward on this chart</li>
+<li class="fragment"><strong>Naive matmul</strong> does 2 FLOPs (multiply, add) per 2 float32 reads (8 bytes): <em>0.25 FLOP/byte</em>, a ceiling of <em>80 GFLOP/s</em> if every read came from DRAM</li>
+<li class="fragment"><strong>Tiled matmul</strong> (Oct 28) does <em>the same arithmetic</em>, but each value loaded from global memory is reused by <em>16 threads</em> (TILE = 16): <em>4 FLOP/byte</em>, a ceiling <em>16× higher</em></li>
+<li class="fragment">Both still sit <em>left of the ridge</em>: tiling doesn’t make matmul compute-bound on a T4, it <em>raises the memory ceiling</em></li>
+<li class="fragment">Real kernels beat these DRAM-only ceilings a little, because <em>L1/L2 caches</em> catch some reuse (Lab 6 Ex 2’s “impossible” bandwidth). Shared memory makes that reuse <em>deliberate</em></li>
 </ul>
 <aside class="notes">
-<p>~3 min. Students will confirm this empirically in Lab 9 — comparing naive vs.&nbsp;tiled matmul timings is exactly measuring these two points’ relative height. Keep the derivation at “picture level” — no formulas needed here.</p>
+<p>~3 min. Students confirm the direction of this in Lab 9 — naive vs.&nbsp;tiled timings. Don’t promise 16× in measured time: caches already give naive matmul some reuse (module03 / Lab 06 notes), so the measured tiled-vs-naive speedup is much smaller (the lab key measured ~3× at 512³ on an RTX 4000 Ada). We don’t derive the model formally; the picture and the two intensity numbers are what matter.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -479,28 +593,28 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="declaring-shared-memory" class="slide level2">
 <h2>Declaring Shared Memory</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
-<span id="cb4-2"><a></a><span class="im">import</span> numba</span>
-<span id="cb4-3"><a></a></span>
-<span id="cb4-4"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb4-5"><a></a><span class="kw">def</span> demo_shared(arr):</span>
-<span id="cb4-6"><a></a>    <span class="co"># Declare shared memory — size known at compile time</span></span>
-<span id="cb4-7"><a></a>    s <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span><span class="dv">256</span>, dtype<span class="op">=</span>numba.float32)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb4-2"><a></a><span class="kw">def</span> offset_from_first(arr, out):</span>
+<span id="cb4-3"><a></a>    <span class="co"># One shared slot per thread: launch with 256 threads per block</span></span>
+<span id="cb4-4"><a></a>    s <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span><span class="dv">256</span>, dtype<span class="op">=</span>numba.float32)</span>
+<span id="cb4-5"><a></a></span>
+<span id="cb4-6"><a></a>    i  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb4-7"><a></a>    ti <span class="op">=</span> cuda.threadIdx.x           <span class="co"># local index within the block</span></span>
 <span id="cb4-8"><a></a></span>
-<span id="cb4-9"><a></a>    i  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb4-10"><a></a>    ti <span class="op">=</span> cuda.threadIdx.x       <span class="co"># local index within the block</span></span>
-<span id="cb4-11"><a></a></span>
-<span id="cb4-12"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb4-13"><a></a>        s[ti] <span class="op">=</span> arr[i]          <span class="co"># load from global → shared</span></span>
-<span id="cb4-14"><a></a>        cuda.syncthreads()      <span class="co"># all threads in block must reach here</span></span>
-<span id="cb4-15"><a></a></span>
-<span id="cb4-16"><a></a>        <span class="co"># Now every thread can read any element of s[]</span></span>
-<span id="cb4-17"><a></a>        arr[i] <span class="op">=</span> s[ti] <span class="op">*</span> <span class="fl">2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-9"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
+<span id="cb4-10"><a></a>        s[ti] <span class="op">=</span> arr[i]              <span class="co"># load: global → shared</span></span>
+<span id="cb4-11"><a></a>    cuda.syncthreads()              <span class="co"># every thread in the block waits here</span></span>
+<span id="cb4-12"><a></a></span>
+<span id="cb4-13"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
+<span id="cb4-14"><a></a>        out[i] <span class="op">=</span> s[ti] <span class="op">-</span> s[<span class="dv">0</span>]       <span class="co"># s[0] was written by thread 0, not by me</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Three new pieces of syntax here: <code>cuda.shared.array</code> (the declaration), a compile-time-fixed <code>shape=</code>, and <code>cuda.syncthreads()</code> (the barrier) — each explained on the next few slides</li>
+<li class="fragment"><strong>Line 4:</strong> <code>cuda.shared.array</code> declares the block’s <em>shared scratchpad</em>, with a <em>shape fixed at compile time</em></li>
+<li class="fragment"><strong>Line 10:</strong> each thread <em>copies one value</em> from global memory into its own slot</li>
+<li class="fragment"><strong>Line 11:</strong> <code>cuda.syncthreads()</code> is the <em>barrier</em>: no thread continues until <em>all 256</em> have reached it. It sits <em>outside the <code>if</code></em> so every thread reaches it</li>
+<li class="fragment"><strong>Line 14:</strong> each thread reads <em>another thread’s slot</em> (<code>s[0]</code>), which is only safe <em>because of line 11</em></li>
 </ul>
 <aside class="notes">
-<p>~2 min. Walk through the three new concepts by name before the rules slide formalizes them — students should recognize each one in the code above before moving on.</p>
+<p>~3 min. FIXED 2026-10-21: the old example called syncthreads() inside <code>if i &lt; n</code>, which is the divergent-barrier bug the barrier slide warns about, and read only its own slot (so the barrier wasn’t even needed). The new kernel reads a slot written by a different thread, which is what makes the barrier necessary. Verified in the CUDA simulator.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -513,13 +627,44 @@ of that remaining content is still a separate future pass.
           display:block!important;
       }</style></aside>
 </section>
-<section id="rules-of-shared-memory" class="slide level2">
+<section class="slide level2">
+
+<p>Launching it on 600 values, 3 blocks × 256 threads:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a>d_arr <span class="op">=</span> cuda.to_device(np.arange(<span class="dv">600</span>, dtype<span class="op">=</span>np.float32))   <span class="co"># [0, 1, ..., 599]</span></span>
+<span id="cb5-2"><a></a>d_out <span class="op">=</span> cuda.device_array(<span class="dv">600</span>, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb5-3"><a></a>offset_from_first[<span class="dv">3</span>, <span class="dv">256</span>](d_arr, d_out)</span>
+<span id="cb5-4"><a></a>out <span class="op">=</span> d_out.copy_to_host()</span>
+<span id="cb5-5"><a></a><span class="bu">print</span>(out[<span class="dv">254</span>:<span class="dv">258</span>])     <span class="co"># across the block 0 → block 1 boundary</span></span>
+<span id="cb5-6"><a></a><span class="bu">print</span>(out[<span class="op">-</span><span class="dv">2</span>:])         <span class="co"># the last two elements, in block 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<pre><code>[254. 255.   0.   1.]
+[86. 87.]</code></pre>
+<ul>
+<li class="fragment">Each block has <em>its own copy</em> of <code>s</code>: block 1’s <code>s[0]</code> is <code>arr[256]</code>, so the count <em>starts over at 0</em></li>
+<li class="fragment">The last block is only partly full (indices 512–599). Its <code>s[0]</code> is <code>arr[512]</code>, so <code>arr[599]</code> → <em>87</em></li>
+</ul>
+<aside class="notes">
+<p>~2 min. Ask students to predict the two printed lines before revealing them. The “starts over” is the clearest possible demonstration that shared memory is per-block.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="rules-of-shared-memory" class="slide level2 scrollable">
 <h2>Rules of Shared Memory</h2>
 <ol type="1">
-<li><strong>Shared scope</strong>: visible to every thread in the <em>same block</em> — not visible to threads in other blocks, even ones running concurrently on the same SM</li>
-<li><strong>Size fixed at compile time</strong>: the <code>shape=</code> argument must be a literal or a module-level constant, never a variable computed at runtime</li>
-<li><strong>Lifetime</strong>: exists only for the block’s lifetime — allocated when the block starts, gone the moment the block finishes</li>
-<li><strong>Synchronization required</strong>: <code>cuda.syncthreads()</code> is a barrier — every thread in the block must reach it before <em>any</em> thread is allowed to continue past it</li>
+<li class="fragment"><strong>Shared scope:</strong> visible to every thread in the <em>same block</em>, and not to threads in other blocks, even ones running on the same SM</li>
+<li class="fragment"><strong>Size fixed at compile time:</strong> <code>shape=</code> must be a <em>literal or a constant</em> (a module-level constant, or a variable captured from an enclosing function, as Lab 9’s <code>make_tiled_matmul(TILE)</code> does), never a value computed at runtime</li>
+<li class="fragment"><strong>Lifetime:</strong> exists only while the block runs — <em>allocated when the block starts</em>, gone when it finishes</li>
+<li class="fragment"><strong>Synchronization required:</strong> after writing shared memory, call <code>cuda.syncthreads()</code> before <em>any thread reads another thread’s value</em></li>
 </ol>
 <aside class="notes">
 <p>~3 min. The most common bug this session sets up for Lab 9: forgetting <code>syncthreads()</code> after writing to shared memory, so one thread reads a value before another thread has finished writing it — a race condition producing a silent wrong answer, no crash. Foreshadow this explicitly; Oct 28’s tiled kernel has two separate places this can go wrong.</p>
@@ -537,14 +682,31 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="cuda.syncthreads-the-barrier" class="slide level2">
 <h2><code>cuda.syncthreads()</code> — The Barrier</h2>
-<p>[DIAGRAM] — Four threads in a block, each drawn as a vertical timeline. Threads 0 and 1 write to shared memory first (short colored bars near the top of their timelines), while threads 2 and 3 are still busy with unrelated work (their timelines show a gap). A horizontal dashed line labeled “syncthreads() barrier” crosses all four timelines at the same height. Below the barrier line, all four threads’ timelines resume together at the same point, now reading from shared memory. A second, smaller diagram to the right shows the <em>without</em> case: thread 2’s read (an arrow reaching into thread 0’s write) happens <em>before</em> thread 0’s write completes, crossing into thread 0’s timeline before its write bar — labeled “race: read arrives too early.”</p>
+
+<img data-src="diags/syncthreads-race.svg" alt="Two side-by-side timelines, time running left to right, each with a lane for thread 0 and a lane for thread 5. Left panel, titled '✗ Without a barrier': thread 0 does 'other work', then 's[0] = …'. Thread 5 does 's[5] = …', then 'read s[0]' in red, which starts before thread 0's write; a red arrow points from the read up into thread 0's lane before the write. Caption: 'thread 5 reads s[0] before thread 0 has written it → a stale value, no error'. Right panel, titled '✓ With cuda.syncthreads()': same bars for thread 0; thread 5 writes s[5], then a dashed line labeled 'waits' runs to a dashed vertical line labeled 'barrier', placed after thread 0's write; after the barrier thread 5 does 'read s[0]' in green. Caption: 'nobody passes the barrier until every thread reaches it → s[0] is ready'." width="900" class="r-stretch"><p>The barrier is a <em>rendezvous</em>, not a delay: the fastest thread waits for the <em>slowest</em>.</p>
+<aside class="notes">
+<p>~2 min. Map this onto offset_from_first: thread 5 is any thread reading s[0]; thread 0 is the one writing it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <ul>
-<li><code>syncthreads()</code> is a <strong>rendezvous</strong>, not a delay — every thread in the block must physically arrive at that line of code before the fastest thread is allowed to proceed past it</li>
-<li>Without it: whichever thread happens to reach the read first gets whatever was in shared memory at that moment — sometimes correct, sometimes stale garbage, with no error raised either way</li>
-<li>A subtle trap: calling <code>syncthreads()</code> inside an <code>if</code> branch that not every thread in the block takes causes a <strong>deadlock</strong> — the threads that skipped the branch never arrive at the barrier, so the threads waiting there wait forever. Rare in this course’s labs, but worth knowing exists</li>
+<li class="fragment">Without it, a thread gets <em>whatever happens to be in shared memory</em> when it reads: sometimes right, sometimes stale, <em>no error either way</em></li>
+<li class="fragment"><strong>The trap:</strong> calling <code>syncthreads()</code> inside an <code>if</code> that <em>not every thread in the block takes</em> is <em>undefined behaviour</em>. The program may <em>hang</em> (threads wait for others that never arrive) or <em>silently compute garbage</em></li>
+<li class="fragment">That’s why <code>offset_from_first</code> puts the barrier <em>between</em> its two <code>if</code> blocks, not inside one</li>
 </ul>
 <aside class="notes">
-<p>~3 min. The deadlock case is worth a brief mention but not a deep dive — students won’t hit it in this course’s structured exercises, but it’s a real failure mode in general CUDA code and a satisfying “why does my program just hang” answer if they ever encounter it later.</p>
+<p>~2 min. The divergent-barrier case is worth a clear mention: it’s a real failure mode in general CUDA code and a satisfying “why does my program just hang” answer. Older slides said it always deadlocks; on current GPUs it’s undefined — it may hang or may appear to work and corrupt results.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -559,31 +721,30 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="a-worked-example-block-level-maximum" class="slide level2">
 <h2>A Worked Example: Block-Level Maximum</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb5-2"><a></a><span class="kw">def</span> block_max_kernel(arr, out):</span>
-<span id="cb5-3"><a></a>    s <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span><span class="dv">256</span>, dtype<span class="op">=</span>numba.float32)</span>
-<span id="cb5-4"><a></a>    i  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
-<span id="cb5-5"><a></a>    ti <span class="op">=</span> cuda.threadIdx.x</span>
-<span id="cb5-6"><a></a></span>
-<span id="cb5-7"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
-<span id="cb5-8"><a></a>        s[ti] <span class="op">=</span> arr[i]</span>
-<span id="cb5-9"><a></a>    <span class="cf">else</span>:</span>
-<span id="cb5-10"><a></a>        s[ti] <span class="op">=</span> <span class="op">-</span><span class="fl">1e9</span>            <span class="co"># identity element for max</span></span>
-<span id="cb5-11"><a></a>    cuda.syncthreads()</span>
-<span id="cb5-12"><a></a></span>
-<span id="cb5-13"><a></a>    <span class="co"># Reduction to find block maximum — stride halving</span></span>
-<span id="cb5-14"><a></a>    stride <span class="op">=</span> <span class="dv">128</span></span>
-<span id="cb5-15"><a></a>    <span class="cf">while</span> stride <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb5-16"><a></a>        <span class="cf">if</span> ti <span class="op">&lt;</span> stride:</span>
-<span id="cb5-17"><a></a>            <span class="cf">if</span> s[ti <span class="op">+</span> stride] <span class="op">&gt;</span> s[ti]:</span>
-<span id="cb5-18"><a></a>                s[ti] <span class="op">=</span> s[ti <span class="op">+</span> stride]</span>
-<span id="cb5-19"><a></a>        cuda.syncthreads()</span>
-<span id="cb5-20"><a></a>        stride <span class="op">//=</span> <span class="dv">2</span></span>
-<span id="cb5-21"><a></a></span>
-<span id="cb5-22"><a></a>    <span class="cf">if</span> ti <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb5-23"><a></a>        out[cuda.blockIdx.x] <span class="op">=</span> s[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb7-2"><a></a><span class="kw">def</span> block_max_kernel(arr, out):</span>
+<span id="cb7-3"><a></a>    s  <span class="op">=</span> cuda.shared.array(shape<span class="op">=</span><span class="dv">256</span>, dtype<span class="op">=</span>numba.float32)</span>
+<span id="cb7-4"><a></a>    i  <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb7-5"><a></a>    ti <span class="op">=</span> cuda.threadIdx.x</span>
+<span id="cb7-6"><a></a></span>
+<span id="cb7-7"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> arr.shape[<span class="dv">0</span>]:</span>
+<span id="cb7-8"><a></a>        s[ti] <span class="op">=</span> arr[i]</span>
+<span id="cb7-9"><a></a>    <span class="cf">else</span>:</span>
+<span id="cb7-10"><a></a>        s[ti] <span class="op">=</span> numba.float32(<span class="op">-</span><span class="fl">1e38</span>)   <span class="co"># smaller than any real input</span></span>
+<span id="cb7-11"><a></a>    cuda.syncthreads()</span>
+<span id="cb7-12"><a></a></span>
+<span id="cb7-13"><a></a>    stride <span class="op">=</span> <span class="dv">128</span>                       <span class="co"># half the block</span></span>
+<span id="cb7-14"><a></a>    <span class="cf">while</span> stride <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-15"><a></a>        <span class="cf">if</span> ti <span class="op">&lt;</span> stride:</span>
+<span id="cb7-16"><a></a>            <span class="cf">if</span> s[ti <span class="op">+</span> stride] <span class="op">&gt;</span> s[ti]:</span>
+<span id="cb7-17"><a></a>                s[ti] <span class="op">=</span> s[ti <span class="op">+</span> stride]</span>
+<span id="cb7-18"><a></a>        cuda.syncthreads()</span>
+<span id="cb7-19"><a></a>        stride <span class="op">//=</span> <span class="dv">2</span></span>
+<span id="cb7-20"><a></a></span>
+<span id="cb7-21"><a></a>    <span class="cf">if</span> ti <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-22"><a></a>        out[cuda.blockIdx.x] <span class="op">=</span> s[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
-<p>~2 min. FIXED this session: this slide used to be titled “Lab 08: Block Statistics” and claimed to be “Lab 08 Exercise 1 in conceptual form,” and a separate slide’s notes (the “Rules of Shared Memory” slide above) claimed “Lab 08 Exercise 3” demonstrated a forgotten-syncthreads bug — both stale. Lab 8 is Memory Coalescing (Session · Oct 21, top of this file), with no shared-memory content at all; both are leftovers from an older, archived version of Lab 8 (see labs/archive/lab08-shared-memory-superseded.md). This kernel is kept purely as a worked illustration of the shared-memory + syncthreads pattern — the real, graded double-syncthreads pattern is Lab 9’s tiled matmul (Oct 28, below); the graded version of <em>this specific</em> stride-halving reduction is taught properly in Module 5 (Nov 2, CK-10).</p>
+<p>~2 min for the code, ~3 min across the next two sub-slides. History: this slide used to be titled “Lab 08: Block Statistics”; Lab 8 is Memory Coalescing (no shared memory), so it’s kept purely as a worked illustration of the shared-memory + syncthreads pattern. The graded version of this stride-halving reduction is Module 5 (Nov 2, Lab 10 / CK-10); the graded double-syncthreads pattern is Lab 9’s tiled matmul.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -596,12 +757,63 @@ of that remaining content is still a separate future pass.
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><strong>Lines 7–11:</strong> every thread loads one value; threads <em>past the end</em> load <code>-1e38</code>, which <em>can never win</em> a max. Then a barrier</li>
+<li class="fragment"><strong>Lines 13–19:</strong> each round, the first <em>half</em> of the remaining threads keeps the larger of <em>its value and the one <code>stride</code> away</em>: 256 candidates → 128 → 64 → … → 1. That’s <em>8 rounds</em></li>
+<li class="fragment"><strong>Line 18:</strong> a barrier <em>every round</em>, because the next round reads values <em>other threads</em> just wrote</li>
+<li class="fragment"><strong>Line 18 again:</strong> this barrier is <em>safe</em>: the <code>if ti &lt; stride</code> has <em>closed</em> before it, so all 256 threads reach it every round</li>
+<li class="fragment"><strong>Lines 21–22:</strong> after the last round, <code>s[0]</code> holds the block’s maximum; <em>one thread</em> writes it out</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The “line 18 is outside the if” point ties back directly to the divergent-barrier trap on the previous slide — worth asking the class “is this barrier legal?” before revealing that bullet.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<p>1,000 values in <em>descending</em> order, 4 blocks × 256 threads:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>d_arr <span class="op">=</span> cuda.to_device(np.arange(<span class="dv">1000</span>, dtype<span class="op">=</span>np.float32)[::<span class="op">-</span><span class="dv">1</span>].copy())   <span class="co"># [999, 998, ..., 0]</span></span>
+<span id="cb8-2"><a></a>d_out <span class="op">=</span> cuda.device_array(<span class="dv">4</span>, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb8-3"><a></a>block_max_kernel[<span class="dv">4</span>, <span class="dv">256</span>](d_arr, d_out)</span>
+<span id="cb8-4"><a></a><span class="bu">print</span>(d_out.copy_to_host())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<pre><code>[999. 743. 487. 231.]</code></pre>
+<ul>
+<li class="fragment">Each block’s max is its <em>first</em> element here, so a kernel that just kept the last one would fail</li>
+<li class="fragment">Block 3 holds only 232 real values (indices 768–999); the <code>-1e38</code> padding <em>never wins</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min. Ask for the prediction first: 999 − 256 = 743, − 256 = 487, − 256 = 231. Verified in the CUDA simulator. <code>.copy()</code> makes the reversed view contiguous before it goes to the GPU.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="shared-memory-banks" class="slide level2">
 <h2>Shared Memory Banks</h2>
 <ul>
-<li>Shared memory isn’t one monolithic block of storage — physically, it’s divided into equally-sized <strong>banks</strong> (32 banks is the standard width, matching warp size), and consecutive 4-byte words are assigned to consecutive banks in a round-robin pattern</li>
-<li>Each bank can service exactly one memory request per cycle — but <em>different</em> banks can all be accessed <strong>simultaneously</strong></li>
-<li>When all 32 threads in a warp read from 32 <em>different</em> banks in the same cycle, every read happens in parallel — this is the fast case, and it’s what you get by default with straightforward, consecutive access patterns</li>
+<li class="fragment">Shared memory is split into <em>32 banks</em> (one per warp lane). Consecutive 4-byte words go to <em>consecutive banks</em>, wrapping around: word <code>k</code> lives in bank <code>k % 32</code></li>
+<li class="fragment">Each bank serves <em>one request per cycle</em>, but <em>different banks</em> work <em>simultaneously</em></li>
+<li class="fragment">When a warp’s 32 threads hit <em>32 different banks</em>, every read happens at once. Straightforward consecutive access gets this <em>by default</em></li>
 </ul>
 <aside class="notes">
 <p>~3 min. This is the shared-memory analogue of coalescing (Oct 21) — same underlying idea (parallel hardware wants parallel, non-overlapping requests), one level closer to the compute units.</p>
@@ -619,15 +831,19 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="bank-conflicts" class="slide level2">
 <h2>Bank Conflicts</h2>
-<p>[DIAGRAM] — 8 shared-memory banks drawn as 8 numbered vertical columns (simplified from 32 for readability). <em>Left scenario, “no conflict”:</em> 8 threads, each with an arrow pointing to a different bank (thread 0 → bank 0, thread 1 → bank 1, … thread 7 → bank 7) — all 8 arrows land in parallel, captioned “8 requests, 1 cycle.” <em>Right scenario, “conflict”:</em> 8 threads all arrow into the same single bank (bank 3), captioned “8 requests, but only 1 can be served per cycle → 8 cycles, serialized.” A third, small callout shows one exception: all 8 arrows pointing to the <em>same address</em> within the same bank, captioned “broadcast — free, not a conflict.”</p>
+
+<img data-src="diags/bank-conflicts.svg" alt="Three panels, each showing eight thread boxes labeled 0 to 7 above eight tall columns labeled bank 0 to 7, each column divided into eight rows. Left panel, '✓ different banks': thread i has a straight arrow to the top row of bank i; caption '8 requests → 1 step'. Middle panel, '✗ same bank, different rows': all eight arrows go into bank 3, each to a different row (rows 0 to 7 highlighted); caption '8 requests → 8 steps, one at a time'. Right panel, '✓ same address': all eight arrows converge on the single top cell of bank 3; caption 'broadcast → 1 step'. Simplified to 8 banks; real hardware has 32." width="880" class="r-stretch"><p>Drawn with 8 banks for readability; real hardware has 32.</p>
+</section>
+<section class="slide level2">
+
 <ul>
-<li>A <strong>bank conflict</strong> happens when two or more threads in the same warp request <em>different addresses</em> that happen to land in the <em>same</em> bank — those requests can’t be served simultaneously, so the hardware serializes them, one at a time</li>
-<li>In the worst case, all 32 threads hit the same bank with different addresses: a 32-way conflict, taking roughly 32× as long as the conflict-free case for that one access</li>
-<li><strong>Exception:</strong> if every thread in the warp requests the <em>same</em> address (not just the same bank), the hardware broadcasts that one value to all of them in a single cycle — that’s not a conflict, it’s the best case</li>
-<li>This typically shows up with <strong>strided access into a 2D shared-memory array</strong> — e.g., every thread reading a different row of the same column, when the array’s row length happens to be a multiple of the bank count</li>
+<li class="fragment">A <strong>bank conflict</strong>: two or more threads in a warp ask for <em>different addresses</em> in the <em>same bank</em>. The hardware <em>serializes</em> them, one per cycle</li>
+<li class="fragment">Worst case: all 32 threads in one bank, <em>32-way conflict</em>, about <em>32× slower</em> for that access</li>
+<li class="fragment"><strong>Exception:</strong> if they all ask for the <em>same address</em>, it’s a <em>broadcast</em>: one cycle, no conflict</li>
+<li class="fragment">The usual cause: <em>walking down a column</em> of a 2D shared array whose <em>row length is a multiple of 32</em>. Every element of a column is then in the same bank</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Conceptual/awareness-level content — this course doesn’t checkpoint or quiz bank conflicts directly (schedule.md commits to teaching it here, but no lab exercise currently isolates it). Still worth teaching properly: it’s genuinely useful GPU knowledge, and it’s exactly the kind of subtlety that explains “why is my shared-memory kernel not as fast as I expected” once students start experimenting beyond the assigned labs.</p>
+<p>~3 min. Conceptual/awareness-level content — this course doesn’t checkpoint or quiz bank conflicts directly (schedule.md commits to teaching it here, but no lab exercise currently isolates it). Still worth teaching properly: it explains “why is my shared-memory kernel not as fast as I expected” once students start experimenting beyond the assigned labs.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -642,19 +858,21 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="avoiding-bank-conflicts-padding" class="slide level2">
 <h2>Avoiding Bank Conflicts: Padding</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="co"># Conflict-prone: TILE columns, stride exactly matches the bank pattern</span></span>
-<span id="cb6-2"><a></a>tile <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
-<span id="cb6-3"><a></a></span>
-<span id="cb6-4"><a></a><span class="co"># Padded: one extra column shifts the stride, breaking the alignment</span></span>
-<span id="cb6-5"><a></a>tile_padded <span class="op">=</span> cuda.shared.array((TILE, TILE <span class="op">+</span> <span class="dv">1</span>), numba.float32)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a>TILE <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb10-2"><a></a></span>
+<span id="cb10-3"><a></a><span class="co"># Conflict-prone: each row is exactly 32 words, so column c is all in bank c</span></span>
+<span id="cb10-4"><a></a>tile <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
+<span id="cb10-5"><a></a></span>
+<span id="cb10-6"><a></a><span class="co"># Padded: 33 words per row, so each row starts one bank later</span></span>
+<span id="cb10-7"><a></a>tile_padded <span class="op">=</span> cuda.shared.array((TILE, TILE <span class="op">+</span> <span class="dv">1</span>), numba.float32)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>The classic fix for a systematic, stride-caused bank conflict: allocate the shared array with <strong>one extra column</strong> than the problem actually needs</li>
-<li>That single extra column shifts every subsequent row’s starting bank by one position — which is usually enough to break the alignment that was causing threads to repeatedly collide on the same bank</li>
-<li>The padding column itself is never used for real data — it’s pure overhead, traded deliberately for avoiding serialized access</li>
-<li>You won’t be required to apply this technique in this course’s labs or checkpoints — it’s here so the option is in your toolkit if you ever profile a shared-memory kernel and find bank conflicts are the bottleneck</li>
+<li class="fragment">Allocate <em>one extra column</em> you never use. Each row then <em>starts one bank later</em>, so a column’s 32 elements land in <em>32 different banks</em></li>
+<li class="fragment">The padding is pure overhead: a few bytes <em>traded for unserialized access</em></li>
+<li class="fragment">Oct 28’s tiled kernel <em>doesn’t need it</em>: a warp reads <code>tile_A[ty, k]</code> (<em>one address</em>, broadcast) and <code>tile_B[k, tx]</code> (<em>consecutive</em>, different banks)</li>
+<li class="fragment">Not required in labs or checkpoints. It’s in your toolkit for when a profiler points at bank conflicts</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Keep this at “here’s the standard trick” level — don’t derive exactly which access patterns in this course’s own tiled-matmul kernel would or wouldn’t benefit from padding; that’s a level of hardware-specific detail beyond this course’s scope, and worth saying so if a curious student asks.</p>
+<p>~2 min. The “today’s kernel doesn’t need it” bullet is true for TILE = 8, 16 and 32 with the x → col layout: within a warp, tile_A reads hit at most 4 distinct addresses in different banks (or broadcast), and tile_B reads are consecutive. Don’t go deeper than that.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -667,11 +885,11 @@ of that remaining content is still a separate future pass.
           display:block!important;
       }</style></aside>
 </section>
-<section id="this-week" class="slide level2">
+<section id="this-week-1" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Oct 28 (next lecture):</strong> Tiled matrix multiplication — putting everything from today (declaration, syncthreads, bank-conflict awareness) to work in a complete, real kernel</li>
-<li><strong>Lab 09 (Fri, Oct 30):</strong> Implement the tiled kernel yourself, compare its speed to naive matmul, and experiment with tile size — <strong>CK-09</strong> same day</li>
+<li class="fragment"><strong>Oct 28 (next lecture):</strong> Tiled matrix multiplication — putting today’s <em>declaration, barrier, and bank awareness</em> to work in one complete kernel</li>
+<li class="fragment"><strong>Lab 09 (Fri, Oct 30):</strong> Implement the tiled kernel yourself, compare its speed to naive matmul, and <em>experiment with tile size</em> — <strong>CK-09</strong> same day</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Quick pointer slide.</p>
@@ -698,10 +916,10 @@ of that remaining content is still a separate future pass.
 <section id="todays-plan-2" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>The naive matmul kernel’s memory problem, in concrete numbers</li>
-<li>The tiling idea: load once per block, reuse many times</li>
-<li>A complete tiled kernel, built up piece by piece</li>
-<li>Tile size as a real design decision, and the capstone connection</li>
+<li class="fragment">The naive matmul kernel’s memory problem, in concrete numbers</li>
+<li class="fragment">The tiling idea: load once per block, reuse many times</li>
+<li class="fragment">A complete tiled kernel, built up piece by piece</li>
+<li class="fragment">Tile size as a real design decision, and the capstone connection</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Full 50-min session, no quiz. This is “the canonical GPU optimization” per schedule.md’s own description — worth treating as the centerpiece lecture of the module.</p>
@@ -719,23 +937,39 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="the-naive-approach" class="slide level2">
 <h2>The Naive Approach</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb7-2"><a></a><span class="kw">def</span> matmul_naive(A, B, C):</span>
-<span id="cb7-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
-<span id="cb7-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
-<span id="cb7-5"><a></a>        acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
-<span id="cb7-6"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(A.shape[<span class="dv">1</span>]):    <span class="co"># inner dimension</span></span>
-<span id="cb7-7"><a></a>            acc <span class="op">+=</span> A[row, k] <span class="op">*</span> B[k, col]</span>
-<span id="cb7-8"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb11-2"><a></a><span class="kw">def</span> matmul_naive(A, B, C):</span>
+<span id="cb11-3"><a></a>    row, col <span class="op">=</span> cuda.grid(<span class="dv">2</span>)</span>
+<span id="cb11-4"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
+<span id="cb11-5"><a></a>        acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span>
+<span id="cb11-6"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(A.shape[<span class="dv">1</span>]):    <span class="co"># inner dimension</span></span>
+<span id="cb11-7"><a></a>            acc <span class="op">+=</span> A[row, k] <span class="op">*</span> B[k, col]</span>
+<span id="cb11-8"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Thread <code>(row, col)</code> reads all of row <code>row</code> from A and all of column <code>col</code> from B — recall from Oct 26’s roofline slide, this is exactly why naive matmul is memory-bound</li>
-<li><code>A[row, :]</code> is read once by every thread that shares that row — <code>N_col</code> different threads, so that same data is fetched from global memory <code>N_col</code> separate times</li>
-<li><code>B[:, col]</code> is read once by every thread that shares that column — fetched from global memory <code>N_row</code> separate times</li>
-<li>Every element of A and B is loaded from global memory roughly O(N) times over the course of the whole computation, when a single load would suffice</li>
+<li class="fragment">Thread <code>(row, col)</code> reads <em>all of row <code>row</code></em> of A and <em>all of column <code>col</code></em> of B</li>
+<li class="fragment">Row <code>row</code> of A is needed by <em>every thread in that row of C</em>: <code>N_col</code> threads, each fetching it <em>separately</em>. Column <code>col</code> of B: <code>N_row</code> times</li>
+<li class="fragment">Every element of A and B is fetched from global memory <em>about N times</em>, when <em>once</em> would do. That’s why it sits at <em>0.25 FLOP/byte</em> on the roofline</li>
 </ul>
-<p>[DIAGRAM] — A small 4×4 matrix multiply. Highlight element A[0,2] with a star. Draw four arrows from that single starred cell to the four threads in column 2 of the output matrix C (threads (0,2), (1,2), (2,2), (3,2)), each arrow labeled “reads A[0,2] independently from global memory.” Caption: “One element, read from global memory 4 separate times — for a 4×4 problem. At 512×512, this same element would be read 512 times.”</p>
 <aside class="notes">
-<p>~3 min. The 4×4 example makes O(N) concrete — worth having students compute how many times a single element is re-read at the actual Lab 5/6 scale (512×512): 512 separate reads of the same 4 bytes, all landing in the exact same place. That number is the motivation for everything that follows.</p>
+<p>~2 min. This is Lab 5’s kernel with the x → row layout, the same as Lab 9 Part 1 (kept on purpose as the baseline). Caches catch some of the repeat reads in practice (Lab 6), but nothing guarantees it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/naive-reuse.svg" alt="Two 4 by 4 grids side by side. Left grid, labeled A: the top row is shaded gray, and its third cell, labeled A[0,2], is yellow. Right grid, labeled 'C = A @ B': the top row is blue, cells labeled (0,0), (0,1), (0,2), (0,3). Four red elbow arrows run from A[0,2] over the top to each of the four blue cells. Note at the right: 'each thread in row 0 of C reads A[0,2] on its own'. Caption below: 'One value, fetched from global memory 4 times for a 4×4 product. At 512×512, the same 4 bytes are fetched 512 times.'" width="760" class="r-stretch"><p>At Lab 9’s 512×512 size, <em>every</em> element of A and B is fetched <em>512 times</em>.</p>
+<aside class="notes">
+<p>~2 min. Have students compute the 512 before revealing the caption. Note A[0,2] is needed by row 0 of C (every output in that row uses all of A’s row 0); B[2, j] is likewise needed by column j of C.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -750,14 +984,17 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="the-tiling-idea" class="slide level2">
 <h2>The Tiling Idea</h2>
-<p>[DIAGRAM] — Matrices A and B split into TILE×TILE submatrices (shown as a coarse grid overlaid on each matrix). One thread block, block (bx, by), is highlighted — arrows show it responsible for computing exactly one TILE×TILE submatrix of the output C. A 4-step numbered sequence beneath: “1. Load one tile of A into shared memory” → “2. Load one tile of B into shared memory” → “3. syncthreads() — wait for the whole block to finish loading” → “4. Every thread in the block computes its partial dot product using only the shared tiles, no further global reads this round” → looping arrow back to step 1 labeled “repeat for the next tile along the shared dimension.”</p>
+
+<img data-src="diags/tiling-idea.svg" alt="Three 4 by 4 grids of tiles arranged like a multiplication: B at top right, A at bottom left, C at bottom right. In C, the tile at row 1, column 2 is green with a star; a note says '★ one block computes this TILE × TILE tile of C'. In A, the whole tile row 1 is blue, its tiles labeled t=0, t=1, t=2, t=3, with a dashed blue arrow pointing right to the starred tile. In B, the whole tile column 2 is orange, labeled t=0 to t=3 from top to bottom, with a dashed orange arrow pointing down to the starred tile. Text at the top right: 'step t (t = 0, 1, 2, 3): 1. load A tile t and B tile t into shared memory 2. syncthreads() 3. every thread multiplies from shared memory only 4. syncthreads(), then t + 1'." width="700" class="r-stretch"></section>
+<section class="slide level2">
+
 <ul>
-<li>The fix for the O(N) problem: instead of each <em>thread</em> independently re-reading global memory, have the whole <em>block</em> cooperate to load each needed tile from global memory exactly <strong>once</strong>, into shared memory</li>
-<li>Every thread in the block then reads from that shared tile as many times as it needs — shared-memory reads are fast (Oct 26) and don’t touch global memory at all</li>
-<li>Net effect: each element of A and B is loaded from global memory once per <strong>block</strong> that needs it, not once per <strong>thread</strong> — for a TILE×TILE block, that’s a TILE× reduction in global-memory traffic for that data</li>
+<li class="fragment">Instead of each <em>thread</em> fetching from global memory on its own, the whole <em>block</em> loads each tile <em>exactly once</em>, into shared memory</li>
+<li class="fragment">Every thread then reads that tile <em>as often as it needs</em>. Shared-memory reads are fast and <em>don’t touch global memory</em></li>
+<li class="fragment">Each element is fetched once per <em>block</em> that needs it, not once per <em>thread</em>: a <em>TILE× cut</em> in global traffic, which is the roofline’s <em>0.25 → 4 FLOP/byte</em> at TILE = 16</li>
 </ul>
 <aside class="notes">
-<p>~3 min. This is the single most important idea in the module — the whole rest of this session is just implementing this four-step loop correctly in code. Make sure “the block loads once, every thread in it reuses that load” has fully landed before moving to code.</p>
+<p>~3 min across both sub-slides. This is the single most important idea in the module — the whole rest of this session is just implementing this four-step loop correctly in code. Make sure “the block loads once, every thread in it reuses that load” has fully landed before moving to code.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -772,27 +1009,28 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="tiled-kernel-setup" class="slide level2">
 <h2>Tiled Kernel: Setup</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>TILE <span class="op">=</span> <span class="dv">16</span></span>
-<span id="cb8-2"><a></a></span>
-<span id="cb8-3"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb8-4"><a></a><span class="kw">def</span> matmul_tiled(A, B, C):</span>
-<span id="cb8-5"><a></a>    <span class="co"># Shared memory tiles — size TILE×TILE each</span></span>
-<span id="cb8-6"><a></a>    tile_A <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
-<span id="cb8-7"><a></a>    tile_B <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
-<span id="cb8-8"><a></a></span>
-<span id="cb8-9"><a></a>    <span class="co"># Global position of this thread</span></span>
-<span id="cb8-10"><a></a>    row <span class="op">=</span> cuda.blockIdx.x <span class="op">*</span> TILE <span class="op">+</span> cuda.threadIdx.x</span>
-<span id="cb8-11"><a></a>    col <span class="op">=</span> cuda.blockIdx.y <span class="op">*</span> TILE <span class="op">+</span> cuda.threadIdx.y</span>
-<span id="cb8-12"><a></a>    tx, ty <span class="op">=</span> cuda.threadIdx.x, cuda.threadIdx.y</span>
-<span id="cb8-13"><a></a></span>
-<span id="cb8-14"><a></a>    acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>TILE <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb12-2"><a></a></span>
+<span id="cb12-3"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb12-4"><a></a><span class="kw">def</span> matmul_tiled(A, B, C):</span>
+<span id="cb12-5"><a></a>    <span class="co"># Shared memory tiles — size TILE×TILE each</span></span>
+<span id="cb12-6"><a></a>    tile_A <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
+<span id="cb12-7"><a></a>    tile_B <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)</span>
+<span id="cb12-8"><a></a></span>
+<span id="cb12-9"><a></a>    <span class="co"># x walks the columns (coalesced, Oct 21); y walks the rows</span></span>
+<span id="cb12-10"><a></a>    tx, ty <span class="op">=</span> cuda.threadIdx.x, cuda.threadIdx.y</span>
+<span id="cb12-11"><a></a>    row <span class="op">=</span> cuda.blockIdx.y <span class="op">*</span> TILE <span class="op">+</span> ty</span>
+<span id="cb12-12"><a></a>    col <span class="op">=</span> cuda.blockIdx.x <span class="op">*</span> TILE <span class="op">+</span> tx</span>
+<span id="cb12-13"><a></a></span>
+<span id="cb12-14"><a></a>    acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>TILE</code> is declared as a Python constant, not a function parameter — Numba needs the shared-array shape fixed at compile time (Oct 26’s “Rules of Shared Memory”), so <code>TILE</code> must be a literal or a module-level constant</li>
-<li><code>tile_A</code> and <code>tile_B</code> are the block’s shared scratchpad — one <code>TILE × TILE</code> tile of each input matrix, reused by every thread in the block</li>
-<li><code>row</code>/<code>col</code> are this thread’s <em>global</em> position in the output (same formula as Module 2’s 2D indexing); <code>tx</code>/<code>ty</code> are its <em>local</em> position within the block — both are needed: global to know which output element this thread owns, local to know which shared-memory cell to read and write</li>
+<li class="fragment"><strong>Line 1:</strong> <code>TILE</code> is a <em>module-level constant</em>, so Numba can <em>fix the shared-array shape</em> at compile time</li>
+<li class="fragment"><strong>Lines 6–7:</strong> the block’s <em>shared scratchpad</em>: one tile of A and one of B</li>
+<li class="fragment"><strong>Lines 10–12:</strong> <em><code>x</code> → column</em>, as Oct 21 showed. <code>row</code>/<code>col</code> are the thread’s <em>global</em> output position; <code>tx</code>/<code>ty</code> its <em>local</em> position in the tile</li>
+<li class="fragment"><strong>Line 14:</strong> a <em><code>float32</code> accumulator</em> (a plain <code>0.0</code> would be float64, Lab 5’s trap)</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Point out explicitly: this setup code runs once per thread, before the tile loop — <code>row</code>, <code>col</code>, <code>tx</code>, <code>ty</code>, and <code>acc</code> are all computed a single time and then reused across every iteration of the loop that follows.</p>
+<p>~3 min. UPDATED 2026-10-21: the layout used to be x → row (blockIdx.x * TILE + threadIdx.x on row), which makes both global loads strided. Now matches Lab 09 Part 2, CK-09 and the lab key. The grid must match too: blocks = (ceil(N / TILE), ceil(M / TILE)) — x covers columns. Point out that this setup runs once per thread, before the tile loop.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -807,34 +1045,55 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="tiled-kernel-loop-over-tiles" class="slide level2">
 <h2>Tiled Kernel: Loop Over Tiles</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>    n_tiles <span class="op">=</span> (A.shape[<span class="dv">1</span>] <span class="op">+</span> TILE <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> TILE</span>
-<span id="cb9-2"><a></a></span>
-<span id="cb9-3"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(n_tiles):</span>
-<span id="cb9-4"><a></a>        <span class="co"># Load tile from global → shared</span></span>
-<span id="cb9-5"><a></a>        <span class="cf">if</span> row <span class="op">&lt;</span> A.shape[<span class="dv">0</span>] <span class="kw">and</span> t <span class="op">*</span> TILE <span class="op">+</span> ty <span class="op">&lt;</span> A.shape[<span class="dv">1</span>]:</span>
-<span id="cb9-6"><a></a>            tile_A[tx, ty] <span class="op">=</span> A[row, t <span class="op">*</span> TILE <span class="op">+</span> ty]</span>
-<span id="cb9-7"><a></a>        <span class="cf">else</span>:</span>
-<span id="cb9-8"><a></a>            tile_A[tx, ty] <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb9-9"><a></a></span>
-<span id="cb9-10"><a></a>        <span class="cf">if</span> t <span class="op">*</span> TILE <span class="op">+</span> tx <span class="op">&lt;</span> B.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> B.shape[<span class="dv">1</span>]:</span>
-<span id="cb9-11"><a></a>            tile_B[tx, ty] <span class="op">=</span> B[t <span class="op">*</span> TILE <span class="op">+</span> tx, col]</span>
-<span id="cb9-12"><a></a>        <span class="cf">else</span>:</span>
-<span id="cb9-13"><a></a>            tile_B[tx, ty] <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb9-14"><a></a></span>
-<span id="cb9-15"><a></a>        cuda.syncthreads()              <span class="co"># wait for all loads</span></span>
-<span id="cb9-16"><a></a></span>
-<span id="cb9-17"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(TILE):</span>
-<span id="cb9-18"><a></a>            acc <span class="op">+=</span> tile_A[tx, k] <span class="op">*</span> tile_B[k, ty]</span>
-<span id="cb9-19"><a></a></span>
-<span id="cb9-20"><a></a>        cuda.syncthreads()              <span class="co"># wait before overwriting shared</span></span>
-<span id="cb9-21"><a></a></span>
-<span id="cb9-22"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
-<span id="cb9-23"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a>    n_tiles <span class="op">=</span> (A.shape[<span class="dv">1</span>] <span class="op">+</span> TILE <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> TILE</span>
+<span id="cb13-2"><a></a></span>
+<span id="cb13-3"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(n_tiles):</span>
+<span id="cb13-4"><a></a>        a_col <span class="op">=</span> t <span class="op">*</span> TILE <span class="op">+</span> tx                    <span class="co"># this thread's column in A</span></span>
+<span id="cb13-5"><a></a>        b_row <span class="op">=</span> t <span class="op">*</span> TILE <span class="op">+</span> ty                    <span class="co"># this thread's row in B</span></span>
+<span id="cb13-6"><a></a>        <span class="cf">if</span> row <span class="op">&lt;</span> A.shape[<span class="dv">0</span>] <span class="kw">and</span> a_col <span class="op">&lt;</span> A.shape[<span class="dv">1</span>]:</span>
+<span id="cb13-7"><a></a>            tile_A[ty, tx] <span class="op">=</span> A[row, a_col]       <span class="co"># load: global → shared</span></span>
+<span id="cb13-8"><a></a>        <span class="cf">else</span>:</span>
+<span id="cb13-9"><a></a>            tile_A[ty, tx] <span class="op">=</span> <span class="fl">0.0</span>                 <span class="co"># off the edge: pad with 0</span></span>
+<span id="cb13-10"><a></a>        <span class="cf">if</span> b_row <span class="op">&lt;</span> B.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> B.shape[<span class="dv">1</span>]:</span>
+<span id="cb13-11"><a></a>            tile_B[ty, tx] <span class="op">=</span> B[b_row, col]</span>
+<span id="cb13-12"><a></a>        <span class="cf">else</span>:</span>
+<span id="cb13-13"><a></a>            tile_B[ty, tx] <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb13-14"><a></a></span>
+<span id="cb13-15"><a></a>        cuda.syncthreads()                       <span class="co"># sync 1: tiles fully loaded</span></span>
+<span id="cb13-16"><a></a></span>
+<span id="cb13-17"><a></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(TILE):</span>
+<span id="cb13-18"><a></a>            acc <span class="op">+=</span> tile_A[ty, k] <span class="op">*</span> tile_B[k, tx]</span>
+<span id="cb13-19"><a></a></span>
+<span id="cb13-20"><a></a>        cuda.syncthreads()                       <span class="co"># sync 2: everyone done reading</span></span>
+<span id="cb13-21"><a></a></span>
+<span id="cb13-22"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
+<span id="cb13-23"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>~4 min across this and the next sub-slide. CK-09 (Friday) asks students to write the guarded loads and place the barriers on rectangular, non-multiple-of-TILE matrices — this slide is the walkthrough for that. Verified in the CUDA simulator on 40×30 @ 30×20.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <ul>
-<li>The <strong>two</strong> <code>syncthreads()</code> calls are the part almost everyone gets wrong the first time — the next slide explains exactly why both are required</li>
+<li class="fragment"><strong>Line 1:</strong> number of tiles along the shared dimension, <em>rounded up</em> so a partial last tile still counts</li>
+<li class="fragment"><strong>Lines 4–13:</strong> each thread loads <em>one element of each tile</em>. Consecutive <code>tx</code> read <em>consecutive columns</em>: <em>coalesced</em></li>
+<li class="fragment"><strong>Lines 9, 13:</strong> anything <em>off the edge</em> becomes 0, so it <em>adds nothing</em> to the dot product. This is what makes sizes that <em>aren’t multiples of TILE</em> work</li>
+<li class="fragment"><strong>Lines 15, 20:</strong> the <em>two barriers</em>. The next slide shows why <em>both</em> are needed</li>
+<li class="fragment"><strong>Lines 17–18:</strong> the inner loop reads <em>only shared memory</em>: TILE multiply-adds per tile, <em>no global reads</em></li>
+<li class="fragment"><strong>Lines 22–23:</strong> threads <em>outside C</em> still helped load tiles; they just <em>don’t write</em></li>
 </ul>
 <aside class="notes">
-<p>~4 min. Walk through the loop body in order: bounds-checked load into <code>tile_A</code>/<code>tile_B</code> (zero-padding out-of-range entries so the accumulation stays correct even when the matrix size isn’t a multiple of TILE), first sync, the inner <code>k</code> loop accumulating from shared memory only, second sync. CK-14 (capstone) has two gaps in exactly this shape.</p>
+<p>~2 min. The last bullet is the subtle one: out-of-range threads must not return early, because they still have to load their part of the tile and reach both barriers.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -849,15 +1108,31 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="why-two-syncthreads" class="slide level2">
 <h2>Why Two <code>syncthreads()</code>?</h2>
-<p>[DIAGRAM] — A timeline with 4 threads (thread 0-3), one horizontal row each, showing one iteration of the tile loop. Each timeline has a “load” segment, then a gap, then a “compute” segment, then a gap, then the start of the <em>next</em> iteration’s “load” segment. Two vertical dashed barrier lines cross all four timelines: the first labeled “sync 1” positioned right after the slowest thread’s “load” segment ends (before any “compute” segment begins); the second labeled “sync 2” positioned right after the slowest thread’s “compute” segment ends (before any <em>next-iteration</em> “load” segment begins). Thread 3 is drawn with a visibly longer “load” segment than threads 0-2, to show why the barrier matters — it’s the slow thread that the fast ones must wait for.</p>
+
+<img data-src="diags/two-syncs-timeline.svg" alt="Timeline of one loop iteration for four threads, thread 0 to thread 3, one row each, time running left to right. Each row has a blue bar 'load tile t', a green bar 'compute with t', then a blue bar 'load t + 1'. Thread 3's load bar is the longest; thread 1's compute bar is the longest. Two dashed purple vertical lines cross all four rows: 'sync 1' just after thread 3's load ends, before any compute starts, and 'sync 2' just after thread 1's compute ends, before any 'load t + 1' starts. Dashed gray lines fill each thread's wait up to the barrier. Captions: 'sync 1: no thread computes until the slowest thread (3) has finished loading' and 'sync 2: no thread overwrites the tiles until the slowest reader (1) is done'. Note: 'dashed gray = waiting at the barrier'." width="860" class="r-stretch"><aside class="notes">
+<p>~2 min on the figure. Before revealing the next sub-slide, ask: what goes wrong with only sync 1? With only sync 2? The two failure modes are different enough that guessing correctly requires understanding the loop, not pattern-matching “GPU code needs syncthreads somewhere.”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <ul>
-<li><strong>Without the first sync:</strong> a fast thread could start reading <code>tile_A</code>/<code>tile_B</code> in the <code>k</code> loop while a slower thread in the same block hasn’t finished writing its assigned entry yet — the fast thread reads stale (or uninitialized) shared-memory contents</li>
-<li><strong>Without the second sync:</strong> a fast thread could start <em>overwriting</em> <code>tile_A</code>/<code>tile_B</code> with the <em>next</em> tile’s data while a slower thread is still reading the <em>current</em> tile’s data during its <code>k</code> loop — the slow thread’s accumulation silently corrupts</li>
-<li>Both bugs produce a wrong numeric answer with no crash and no error message — exactly the kind of silent failure Oct 5’s debugging session warned about</li>
-<li>Understanding why both barriers are individually necessary — not just “more syncing is safer” — is the single most important idea in this module</li>
+<li class="fragment"><strong>Without sync 1:</strong> a fast thread starts the <code>k</code> loop while a slower thread <em>hasn’t written its element yet</em>: it reads a <em>stale or uninitialized</em> value</li>
+<li class="fragment"><strong>Without sync 2:</strong> a fast thread starts loading <em>tile t + 1</em> while a slower thread is <em>still reading tile t</em>: the slow thread’s sum <em>silently uses the wrong data</em></li>
+<li class="fragment">Both bugs give a <em>wrong number with no crash and no error</em>, and may only show up <em>some</em> runs (Oct 5’s debugging session)</li>
+<li class="fragment">Knowing <em>why each barrier is there</em>, not just “more syncing is safer”, is <em>the key idea of this module</em></li>
 </ul>
 <aside class="notes">
-<p>~4 min. This is the module’s centerpiece slide. Consider asking students to predict, before you reveal it, what would go wrong with only one sync vs.&nbsp;the other — the two failure modes are different enough that guessing correctly requires actually understanding the loop, not just pattern-matching “GPU code needs syncthreads somewhere.”</p>
+<p>~3 min. This is the module’s centerpiece. The second bug is the one students rarely predict.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -872,49 +1147,76 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="tile-size-and-performance" class="slide level2">
 <h2>TILE Size and Performance</h2>
+<p>On a T4 (max <em>1,024 threads</em> and <em>16 blocks</em> per SM, <em>64 KB</em> shared memory per SM):</p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>TILE</th>
-<th>Shared memory per block</th>
-<th>Occupancy risk</th>
-<th>Expected outcome</th>
+<th>Threads / block</th>
+<th>Shared mem / block</th>
+<th>Blocks per SM</th>
+<th>Reuse per global load</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>8</td>
+<td>64</td>
 <td>2×8×8×4 B = 512 B</td>
-<td>Low</td>
-<td>Modest speedup — small tiles mean less reuse per global load</td>
+<td>16 (block limit)</td>
+<td>8×</td>
 </tr>
 <tr class="even">
 <td>16</td>
-<td>2×16×16×4 B = 2 KB</td>
-<td>Low</td>
-<td>Good speedup — a common default, balances reuse against overhead</td>
+<td>256</td>
+<td>2 KB</td>
+<td>4</td>
+<td>16×</td>
 </tr>
 <tr class="odd">
 <td>32</td>
-<td>2×32×32×4 B = 8 KB</td>
-<td>Higher</td>
-<td>Best reuse <em>in principle</em>, but larger per-block shared-memory and thread-count footprint can reduce how many blocks fit per SM at once</td>
+<td>1,024</td>
+<td>8 KB</td>
+<td>1</td>
+<td>32×</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li>Larger tiles mean each global-memory load is reused more times before being discarded — more reuse should mean more speedup</li>
-<li>But shared memory per SM is a fixed, limited budget (roughly 48-128 KB depending on the GPU) — a larger tile claims a bigger share of that budget per resident block, which can lower occupancy (Sep 30) and partially offset the reuse gain</li>
-<li>The relationship between tile size and actual measured speedup is <strong>not always monotone</strong> — Lab 9 Exercise 3 has you sweep TILE ∈ {8, 16, 32} and find this out empirically, rather than trusting the “bigger tile = always faster” intuition</li>
+<li class="fragment">All three <em>fill the SM</em> with 1,024 threads, and shared memory is <em>nowhere near</em> the 64 KB limit</li>
+<li class="fragment">What changes is <em>reuse</em> (bigger is better) and <em>how many blocks</em> the SM can switch between</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Resist stating a winner in advance — the whole pedagogical point of Lab 9 Exercise 3 is that students discover the non-monotone relationship themselves by measuring it, the same “measure, don’t assume” lesson from Oct 5’s launch-configuration slide.</p>
+<p>~2 min. Same occupancy reasoning as module03’s “Why 16×16 Won Here”: on a T4 all three configs are at 100% theoretical occupancy. The old version of this slide said larger tiles lower occupancy via shared memory, which isn’t true at these sizes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><strong>Bigger tiles:</strong> each global load is reused <em>more times</em> before it’s thrown away</li>
+<li class="fragment"><strong>But at TILE = 32,</strong> the SM has <em>one block</em>. When its warps all wait at a <code>syncthreads()</code>, the SM has <em>nothing else to run</em>. With 4 or 16 blocks, <em>another block’s warps</em> fill the gap</li>
+<li class="fragment"><strong>And at TILE = 8,</strong> reuse is low and there are <em>more barriers per useful FLOP</em></li>
+<li class="fragment">So the fastest tile size is <em>not always the biggest</em>. Lab 9 Exercise 3 has you <em>measure</em> 8, 16 and 32 and explain what you see</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Resist stating a winner in advance — the point of Lab 9 Exercise 3 is that students discover the non-monotone relationship themselves by measuring it (the Lab 09 key wants “resident blocks per SM” in the answer, which these bullets set up without giving the ranking). The lab key measured 8 → 0.28 ms, 16 → 0.24 ms, 32 → 0.27 ms on an RTX 4000 Ada; T4 results vary.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -929,22 +1231,23 @@ of that remaining content is still a separate future pass.
 </section>
 <section id="the-capstone-connection" class="slide level2">
 <h2>The Capstone Connection</h2>
-<p>The capstone’s tiled similarity kernel (CK-14 Part A) uses the identical pattern, applied to a different problem:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb10-2"><a></a><span class="kw">def</span> sim_tiled(Q, D, sim):</span>
-<span id="cb10-3"><a></a>    tile_Q <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)   <span class="co"># Gap 1a</span></span>
-<span id="cb10-4"><a></a>    tile_D <span class="op">=</span> cuda.shared.array((TILE, TILE), numba.float32)   <span class="co"># Gap 1b</span></span>
-<span id="cb10-5"><a></a>    ...</span>
-<span id="cb10-6"><a></a>    cuda.syncthreads()    <span class="co"># Gap 2 — after loading tiles</span></span>
-<span id="cb10-7"><a></a>    ...</span>
-<span id="cb10-8"><a></a>    cuda.syncthreads()    <span class="co"># Gap 3 — before next tile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The capstone’s tiled similarity kernel (CK-14 Part A) uses the same pattern on a different problem:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb14-2"><a></a><span class="kw">def</span> tiled_similarity(Q, D, sim, n_q, n_db, d):</span>
+<span id="cb14-3"><a></a>    tile_Q <span class="op">=</span> ...          <span class="co"># Gap 1a — a (TILE, TILE) shared tile for Q</span></span>
+<span id="cb14-4"><a></a>    tile_D <span class="op">=</span> ...          <span class="co"># Gap 1b — a (TILE, TILE) shared tile for D</span></span>
+<span id="cb14-5"><a></a>    ...</span>
+<span id="cb14-6"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(n_tiles):</span>
+<span id="cb14-7"><a></a>        ...               <span class="co"># load one element of each tile</span></span>
+<span id="cb14-8"><a></a>        ...               <span class="co"># Gap 2 — barrier after loading</span></span>
+<span id="cb14-9"><a></a>        ...               <span class="co"># accumulate from the shared tiles</span></span>
+<span id="cb14-10"><a></a>        ...               <span class="co"># Gap 3 — barrier before the next tile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Same four-step loop as today’s matmul kernel: declare shared tiles, load once per block, sync, accumulate from shared memory, sync again before the next tile</li>
-<li>CK-14 gives you this skeleton with the declarations and sync calls removed as gaps — everything you need to fill them in correctly is exactly what this session covered</li>
-<li>If today’s material makes sense, CK-14 Part A is directly applying it, not learning something new</li>
+<li class="fragment">Same loop as today: <em>declare</em> shared tiles, <em>load</em> once per block, <em>sync</em>, <em>accumulate</em> from shared memory, <em>sync again</em></li>
+<li class="fragment">CK-14 gives you this skeleton with the <em>declarations and barriers removed</em> — exactly what this session covered</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Plant this explicitly as reassurance for a checkpoint that’s still many weeks away (capstone milestones land in Module 7) — students should leave today recognizing that the hardest part of CK-14 Part A is already behind them.</p>
+<p>~2 min. Plant this explicitly as reassurance for a checkpoint that’s still many weeks away (capstone milestones land in Module 7). The skeleton is abbreviated; names and gap numbers match checkpoints/ck14-capstone-milestone2.md. (CK-14 itself still uses the x → row layout; its correctness doesn’t depend on it.)</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -960,9 +1263,9 @@ of that remaining content is still a separate future pass.
 <section id="module-4-wrap-up" class="slide level2">
 <h2>Module 4 Wrap-Up</h2>
 <ul>
-<li><strong>Oct 21:</strong> Access <em>pattern</em> (coalesced vs.&nbsp;strided) determines how expensive each individual global-memory transaction is</li>
-<li><strong>Oct 26:</strong> Shared memory lets a block load data from global memory once and reuse it many times, cutting the <em>number</em> of global transactions — with a synchronization barrier (<code>syncthreads()</code>) required to use it correctly, and bank conflicts as the one subtlety that can undercut shared memory’s own speed</li>
-<li><strong>Oct 28:</strong> Tiled matrix multiply puts both ideas to work in one complete kernel — the canonical example of a memory-bound naive kernel transformed into a much more compute-bound one</li>
+<li class="fragment"><strong>Oct 21:</strong> <em>Access pattern</em> decides how many transactions a warp needs. Make <em><code>threadIdx.x</code> walk the last index</em> so a warp’s reads are <em>coalesced</em></li>
+<li class="fragment"><strong>Oct 26:</strong> <em>Shared memory</em> lets a block load data once and reuse it; <em><code>syncthreads()</code></em> must separate writes from other threads’ reads, and <em>never sit inside a branch</em> only some threads take. <em>Bank conflicts</em> serialize shared-memory access</li>
+<li class="fragment"><strong>Oct 28:</strong> <em>Tiled matmul</em> combines both: coalesced tile loads, <em>TILE× fewer</em> global reads, and <em>two barriers</em> per tile</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Good slide to put up again just before Quiz 5, which covers this whole module.</p>
@@ -981,9 +1284,9 @@ of that remaining content is still a separate future pass.
 <section id="looking-ahead" class="slide level2">
 <h2>Looking Ahead</h2>
 <ul>
-<li><strong>Lab 09 (Fri, Oct 30):</strong> Implement the tiled matmul kernel yourself — time it against both naive matmul and NumPy at 512×512, and sweep tile size — <strong>CK-09</strong> same day</li>
-<li><strong>Quiz 5</strong> opens the start of Lab 10 (Fri, Nov 6 — moved there due to the Nov 4 Wellness Day cancellation) and covers all of Module 4</li>
-<li><strong>Module 5 starts Nov 2:</strong> parallel reduction — the first pattern where threads must cooperate to combine results, not just work independently</li>
+<li class="fragment"><strong>Lab 09 (Fri, Oct 30):</strong> Implement the tiled matmul kernel yourself — time it against <em>naive matmul and NumPy</em> at 512×512, and <em>sweep tile size</em> — <strong>CK-09</strong> same day</li>
+<li class="fragment"><strong>Quiz 5</strong> opens Lab 10 (<em>Fri, Nov 6</em>, moved there by the Nov 4 Wellness Day) and covers <em>all of Module 4</em></li>
+<li class="fragment"><strong>Module 5 starts Nov 2:</strong> <em>parallel reduction</em> — the stride-halving pattern from today’s block-max example, done properly</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Flag the Quiz 5 date/placement explicitly — it’s unusual (inside a lab session, not opening a lecture) and easy to miscommunicate if not called out.</p>
@@ -1003,12 +1306,12 @@ of that remaining content is still a separate future pass.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-09 will ask you to:</p>
 <ul>
-<li>Complete a tiled matmul kernel for <strong>rectangular matrices whose sizes aren’t multiples of TILE</strong></li>
-<li>Write the bounds-guarded tile loads yourself, and decide where the barriers go</li>
-<li>Your kernel is re-run several times and must be correct every time, so races are caught</li>
+<li class="fragment">Complete a tiled matmul kernel for <strong>rectangular matrices whose sizes aren’t multiples of TILE</strong></li>
+<li class="fragment">Write the <em>bounds-guarded tile loads</em> yourself, and <em>decide where the barriers go</em></li>
+<li class="fragment">Your kernel is <em>re-run several times</em> and must be correct every time, so races are caught</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 09 (Oct 30). REWRITTEN 2026-10-02: the guarded loads used to be given, the barriers were labeled, and the matrices were square multiples of 16. No new concepts: the zero-padded loads are exactly the walkthrough on the tiled-kernel slide.</p>
+<p>~1 min. 20-minute timed, paired with Lab 09 (Oct 30). REWRITTEN 2026-10-02: the guarded loads used to be given, the barriers were labeled, and the matrices were square multiples of 16. No new concepts: the zero-padded loads are exactly the walkthrough on the tiled-kernel slides.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1037,6 +1340,8 @@ of that remaining content is still a separate future pass.
   <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pyxcd-bridge/pyxcd-bridge.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -1058,7 +1363,8 @@ of that remaining content is still a separate future pass.
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -1229,7 +1535,7 @@ of that remaining content is still a separate future pass.
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, PyxcdBridge, QuartoSupport,
 
           RevealMath,
           RevealNotes,

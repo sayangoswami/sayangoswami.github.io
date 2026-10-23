@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-830249afaf38a3b8ef87761716dd66f9.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <meta name="author" content="Sayan Goswami">
+  <title>Class Notes – Counting Without Remembering</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="../custom.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Counting Without Remembering</h1>
+  <p class="subtitle">HyperLogLog and the Count-Min Sketch</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Sayan Goswami 
+</div>
+</div>
+</div>
+
+</section>
+<section id="counting-the-room-without-counting" class="slide level2">
+<h2>Counting the room without counting</h2>
+
+<img data-src="diags/sketch-room-flips.svg" alt="Title: Everyone flips a coin until their first heads. Six rows of coins. Ana: H, 0 tails. Ben: T H, 1 tail. Chloe: T T H, 2 tails. Dev: H, 0 tails. Eli, highlighted in yellow: T T T T T H, 5 tails, longest run. Fay: T H, 1 tail. Then: and everyone else in the room. A blue box below: A run of 5 or more tails happens to about 1 person in 2 to the 5 = 32. So: there are probably about 32 of us." width="760" class="r-stretch"><div class="fragment">
+<p>A silly way to count people. But the same trick will count <em>distinct</em> visitors to a website.</p>
+<aside class="notes">
+<p>~1.5 min. Each extra tail halves the chance: 1 tail is 1 in 2, 2 tails 1 in 4, 5 tails 1 in 32. The rarest outcome in the room tells you roughly how many people tried. Admit it’s silly: one lucky person decides everything. We’ll fix that later, and the fix is the same one you’d use here.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="two-easy-sounding-questions" class="slide level2">
+<h2>Two easy-sounding questions</h2>
+<ul>
+<li>How many <em>different</em> people visited Wikipedia today?</li>
+</ul>
+<div class="fragment">
+<ul>
+<li>Which hashtags are <em>trending</em> right now?</li>
+</ul>
+</div>
+<div class="fragment">
+<p>Both are easy for a spreadsheet of 100 rows.</p>
+<p>They are <strong>not</strong> easy for billions of events a day that never stop arriving.</p>
+<aside class="notes">
+<p>~1 min. Ask the room how they’d answer each one. Most will say “keep a list”.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-obvious-way-write-everything-down" class="slide level2">
+<h2>The obvious way: write everything down</h2>
+<iframe src="anims/sketch-stream-count.html" width="1100" height="660" style="border:0" title="Seven IP addresses slide along a conveyor belt: 10.0.0.7, 10.0.0.3, 10.0.0.7, 10.0.0.9, 10.0.0.3, 10.0.0.7, 10.0.0.1. Each new IP becomes a row in a table with count 1; repeats bump their row's count. It ends with 7 items seen, 4 distinct IPs, and 4 rows of memory: 10.0.0.7 three times, 10.0.0.3 twice, 10.0.0.9 and 10.0.0.1 once. Final caption: 1 billion distinct IPs means 1 billion rows, tens of GB.">
+</iframe>
+<aside class="notes">
+<p>~2 min. The usual next/previous keys step the animation; at its last step they move to the next slide. Point out the three numbers: memory grows with the <em>distinct</em> count. This same 7-IP stream comes back in every animation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-deal-well-make" class="slide level2">
+<h2>The deal we’ll make</h2>
+<p>We get to see each item <strong>once</strong>, as it flies past, and we may keep only a <strong>tiny notebook</strong>.</p>
+<div class="fragment">
+<p>In exchange, we accept answers that are <em>approximately</em> right.</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Exact table</th>
+<th>Sketch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Memory for 1 billion distinct IPs</td>
+<td>tens of GB</td>
+<td><strong>12 KB</strong></td>
+</tr>
+<tr class="even">
+<td>Answer</td>
+<td>exact</td>
+<td>within ~1%</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>~1 min. “Sketch” = a tiny summary that answers one question approximately.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="our-one-tool-a-hash-function" class="slide level2">
+<h2>Our one tool: a hash function</h2>
+
+<img data-src="diags/sketch-hash-machine.svg" alt="Three boxes on the left, 10.0.0.7, 10.0.0.3, and 10.0.0.7, each have an arrow into a large box labeled hash. Out come bit strings 01101001, 10110010, and 01101001. A green bracket around the outputs says: same IP, same bits. Caption: Looks random, but repeatable: duplicates can't fool us." width="820" class="r-stretch"><ul>
+<li>Turns any item into a string of bits that <em>looks</em> random</li>
+<li>The same item always gives the <em>same</em> bits</li>
+</ul>
+<div class="fragment">
+<p>Think of it as a coin flip you can’t redo. In the room, if I counted you twice, you’d flip again and get a second chance to be lucky. A visitor seen twice gets the <em>same</em> bits.</p>
+<aside class="notes">
+<p>~1 min. The 8-bit hashes here are toy values, picked by hand so the story is easy to follow. Real hashes are 64 bits.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section>
+<section id="part-1-hyperloglog" class="title-slide slide level1 center" data-background-color="#0d1b2a">
+<h1>Part 1: HyperLogLog</h1>
+<p>How many <em>different</em> items?</p>
+</section>
+<section id="hash-bits-are-coin-flips" class="slide level2">
+<h2>Hash bits are coin flips</h2>
+
+<img data-src="diags/sketch-first-one.svg" alt="The hash of 10.0.0.9, 00001101, with its first four 0s in red and the next 1 in green. Arrows go down from the first five bits to coins T T T T H. Labels: 0 = tails, 1 = heads; 4 leading zeros = a run of 4 tails. Caption: A good hash makes every bit a fair coin flip." width="760" class="r-stretch"><div class="fragment">
+<p>Remember the room? Now every <em>distinct</em> item is a person flipping coins, and its leading zeros are its run of tails.</p>
+<aside class="notes">
+<p>~1 min. Duplicates are free: they replay the same flips, so they can’t get lucky twice.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="version-0-remember-one-number" class="slide level2">
+<h2>Version 0: remember one number</h2>
+<iframe src="anims/sketch-hll-v0.html" width="1100" height="660" style="border:0" title="The same seven IPs are hashed one at a time. The panel keeps R, the longest run of leading zeros so far, and the estimate 2 to the R. 10.0.0.7 hashes to 01101001, 1 leading zero, so R = 1 and the estimate is 2. 10.0.0.3 has 0 leading zeros, no change; repeats change nothing. 10.0.0.9 hashes to 00001101, 4 leading zeros, so R = 4 and the estimate jumps to 16. The final estimate is 16 against a true count of 4, and the estimate can only be a power of 2.">
+</iframe>
+<aside class="notes">
+<p>~2 min. This is exactly the room experiment: R is the longest run of tails. Memory is a single small number. Stop on 10.0.0.9: one lucky hash.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="what-went-wrong" class="slide level2">
+<h2>What went wrong?</h2>
+<ul>
+<li><strong>One lucky item</strong> decides everything: 10.0.0.9 alone pushed us to 16</li>
+<li><strong>Only powers of 2</strong>: 1, 2, 4, 8, 16, … nothing in between</li>
+</ul>
+<p>This is why counting the room was silly: one lucky person decided the answer.</p>
+<div class="fragment">
+<p><strong>Fix:</strong> run many small experiments and <em>combine</em> them, like asking each row of the room to run its own.</p>
+<aside class="notes">
+<p>~0.5 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="split-the-hash-into-two-jobs" class="slide level2">
+<h2>Split the hash into two jobs</h2>
+
+<img data-src="diags/sketch-bucket-split.svg" alt="The hash of 10.0.0.9 written as 00 then 001101. A blue bracket under 00 says: which bucket? 00. A red bracket under 001101, whose first two 0s are red, says: 2 leading zeros (in the remaining 6 bits). Caption: One hash, two jobs: route the item, then flip its coins." width="700" class="r-stretch"><p>Each bucket keeps its own longest run, in a small number called a <strong>register</strong>. Each bucket is one row of the room.</p>
+<aside class="notes">
+<p>~1 min. With 2 bucket bits there are 4 buckets; real HLL uses 14 bits for 16,384 buckets.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="hyperloglog-in-action" class="slide level2">
+<h2>HyperLogLog in action</h2>
+<iframe src="anims/sketch-hll-buckets.html" width="1100" height="660" style="border:0" title="Four registers labeled 00, 01, 10, 11 start at 0. Each IP's first two hash bits pick a register, and the number of leading zeros in the remaining six bits is stored if it is bigger. 10.0.0.9 goes to bucket 00 with a run of 2; 10.0.0.7, 10.0.0.3 and 10.0.0.1 go to buckets 01, 10 and 11 with runs of 0; repeats change nothing. Final registers: 2, 0, 0, 0. The lucky hash now inflates only bucket 00, and the combined estimate is about 5.2, against 16 for version 0 and a true count of 4.">
+</iframe>
+<aside class="notes">
+<p>~2 min. Emphasize: the lucky item is now contained in one register.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="each-register-is-a-mini-estimate" class="slide level2">
+<h2>Each register is a mini estimate</h2>
+
+<img data-src="diags/sketch-hll-guesses.svg" alt="Four gray register boxes labeled 00, 01, 10, 11 hold 2, 0, 0, 0 (row label: register M). An arrow goes down from each to a guess box (row label: guess 2^M): 4 in red, then 1, 1, 1 in blue, labeled: approximately items that bucket saw. Below: Add them up? 4 + 1 + 1 + 1 = 7. In red: still too big: the lucky 4 dominates the sum." width="760" class="r-stretch"><p>Each register is “version 0” for its own bucket, so a longest run of <em>M</em> means about <span class="math inline">\(2^M\)</span> items landed there.</p>
+<aside class="notes">
+<p>~1 min. Same reasoning as the room, once per bucket. Adding the guesses gives 7: better than 16, but the one fluke still drags the total up. We need an average that the fluke can’t hijack.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-road-trip-puzzle" class="slide level2">
+<h2>A road-trip puzzle</h2>
+<p>You drive to town at <strong>60 mph</strong> and come back at <strong>20 mph</strong>.</p>
+<p>What was your average speed?</p>
+<div class="fragment">
+<p>Not 40. The slow leg takes three times as long, so it counts three times as much: the answer is <strong>30 mph</strong>.</p>
+</div>
+<div class="fragment">
+<p>The trick: <em>flip</em> each speed into “hours per mile”, <em>average</em> those, then <em>flip back</em>. This is the <strong>harmonic mean</strong>. Small values win; one big value can’t take over.</p>
+<aside class="notes">
+<p>~1 min. Let the room guess first; most say 40. 2 / (1/60 + 1/20) = 30.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="an-average-that-ignores-flukes" class="slide level2">
+<h2>An average that ignores flukes</h2>
+
+<img data-src="diags/sketch-hll-harmonic.svg" alt="A five-step pipeline. Bucket guesses 4, 1, 1, 1. Step 1, flip each: 1/4, 1, 1, 1, with a red note: the fluke becomes the smallest piece. Step 2, average: (1/4 + 1 + 1 + 1) / 4 approximately 0.81. Step 3, flip back: 1 / 0.81 approximately 1.23 per bucket. Step 4, times 4 buckets: approximately 4.9. Step 5, times 1.06 correction: approximately 5.2, in green, next to: truth: 4, version 0 said 16." width="800" class="r-stretch"><p><strong>1.06</strong> is a fixed correction worked out mathematically: on average, steps 1–4 come out slightly too small with 4 registers. (With thousands of registers it’s 1.44.)</p>
+<aside class="notes">
+<p>~1.5 min. Same flip-average-flip as the road trip. Here the corrected answer (5.2) is a bit further from 4 than step 4 (4.9): the correction is right on average, not in every example. For the curious, the full formula is E = 2 * alpha_m * m^2 / sum_j 2^(-M_j) with M_j = leading zeros: exactly these five steps. Textbook HLL stores zeros + 1 instead, which is why its constant alpha_m is half of ours. If asked: alpha is theoretical, not fitted. Flajolet et al.&nbsp;(2007) derive it from an integral that depends only on m: 0.532 for m=4, 0.673 for m=16, 0.709 for m=64, ~0.7213/(1+1.079/m) for large m (so 2 * alpha -&gt; 1.44 = 1/ln 2). The empirical parts of HLL are elsewhere (switching to linear counting when registers are empty; HLL++’s bias tables). With only 4 registers and 4 items it’s rough; with thousands of registers it gets within 1%.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="how-good-is-it" class="slide level2">
+<h2>How good is it?</h2>
+<p>Error ≈ 1.04 / √<em>m</em>, where <em>m</em> = number of registers (6 bits each).</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Registers <em>m</em></th>
+<th style="text-align: right;">Memory</th>
+<th style="text-align: right;">Typical error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">12 bytes</td>
+<td style="text-align: right;">26%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">192 bytes</td>
+<td style="text-align: right;">6.5%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1,024</td>
+<td style="text-align: right;">768 bytes</td>
+<td style="text-align: right;">3.3%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>16,384</strong></td>
+<td style="text-align: right;"><strong>12 KB</strong></td>
+<td style="text-align: right;"><strong>0.8%</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>And memory <strong>doesn’t grow</strong> with the stream: 12 KB for a thousand items or a trillion.</p>
+<aside class="notes">
+<p>~1 min. 6 bits per register is enough because a run of zeros in a 64-bit hash can’t exceed 64.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="superpower-merging" class="slide level2">
+<h2>Superpower: merging</h2>
+
+<img data-src="diags/sketch-hll-merge.svg" alt="Two rows of 4 registers under labels 00, 01, 10, 11. Server A: 3, 1, 0, 2. Server B: 1, 2, 2, 0. Below a line labeled max of each column: A union B: 3, 2, 2, 2. Caption: Same as one sketch that saw both streams. No raw data shipped: just 4 numbers." width="700" class="r-stretch"><aside class="notes">
+<p>~1 min. Each data center keeps its own sketch; combine them at the end. Works because max is the same no matter which server saw an item.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="hyperloglog-in-the-wild" class="slide level2">
+<h2>HyperLogLog in the wild</h2>
+<ul>
+<li><strong>Redis</strong>: <code>PFADD</code> / <code>PFCOUNT</code>, 12 KB per counter</li>
+<li><strong>Google BigQuery</strong>, <strong>Snowflake</strong>: <code>APPROX_COUNT_DISTINCT</code>; <strong>Postgres</strong> via the <code>hll</code> extension</li>
+<li><strong>Reddit</strong>: post view counts</li>
+<li>Network monitoring: how many distinct sources hit this server?</li>
+</ul>
+<aside class="notes">
+<p>~0.5 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="part-2-count-min-sketch" class="title-slide slide level1 center" data-background-color="#0d1b2a">
+<h1>Part 2: Count-Min Sketch</h1>
+<p>How <em>often</em> does each item appear?</p>
+</section>
+<section id="a-different-question" class="slide level2">
+<h2>A different question</h2>
+<p>“How many times did <strong>10.0.0.3</strong> visit?” “How often did <strong>#worldcup</strong> appear?”</p>
+<div class="fragment">
+<p>HyperLogLog can’t answer this. It never remembers <em>which</em> item caused what.</p>
+</div>
+<div class="fragment">
+<p>We need <strong>counters</strong>, but far fewer than one per item.</p>
+<aside class="notes">
+<p>~0.5 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="attempt-1-one-row-of-counters" class="slide level2">
+<h2>Attempt 1: one row of counters</h2>
+<iframe src="anims/sketch-cms-row.html" width="1100" height="660" style="border:0" title="One row of 4 counters, columns 0 to 3. Each IP's hash picks a column and that counter goes up by 1: 10.0.0.7 to column 0, 10.0.0.3 to column 2, 10.0.0.9 to column 2, 10.0.0.1 to column 3. Final counters: 3, 0, 3, 1. Asking how many 10.0.0.3 reads column 2, which says 3, but the truth is 2, because 10.0.0.9 also hashes to column 2. Collisions only add: too big, never too small.">
+</iframe>
+<aside class="notes">
+<p>~1.5 min. Key fact: a collision can only push a count <em>up</em>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="fix-several-rows-each-with-its-own-hash" class="slide level2">
+<h2>Fix: several rows, each with its own hash</h2>
+<iframe src="anims/sketch-cms-grid.html" width="1100" height="660" style="border:0" title="A grid of 3 rows (h1, h2, h3) by 4 columns. Each IP adds 1 to one counter in every row, chosen by that row's hash. Final grid: h1: 3, 0, 3, 1. h2: 1, 3, 0, 3. h3: 2, 1, 3, 1. Querying 10.0.0.3 highlights h1 column 2 (3), h2 column 3 (3), and h3 column 0 (2). The minimum, 2, is the true count; row h3 had no collision.">
+</iframe>
+<aside class="notes">
+<p>~2 min. Insert: +1 in every row. Query: read every row, take the smallest.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="why-take-the-minimum" class="slide level2">
+<h2>Why take the minimum?</h2>
+
+<img data-src="diags/sketch-why-min.svg" alt="Bars for the three counters of 10.0.0.3. h1: true 2 plus 1 from 10.0.0.9 = 3. h2: true 2 plus 1 from 10.0.0.1 = 3. h3: true 2, no collision = 2. A dashed line marks the truth at 2. Caption: Noise only ever adds. The smallest counter has the least noise." width="760" class="r-stretch"><p>For the answer to be wrong, the item must collide in <strong>every</strong> row at once. With independent hashes, that’s unlikely.</p>
+<aside class="notes">
+<p>~1 min. Like asking several witnesses who can only exaggerate: trust the most modest one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="how-good-is-it-1" class="slide level2">
+<h2>How good is it?</h2>
+<p>With <em>w</em> columns and <em>d</em> rows, every answer is</p>
+<ul>
+<li><strong>never too small</strong>, and</li>
+<li>too big by at most <em>ε</em> × (stream length), with probability 1 − <em>δ</em></li>
+</ul>
+<p>where <em>w</em> = e / <em>ε</em> and <em>d</em> = ln(1 / <em>δ</em>).</p>
+<div class="fragment">
+<p><strong>Example:</strong> 5 rows × 2,719 columns ≈ <strong>54 KB</strong>.</p>
+<p>Every count is within 0.1% of total traffic, 99% of the time, however many distinct items there are.</p>
+<aside class="notes">
+<p>~1.5 min. Wider rows → smaller error. More rows → more confidence.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="count-min-in-the-wild" class="slide level2">
+<h2>Count-Min in the wild</h2>
+<ul>
+<li><strong>Trending topics</strong>: which hashtags are suddenly frequent?</li>
+<li><strong>Network security</strong>: which IPs are flooding us (DDoS)?</li>
+<li><strong>Caches</strong>: TinyLFU (Caffeine, Java) decides what’s worth keeping</li>
+<li><strong>Language models / NLP</strong>: approximate word and phrase counts</li>
+</ul>
+<div class="fragment">
+<p>It also <strong>merges</strong>: add two grids cell by cell.</p>
+<aside class="notes">
+<p>~0.5 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="wrap-up" class="title-slide slide level1 center" data-background-color="#0d1b2a">
+<h1>Wrap-up</h1>
+
+</section>
+<section id="side-by-side" class="slide level2">
+<h2>Side by side</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>HyperLogLog</th>
+<th>Count-Min Sketch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Question</td>
+<td>How many <em>different</em>?</td>
+<td>How <em>often</em>?</td>
+</tr>
+<tr class="even">
+<td>Notebook</td>
+<td><em>m</em> small registers</td>
+<td><em>d</em> × <em>w</em> counters</td>
+</tr>
+<tr class="odd">
+<td>Update</td>
+<td>keep the max</td>
+<td>add 1 in each row</td>
+</tr>
+<tr class="even">
+<td>Answer</td>
+<td>combine registers</td>
+<td>min over rows</td>
+</tr>
+<tr class="odd">
+<td>Error</td>
+<td>± ~1%, either way</td>
+<td>only <em>over</em>counts</td>
+</tr>
+<tr class="even">
+<td>Merge</td>
+<td>max per register</td>
+<td>add per cell</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>~1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-bigger-idea-sketches" class="slide level2">
+<h2>The bigger idea: sketches</h2>
+<p><strong>Hashing</strong> for randomness, plus <strong>forgetting</strong> almost everything = answers at any scale.</p>
+<div class="fragment">
+<p>More sketches to look up:</p>
+<ul>
+<li><strong>Bloom filter</strong>: “have I seen this before?”</li>
+<li><strong>MinHash</strong>: “how similar are these two sets?”</li>
+<li><strong>t-digest</strong>: “what’s the median / 99th percentile?”</li>
+</ul>
+<aside class="notes">
+<p>~1 min.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="takeaways" class="slide level2">
+<h2>Takeaways</h2>
+<ol type="1">
+<li>You can’t remember everything, but you often don’t need to.</li>
+<li>A good hash turns data into fair coin flips.</li>
+<li><strong>HyperLogLog</strong>: rare patterns reveal how many <em>different</em> items you’ve seen.</li>
+<li><strong>Count-Min</strong>: overlapping counters, then trust the smallest.</li>
+</ol>
+<div class="fragment">
+<p><strong>Questions?</strong></p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/pyxcd-bridge/pyxcd-bridge.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 800,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, PyxcdBridge, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

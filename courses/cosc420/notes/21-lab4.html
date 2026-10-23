@@ -313,7 +313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-3-compile-and-run-20-min" class="level2">
 <h2 class="anchored" data-anchor-id="task-3-compile-and-run-20-min">Task 3 — Compile and Run (20 min)</h2>
-<p>Create a small input file — the same 8 emails from the paper exercise, if you’ve done EL2:</p>
+<p>Create a small input file:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> input.txt <span class="op">&lt;&lt; 'EOF'</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">alice@gmail.com</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">bob@yahoo.com</span></span>
@@ -340,7 +340,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="questions" class="level2">
 <h2 class="anchored" data-anchor-id="questions">Questions</h2>
 <ol type="1">
-<li>If you completed EL2, does this output match your hand-traced answer? If not, find the bug.</li>
 <li>This job ran in <strong>local mode</strong> — one process, no cluster involved. What would need to change (conceptually — you don’t need to know the exact commands yet) to run this same jar against HDFS input, distributed across the real cluster instead?</li>
 <li>Why does a MapReduce job need a driver (<code>main</code>) in addition to the Mapper and Reducer classes? What is the driver actually configuring?</li>
 </ol>
@@ -353,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Screenshot</strong> — successful <code>javac</code>/<code>jar</code> compilation (no errors)</li>
 <li><strong>Screenshot</strong> — the job running and <code>cat output/part-r-00000</code> showing your counts</li>
 <li><strong>Your <code>EmailDomainCount.java</code></strong> — the completed file</li>
-<li><strong>Answers</strong> — paste your 3 answers into the Blackboard text box</li>
+<li><strong>Answers</strong> — paste your 2 answers into the Blackboard text box</li>
 </ol>
 <hr>
 
