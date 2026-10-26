@@ -24,41 +24,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -185,7 +150,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#whats-in-the-notebook" id="toc-whats-in-the-notebook" class="nav-link" data-scroll-target="#whats-in-the-notebook">What’s in the notebook</a></li>
   <li><a href="#what-to-submit" id="toc-what-to-submit" class="nav-link" data-scroll-target="#what-to-submit">What to submit</a></li>
   <li><a href="#completion-criteria" id="toc-completion-criteria" class="nav-link" data-scroll-target="#completion-criteria">Completion criteria</a></li>
-  <li><a href="#sample-solution-instructor-use-only" id="toc-sample-solution-instructor-use-only" class="nav-link" data-scroll-target="#sample-solution-instructor-use-only">Sample Solution <em>(Instructor Use Only)</em></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -314,59 +278,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>every exercise is attempted. Each check cell shows ✅, <em>or</em> the exercise has a genuine attempt and a note saying where you got stuck;</li>
 <li>the two short-answer questions (Exercises 5 and 6) and the two reflection questions are answered, even briefly.</li>
 </ul>
-<hr>
-</section>
-<section id="sample-solution-instructor-use-only" class="level2">
-<h2 class="anchored" data-anchor-id="sample-solution-instructor-use-only">Sample Solution <em>(Instructor Use Only)</em></h2>
-<p>The check cells were verified against these solutions. Two more build-time checks confirmed that (a) every check passes with these solutions, and (b) running any exercise with its code still blank fails at its check cell with a readable message, not an unrelated crash.</p>
-<p><strong>Data facts</strong>, for spot-checking submissions: 18 ratings, 6 movies, 6 users, 12 ratings ≥ 4.0. Movie 999 has one rating but no row in <code>movies.csv</code>.</p>
-<p><strong>Exercise 1:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_lines(path, skip_header<span class="op">=</span><span class="va">True</span>):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    lines <span class="op">=</span> []</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(path, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> f:</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            line <span class="op">=</span> line.strip()</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> line:</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                lines.append(line)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> skip_header:</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        lines <span class="op">=</span> lines[<span class="dv">1</span>:]</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lines</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Exercise 2:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_rating(line):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    user_id, movie_id, rating, _timestamp <span class="op">=</span> line.split(<span class="st">","</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="bu">int</span>(user_id), <span class="bu">int</span>(movie_id), <span class="bu">float</span>(rating))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_movie(line):</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    movie_id, title, genres <span class="op">=</span> line.split(<span class="st">","</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="bu">int</span>(movie_id), title, genres.split(<span class="st">"|"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Exercise 3:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ratings <span class="op">=</span> [parse_rating(line) <span class="cf">for</span> line <span class="kw">in</span> load_lines(<span class="st">"ratings.csv"</span>)]</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>movies <span class="op">=</span> [parse_movie(line) <span class="cf">for</span> line <span class="kw">in</span> load_lines(<span class="st">"movies.csv"</span>)]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rating_values <span class="op">=</span> [rating <span class="cf">for</span> (user, movie, rating) <span class="kw">in</span> ratings]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>high_ratings <span class="op">=</span> [r <span class="cf">for</span> r <span class="kw">in</span> ratings <span class="cf">if</span> r[<span class="dv">2</span>] <span class="op">&gt;=</span> <span class="fl">4.0</span>]</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>distinct_users <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(user <span class="cf">for</span> (user, movie, rating) <span class="kw">in</span> ratings))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Exercise 4:</strong> distribution <code>{1.0: 1, 2.5: 1, 3.0: 2, 3.5: 2, 4.0: 4, 4.5: 4, 5.0: 4}</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> user_id, movie_id, rating <span class="kw">in</span> ratings:</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    distribution[rating] <span class="op">=</span> distribution.get(rating, <span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> movie_id <span class="kw">not</span> <span class="kw">in</span> ratings_by_movie:</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        ratings_by_movie[movie_id] <span class="op">=</span> []</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    ratings_by_movie[movie_id].append(rating)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mean(values):</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>(values) <span class="op">/</span> <span class="bu">len</span>(values)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>stats <span class="op">=</span> {movie_id: (mean(vals), <span class="bu">len</span>(vals)) <span class="cf">for</span> movie_id, vals <span class="kw">in</span> ratings_by_movie.items()}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>stats</code>: 1 → (4.25, 4), 2 → (3.0, 3), 6 → (5.0, 1), 16 → (3.5, 2), 32 → (4.5, 3), 47 → (4.5, 4), 999 → (1.0, 1). <code>ratings_by_movie.setdefault(movie_id, []).append(rating)</code> is an equally good one-line version of the grouping.</p>
-<p><strong>Exercise 5:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>titles <span class="op">=</span> {movie_id: title <span class="cf">for</span> (movie_id, title, genres) <span class="kw">in</span> movies}</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>joined <span class="op">=</span> [(titles[m], avg, n) <span class="cf">for</span> m, (avg, n) <span class="kw">in</span> stats.items() <span class="cf">if</span> m <span class="kw">in</span> titles]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Question:</em> movie <strong>999</strong> is dropped, because it has a rating but no row in <code>movies.csv</code>, so an inner join has nothing to pair it with. A join that kept it (a <em>left</em> join) would need a placeholder title, such as <code>None</code> or <code>"Unknown"</code>, which is what Spark’s <code>how="left"</code> produces as <code>null</code>.</p>
-<p><strong>Exercise 6:</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_n(rows, n<span class="op">=</span><span class="dv">3</span>, min_count<span class="op">=</span><span class="dv">2</span>):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    eligible <span class="op">=</span> [row <span class="cf">for</span> row <span class="kw">in</span> rows <span class="cf">if</span> row[<span class="dv">2</span>] <span class="op">&gt;=</span> min_count]</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sorted</span>(eligible, key<span class="op">=</span><span class="kw">lambda</span> row: (row[<span class="dv">1</span>], row[<span class="dv">2</span>]), reverse<span class="op">=</span><span class="va">True</span>)[:n]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Result: Seven (4.5, 4), Twelve Monkeys (4.5, 3), Toy Story (4.25, 4). <em>Question:</em> with <code>min_count=1</code>, <strong>Heat</strong> wins with a single 5.0 rating. One person’s opinion isn’t evidence that a film is good. A minimum count (≥ 50 in the capstone) keeps films with too few ratings to trust from topping the chart.</p>
-<p><strong>Reflection:</strong> the pattern to look for: 1. <strong>Map</strong> = Exercises 2–3 (each line → <code>(movie_id, rating)</code>). <strong>Shuffle</strong> = Exercise 4b (group by <code>movie_id</code>). <strong>Reduce</strong> = Exercise 4c (<code>mean</code> per group). Exercise 5’s join is the extra step MapReduce makes awkward and Spark makes one line. 2. The first line to cause trouble is <code>load_lines</code> / the <code>ratings = [...]</code> comprehension (or <code>ratings_by_movie</code>), because it holds <strong>every line in memory at once</strong> on one machine. At 100 GB that exceeds a laptop’s RAM, and even if it fit, one CPU would process it serially. Spark splits the file into partitions across machines and streams them.</p>
 
 
 </section>
