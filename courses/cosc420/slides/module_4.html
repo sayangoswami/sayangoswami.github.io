@@ -303,6 +303,7 @@ SI
 <li><strong>Module 5:</strong> the MongoDB Python driver (<code>pymongo</code>)</li>
 <li><strong>Module 6:</strong> Flask, and the capstone that ties all of them together</li>
 </ul>
+<div class="fragment">
 <p>You’ve already started: <strong>EL1</strong> covered syntax and control flow, and <strong>EL3</strong> covers functions, lists, dictionaries and files. Today puts it all in one place.</p>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Ask for a show of hands on EL3 progress. It’s due Friday with Lab 6, and anyone who hasn’t started should hear that today.</p>
@@ -317,6 +318,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="java-vs.-python-at-a-glance" class="slide level2">
 <h2>Java vs.&nbsp;Python at a Glance</h2>
@@ -361,7 +363,7 @@ SI
 </tr>
 <tr class="even">
 <td>Boolean ops</td>
-<td><code>&amp;&amp;</code>, <code>\|\|</code>, <code>!</code></td>
+<td><code>&amp;&amp;</code>, <code>||</code>, <code>!</code></td>
 <td><code>and</code>, <code>or</code>, <code>not</code></td>
 </tr>
 <tr class="odd">
@@ -396,9 +398,9 @@ SI
 <span id="cb1-7"><a></a></span>
 <span id="cb1-8"><a></a><span class="bu">print</span>(<span class="bu">type</span>(price))  <span class="co"># &lt;class 'float'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>No type declarations. The <strong>value</strong> has a type, and the variable just points at it.</li>
-<li><code>type(x)</code> tells you what type a value is. It prints as <code>&lt;class 'float'&gt;</code>, not just <code>float</code>.</li>
-<li>Watch the Java habits: <code>7 / 2</code> is <code>3.5</code> in Python (true division). Use <code>7 // 2</code> for <code>3</code>.</li>
+<li class="fragment">No type declarations. The <em>value has a type</em>, and the variable just points at it.</li>
+<li class="fragment"><code>type(x)</code> tells you what type a value is. It prints as <em><code>&lt;class 'float'&gt;</code></em>, not just <code>float</code>.</li>
+<li class="fragment">Watch the Java habits: <code>7 / 2</code> is <em><code>3.5</code> in Python</em> (true division). Use <code>7 // 2</code> for <code>3</code>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q3 asks for the exact output of <code>print(type(3.14))</code> — point at the <code>&lt;class 'float'&gt;</code> form explicitly. Q10 asks which of <code>int</code>, <code>str</code>, <code>list</code>, <code>char</code> are real Python types — say explicitly that Python has <strong>no <code>char</code> type</strong>: <code>'a'</code> is just a 1-character <code>str</code>.</p>
@@ -421,10 +423,19 @@ SI
 <span id="cb2-3"><a></a>    <span class="bu">print</span>(<span class="st">"OK"</span>)          <span class="co"># indented: inside the if</span></span>
 <span id="cb2-4"><a></a>    <span class="bu">print</span>(<span class="st">"still OK"</span>)</span>
 <span id="cb2-5"><a></a><span class="bu">print</span>(<span class="st">"always runs"</span>)     <span class="co"># not indented: outside the if</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>OK
+still OK
+always runs</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
 <ul>
-<li><code>=</code> <strong>assigns</strong>; <code>==</code> <strong>compares</strong>. Writing <code>if status = 200:</code> is a syntax error in Python.</li>
-<li>There are no braces. <strong>Indentation defines the block</strong>, and it’s required, not a style choice. Mixing up indentation changes what your program does, or stops it from running.</li>
-<li>Every block-opening line (<code>if</code>, <code>for</code>, <code>while</code>, <code>def</code>) ends with a colon <code>:</code>.</li>
+<li class="fragment"><code>=</code> <em>assigns</em>; <code>==</code> <em>compares</em>. Writing <code>if status = 200:</code> is a syntax error in Python.</li>
+<li class="fragment">There are no braces. <em>Indentation defines the block</em>, and it’s required, not a style choice. Mixing up indentation changes what your program does, or stops it from running.</li>
+<li class="fragment">Every block-opening line (<code>if</code>, <code>for</code>, <code>while</code>, <code>def</code>) <em>ends with a colon</em> <code>:</code>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q2 (indentation is required) and Q6 (<code>=</code> vs.&nbsp;<code>==</code>) come from this slide. Live demo: delete the indent on line 3 and run it, then indent line 5 and run it again.</p>
@@ -442,15 +453,15 @@ SI
 </section>
 <section id="strings-indexing-slicing-split" class="slide level2">
 <h2>Strings: Indexing, Slicing, <code>split()</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>word <span class="op">=</span> <span class="st">"python"</span></span>
-<span id="cb3-2"><a></a>word[<span class="dv">0</span>]        <span class="co"># 'p'  — zero-indexed, like Java</span></span>
-<span id="cb3-3"><a></a>word[<span class="dv">2</span>]        <span class="co"># 't'</span></span>
-<span id="cb3-4"><a></a>word[<span class="op">-</span><span class="dv">1</span>]       <span class="co"># 'n'  — negative indexes count from the end</span></span>
-<span id="cb3-5"><a></a>word[<span class="dv">0</span>:<span class="dv">3</span>]      <span class="co"># 'pyt' — slice: start up to (not including) end</span></span>
-<span id="cb3-6"><a></a></span>
-<span id="cb3-7"><a></a>line <span class="op">=</span> <span class="st">"GET /index.html 200"</span></span>
-<span id="cb3-8"><a></a>parts <span class="op">=</span> line.split(<span class="st">" "</span>)   <span class="co"># ['GET', '/index.html', '200']</span></span>
-<span id="cb3-9"><a></a>code <span class="op">=</span> <span class="bu">int</span>(parts[<span class="dv">2</span>])      <span class="co"># 200, now an int</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a>word <span class="op">=</span> <span class="st">"python"</span></span>
+<span id="cb4-2"><a></a>word[<span class="dv">0</span>]        <span class="co"># 'p'  — zero-indexed, like Java</span></span>
+<span id="cb4-3"><a></a>word[<span class="dv">2</span>]        <span class="co"># 't'</span></span>
+<span id="cb4-4"><a></a>word[<span class="op">-</span><span class="dv">1</span>]       <span class="co"># 'n'  — negative indexes count from the end</span></span>
+<span id="cb4-5"><a></a>word[<span class="dv">0</span>:<span class="dv">3</span>]      <span class="co"># 'pyt' — slice: start up to (not including) end</span></span>
+<span id="cb4-6"><a></a></span>
+<span id="cb4-7"><a></a>line <span class="op">=</span> <span class="st">"GET /index.html 200"</span></span>
+<span id="cb4-8"><a></a>parts <span class="op">=</span> line.split(<span class="st">" "</span>)   <span class="co"># ['GET', '/index.html', '200']</span></span>
+<span id="cb4-9"><a></a>code <span class="op">=</span> <span class="bu">int</span>(parts[<span class="dv">2</span>])      <span class="co"># 200, now an int</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q7 asks for <code>"python"[2]</code>. <code>split()</code> + <code>int()</code> is exactly how Lab 6 and later MapReduce-style code parse a line, which is what EL1 Exercise 2 did with log lines.</p>
 <style type="text/css">
@@ -467,19 +478,19 @@ SI
 </section>
 <section id="lists-len-and-range" class="slide level2">
 <h2>Lists, <code>len()</code>, and <code>range()</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a>nums <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>]</span>
-<span id="cb4-2"><a></a><span class="bu">len</span>(nums)         <span class="co"># 5</span></span>
-<span id="cb4-3"><a></a>nums.append(<span class="dv">60</span>)   <span class="co"># add to the end</span></span>
-<span id="cb4-4"><a></a>nums[<span class="dv">1</span>]           <span class="co"># 20</span></span>
-<span id="cb4-5"><a></a></span>
-<span id="cb4-6"><a></a><span class="cf">for</span> n <span class="kw">in</span> nums:    <span class="co"># loop over the items directly — no index needed</span></span>
-<span id="cb4-7"><a></a>    <span class="bu">print</span>(n)</span>
-<span id="cb4-8"><a></a></span>
-<span id="cb4-9"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):   <span class="co"># 0, 1, 2   (starts at 0, stops BEFORE 3)</span></span>
-<span id="cb4-10"><a></a>    <span class="bu">print</span>(i)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a>nums <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>]</span>
+<span id="cb5-2"><a></a><span class="bu">len</span>(nums)         <span class="co"># 5</span></span>
+<span id="cb5-3"><a></a>nums.append(<span class="dv">60</span>)   <span class="co"># add to the end</span></span>
+<span id="cb5-4"><a></a>nums[<span class="dv">1</span>]           <span class="co"># 20</span></span>
+<span id="cb5-5"><a></a></span>
+<span id="cb5-6"><a></a><span class="cf">for</span> n <span class="kw">in</span> nums:    <span class="co"># loop over the items directly — no index needed</span></span>
+<span id="cb5-7"><a></a>    <span class="bu">print</span>(n)      <span class="co"># 10, 20, 30, 40, 50, 60 (one per line)</span></span>
+<span id="cb5-8"><a></a></span>
+<span id="cb5-9"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):   <span class="co"># 0, 1, 2   (starts at 0, stops BEFORE 3)</span></span>
+<span id="cb5-10"><a></a>    <span class="bu">print</span>(i)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>len(x)</code> works on lists, strings, dicts: anything with a size.</li>
-<li><code>range(n)</code> gives <code>0, 1, ..., n-1</code>. <code>range(2, 5)</code> gives <code>2, 3, 4</code>.</li>
+<li class="fragment"><code>len(x)</code> works on lists, strings, dicts: <em>anything with a size</em>.</li>
+<li class="fragment"><code>range(n)</code> gives <code>0, 1, ..., n-1</code> — it <em>stops before <code>n</code></em>. <code>range(2, 5)</code> gives <code>2, 3, 4</code>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q1 (<code>len</code> of a 5-item list) and Q5 (<code>range(3)</code> prints <code>0 1 2</code>) come from this slide. Stress “stops before n” — <code>1 2 3</code> and <code>0 1 2 3</code> are the wrong answers.</p>
@@ -497,20 +508,20 @@ SI
 </section>
 <section id="dictionaries" class="slide level2">
 <h2>Dictionaries</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a>person <span class="op">=</span> {<span class="st">"name"</span>: <span class="st">"Alice"</span>, <span class="st">"age"</span>: <span class="dv">30</span>}   <span class="co"># curly braces, key: value</span></span>
-<span id="cb5-2"><a></a>person[<span class="st">"name"</span>]          <span class="co"># 'Alice'</span></span>
-<span id="cb5-3"><a></a>person[<span class="st">"email"</span>] <span class="op">=</span> <span class="st">"a@x.com"</span>             <span class="co"># add a key</span></span>
-<span id="cb5-4"><a></a></span>
-<span id="cb5-5"><a></a>counts <span class="op">=</span> {}</span>
-<span id="cb5-6"><a></a><span class="cf">for</span> word <span class="kw">in</span> [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>]:</span>
-<span id="cb5-7"><a></a>    counts[word] <span class="op">=</span> counts.get(word, <span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb5-8"><a></a><span class="co"># counts == {'a': 2, 'b': 1}</span></span>
-<span id="cb5-9"><a></a></span>
-<span id="cb5-10"><a></a><span class="cf">for</span> key, value <span class="kw">in</span> person.items():</span>
-<span id="cb5-11"><a></a>    <span class="bu">print</span>(key, value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a>person <span class="op">=</span> {<span class="st">"name"</span>: <span class="st">"Alice"</span>, <span class="st">"age"</span>: <span class="dv">30</span>}   <span class="co"># curly braces, key: value</span></span>
+<span id="cb6-2"><a></a>person[<span class="st">"name"</span>]          <span class="co"># 'Alice'</span></span>
+<span id="cb6-3"><a></a>person[<span class="st">"email"</span>] <span class="op">=</span> <span class="st">"a@x.com"</span>             <span class="co"># add a key</span></span>
+<span id="cb6-4"><a></a></span>
+<span id="cb6-5"><a></a>counts <span class="op">=</span> {}</span>
+<span id="cb6-6"><a></a><span class="cf">for</span> word <span class="kw">in</span> [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>]:</span>
+<span id="cb6-7"><a></a>    counts[word] <span class="op">=</span> counts.get(word, <span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb6-8"><a></a><span class="co"># counts == {'a': 2, 'b': 1}</span></span>
+<span id="cb6-9"><a></a></span>
+<span id="cb6-10"><a></a><span class="cf">for</span> key, value <span class="kw">in</span> person.items():</span>
+<span id="cb6-11"><a></a>    <span class="bu">print</span>(key, value)   <span class="co"># name Alice / age 30 / email a@x.com</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Python’s <code>HashMap</code>: keys map to values. <code>.get(key, default)</code> avoids a crash on a missing key.</li>
-<li>A dict looks exactly like a JSON object — that’s why REST APIs (Module 2), MongoDB documents (Module 5) and Flask’s <code>jsonify</code> (Module 6) all feel natural in Python.</li>
+<li class="fragment">Python’s <code>HashMap</code>: keys map to values. <em><code>.get(key, default)</code></em> avoids a crash (<code>KeyError</code>) on a missing key.</li>
+<li class="fragment">A dict looks exactly like a <em>JSON object</em> — that’s why REST APIs (Module 2), MongoDB documents (Module 5) and Flask’s <code>jsonify</code> (Module 6) all feel natural in Python.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q4 asks which syntax creates a dict with keys <code>"name"</code> and <code>"age"</code> — the example on this slide is that answer. The <code>counts.get(...)</code> loop is the word count pattern from Lab 6 Exercise 3 and Module 3’s reduce step.</p>
@@ -528,19 +539,19 @@ SI
 </section>
 <section id="functions" class="slide level2">
 <h2>Functions</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="kw">def</span> add(a, b):</span>
-<span id="cb6-2"><a></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
-<span id="cb6-3"><a></a></span>
-<span id="cb6-4"><a></a>add(<span class="dv">3</span>, <span class="dv">4</span>)          <span class="co"># 7</span></span>
-<span id="cb6-5"><a></a></span>
-<span id="cb6-6"><a></a><span class="kw">def</span> greet(name, greeting<span class="op">=</span><span class="st">"Hello"</span>):   <span class="co"># default argument</span></span>
-<span id="cb6-7"><a></a>    <span class="cf">return</span> greeting <span class="op">+</span> <span class="st">", "</span> <span class="op">+</span> name</span>
-<span id="cb6-8"><a></a></span>
-<span id="cb6-9"><a></a>greet(<span class="st">"Bob"</span>)                 <span class="co"># 'Hello, Bob'</span></span>
-<span id="cb6-10"><a></a>greet(<span class="st">"Bob"</span>, <span class="st">"Hi"</span>)           <span class="co"># 'Hi, Bob'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="kw">def</span> add(a, b):</span>
+<span id="cb7-2"><a></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb7-3"><a></a></span>
+<span id="cb7-4"><a></a>add(<span class="dv">3</span>, <span class="dv">4</span>)          <span class="co"># 7</span></span>
+<span id="cb7-5"><a></a></span>
+<span id="cb7-6"><a></a><span class="kw">def</span> greet(name, greeting<span class="op">=</span><span class="st">"Hello"</span>):   <span class="co"># default argument</span></span>
+<span id="cb7-7"><a></a>    <span class="cf">return</span> greeting <span class="op">+</span> <span class="st">", "</span> <span class="op">+</span> name</span>
+<span id="cb7-8"><a></a></span>
+<span id="cb7-9"><a></a>greet(<span class="st">"Bob"</span>)                 <span class="co"># 'Hello, Bob'</span></span>
+<span id="cb7-10"><a></a>greet(<span class="st">"Bob"</span>, <span class="st">"Hi"</span>)           <span class="co"># 'Hi, Bob'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>def</code>, a name, parameters, a colon, then an indented body. No return type.</li>
-<li>A function with no <code>return</code> returns <code>None</code> (Python’s <code>null</code>).</li>
+<li class="fragment"><code>def</code>, a name, parameters, a colon, then an indented body. <em>No return type.</em></li>
+<li class="fragment">A function with no <code>return</code> returns <em><code>None</code></em> (Python’s <code>null</code>).</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q8 is <code>add(3, 4)</code>. The distractors are <code>"a + b"</code>, <code>None</code> and <code>34</code> — ask the class which Java or JavaScript habit would lead to <code>34</code> (string concatenation) before moving on.</p>
@@ -567,24 +578,19 @@ SI
 <p><strong>Breather — think on your own (2 min), then we discuss</strong></p>
 </div>
 <div class="callout-content">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a>data <span class="op">=</span> {<span class="st">"alice"</span>: [<span class="dv">90</span>, <span class="dv">80</span>], <span class="st">"bob"</span>: [<span class="dv">70</span>]}</span>
-<span id="cb7-2"><a></a><span class="cf">for</span> name <span class="kw">in</span> data:</span>
-<span id="cb7-3"><a></a>    total <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-4"><a></a>    <span class="cf">for</span> s <span class="kw">in</span> data[name]:</span>
-<span id="cb7-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> s</span>
-<span id="cb7-6"><a></a>    <span class="bu">print</span>(name, total <span class="op">/</span> <span class="bu">len</span>(data[name]))</span>
-<span id="cb7-7"><a></a><span class="bu">print</span>(<span class="bu">len</span>(data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>data <span class="op">=</span> {<span class="st">"alice"</span>: [<span class="dv">90</span>, <span class="dv">80</span>], <span class="st">"bob"</span>: [<span class="dv">70</span>]}</span>
+<span id="cb8-2"><a></a><span class="cf">for</span> name <span class="kw">in</span> data:</span>
+<span id="cb8-3"><a></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-4"><a></a>    <span class="cf">for</span> s <span class="kw">in</span> data[name]:</span>
+<span id="cb8-5"><a></a>        total <span class="op">=</span> total <span class="op">+</span> s</span>
+<span id="cb8-6"><a></a>    <span class="bu">print</span>(name, total <span class="op">/</span> <span class="bu">len</span>(data[name]))</span>
+<span id="cb8-7"><a></a><span class="bu">print</span>(<span class="bu">len</span>(data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>What does each <code>print</code> line output? What changes if the second <code>print</code> is indented one level?</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><code>alice 85.0</code>, <code>bob 70.0</code>, then <code>2</code>. Note <code>85.0</code>, not <code>85</code>: <code>/</code> always gives a float.</li>
-<li><code>len(data)</code> is the number of <strong>keys</strong> (2), not the number of scores (3).</li>
-<li>Indenting <code>print(len(data))</code> one level puts it inside the outer <code>for</code>, so it prints <code>2</code> twice, once after each student. Same code, different program: indentation is syntax.</li>
-</ul>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -596,23 +602,32 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="answer" class="slide level2">
+<h2>Answer</h2>
+<pre><code>alice 85.0
+bob 70.0
+2</code></pre>
+<ul>
+<li class="fragment"><code>85.0</code>, not <code>85</code>: <em><code>/</code> always gives a float</em>.</li>
+<li class="fragment"><code>len(data)</code> is the number of <em>keys</em> (2), not the number of scores (3).</li>
+<li class="fragment">Indenting <code>print(len(data))</code> one level puts it <em>inside the outer <code>for</code></em>, so it prints <code>2</code> twice, once after each student. Same code, different program: indentation is syntax.</li>
+</ul>
 </section>
 <section id="list-comprehensions-lambda-and-sorted" class="slide level2">
 <h2>List Comprehensions, <code>lambda</code>, and <code>sorted</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>nums <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>]</span>
-<span id="cb8-2"><a></a>squares <span class="op">=</span> [n <span class="op">*</span> n <span class="cf">for</span> n <span class="kw">in</span> nums]              <span class="co"># [1, 4, 9, 16, 25]</span></span>
-<span id="cb8-3"><a></a>evens   <span class="op">=</span> [n <span class="cf">for</span> n <span class="kw">in</span> nums <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]    <span class="co"># [2, 4]</span></span>
-<span id="cb8-4"><a></a></span>
-<span id="cb8-5"><a></a>pairs <span class="op">=</span> [(<span class="st">"bob"</span>, <span class="dv">70</span>), (<span class="st">"alice"</span>, <span class="dv">85</span>), (<span class="st">"carol"</span>, <span class="dv">92</span>)]</span>
-<span id="cb8-6"><a></a><span class="bu">sorted</span>(pairs, key<span class="op">=</span><span class="kw">lambda</span> p: p[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb8-7"><a></a><span class="co"># [('carol', 92), ('alice', 85), ('bob', 70)]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>A <strong>list comprehension</strong> builds a new list in one line: <code>[expression for item in list if condition]</code>.</li>
-<li>A <strong><code>lambda</code></strong> is a tiny unnamed function. <code>lambda p: p[1]</code> means “given <code>p</code>, return <code>p[1]</code>.”</li>
-<li>You’ll see both in Lab 6 and all over Python code. In PySpark, though, you’ll use Spark’s own <code>filter</code>/<code>select</code> instead of comprehensions (Session 2 shows why).</li>
-</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a>nums <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>]</span>
+<span id="cb10-2"><a></a>squares <span class="op">=</span> [n <span class="op">*</span> n <span class="cf">for</span> n <span class="kw">in</span> nums]              <span class="co"># [1, 4, 9, 16, 25]</span></span>
+<span id="cb10-3"><a></a>evens   <span class="op">=</span> [n <span class="cf">for</span> n <span class="kw">in</span> nums <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]    <span class="co"># [2, 4]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A <strong>list comprehension</strong> builds a new list in one line: <code>[expression for item in list if condition]</code>.</p>
+<div class="fragment">
+<p>It’s shorthand for a loop you already know how to write:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a>evens <span class="op">=</span> []</span>
+<span id="cb11-2"><a></a><span class="cf">for</span> n <span class="kw">in</span> nums:</span>
+<span id="cb11-3"><a></a>    <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb11-4"><a></a>        evens.append(n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> This is the densest slide. Write the comprehension as the equivalent <code>for</code> loop first, then collapse it. Lab 6 Exercise 1 and Exercise 3 both use these directly.</p>
+<p><strong>Timing: 5 min across this slide and the next.</strong> Write the comprehension as the equivalent <code>for</code> loop first (the second block), then collapse it. Lab 6 Exercise 1 and Exercise 3 both use these directly.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -624,22 +639,35 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>pairs <span class="op">=</span> [(<span class="st">"bob"</span>, <span class="dv">70</span>), (<span class="st">"alice"</span>, <span class="dv">85</span>), (<span class="st">"carol"</span>, <span class="dv">92</span>)]</span>
+<span id="cb12-2"><a></a><span class="bu">sorted</span>(pairs, key<span class="op">=</span><span class="kw">lambda</span> p: p[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-3"><a></a><span class="co"># [('carol', 92), ('alice', 85), ('bob', 70)]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">A <em><code>lambda</code></em> is a tiny unnamed function. <code>lambda p: p[1]</code> means “given <code>p</code>, return <code>p[1]</code>.”</li>
+<li class="fragment"><code>sorted(..., key=...)</code> sorts by <em>whatever the key function returns</em> — here, the score. <code>reverse=True</code> puts the biggest first.</li>
+<li class="fragment">You’ll see both in Lab 6 and all over Python code. In PySpark, though, you’ll use <em>Spark’s own <code>filter</code>/<code>select</code></em> instead of comprehensions (Session 2 shows why).</li>
+</ul>
 </section>
 <section id="reading-a-file" class="slide level2">
 <h2>Reading a File</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>f <span class="op">=</span> <span class="bu">open</span>(<span class="st">"ratings.csv"</span>, <span class="st">"r"</span>)     <span class="co"># "r" = read mode</span></span>
-<span id="cb9-2"><a></a><span class="cf">for</span> line <span class="kw">in</span> f:</span>
-<span id="cb9-3"><a></a>    <span class="bu">print</span>(line.strip())</span>
-<span id="cb9-4"><a></a>f.close()</span>
-<span id="cb9-5"><a></a></span>
-<span id="cb9-6"><a></a><span class="co"># The idiomatic version: the file closes itself when the block ends</span></span>
-<span id="cb9-7"><a></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"ratings.csv"</span>, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
-<span id="cb9-8"><a></a>    header <span class="op">=</span> f.readline()</span>
-<span id="cb9-9"><a></a>    <span class="cf">for</span> line <span class="kw">in</span> f:</span>
-<span id="cb9-10"><a></a>        user, movie, rating <span class="op">=</span> line.strip().split(<span class="st">","</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a>f <span class="op">=</span> <span class="bu">open</span>(<span class="st">"ratings.csv"</span>, <span class="st">"r"</span>)     <span class="co"># "r" = read mode</span></span>
+<span id="cb13-2"><a></a><span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb13-3"><a></a>    <span class="bu">print</span>(line.strip())</span>
+<span id="cb13-4"><a></a>f.close()</span>
+<span id="cb13-5"><a></a></span>
+<span id="cb13-6"><a></a><span class="co"># The idiomatic version: the file closes itself when the block ends</span></span>
+<span id="cb13-7"><a></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"ratings.csv"</span>, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb13-8"><a></a>    header <span class="op">=</span> f.readline()            <span class="co"># skip the header row</span></span>
+<span id="cb13-9"><a></a>    <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb13-10"><a></a>        user, movie, rating, ts <span class="op">=</span> line.strip().split(<span class="st">","</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>open(path, "r")</code> to read, <code>"w"</code> to write (overwrites the file).</li>
-<li><code>with open(...) as f:</code> is preferred: no forgotten <code>close()</code>.</li>
+<li class="fragment"><code>open(path, "r")</code> to read, <code>"w"</code> to write (<em>overwrites</em> the file).</li>
+<li class="fragment"><code>with open(...) as f:</code> is preferred: <em>no forgotten <code>close()</code></em>.</li>
+<li class="fragment">The unpacking needs <em>one name per field</em>: <code>ratings.csv</code> has four columns (<code>userId,movieId,rating,timestamp</code>), so three names would crash with a <code>ValueError</code>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 4 Q9 asks which call opens <code>data.txt</code> for reading — <code>open("data.txt", "r")</code>. EL3 Exercise 1 is <code>load_lines(path, skip_header=True)</code>, built from exactly this pattern; the tuple unpacking on the last line is EL3 Exercise 2.</p>
@@ -688,6 +716,7 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>EL3’s mini ratings pipeline is this left column. Lab 8 and the capstone are the right column.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Don’t teach PySpark syntax yet. The point is that Monday’s lecture is the same ideas with a different engine underneath.</p>
@@ -702,6 +731,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="lab-6-quiz-4-preview" class="slide level2">
 <h2>Lab 6 + Quiz 4 Preview</h2>
@@ -798,7 +828,7 @@ SI
 </tr>
 </tbody>
 </table>
-<p>12 slides, ~44 min. Module 4 only gets <strong>three</strong> real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here.</p>
+<p>13 slides, ~48 min (several split into sub-slides; the times cover each slide’s sub-slides too). Module 4 only gets <strong>three</strong> real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -814,6 +844,7 @@ SI
 <section id="recap-from-hadoop-to-spark" class="slide level2">
 <h2>Recap: From Hadoop to Spark</h2>
 <p>Module 3 ended with MapReduce’s biggest weakness: <strong>every job writes its intermediate results to disk</strong>, even between steps of the same pipeline. For a job that only runs once, that’s fine. For anything iterative — trying 100 variations of a machine-learning model, or chaining ten transformations together — writing to disk every single step is slow.</p>
+<div class="fragment">
 <p><strong>Apache Spark</strong> was built to fix exactly this.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Just re-anchor: MapReduce’s map→shuffle→reduce→disk cycle from Module 3 is the thing Spark is reacting against. Don’t re-teach MapReduce, just point at the pain point.</p>
@@ -828,17 +859,30 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="what-is-apache-spark" class="slide level2">
 <h2>What Is Apache Spark?</h2>
 <p><strong>Apache Spark</strong> is a distributed data-processing engine — the successor to Hadoop MapReduce for most large-scale data work today.</p>
 <ul>
-<li><strong>Key idea:</strong> keep intermediate data <strong>in memory</strong> across steps of a pipeline, instead of writing every step to disk the way MapReduce does.</li>
-<li>Result: <strong>10–100× faster</strong> for workloads that reuse the same data across multiple steps (iterative algorithms, interactive queries, multi-stage pipelines).</li>
-<li>Written in Scala, but has full APIs in Python (<strong>PySpark</strong> — what we use), Java, R, and SQL.</li>
-<li>Beyond the batch DataFrame work this course focuses on, Spark also has Spark SQL (write actual SQL queries against a DataFrame), Structured Streaming (process data as it arrives, not just in batches), and MLlib (distributed machine learning) — all part of the same engine, not separate tools. We only use the batch/DataFrame piece this semester.</li>
-<li><strong>In our classroom cluster</strong>, Spark jobs happen to read from HDFS and get scheduled by YARN, both from Module 3 — but that’s a choice about <em>our</em> setup, not a requirement of Spark itself. Spark can just as easily read from S3, local files, a database, or a Kafka stream; it isn’t tied to HDFS the way MapReduce, in practice, always was.</li>
+<li class="fragment"><strong>Key idea:</strong> keep intermediate data <em>in memory</em> across steps of a pipeline, instead of writing every step to disk the way MapReduce does.</li>
+<li class="fragment">Result: <em>10–100× faster</em> for workloads that reuse the same data across multiple steps (iterative algorithms, interactive queries, multi-stage pipelines).</li>
+<li class="fragment">Written in Scala, but has full APIs in Python (<em>PySpark</em> — what we use), Java, R, and SQL.</li>
 </ul>
+</section>
+<section class="slide level2">
+
+<p><strong>One engine, several tools.</strong> Beyond the batch DataFrame work this course focuses on, Spark also has:</p>
+<ul>
+<li class="fragment"><em>Spark SQL</em>: write actual SQL queries against a DataFrame.</li>
+<li class="fragment"><em>Structured Streaming</em>: process data as it arrives, not just in batches.</li>
+<li class="fragment"><em>MLlib</em>: distributed machine learning.</li>
+</ul>
+<div class="fragment">
+<p>All part of the same engine, not separate tools. We only use the batch/DataFrame piece this semester.</p>
+</div>
+<div class="fragment">
+<p><strong>Not tied to HDFS.</strong> In our classroom cluster, Spark jobs happen to read from HDFS and get scheduled by YARN, both from Module 3 — but that’s a choice about <em>our</em> setup, not a requirement of Spark itself. Spark can just as easily read from S3, local files, a database, or a Kafka stream; it isn’t tied to HDFS the way MapReduce, in practice, always was.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Emphasize continuity, not replacement: HDFS and YARN don’t go away in our setup. Spark is a new way to <em>compute</em>, sitting on the same storage and scheduling layer already taught — but say explicitly that this is <em>our</em> classroom’s configuration, not a general Spark requirement (Final Q17 tests this distinction directly: Spark is not tied to HDFS). The SQL/ streaming/MLlib bullet is Quiz 5 Q9’s multi-select — keep it to one sentence each, this course never touches any of the three.</p>
 <style type="text/css">
@@ -852,14 +896,35 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="why-spark-improves-on-mapreduce" class="slide level2">
 <h2>Why Spark Improves on MapReduce</h2>
 <p>Picture a pipeline with three steps: filter, then group, then sort.</p>
 <ul>
-<li><strong>MapReduce:</strong> step 1 writes its full output to disk. Step 2 reads it back from disk, computes, writes its output to disk. Step 3 does the same. Three disk round-trips for one pipeline.</li>
-<li><strong>Spark:</strong> step 1’s output stays in memory. Step 2 reads it from memory, computes, keeps its result in memory. Step 3 does the same. Disk is only touched if you explicitly ask Spark to save something, or if data is too big to fit in memory.</li>
+<li class="fragment"><strong>MapReduce:</strong> step 1 writes its full output to disk. Step 2 reads it back from disk, computes, writes its output to disk. Step 3 does the same. <em>A disk round-trip between every pair of steps.</em></li>
+<li class="fragment"><strong>Spark:</strong> step 1’s output stays in memory. Step 2 reads it from memory, computes, keeps its result in memory. Step 3 does the same. Disk is only touched to <em>read the input, save the result</em>, or when data is too big to fit in memory.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 4 min (this slide and its two sub-slides).</strong> This is Quiz 5’s Q1 almost verbatim — spend real time here. The wrong-but-tempting answer is “Spark just has better algorithms”; the right answer is specifically about avoiding repeated disk I/O across steps.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/04-mr-vs-spark.svg" alt="Two rows, each the same three-step pipeline: filter, then group, then sort. Top row, labeled &quot;MapReduce&quot;: an input disk feeds filter. Between filter and group, a red arrow goes down into a red disk labeled &quot;write, then read back&quot; and a second red arrow comes back up into group; the same red disk round-trip sits between group and sort. Sort writes to an output disk. Bottom row, labeled &quot;Spark&quot;: an input disk feeds filter, and green arrows labeled &quot;in memory&quot; go straight from filter to group and from group to sort, with no disks in between. Sort writes to an output disk. Caption: &quot;Same three steps. MapReduce: 2 extra disk round-trips. Spark: 0.&quot;" width="820" class="r-stretch"></section>
+<section class="slide level2">
+
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -873,19 +938,6 @@ SI
 </div>
 </div>
 </div>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> This is Quiz 5’s Q1 almost verbatim — spend real time here. The wrong-but- tempting answer is “Spark just has better algorithms”; the right answer is specifically about avoiding repeated disk I/O across steps.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 </section>
 <section id="rdds-vs.-dataframes" class="slide level2">
 <h2>RDDs vs.&nbsp;DataFrames</h2>
@@ -926,10 +978,28 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <ul>
-<li>RDDs came first (Spark’s original data structure) and are still there underneath everything.</li>
-<li>DataFrames were added later, and are what virtually everyone uses for tabular data today — including everything in this course, the labs, and the capstone.</li>
+<li class="fragment">RDDs came first (Spark’s <em>original data structure</em>) and are still there underneath everything.</li>
+<li class="fragment">DataFrames were added later, and are what <em>virtually everyone uses</em> for tabular data today — including everything in this course, the labs, and the capstone.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 5 min (this slide and the next).</strong> This slide exists specifically because Quiz 5’s Q2 asks students to distinguish RDD from DataFrame directly — don’t let this be a one-line footnote. The callout’s answer is on the next sub-slide, after a pause.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -943,55 +1013,15 @@ SI
 </div>
 </div>
 </div>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> This slide exists specifically because Quiz 5’s Q2 asks students to distinguish RDD from DataFrame directly — don’t let this be a one-line footnote. The answer to the callout: without column names/types, Spark can’t reorder operations, push filters down, or pick an efficient join strategy — it just has to run your code as literally written.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="fragment">
+<p><strong>Answer:</strong> without column names and types, Spark <em>can’t optimize</em>. It can’t reorder operations, push a filter down to happen earlier, skip columns you never use, or pick an efficient join strategy. With an RDD it just runs your code exactly as written.</p>
+</div>
 </section>
 <section id="spark-architecture" class="slide level2">
 <h2>Spark Architecture</h2>
-<pre><code>┌──────────────────────────────────┐
-│         Driver Program           │  ← your Python script
-│  SparkContext / SparkSession     │
-└──────────────┬───────────────────┘
-               │ task distribution
-    ┌──────────┼──────────┐
-┌───▼───┐  ┌──▼────┐  ┌──▼────┐
-│Exec 1 │  │Exec 2 │  │Exec 3 │  ← workers (run tasks)
-└───────┘  └───────┘  └───────┘
-    ↑           ↑          ↑
-    └───────────┴──────────┘
-         Cluster Manager
-              (YARN)</code></pre>
-<ul>
-<li><strong>Driver:</strong> coordinates the whole computation — your code runs here, and it decides what work to hand out. Plays the same role Module 3’s <strong>ApplicationMaster</strong> played for a MapReduce job: one coordinator, dispatched for this one application.</li>
-<li><strong>Executor:</strong> a worker process that actually runs tasks and holds a slice of the data in memory — the same role Module 3’s <strong>NodeManager</strong>-run tasks played, just for Spark tasks instead of Map/Reduce tasks.</li>
-<li><strong>Cluster manager:</strong> allocates machines/resources to your job — in our classroom cluster, that’s <strong>YARN</strong>, the exact same resource manager Module 3 used for MapReduce jobs. Spark doesn’t bring its own scheduler here; it asks YARN for workers, the same way a MapReduce job did.</li>
-</ul>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>A “Driver” box at the top (drawn like a small laptop/script icon, since it’s literally “your Python code”), with a downward arrow labeled “task distribution” fanning out to three “Executor” icons (worker/gear icons, each shown holding a small stack of data-block icons to represent “holds a slice of the data in memory”). Below all three, one “Cluster Manager (YARN)” icon with upward arrows from each Executor back into it, visually matching Module 3’s YARN diagram’s ResourceManager/NodeManager icon style so students recognize it as the same underlying system. Caption: “Same YARN as Module 3 — just handing out Spark tasks instead of Map/Reduce tasks.”</p>
-</div>
-</div>
-</div>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> The payoff line: “you already learned what YARN does in Module 3 — Spark just hands YARN a different kind of job to schedule.” Don’t re-explain YARN from scratch.</p>
+
+<img data-src="diags/04-spark-architecture.svg" alt="Top left, an orange box: &quot;Driver (your PySpark code + SparkSession)&quot;. An arrow labeled &quot;1. ask for executors&quot; goes right to a violet box: &quot;YARN ResourceManager (cluster manager)&quot;. From the ResourceManager, three violet arrows labeled &quot;2. launch executors&quot; fan down to three worker boxes, &quot;Worker 1: NodeManager&quot;, &quot;Worker 2: NodeManager&quot; and &quot;Worker 3: NodeManager&quot;. Each worker holds a blue &quot;Executor&quot; box and, under it, two small green boxes: part 1 and part 2 on worker 1, part 3 and part 4 on worker 2, part 5 and part 6 on worker 3. A dashed orange line runs from the Driver down and along the bottom, with a two-headed arrow up into each worker, labeled &quot;3. driver sends tasks, executors send results back&quot;. Caption: &quot;Same YARN as Module 3. It now hands out Spark executors instead of Map/Reduce tasks.&quot; Smaller caption: &quot;(green = slices of the data each executor keeps in memory)&quot;." width="860" class="r-stretch"><aside class="notes">
+<p><strong>Timing: 4 min (this slide and the next).</strong> The payoff line: “you already learned what YARN does in Module 3 — Spark just hands YARN a different kind of job to schedule.” Don’t re-explain YARN from scratch. The figure deliberately reuses Module 3’s YARN figure layout (same violet ResourceManager, same NodeManager worker boxes).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1004,20 +1034,28 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><strong>Driver:</strong> <em>coordinates the whole computation</em> — your code runs here, and it decides what work to hand out. Plays the same role Module 3’s <em>ApplicationMaster</em> played for a MapReduce job: one coordinator, dispatched for this one application.</li>
+<li class="fragment"><strong>Executor:</strong> a worker process that <em>actually runs tasks</em> and <em>holds a slice of the data in memory</em> — the same role Module 3’s NodeManager-run tasks played, just for Spark tasks instead of Map/Reduce tasks.</li>
+<li class="fragment"><strong>Cluster manager:</strong> <em>allocates machines/resources</em> to your job — in our classroom cluster, that’s <em>YARN</em>, the exact same resource manager Module 3 used for MapReduce jobs. Spark doesn’t bring its own scheduler here; it asks YARN for workers, the same way a MapReduce job did.</li>
+</ul>
+</section>
 <section id="sparksession-your-entry-point" class="slide level2">
 <h2>SparkSession — Your Entry Point</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
-<span id="cb11-2"><a></a></span>
-<span id="cb11-3"><a></a><span class="co"># Create (or reuse) a SparkSession</span></span>
-<span id="cb11-4"><a></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
-<span id="cb11-5"><a></a>    .appName(<span class="st">"MyFirstSparkJob"</span>) <span class="op">\</span></span>
-<span id="cb11-6"><a></a>    .getOrCreate()</span>
-<span id="cb11-7"><a></a></span>
-<span id="cb11-8"><a></a><span class="bu">print</span>(spark.version)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a><span class="co"># Create (or reuse) a SparkSession</span></span>
+<span id="cb14-4"><a></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb14-5"><a></a>    .appName(<span class="st">"MyFirstSparkJob"</span>) <span class="op">\</span></span>
+<span id="cb14-6"><a></a>    .getOrCreate()</span>
+<span id="cb14-7"><a></a></span>
+<span id="cb14-8"><a></a><span class="bu">print</span>(spark.version)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Every PySpark program starts by creating (or reusing) exactly <strong>one</strong> <code>SparkSession</code>.</li>
-<li><code>.getOrCreate()</code> — if a session already exists, reuse it; otherwise, create a new one.</li>
-<li><strong>In our classroom setup:</strong> every <code>%%spark</code> notebook cell (via <code>sparkmagic</code>, from Lab 6) already has a <code>spark</code> object ready to use — you skip the <code>SparkSession.builder</code> step entirely in Labs 7 and 8 and the capstone. You’ll still write it by hand for Checkpoint 4, since checkpoints are graded as standalone code.</li>
+<li class="fragment">Every PySpark program starts by creating (or reusing) <em>exactly one</em> <code>SparkSession</code>.</li>
+<li class="fragment"><code>.getOrCreate()</code> — if a session <em>already exists, reuse it</em>; otherwise, create a new one.</li>
+<li class="fragment"><strong>In our classroom setup:</strong> every <code>%%spark</code> notebook cell (via <code>sparkmagic</code>, from Lab 6) <em>already has a <code>spark</code> object</em> ready to use — you skip the <code>SparkSession.builder</code> step entirely in Labs 7 and 8 and the capstone. You’ll <em>still write it by hand for Checkpoint 4</em>, since checkpoints are graded as standalone code.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Flag the discrepancy explicitly: checkpoints want the full <code>SparkSession.builder...</code> line (Quiz 5 Q3 tests this exact syntax); the labs’ <code>%%spark</code> cells already have <code>spark</code> built for you. Both are correct, in their own context — this is not a contradiction.</p>
@@ -1035,23 +1073,23 @@ SI
 </section>
 <section id="creating-and-inspecting-a-dataframe" class="slide level2">
 <h2>Creating and Inspecting a DataFrame</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>data <span class="op">=</span> [</span>
-<span id="cb12-2"><a></a>    (<span class="st">"Alice"</span>, <span class="st">"Engineering"</span>, <span class="dv">95000</span>),</span>
-<span id="cb12-3"><a></a>    (<span class="st">"Bob"</span>,   <span class="st">"Marketing"</span>,   <span class="dv">62000</span>),</span>
-<span id="cb12-4"><a></a>]</span>
-<span id="cb12-5"><a></a>columns <span class="op">=</span> [<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>]</span>
-<span id="cb12-6"><a></a></span>
-<span id="cb12-7"><a></a>df <span class="op">=</span> spark.createDataFrame(data, columns)</span>
-<span id="cb12-8"><a></a></span>
-<span id="cb12-9"><a></a>df.printSchema()   <span class="co"># show column names and inferred types</span></span>
-<span id="cb12-10"><a></a>df.show()           <span class="co"># print the rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a>data <span class="op">=</span> [</span>
+<span id="cb15-2"><a></a>    (<span class="st">"Alice"</span>, <span class="st">"Engineering"</span>, <span class="dv">95000</span>),</span>
+<span id="cb15-3"><a></a>    (<span class="st">"Bob"</span>,   <span class="st">"Marketing"</span>,   <span class="dv">62000</span>),</span>
+<span id="cb15-4"><a></a>]</span>
+<span id="cb15-5"><a></a>columns <span class="op">=</span> [<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>]</span>
+<span id="cb15-6"><a></a></span>
+<span id="cb15-7"><a></a>df <span class="op">=</span> spark.createDataFrame(data, columns)</span>
+<span id="cb15-8"><a></a></span>
+<span id="cb15-9"><a></a>df.printSchema()   <span class="co"># show column names and inferred types</span></span>
+<span id="cb15-10"><a></a>df.show()          <span class="co"># print the rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>printSchema()</code> shows you the column names and the types Spark inferred for each.</li>
-<li><code>show()</code> prints rows to the screen — and, importantly, it’s the first thing on this slide that actually <strong>runs</strong> anything (more on why that distinction matters in a few slides).</li>
-<li>You can also read a DataFrame straight from a file — covered in full next session.</li>
+<li class="fragment"><code>printSchema()</code> shows you the <em>column names and the types</em> Spark inferred for each.</li>
+<li class="fragment"><code>show()</code> prints rows to the screen — and, importantly, it’s the first thing on this slide that <em>actually runs</em> anything (more on why that distinction matters in a few slides).</li>
+<li class="fragment">You can also read a DataFrame straight from a file — covered in full next session.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> This mirrors Lab 7 Task 1 almost exactly — flag that connection so students recognize the lab as “the same two commands you just saw, applied to your own data.”</p>
+<p><strong>Timing: 4 min (this slide and the output on the next).</strong> This mirrors Lab 7 Task 1 almost exactly — flag that connection so students recognize the lab as “the same two commands you just saw, applied to your own data.” Have students predict the types before revealing the output.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1064,13 +1102,34 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<p><strong>Output of <code>printSchema()</code>:</strong></p>
+<pre><code>root
+ |-- name: string (nullable = true)
+ |-- department: string (nullable = true)
+ |-- salary: long (nullable = true)</code></pre>
+<div class="fragment">
+<p><strong>Output of <code>show()</code>:</strong></p>
+<pre><code>+-----+-----------+------+
+| name| department|salary|
++-----+-----------+------+
+|Alice|Engineering| 95000|
+|  Bob|  Marketing| 62000|
++-----+-----------+------+</code></pre>
+</div>
+<div class="fragment">
+<p>Python integers become Spark’s <em><code>long</code></em> (a 64-bit integer, like Java’s <code>long</code>), not <code>int</code>.</p>
+</div>
+</section>
 <section id="dataframes-are-immutable" class="slide level2">
 <h2>DataFrames Are Immutable</h2>
 <p><strong>Every PySpark DataFrame, once created, never changes.</strong> Every operation returns a <strong>brand-new</strong> DataFrame — the original is always left untouched.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a>filtered <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb13-2"><a></a></span>
-<span id="cb13-3"><a></a><span class="co"># df itself is completely unchanged here — still has all rows</span></span>
-<span id="cb13-4"><a></a><span class="co"># filtered is a NEW DataFrame with only the matching rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a></a>filtered <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb18-2"><a></a></span>
+<span id="cb18-3"><a></a><span class="co"># df itself is completely unchanged here — still has all rows</span></span>
+<span id="cb18-4"><a></a><span class="co"># filtered is a NEW DataFrame with only the matching rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1097,24 +1156,40 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="lazy-evaluation-the-core-idea" class="slide level2">
 <h2>Lazy Evaluation — The Core Idea</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="co"># These lines define a PLAN — nothing runs yet</span></span>
-<span id="cb14-2"><a></a>filtered   <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb14-3"><a></a>selected   <span class="op">=</span> filtered.select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
-<span id="cb14-4"><a></a>sorted_df  <span class="op">=</span> selected.orderBy(<span class="st">"salary"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb14-5"><a></a></span>
-<span id="cb14-6"><a></a><span class="co"># THIS triggers computation — Spark executes the whole plan at once</span></span>
-<span id="cb14-7"><a></a>sorted_df.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="co"># These lines define a PLAN — nothing runs yet</span></span>
+<span id="cb19-2"><a></a>filtered   <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb19-3"><a></a>selected   <span class="op">=</span> filtered.select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
+<span id="cb19-4"><a></a>sorted_df  <span class="op">=</span> selected.orderBy(<span class="st">"salary"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-5"><a></a></span>
+<span id="cb19-6"><a></a><span class="co"># THIS triggers computation — Spark executes the whole plan at once</span></span>
+<span id="cb19-7"><a></a>sorted_df.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output</strong> (on the two-row <code>df</code> from before):</p>
+<pre><code>+-----+------+
+| name|salary|
++-----+------+
+|Alice| 95000|
++-----+------+</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
 <ul>
-<li>Nothing above <code>sorted_df.show()</code> actually touches the data. Spark just <strong>records</strong> each step as part of a plan — this is called <strong>lazy evaluation</strong>.</li>
-<li>That recorded plan has a name: a <strong>DAG</strong> (Directed Acyclic Graph) — a chain of steps that only ever flows forward, never loops back on itself. Each transformation you chain adds one more step to the DAG; nothing runs until an action triggers the whole thing at once.</li>
-<li>Only when you call an action (<code>show()</code>, <code>count()</code>, …) does Spark look at the <em>entire</em> DAG you built, optimize it, and run it all at once.</li>
-<li>Why bother? Because seeing the whole plan first lets Spark skip unnecessary work — for example, if you <code>filter()</code> then <code>select()</code> two columns, Spark can avoid ever reading the columns you didn’t ask for.</li>
+<li class="fragment">Nothing above <code>sorted_df.show()</code> actually touches the data. Spark just <em>records each step</em> as part of a plan — this is called <strong>lazy evaluation</strong>.</li>
+<li class="fragment">That recorded plan has a name: a <em>DAG</em> (Directed Acyclic Graph) — a chain of steps that only ever flows forward, never loops back on itself. Each transformation you chain adds one more step to the DAG.</li>
+<li class="fragment">Only when you call an <em>action</em> (<code>show()</code>, <code>count()</code>, …) does Spark look at the <em>entire</em> DAG you built, optimize it, and run it all at once.</li>
+<li class="fragment">Why bother? Because seeing the whole plan first lets Spark <em>skip unnecessary work</em> — for example, here only <code>name</code> and <code>salary</code> are ever used, so Spark can drop the <code>department</code> column straight away instead of carrying it through every step.</li>
 </ul>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> Quiz 5’s Q8 tests this definition directly. The “why bother” bullet is the part students usually skip — don’t let this be just “Spark waits to run things,” make sure they leave with <em>why</em> waiting is useful. The DAG bullet is here specifically because Lab 7 Task 2 asks “What is a DAG in Spark? When does Spark build it and when does it execute it?” as a graded question — without this bullet, that question would be untaught.</p>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/04-lazy-dag.svg" alt="Title: &quot;Transformations: Spark only WRITES DOWN the plan&quot;. A gray box &quot;df&quot; has a dashed arrow to a dashed box &quot;filter(salary > 70000)&quot;, labeled filtered. A dashed arrow leads down to a dashed box &quot;select(&quot;name&quot;, &quot;salary&quot;)&quot;, labeled selected, then to a dashed box &quot;orderBy(&quot;salary&quot;, ascending=False)&quot;, labeled sorted_df. A note beside them reads &quot;not run yet (dashed = plan only)&quot;. A thick solid arrow leads down to a solid orange box &quot;sorted_df.show()&quot;, annotated &quot;an ACTION: now Spark optimizes and runs the whole chain at once&quot;. Caption: &quot;The chain of steps is the DAG: it only flows forward, never loops back.&quot;" width="760" class="r-stretch"><aside class="notes">
+<p><strong>Timing: 5 min (this slide and its two sub-slides).</strong> Quiz 5’s Q8 tests this definition directly. The “why bother” bullet is the part students usually skip — don’t let this be just “Spark waits to run things,” make sure they leave with <em>why</em> waiting is useful. The DAG bullet is here specifically because Lab 7 Task 2 asks “What is a DAG in Spark? When does Spark build it and when does it execute it?” as a graded question — without this bullet, that question would be untaught.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1139,9 +1214,9 @@ SI
 </div>
 <div class="callout-content">
 <p><code>df</code> has 10 billion rows of employee data.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a>high <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)      <span class="co"># line 1</span></span>
-<span id="cb15-2"><a></a>df.<span class="bu">filter</span>(df[<span class="st">"department"</span>] <span class="op">==</span> <span class="st">"Marketing"</span>)  <span class="co"># line 2</span></span>
-<span id="cb15-3"><a></a><span class="bu">print</span>(high.count())                         <span class="co"># line 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a></a>high <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)      <span class="co"># line 1</span></span>
+<span id="cb21-2"><a></a>df.<span class="bu">filter</span>(df[<span class="st">"department"</span>] <span class="op">==</span> <span class="st">"Marketing"</span>)  <span class="co"># line 2</span></span>
+<span id="cb21-3"><a></a><span class="bu">print</span>(high.count())                         <span class="co"># line 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Lines 1 and 2 return instantly. Why?</p>
 <p>What does line 3 print: the number of high earners overall, or high earners in Marketing?</p>
 <p>How many times does Spark actually go through the 10 billion rows?</p>
@@ -1149,12 +1224,7 @@ SI
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>Lines 1–2 are instant</strong> because transformations are lazy. They only add a step to the plan (the DAG), and no data is touched.</li>
-<li><strong>Line 3 counts high earners in <em>all</em> departments.</strong> Line 2 built a new DataFrame that was never assigned, so it was thrown away (immutability). <code>high</code> never knew about it.</li>
-<li><strong>One pass</strong>, at line 3, the only action. Line 2’s plan never runs at all, because nothing ever asked for its result.</li>
-</ul>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.</p>
 <p>This combines the two previous slides (immutable + lazy) and leads straight into the next one: <code>count()</code> is an action, <code>filter()</code> is a transformation.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1167,6 +1237,14 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="answers" class="slide level2">
+<h2>Answers</h2>
+<ul>
+<li class="fragment"><strong>Lines 1–2 are instant</strong> because transformations are <em>lazy</em>. They only add a step to the plan (the DAG), and no data is touched.</li>
+<li class="fragment"><strong>Line 3 counts high earners in <em>all</em> departments.</strong> Line 2 built a new DataFrame that was <em>never assigned</em>, so it was thrown away (immutability). <code>high</code> never knew about it.</li>
+<li class="fragment"><strong>One pass</strong>, at line 3, <em>the only action</em>. Line 2’s plan never runs at all, because nothing ever asked for its result.</li>
+</ul>
 </section>
 <section id="transformations-vs.-actions" class="slide level2">
 <h2>Transformations vs.&nbsp;Actions</h2>
@@ -1208,6 +1286,7 @@ SI
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1218,6 +1297,7 @@ SI
 </div>
 <div class="callout-content">
 <p>If a line of PySpark code <strong>returns a DataFrame</strong>, it’s a transformation. If it <strong>returns data or writes a file</strong>, it’s an action.</p>
+<p>(One wrinkle: <code>groupBy()</code> returns a <code>GroupedData</code> object, not a DataFrame. It’s still lazy, and the <code>.agg()</code> or <code>.count()</code> after it turns it back into a DataFrame.)</p>
 </div>
 </div>
 </div>
@@ -1234,6 +1314,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="lab-6-recap-lab-7-preview" class="slide level2">
 <h2>Lab 6 Recap / Lab 7 Preview</h2>
@@ -1337,7 +1418,7 @@ SI
 </tr>
 </tbody>
 </table>
-<p>9 content slides (~30 min) + Checkpoint 4. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period.</p>
+<p>9 content slides (~34 min) + Checkpoint 4 — over by a few minutes if the checkpoint gets the full 20, so trim the Worked Example first. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1358,6 +1439,7 @@ SI
 <li><strong>Actions</strong> (<code>show</code>, <code>count</code>, …) trigger Spark to actually execute that plan.</li>
 <li><strong>DataFrames are immutable</strong> — every transformation returns a <em>new</em> DataFrame; you must assign the result or it’s discarded.</li>
 </ul>
+<div class="fragment">
 <p>Today: turning real files into DataFrames, and the two most common transformations you’ll use on almost every dataset — filtering rows and selecting columns.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Fast recap only — the point is to have the vocabulary ready, not re-teach it.</p>
@@ -1372,24 +1454,25 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="loading-data-into-spark" class="slide level2">
 <h2>Loading Data into Spark</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a><span class="co"># CSV with a header row</span></span>
-<span id="cb16-2"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb16-3"><a></a></span>
-<span id="cb16-4"><a></a><span class="co"># TSV (tab-separated) with no header</span></span>
-<span id="cb16-5"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, header<span class="op">=</span><span class="va">False</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb16-6"><a></a></span>
-<span id="cb16-7"><a></a><span class="co"># JSON</span></span>
-<span id="cb16-8"><a></a>df <span class="op">=</span> spark.read.json(<span class="st">"path/to/file.json"</span>)</span>
-<span id="cb16-9"><a></a></span>
-<span id="cb16-10"><a></a><span class="co"># From HDFS — always your own username, never a shared placeholder</span></span>
-<span id="cb16-11"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/&lt;your-username&gt;/data.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a></a><span class="co"># CSV with a header row</span></span>
+<span id="cb22-2"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-3"><a></a></span>
+<span id="cb22-4"><a></a><span class="co"># TSV (tab-separated) with no header</span></span>
+<span id="cb22-5"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"path/to/file.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, header<span class="op">=</span><span class="va">False</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-6"><a></a></span>
+<span id="cb22-7"><a></a><span class="co"># JSON</span></span>
+<span id="cb22-8"><a></a>df <span class="op">=</span> spark.read.json(<span class="st">"path/to/file.json"</span>)</span>
+<span id="cb22-9"><a></a></span>
+<span id="cb22-10"><a></a><span class="co"># From HDFS — always your own username, never a shared placeholder</span></span>
+<span id="cb22-11"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/&lt;your-username&gt;/data.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>header=True</code> tells Spark the first row is column names, not data.</li>
-<li><code>inferSchema=True</code> tells Spark to scan the file and guess each column’s type (integer, string, double, …) rather than treating every value as text.</li>
-<li>Reading <code>hdfs://...</code> paths works exactly the same as reading a local path — Spark doesn’t care where the file lives, as long as it can reach it.</li>
+<li class="fragment"><code>header=True</code> tells Spark the <em>first row is column names</em>, not data.</li>
+<li class="fragment"><code>inferSchema=True</code> tells Spark to scan the file and <em>guess each column’s type</em> (integer, string, double, …) rather than treating every value as text.</li>
+<li class="fragment">Reading <code>hdfs://...</code> paths works <em>exactly the same</em> as reading a local path — Spark doesn’t care where the file lives, as long as it can reach it.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 5 Q4 tests this exact syntax verbatim (<code>spark.read.csv(..., header=True, inferSchema=True)</code>) — make sure students see and can reproduce it, not just recognize it.</p>
@@ -1408,10 +1491,27 @@ SI
 <section id="a-word-on-schemas" class="slide level2">
 <h2>A Word on Schemas</h2>
 <ul>
-<li>Without <code>inferSchema=True</code>, Spark treats <strong>every</strong> column as a string — even columns that are clearly numbers. Filtering <code>df["salary"] &gt; 70000</code> on a string column silently does the wrong thing (string comparison, not numeric).</li>
-<li><code>inferSchema=True</code> costs a little extra time (Spark has to scan the file first), but for anything you’ll filter or aggregate numerically, it’s worth it.</li>
-<li><code>df.printSchema()</code> is your first move on <em>any</em> new dataset — confirm the types are what you expect before writing a single transformation.</li>
+<li class="fragment">Without <code>inferSchema=True</code>, Spark treats <em>every column as a string</em> — even columns that are clearly numbers.</li>
+<li class="fragment">That fails <em>silently</em>: <code>orderBy("salary")</code> sorts as text, so <code>"100000"</code> comes before <code>"62000"</code> (it starts with <code>1</code>), and <code>max("salary")</code> returns the alphabetically last value. Comparing to a number, as in <code>df["salary"] &gt; 70000</code>, happens to work only because Spark quietly converts the text for you.</li>
+<li class="fragment"><code>inferSchema=True</code> costs a little extra time (Spark has to <em>scan the file first</em>), but for anything you’ll sort, filter or aggregate numerically, it’s worth it.</li>
+<li class="fragment"><code>df.printSchema()</code> is your <em>first move on any new dataset</em> — confirm the types are what you expect before writing a single transformation.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 3 min (this slide and the next).</strong> Verified on Spark: a string <code>salary</code> column with <code>"95000"</code>, <code>"62000"</code>, <code>"100000"</code> sorts as <code>100000, 62000, 95000</code> and <code>max</code> returns <code>95000</code>, while <code>&gt; 70000</code> correctly keeps 95000 and 100000. The callout’s answer is on the next sub-slide.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1425,37 +1525,27 @@ SI
 </div>
 </div>
 </div>
-<aside class="notes">
-<p><strong>Timing: 3 min.</strong> The intended answer to the callout: either <code>inferSchema</code> was left off, or the column has some non-numeric values mixed in (e.g.&nbsp;<code>"N/A"</code>) that forced Spark to fall back to string for the whole column.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="fragment">
+<p><strong>Answer:</strong> either <em><code>inferSchema</code> was left off</em>, or the column has <em>some non-numeric values</em> mixed in (e.g.&nbsp;<code>"N/A"</code> or <code>"$12.50"</code>), which forces Spark to fall back to <code>string</code> for the whole column. Check the raw file for those values.</p>
+</div>
 </section>
 <section id="filtering-rows" class="slide level2">
 <h2>Filtering Rows</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
-<span id="cb17-2"><a></a></span>
-<span id="cb17-3"><a></a><span class="co"># Filter rows — both forms below are equivalent</span></span>
-<span id="cb17-4"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb17-5"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb17-6"><a></a></span>
-<span id="cb17-7"><a></a><span class="co"># You can also pass a filter as a plain SQL-style string</span></span>
-<span id="cb17-8"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(<span class="st">"salary &gt; 70000"</span>)</span>
-<span id="cb17-9"><a></a></span>
-<span id="cb17-10"><a></a><span class="co"># .where() is just another name for the same thing</span></span>
-<span id="cb17-11"><a></a>high_earners <span class="op">=</span> df.where(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb23-2"><a></a></span>
+<span id="cb23-3"><a></a><span class="co"># Filter rows — both forms below are equivalent</span></span>
+<span id="cb23-4"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb23-5"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
+<span id="cb23-6"><a></a></span>
+<span id="cb23-7"><a></a><span class="co"># You can also pass a filter as a plain SQL-style string</span></span>
+<span id="cb23-8"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(<span class="st">"salary &gt; 70000"</span>)</span>
+<span id="cb23-9"><a></a></span>
+<span id="cb23-10"><a></a><span class="co"># .where() is just another name for the same thing</span></span>
+<span id="cb23-11"><a></a>high_earners <span class="op">=</span> df.where(df[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>df["salary"]</code> and <code>col("salary")</code> are two ways of referring to the same column — use whichever reads more clearly in context.</li>
-<li><code>filter()</code> and <code>where()</code> are exact synonyms — pick one and be consistent.</li>
-<li>Remember: this <strong>returns a new DataFrame</strong>. <code>high_earners</code> is new; <code>df</code> still has every row.</li>
+<li class="fragment"><code>df["salary"]</code> and <code>col("salary")</code> are <em>two ways of referring to the same column</em> — use whichever reads more clearly in context.</li>
+<li class="fragment"><code>filter()</code> and <code>where()</code> are <em>exact synonyms</em> — pick one and be consistent.</li>
+<li class="fragment">Remember: this <em>returns a new DataFrame</em>. <code>high_earners</code> is new; <code>df</code> still has every row.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 6 Q10 lists several of these forms as “select all that apply” — students need to recognize <em>all</em> of them as valid, not just the one they memorize.</p>
@@ -1473,18 +1563,18 @@ SI
 </section>
 <section id="selecting-and-renaming-columns" class="slide level2">
 <h2>Selecting and Renaming Columns</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a></a><span class="co"># Select specific columns</span></span>
-<span id="cb18-2"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>)</span>
-<span id="cb18-3"><a></a></span>
-<span id="cb18-4"><a></a><span class="co"># Add a new computed column</span></span>
-<span id="cb18-5"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb18-6"><a></a></span>
-<span id="cb18-7"><a></a><span class="co"># Rename a column</span></span>
-<span id="cb18-8"><a></a>df <span class="op">=</span> df.withColumnRenamed(<span class="st">"salary"</span>, <span class="st">"annual_salary"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a></a><span class="co"># Select specific columns</span></span>
+<span id="cb24-2"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"salary"</span>)</span>
+<span id="cb24-3"><a></a></span>
+<span id="cb24-4"><a></a><span class="co"># Add a new computed column</span></span>
+<span id="cb24-5"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb24-6"><a></a></span>
+<span id="cb24-7"><a></a><span class="co"># Rename a column</span></span>
+<span id="cb24-8"><a></a>df <span class="op">=</span> df.withColumnRenamed(<span class="st">"salary"</span>, <span class="st">"annual_salary"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>select()</code> keeps only the columns you name, in the order you name them, dropping the rest.</li>
-<li><code>withColumn(name, expression)</code> adds a new column computed from existing ones — or overwrites an existing column if you reuse its name.</li>
-<li><code>withColumnRenamed(old, new)</code> changes a column’s name without touching its values.</li>
+<li class="fragment"><code>select()</code> keeps <em>only the columns you name</em>, in the order you name them, dropping the rest.</li>
+<li class="fragment"><code>withColumn(name, expression)</code> adds a <em>new computed column</em> — or <em>overwrites</em> an existing column if you reuse its name.</li>
+<li class="fragment"><code>withColumnRenamed(old, new)</code> changes a column’s name <em>without touching its values</em>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 5 Q7 tests <code>select()</code> directly. Point out the parallel with the earlier filter-forms slide: these are all just “transformation in, new DataFrame out,” same pattern every time.</p>
@@ -1502,16 +1592,21 @@ SI
 </section>
 <section id="adding-a-computed-column" class="slide level2">
 <h2>Adding a Computed Column</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
-<span id="cb19-2"><a></a></span>
-<span id="cb19-3"><a></a><span class="co"># Wrong — this is pandas syntax, and it doesn't work in Spark</span></span>
-<span id="cb19-4"><a></a>df[<span class="st">"new_col"</span>] <span class="op">=</span> df[<span class="st">"col1"</span>] <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb19-5"><a></a></span>
-<span id="cb19-6"><a></a><span class="co"># Right — Spark syntax</span></span>
-<span id="cb19-7"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"new_col"</span>, col(<span class="st">"col1"</span>) <span class="op">*</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The pandas-style assignment on the first line above doesn’t raise an error that’s obviously about this mistake — it just fails, because PySpark DataFrames don’t support item assignment the way pandas DataFrames do. <code>withColumn</code> is the only correct way to add or replace a column.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb25-2"><a></a></span>
+<span id="cb25-3"><a></a><span class="co"># Wrong — this is pandas syntax, and it doesn't work in Spark</span></span>
+<span id="cb25-4"><a></a>df[<span class="st">"new_col"</span>] <span class="op">=</span> df[<span class="st">"col1"</span>] <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb25-5"><a></a></span>
+<span id="cb25-6"><a></a><span class="co"># Right — Spark syntax</span></span>
+<span id="cb25-7"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"new_col"</span>, col(<span class="st">"col1"</span>) <span class="op">*</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>The pandas-style line fails straight away with:</p>
+<pre><code>TypeError: 'DataFrame' object does not support item assignment</code></pre>
+</div>
+<div class="fragment">
+<p>PySpark DataFrames are immutable, so there is nothing to assign <em>into</em>. <code>withColumn</code> (assigned back to <code>df</code>) is the only correct way to add or replace a column.</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error message is unhelpful, so seeing the correct pattern <em>before</em> hitting the bug saves real debugging time.</p>
+<p><strong>Timing: 3 min.</strong> This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error names the symptom (item assignment) but not the fix, so seeing the correct pattern <em>before</em> hitting the bug saves real debugging time. Tie it back to immutability.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1523,6 +1618,7 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="pause-discuss-find-the-two-bugs" class="slide level2">
 <h2>Pause &amp; Discuss: Find the Two Bugs</h2>
@@ -1536,26 +1632,19 @@ SI
 </div>
 <div class="callout-content">
 <p>Goal: names and salaries (in thousands) of everyone in Marketing.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/alice/employees.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb20-2"><a></a>df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb20-3"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span>
-<span id="cb20-4"><a></a>result <span class="op">=</span> result.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>)</span>
-<span id="cb20-5"><a></a>result.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb27-2"><a></a></span>
+<span id="cb27-3"><a></a>df <span class="op">=</span> spark.read.csv(<span class="st">"hdfs:///user/alice/employees.csv"</span>, header<span class="op">=</span><span class="va">True</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-4"><a></a>df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb27-5"><a></a>result <span class="op">=</span> df.select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span>
+<span id="cb27-6"><a></a>result <span class="op">=</span> result.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>)</span>
+<span id="cb27-7"><a></a>result.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This code fails. Find <strong>two</strong> separate bugs. Which line do you think Spark complains about first?</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Let students find these before the next two slides, which cover both bugs.</p>
-<p><strong>Answer:</strong></p>
-<ul>
-<li><strong>Bug 1 (line 2):</strong> the <code>withColumn</code> result is never assigned (immutability), so <code>df</code> has no <code>salary_k</code> column.</li>
-<li><strong>Bug 2 (line 4):</strong> it filters on <code>department</code> after <code>select</code> has already dropped that column.</li>
-<li><strong>Spark complains first at line 3</strong>, with an <code>AnalysisException</code> saying it can’t resolve <code>salary_k</code>. Worth pointing out: Spark checks that column names exist <em>as you build the plan</em>, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.</li>
-</ul>
-<p>Fixed version:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb21-2"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>).select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion. Line numbers in the answers count from the <code>df = spark.read...</code> line, skipping the import. Verified on Spark: the <code>select</code> line raises <code>AnalysisException: [UNRESOLVED_COLUMN.WITH_SUGGESTION] ... salary_k cannot be resolved</code>.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1568,23 +1657,34 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="answers-1" class="slide level2">
+<h2>Answers</h2>
+<ul>
+<li class="fragment"><strong>Bug 1 (the <code>withColumn</code> line):</strong> its result is <em>never assigned</em> (immutability), so <code>df</code> has no <code>salary_k</code> column.</li>
+<li class="fragment"><strong>Bug 2 (the <code>filter</code> line):</strong> it filters on <code>department</code> <em>after <code>select</code> has already dropped that column</em>.</li>
+<li class="fragment"><strong>Spark complains first at the <code>select</code> line</strong>, with an <code>AnalysisException</code> saying it can’t resolve <code>salary_k</code>. Spark <em>checks column names as you build the plan</em>, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.</li>
+</ul>
+<div class="fragment">
+<p><strong>Fixed version:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a></a>df <span class="op">=</span> df.withColumn(<span class="st">"salary_k"</span>, col(<span class="st">"salary"</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb28-2"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>).select(<span class="st">"name"</span>, <span class="st">"salary_k"</span>)</span>
+<span id="cb28-3"><a></a>result.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="avoiding-common-pyspark-mistakes" class="slide level2">
 <h2>Avoiding Common PySpark Mistakes</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a></a><span class="co"># ❌ Wrong — using a Python list comprehension on a Spark DataFrame</span></span>
-<span id="cb22-2"><a></a>result <span class="op">=</span> [row <span class="cf">for</span> row <span class="kw">in</span> df <span class="cf">if</span> row[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>]  <span class="co"># doesn't use Spark at all</span></span>
-<span id="cb22-3"><a></a></span>
-<span id="cb22-4"><a></a><span class="co"># ✅ Right — use Spark's own filter</span></span>
-<span id="cb22-5"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span>
-<span id="cb22-6"><a></a></span>
-<span id="cb22-7"><a></a><span class="co"># ❌ Wrong — forgetting that filter() doesn't modify df in place</span></span>
-<span id="cb22-8"><a></a>df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)   <span class="co"># result thrown away — df is unchanged</span></span>
-<span id="cb22-9"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)  <span class="co"># correct — result is captured</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Mistake 1: filtering in plain Python instead of in Spark</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a></a><span class="co"># ❌ Wrong — a list comprehension over collect()</span></span>
+<span id="cb29-2"><a></a>result <span class="op">=</span> [row <span class="cf">for</span> row <span class="kw">in</span> df.collect() <span class="cf">if</span> row[<span class="st">"salary"</span>] <span class="op">&gt;</span> <span class="dv">70000</span>]</span>
+<span id="cb29-3"><a></a></span>
+<span id="cb29-4"><a></a><span class="co"># ✅ Right — use Spark's own filter</span></span>
+<span id="cb29-5"><a></a>result <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>A Python <code>for</code> loop over a DataFrame technically works, but it pulls everything to a single machine and processes it one row at a time in plain Python — throwing away everything Spark is for.</li>
-<li>The second mistake is the immutability rule from Session 1, showing up again in real code — if your DataFrame “isn’t changing,” check whether you forgot to assign the result.</li>
+<li class="fragment">The wrong version <em>runs</em>, but <code>collect()</code> pulls <em>every row onto one machine</em> (the driver) and filters them one at a time in plain Python — throwing away everything Spark is for. On big data it can crash the driver (more on <code>collect()</code> in Session 3).</li>
+<li class="fragment">Leaving out <code>collect()</code> doesn’t help: <code>for row in df</code> doesn’t loop over rows at all, and the comprehension fails with <code>ValueError: Cannot convert column into bool</code>.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> Both of these are genuinely common — if time is short, prioritize the second one, since it’s the more frequent real bug in student code across every lab this module.</p>
+<p><strong>Timing: 5 min (this slide and the next).</strong> Both mistakes are genuinely common — if time is short, prioritize the second one, since it’s the more frequent real bug in student code across every lab this module. Verified on Spark: <code>[row for row in df if row["salary"] &gt; 70000]</code> raises <code>CANNOT_CONVERT_COLUMN_INTO_BOOL</code>, because iterating a DataFrame walks its <em>columns</em> by index.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1596,21 +1696,33 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2">
+
+<p><strong>Mistake 2: forgetting to assign the result</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a></a><span class="co"># ❌ Wrong — filter() doesn't modify df in place</span></span>
+<span id="cb30-2"><a></a>df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)                 <span class="co"># result thrown away — df is unchanged</span></span>
+<span id="cb30-3"><a></a></span>
+<span id="cb30-4"><a></a><span class="co"># ✅ Right — the result is captured</span></span>
+<span id="cb30-5"><a></a>high_earners <span class="op">=</span> df.<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">70000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>This is the <em>immutability rule</em> from Session 1, showing up again in real code — if your DataFrame “isn’t changing,” <em>check whether you forgot to assign the result</em>.</p>
+</div>
 </section>
 <section id="worked-example-filter-select" class="slide level2">
 <h2>Worked Example: Filter → Select</h2>
 <p>Given a DataFrame <code>employees</code> with columns <code>name</code>, <code>department</code>, <code>salary</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a></a><span class="co"># Goal: names and salaries of everyone in Marketing earning over $60,000</span></span>
-<span id="cb23-2"><a></a></span>
-<span id="cb23-3"><a></a>marketing_high_earners <span class="op">=</span> employees <span class="op">\</span></span>
-<span id="cb23-4"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>) <span class="op">\</span></span>
-<span id="cb23-5"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">60000</span>) <span class="op">\</span></span>
-<span id="cb23-6"><a></a>    .select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
-<span id="cb23-7"><a></a></span>
-<span id="cb23-8"><a></a>marketing_high_earners.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a></a><span class="co"># Goal: names and salaries of everyone in Marketing earning over $60,000</span></span>
+<span id="cb31-2"><a></a></span>
+<span id="cb31-3"><a></a>marketing_high_earners <span class="op">=</span> employees <span class="op">\</span></span>
+<span id="cb31-4"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"department"</span>) <span class="op">==</span> <span class="st">"Marketing"</span>) <span class="op">\</span></span>
+<span id="cb31-5"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"salary"</span>) <span class="op">&gt;</span> <span class="dv">60000</span>) <span class="op">\</span></span>
+<span id="cb31-6"><a></a>    .select(<span class="st">"name"</span>, <span class="st">"salary"</span>)</span>
+<span id="cb31-7"><a></a></span>
+<span id="cb31-8"><a></a>marketing_high_earners.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Multiple <code>.filter()</code> calls chain naturally — each one narrows the DataFrame further.</li>
-<li>Order between the two filters here doesn’t change the result, but <code>select()</code> <strong>must</strong> come after both filters — once you <code>select()</code> away a column, you can no longer filter on it.</li>
+<li class="fragment">Multiple <code>.filter()</code> calls chain naturally — <em>each one narrows the DataFrame further</em>.</li>
+<li class="fragment">Order between the two filters here doesn’t change the result, but <em><code>select()</code> must come after both filters</em> — once you <code>select()</code> away a column, you can no longer filter on it.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> This example deliberately uses a different scenario from Checkpoint 4’s own <code>movies.csv</code> example (below) so it doesn’t spoil the checkpoint — but it’s the exact same filter→select shape students are about to be graded on.</p>
@@ -1730,6 +1842,7 @@ SI
 <section id="recap-why-today-matters-for-lab-8" class="slide level2">
 <h2>Recap + Why Today Matters for Lab 8</h2>
 <p>So far: create/load a DataFrame, filter rows, select columns. Today adds the two operations that turn “look at some rows” into “answer an actual analytical question”: <strong>grouping data together</strong> and <strong>combining two datasets</strong>.</p>
+<div class="fragment">
 <p>This is also exactly what Friday’s Lab 8 needs — real MovieLens rating data, joined with movie titles, grouped by movie, to find the highest-rated films. Everything today is in direct service of that lab.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Say the Lab 8 connection explicitly and early — it gives today’s content an obvious “why,” which matters since this is the last lecture day before that lab.</p>
@@ -1744,26 +1857,27 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="groupby-and-aggregation" class="slide level2">
 <h2>GroupBy and Aggregation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
-<span id="cb24-2"><a></a></span>
-<span id="cb24-3"><a></a><span class="co"># Average salary and headcount by department</span></span>
-<span id="cb24-4"><a></a>df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
-<span id="cb24-5"><a></a>  .agg(</span>
-<span id="cb24-6"><a></a>      spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>),</span>
-<span id="cb24-7"><a></a>      count(<span class="st">"name"</span>).alias(<span class="st">"num_employees"</span>)</span>
-<span id="cb24-8"><a></a>  ) <span class="op">\</span></span>
-<span id="cb24-9"><a></a>  .orderBy(desc(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
-<span id="cb24-10"><a></a>  .show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
+<span id="cb32-2"><a></a></span>
+<span id="cb32-3"><a></a><span class="co"># Average salary and headcount by department</span></span>
+<span id="cb32-4"><a></a>df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
+<span id="cb32-5"><a></a>  .agg(</span>
+<span id="cb32-6"><a></a>      spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>),</span>
+<span id="cb32-7"><a></a>      count(<span class="st">"name"</span>).alias(<span class="st">"num_employees"</span>)</span>
+<span id="cb32-8"><a></a>  ) <span class="op">\</span></span>
+<span id="cb32-9"><a></a>  .orderBy(desc(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
+<span id="cb32-10"><a></a>  .show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>groupBy("column")</code> — a transformation; it doesn’t compute anything on its own, it just says “gather rows into groups by this column’s value.”</li>
-<li><code>.agg(...)</code> — applies one or more aggregation functions (<code>avg</code>, <code>count</code>, <code>sum</code>, …) to each group, producing one output row per group.</li>
-<li><code>.alias("name")</code> — renames the resulting column to something readable.</li>
+<li class="fragment"><code>groupBy("column")</code> — a transformation; it doesn’t compute anything on its own, it just says *“gather rows into groups* by this column’s value.”</li>
+<li class="fragment"><code>.agg(...)</code> — applies one or more aggregation functions (<code>avg</code>, <code>count</code>, <code>sum</code>, …) to each group, producing <em>one output row per group</em>.</li>
+<li class="fragment"><code>.alias("name")</code> — <em>renames the resulting column</em> to something readable.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Quiz 6 Q1 and Q5 both test reading/predicting <code>groupBy().agg()</code> / <code>groupBy().sum()</code> output directly — walk through what the <em>output shape</em> looks like (one row per distinct group value), not just the syntax.</p>
+<p><strong>Timing: 4 min (this slide and the output on the next).</strong> Quiz 6 Q1 and Q5 both test reading/predicting <code>groupBy().agg()</code> / <code>groupBy().sum()</code> output directly — walk through what the <em>output shape</em> looks like (one row per distinct group value), not just the syntax.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1776,34 +1890,102 @@ SI
           display:block!important;
       }</style></aside>
 </section>
-<section id="aggregation-functions-reference" class="slide level2">
-<h2>Aggregation Functions Reference</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> (</span>
-<span id="cb25-2"><a></a>    avg, count, <span class="bu">sum</span> <span class="im">as</span> spark_sum, <span class="bu">min</span>, <span class="bu">max</span>, countDistinct</span>
-<span id="cb25-3"><a></a>)</span>
-<span id="cb25-4"><a></a></span>
-<span id="cb25-5"><a></a>df.groupBy(<span class="st">"category"</span>).agg(</span>
-<span id="cb25-6"><a></a>    count(<span class="st">"*"</span>).alias(<span class="st">"total_rows"</span>),</span>
-<span id="cb25-7"><a></a>    avg(<span class="st">"price"</span>).alias(<span class="st">"avg_price"</span>),</span>
-<span id="cb25-8"><a></a>    spark_sum(<span class="st">"revenue"</span>).alias(<span class="st">"total_revenue"</span>),</span>
-<span id="cb25-9"><a></a>    <span class="bu">min</span>(<span class="st">"price"</span>).alias(<span class="st">"cheapest"</span>),</span>
-<span id="cb25-10"><a></a>    <span class="bu">max</span>(<span class="st">"price"</span>).alias(<span class="st">"most_expensive"</span>)</span>
-<span id="cb25-11"><a></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section class="slide level2">
+
+<p><strong>Output</strong> on this four-row <code>df</code>:</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Function</th>
-<th>What it computes</th>
+<th>name</th>
+<th>department</th>
+<th>salary</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>count()</code></td>
-<td>Number of rows (per group, or <code>count("*")</code> for all rows)</td>
+<td>Alice</td>
+<td>Engineering</td>
+<td>95000</td>
+</tr>
+<tr class="even">
+<td>Bob</td>
+<td>Marketing</td>
+<td>62000</td>
+</tr>
+<tr class="odd">
+<td>Carol</td>
+<td>Engineering</td>
+<td>88000</td>
+</tr>
+<tr class="even">
+<td>Dan</td>
+<td>Marketing</td>
+<td>58500</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<pre><code>+-----------+----------+-------------+
+| department|avg_salary|num_employees|
++-----------+----------+-------------+
+|Engineering|   91500.0|            2|
+|  Marketing|   60250.0|            2|
++-----------+----------+-------------+</code></pre>
+</div>
+<div class="fragment">
+<p>Four input rows, <em>two output rows</em>: one per distinct <code>department</code>.</p>
+</div>
+</section>
+<section id="aggregation-functions-reference" class="slide level2">
+<h2>Aggregation Functions Reference</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> (</span>
+<span id="cb34-2"><a></a>    avg, count, countDistinct,</span>
+<span id="cb34-3"><a></a>    <span class="bu">sum</span> <span class="im">as</span> spark_sum, <span class="bu">min</span> <span class="im">as</span> spark_min, <span class="bu">max</span> <span class="im">as</span> spark_max</span>
+<span id="cb34-4"><a></a>)</span>
+<span id="cb34-5"><a></a></span>
+<span id="cb34-6"><a></a>df.groupBy(<span class="st">"category"</span>).agg(</span>
+<span id="cb34-7"><a></a>    count(<span class="st">"*"</span>).alias(<span class="st">"total_rows"</span>),</span>
+<span id="cb34-8"><a></a>    countDistinct(<span class="st">"brand"</span>).alias(<span class="st">"num_brands"</span>),</span>
+<span id="cb34-9"><a></a>    avg(<span class="st">"price"</span>).alias(<span class="st">"avg_price"</span>),</span>
+<span id="cb34-10"><a></a>    spark_sum(<span class="st">"revenue"</span>).alias(<span class="st">"total_revenue"</span>),</span>
+<span id="cb34-11"><a></a>    spark_min(<span class="st">"price"</span>).alias(<span class="st">"cheapest"</span>),</span>
+<span id="cb34-12"><a></a>    spark_max(<span class="st">"price"</span>).alias(<span class="st">"most_expensive"</span>)</span>
+<span id="cb34-13"><a></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p><strong>Timing: 3 min (this slide and the table on the next).</strong> The import aliases are worth calling out explicitly. <code>sum</code>, <code>min</code> and <code>max</code> are also Python built-ins: importing Spark’s versions under the same names <em>replaces</em> the built-ins for the rest of the notebook, so a later plain <code>sum([1, 2, 3])</code> breaks; <em>not</em> importing them means <code>sum("revenue")</code> calls Python’s built-in and fails. Aliasing avoids both. (<code>round as spark_round</code> on the previous slide is the same story.)</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>What it computes (per group)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>count("*")</code></td>
+<td>Number of rows</td>
+</tr>
+<tr class="even">
+<td><code>count("col")</code></td>
+<td>Number of rows where <code>col</code> is <em>not null</em></td>
+</tr>
+<tr class="odd">
+<td><code>countDistinct("col")</code></td>
+<td>Number of <em>unique</em> values in <code>col</code></td>
 </tr>
 <tr class="even">
 <td><code>avg()</code></td>
@@ -1811,46 +1993,33 @@ SI
 </tr>
 <tr class="odd">
 <td><code>sum()</code></td>
-<td>Total of a numeric column — note the <code>as spark_sum</code> import alias, since <code>sum</code> is also a Python built-in</td>
+<td>Total of a numeric column</td>
 </tr>
 <tr class="even">
 <td><code>min()</code> / <code>max()</code></td>
 <td>Smallest / largest value</td>
 </tr>
-<tr class="odd">
-<td><code>countDistinct()</code></td>
-<td>Number of <em>unique</em> values</td>
-</tr>
 </tbody>
 </table>
-<aside class="notes">
-<p><strong>Timing: 3 min.</strong> The <code>sum as spark_sum</code> import quirk is worth calling out explicitly — students who skip it and just write <code>sum(...)</code> get confusing errors from Python’s built-in <code>sum()</code> shadowing the Spark one.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="fragment">
+<p><strong>Why the aliases?</strong> <code>sum</code>, <code>min</code> and <code>max</code> are also <em>Python built-ins</em>. Importing Spark’s versions under the same names would replace the built-ins for the rest of your notebook, so <code>as spark_sum</code> (and friends) keeps both usable.</p>
+</div>
 </section>
 <section id="orderby-and-the-top-n-pattern" class="slide level2">
 <h2><code>orderBy</code> and the Top-N Pattern</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a></a><span class="co"># The "top N by some metric" pattern — you'll use this constantly</span></span>
-<span id="cb26-2"><a></a>top_5 <span class="op">=</span> df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
-<span id="cb26-3"><a></a>          .agg(spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
-<span id="cb26-4"><a></a>          .orderBy(<span class="st">"avg_salary"</span>, ascending<span class="op">=</span><span class="va">False</span>) <span class="op">\</span></span>
-<span id="cb26-5"><a></a>          .limit(<span class="dv">5</span>)</span>
-<span id="cb26-6"><a></a></span>
-<span id="cb26-7"><a></a>top_5.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a></a><span class="co"># The "top N by some metric" pattern — you'll use this constantly</span></span>
+<span id="cb35-2"><a></a>top_5 <span class="op">=</span> df.groupBy(<span class="st">"department"</span>) <span class="op">\</span></span>
+<span id="cb35-3"><a></a>          .agg(spark_round(avg(<span class="st">"salary"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_salary"</span>)) <span class="op">\</span></span>
+<span id="cb35-4"><a></a>          .orderBy(<span class="st">"avg_salary"</span>, ascending<span class="op">=</span><span class="va">False</span>) <span class="op">\</span></span>
+<span id="cb35-5"><a></a>          .limit(<span class="dv">5</span>)</span>
+<span id="cb35-6"><a></a></span>
+<span id="cb35-7"><a></a>top_5.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>orderBy(column, ascending=False)</code> sorts descending; <code>ascending=True</code> (or omitting it) sorts ascending.</li>
-<li><code>.limit(n)</code> keeps only the first <code>n</code> rows after sorting.</li>
-<li><code>.show(n)</code> — a shortcut that sorts-then-limits-then-prints in one call, when you don’t need the limited DataFrame for anything else afterward.</li>
+<li class="fragment"><code>orderBy(column, ascending=False)</code> sorts <em>descending</em>; <code>ascending=True</code> (or omitting it) sorts ascending.</li>
+<li class="fragment"><code>.limit(n)</code> keeps only the <em>first <code>n</code> rows</em> after sorting, as a new DataFrame — use it when you need the top N for something else (writing it out, joining it).</li>
+<li class="fragment"><code>.show(n)</code> just <em>prints the first <code>n</code> rows</em> of whatever it’s called on. It doesn’t sort; the <code>orderBy</code> before it does. Use it when you only want to look.</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1860,12 +2029,12 @@ SI
 <p><strong>Tip</strong></p>
 </div>
 <div class="callout-content">
-<p>This exact pattern — <code>groupBy → agg → orderBy → limit/show(n)</code> — is precisely what Checkpoint 5 asks you to do, and it’s the core of Lab 8’s “top 10 highest-rated movies” task.</p>
+<p>This pattern — <code>groupBy → agg → orderBy → limit/show(n)</code> — is the core of Lab 8’s “top 10 highest-rated movies” task. Checkpoint 5 uses the <em>second half</em>: sort descending, then show the top rows.</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Quiz 6 Q4 tests <code>orderBy(..., ascending=False)</code> syntax directly. Flag the Checkpoint 5 connection out loud — this slide is deliberately the most directly test-relevant one in the session.</p>
+<p><strong>Timing: 4 min.</strong> Quiz 6 Q4 tests <code>orderBy(..., ascending=False)</code> syntax directly. Flag the Checkpoint 5 connection out loud — this slide is deliberately the most directly test-relevant one in the session. (CP5 itself is filter → orderBy → show(3), no groupBy.)</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1877,19 +2046,20 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="actions-revisited-the-risk-of-collect" class="slide level2">
 <h2>Actions, Revisited: The Risk of <code>collect()</code></h2>
 <p>Session 1 introduced actions as “the things that trigger execution.” One of them deserves a warning of its own.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a></a><span class="co"># ⚠️ Dangerous on a large DataFrame</span></span>
-<span id="cb27-2"><a></a>all_rows <span class="op">=</span> df.collect()   <span class="co"># pulls EVERY row to the driver machine, as a Python list</span></span>
-<span id="cb27-3"><a></a></span>
-<span id="cb27-4"><a></a><span class="co"># ✅ Safer — limit first</span></span>
-<span id="cb27-5"><a></a>sample <span class="op">=</span> df.limit(<span class="dv">100</span>).collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a></a><span class="co"># ⚠️ Dangerous on a large DataFrame</span></span>
+<span id="cb36-2"><a></a>all_rows <span class="op">=</span> df.collect()   <span class="co"># pulls EVERY row to the driver machine, as a Python list</span></span>
+<span id="cb36-3"><a></a></span>
+<span id="cb36-4"><a></a><span class="co"># ✅ Safer — limit first</span></span>
+<span id="cb36-5"><a></a>sample <span class="op">=</span> df.limit(<span class="dv">100</span>).collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>collect()</code> brings <strong>all</strong> matching rows back to the driver program, as ordinary Python objects — not distributed anymore.</li>
-<li>If the DataFrame is large, this can <strong>crash the driver</strong> — the driver has one machine’s worth of memory, not the whole cluster’s.</li>
-<li><code>count()</code> and <code>show(n)</code> don’t have this problem: <code>count()</code> returns a single number, and <code>show(n)</code> only ever prints <code>n</code> rows without collecting the rest.</li>
+<li class="fragment"><code>collect()</code> brings <em>all</em> matching rows back to the driver program, as a Python list of <code>Row</code> objects — <em>not distributed anymore</em>.</li>
+<li class="fragment">If the DataFrame is large, this can <em>crash the driver</em> — the driver has one machine’s worth of memory, not the whole cluster’s.</li>
+<li class="fragment"><code>count()</code> and <code>show(n)</code> don’t have this problem: <code>count()</code> returns <em>a single number</em>, and <code>show(n)</code> only ever <em>brings back <code>n</code> rows</em>.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 5 min.</strong> Quiz 6 Q7 tests this risk directly (“main risk of collect() on a very large DataFrame”) — this is a real, industry-relevant footgun, not a trivia fact, so it’s worth the full 5 minutes.</p>
@@ -1917,22 +2087,15 @@ SI
 </div>
 <div class="callout-content">
 <p><code>ratings</code> has 100 million rows but only about 50,000 distinct movies. Which of these are safe, and which could crash the driver?</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a></a>ratings.count()                                          <span class="co"># (a)</span></span>
-<span id="cb28-2"><a></a>ratings.groupBy(<span class="st">"movieId"</span>).agg(avg(<span class="st">"rating"</span>)).collect()  <span class="co"># (b)</span></span>
-<span id="cb28-3"><a></a>ratings.collect()[:<span class="dv">10</span>]                                   <span class="co"># (c)</span></span>
-<span id="cb28-4"><a></a>ratings.orderBy(desc(<span class="st">"rating"</span>)).show(<span class="dv">10</span>)                 <span class="co"># (d)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a></a>ratings.count()                                          <span class="co"># (a)</span></span>
+<span id="cb37-2"><a></a>ratings.groupBy(<span class="st">"movieId"</span>).agg(avg(<span class="st">"rating"</span>)).collect()  <span class="co"># (b)</span></span>
+<span id="cb37-3"><a></a>ratings.collect()[:<span class="dv">10</span>]                                   <span class="co"># (c)</span></span>
+<span id="cb37-4"><a></a>ratings.orderBy(desc(<span class="st">"rating"</span>)).show(<span class="dv">10</span>)                 <span class="co"># (d)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>(a) Safe.</strong> It returns a single number.</li>
-<li><strong>(b) Safe.</strong> It collects the <em>result</em>: one small row per movie, about 50,000 rows, not 100 million. What makes <code>collect()</code> risky is the size of what you collect, not the size of the input.</li>
-<li><strong>(c) Dangerous.</strong> <code>collect()</code> runs first and pulls all 100M rows onto the driver. The <code>[:10]</code> happens afterward in plain Python, which is too late. Fix: <code>ratings.limit(10).collect()</code> or <code>ratings.take(10)</code>.</li>
-<li><strong>(d) Safe.</strong> Only 10 rows come back to the driver. The sort itself runs on the executors.</li>
-</ul>
-<p>The rule to leave with: ask <strong>“how many rows will land on the driver?”</strong>, not “how big is the DataFrame?”</p>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1945,20 +2108,32 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section id="answers-2" class="slide level2">
+<h2>Answers</h2>
+<ul>
+<li class="fragment"><strong>(a) Safe.</strong> It returns <em>a single number</em>.</li>
+<li class="fragment"><strong>(b) Safe.</strong> It collects the <em>result</em>: one small row per movie, about 50,000 rows, not 100 million. What makes <code>collect()</code> risky is <em>the size of what you collect</em>, not the size of the input.</li>
+<li class="fragment"><strong>(c) Dangerous.</strong> <code>collect()</code> runs first and pulls <em>all 100M rows onto the driver</em>. The <code>[:10]</code> happens afterward in plain Python, which is too late. Fix: <code>ratings.limit(10).collect()</code> or <code>ratings.take(10)</code>.</li>
+<li class="fragment"><strong>(d) Safe.</strong> <em>Only 10 rows</em> come back to the driver. The sort itself runs on the executors.</li>
+</ul>
+<div class="fragment">
+<p>The rule to leave with: ask <strong>“how many rows will land on the driver?”</strong>, not “how big is the DataFrame?”</p>
+</div>
+</section>
 <section id="every-action-re-runs-the-plan-unless-you-cache" class="slide level2">
 <h2>Every Action Re-Runs the Plan — Unless You Cache</h2>
 <p>Lazy evaluation has a consequence: Spark doesn’t remember results between actions. Each action re-runs the <strong>whole</strong> plan from the source data.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a></a>top <span class="op">=</span> ratings.<span class="bu">filter</span>(col(<span class="st">"rating"</span>) <span class="op">&gt;=</span> <span class="fl">4.0</span>).groupBy(<span class="st">"movieId"</span>).count()</span>
-<span id="cb29-2"><a></a></span>
-<span id="cb29-3"><a></a>top.count()   <span class="co"># runs the full plan: read → filter → groupBy</span></span>
-<span id="cb29-4"><a></a>top.show(<span class="dv">5</span>)   <span class="co"># runs the full plan AGAIN from scratch</span></span>
-<span id="cb29-5"><a></a></span>
-<span id="cb29-6"><a></a>top.cache()   <span class="co"># keep `top` in executor memory once it's computed</span></span>
-<span id="cb29-7"><a></a>top.count()   <span class="co"># computes it one more time, and stores it</span></span>
-<span id="cb29-8"><a></a>top.show(<span class="dv">5</span>)   <span class="co"># reads the stored copy, no recomputation</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a></a>top <span class="op">=</span> ratings.<span class="bu">filter</span>(col(<span class="st">"rating"</span>) <span class="op">&gt;=</span> <span class="fl">4.0</span>).groupBy(<span class="st">"movieId"</span>).count()</span>
+<span id="cb38-2"><a></a></span>
+<span id="cb38-3"><a></a>top.count()   <span class="co"># runs the full plan: read → filter → groupBy</span></span>
+<span id="cb38-4"><a></a>top.show(<span class="dv">5</span>)   <span class="co"># runs the full plan AGAIN from scratch</span></span>
+<span id="cb38-5"><a></a></span>
+<span id="cb38-6"><a></a>top.cache()   <span class="co"># keep `top` in executor memory once it's computed</span></span>
+<span id="cb38-7"><a></a>top.count()   <span class="co"># computes it one more time, and stores it</span></span>
+<span id="cb38-8"><a></a>top.show(<span class="dv">5</span>)   <span class="co"># reads the stored copy, no recomputation</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>cache()</code> (or <code>persist()</code>) is <strong>neither</strong> a transformation nor an action. It marks the DataFrame to be kept in memory the next time an action computes it.</li>
-<li>Use it when you’ll run several actions on the same intermediate result. This is the in-memory reuse that makes Spark faster than MapReduce (Session 1, and EL4’s Zaharia talk).</li>
+<li class="fragment"><code>cache()</code> (or <code>persist()</code>) is <em>neither a transformation nor an action</em>. It marks the DataFrame to be <em>kept in memory the next time an action computes it</em>.</li>
+<li class="fragment">Use it when you’ll run <em>several actions on the same intermediate result</em>. This is the in-memory reuse that makes Spark faster than MapReduce (Session 1, and EL4’s Zaharia talk).</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Quiz 6 Q9’s last option (“calling multiple actions re-executes the computation each time, unless the DataFrame is cached”) hinges on this slide. EL4 covers <code>persist()</code> in more depth, but EL4 is due the same day as Quiz 6, so say it here too.</p>
@@ -1976,15 +2151,16 @@ SI
 </section>
 <section id="writing-dataframe-output" class="slide level2">
 <h2>Writing DataFrame Output</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a></a><span class="co"># Write as CSV — creates a folder, not a single file</span></span>
-<span id="cb30-2"><a></a>df.write.csv(<span class="st">"output/path"</span>, header<span class="op">=</span><span class="va">True</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span>
-<span id="cb30-3"><a></a></span>
-<span id="cb30-4"><a></a><span class="co"># Write as JSON</span></span>
-<span id="cb30-5"><a></a>df.write.json(<span class="st">"output/path"</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a></a><span class="co"># Write as CSV — creates a folder, not a single file</span></span>
+<span id="cb39-2"><a></a>df.write.csv(<span class="st">"output/path"</span>, header<span class="op">=</span><span class="va">True</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span>
+<span id="cb39-3"><a></a></span>
+<span id="cb39-4"><a></a><span class="co"># Write as JSON</span></span>
+<span id="cb39-5"><a></a>df.write.json(<span class="st">"output/path"</span>, mode<span class="op">=</span><span class="st">"overwrite"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>df.write.csv(...)</code> <strong>is an action</strong> — like <code>show()</code> or <code>count()</code>, it triggers Spark to execute the full pending plan, this time saving the result to storage instead of printing it.</li>
-<li><code>mode="overwrite"</code> replaces existing data at that path; <code>mode="error"</code> (the default) fails if the path already exists, to prevent accidentally destroying previous output.</li>
-<li>The capstone’s <code>spark_job.py</code> uses this same write pattern — except writing to MongoDB instead of a CSV folder, which Module 5 covers.</li>
+<li class="fragment"><code>df.write.csv(...)</code> <em>is an action</em> — like <code>show()</code> or <code>count()</code>, it triggers Spark to execute the full pending plan, this time <em>saving the result</em> instead of printing it.</li>
+<li class="fragment">The output is a <em>folder of <code>part-...</code> files</em>, one per partition, because each executor writes its own slice in parallel.</li>
+<li class="fragment"><code>mode="overwrite"</code> <em>replaces existing data</em> at that path; <code>mode="error"</code> (the default) <em>fails if the path already exists</em>, to prevent accidentally destroying previous output.</li>
+<li class="fragment">The capstone’s <code>spark_job.py</code> uses this same write pattern — except <em>writing to MongoDB</em> instead of a CSV folder, which Module 5 covers.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Quiz 6 Q8 and Q9 both test that <code>write.csv()</code> is an action, not a transformation — reinforce that classification explicitly, since “write” sounds like it should just be setup, not execution.</p>
@@ -2002,19 +2178,123 @@ SI
 </section>
 <section id="joins-in-pyspark" class="slide level2">
 <h2>Joins in PySpark</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a></a><span class="co"># Inner join: only rows with matching keys in both DataFrames</span></span>
-<span id="cb31-2"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>)</span>
-<span id="cb31-3"><a></a></span>
-<span id="cb31-4"><a></a><span class="co"># Left join: all rows from the left DataFrame, matched rows (or nulls) from the right</span></span>
-<span id="cb31-5"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
-<span id="cb31-6"><a></a></span>
-<span id="cb31-7"><a></a><span class="co"># Joining on differently-named columns</span></span>
-<span id="cb31-8"><a></a>result <span class="op">=</span> df1.join(df2, df1[<span class="st">"user_id"</span>] <span class="op">==</span> df2[<span class="st">"id"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a></a><span class="co"># Inner join: only rows with matching keys in both DataFrames</span></span>
+<span id="cb40-2"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>)</span>
+<span id="cb40-3"><a></a></span>
+<span id="cb40-4"><a></a><span class="co"># Left join: all rows from the left DataFrame, matched rows (or nulls) from the right</span></span>
+<span id="cb40-5"><a></a>result <span class="op">=</span> ratings.join(movies, on<span class="op">=</span><span class="st">"movieId"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb40-6"><a></a></span>
+<span id="cb40-7"><a></a><span class="co"># Joining on differently-named columns</span></span>
+<span id="cb40-8"><a></a>result <span class="op">=</span> df1.join(df2, df1[<span class="st">"user_id"</span>] <span class="op">==</span> df2[<span class="st">"id"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>A <strong>join</strong> combines two DataFrames into one, matching rows where a key column agrees.</li>
-<li><strong>Inner join</strong> (the default): keep only rows that have a match in <em>both</em> DataFrames — rows with no match on either side are dropped.</li>
-<li><strong>Left join:</strong> keep every row from the left DataFrame; unmatched rows get <code>null</code> for the right DataFrame’s columns instead of being dropped.</li>
+<li class="fragment">A <strong>join</strong> combines two DataFrames into one, <em>matching rows where a key column agrees</em>.</li>
+<li class="fragment"><strong>Inner join</strong> (the default): keep only rows that have a match in <em>both</em> DataFrames — rows with no match on either side are dropped.</li>
+<li class="fragment"><strong>Left join:</strong> keep <em>every row from the left</em> DataFrame; unmatched rows get <code>null</code> for the right DataFrame’s columns instead of being dropped.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 5 min (this slide and its two sub-slides).</strong> The worked example on the next sub-slide was run on Spark; the output tables are real. Lab 8’s Task 2 and Task 5 both join <code>ratings</code> with <code>movies</code> on <code>movieId</code>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+<p><strong>Example.</strong> <code>ratings</code> has a rating for movie 99, which isn’t in <code>movies</code>; <code>movies</code> has movie 3 (Heat), which nobody rated.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><code>ratings</code></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>userId</th>
+<th>movieId</th>
+<th>rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1</td>
+<td>4.0</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1</td>
+<td>5.0</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>2</td>
+<td>3.0</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>99</td>
+<td>2.0</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column" style="width:50%;">
+<p><code>movies</code></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>movieId</th>
+<th>title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Toy Story</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Jumanji</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Heat</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+<div class="fragment">
+<p><code>ratings.join(movies, on="movieId")</code> — inner: the movie-99 rating and Heat are both <em>dropped</em>.</p>
+<pre><code>+-------+------+------+---------+
+|movieId|userId|rating|    title|
++-------+------+------+---------+
+|      1|     1|   4.0|Toy Story|
+|      2|     1|   3.0|  Jumanji|
+|      1|     2|   5.0|Toy Story|
++-------+------+------+---------+</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
+<p><code>ratings.join(movies, on="movieId", how="left")</code> — left: every rating is <em>kept</em>, and movie 99 gets <code>null</code> for <code>title</code>. Heat still doesn’t appear, because it’s on the right side.</p>
+<pre><code>+-------+------+------+---------+
+|movieId|userId|rating|    title|
++-------+------+------+---------+
+|      1|     1|   4.0|Toy Story|
+|      2|     1|   3.0|  Jumanji|
+|      1|     2|   5.0|Toy Story|
+|     99|     3|   2.0|     null|
++-------+------+------+---------+</code></pre>
+<div class="fragment">
+<p>Notice the join key <code>movieId</code> appears <em>once</em>, first. (Row order in real output can differ; add an <code>orderBy</code> if you need a fixed order.)</p>
+</div>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -2028,8 +2308,26 @@ SI
 </div>
 </div>
 </div>
+<div class="fragment">
+<p><strong>Answer: yes.</strong> If some <code>movieId</code> in <code>ratings</code> has <em>no matching row in <code>movies</code></em> (a deleted or mislabeled film, like movie 99 above), the inner join <em>silently drops</em> those ratings. Comparing <code>ratings.count()</code> before and after the join is a quick way to catch it.</p>
+</div>
+</section>
+<section id="worked-example-a-full-multi-step-query" class="slide level2">
+<h2>Worked Example: A Full Multi-Step Query</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43" data-code-line-numbers="|3-4|5-6|7|8|9|10|12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
+<span id="cb43-2"><a></a></span>
+<span id="cb43-3"><a></a>top_movies <span class="op">=</span> ratings <span class="op">\</span></span>
+<span id="cb43-4"><a></a>    .groupBy(<span class="st">"movieId"</span>) <span class="op">\</span></span>
+<span id="cb43-5"><a></a>    .agg(spark_round(avg(<span class="st">"rating"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_rating"</span>),</span>
+<span id="cb43-6"><a></a>         count(<span class="st">"rating"</span>).alias(<span class="st">"num_ratings"</span>)) <span class="op">\</span></span>
+<span id="cb43-7"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"num_ratings"</span>) <span class="op">&gt;=</span> <span class="dv">50</span>) <span class="op">\</span></span>
+<span id="cb43-8"><a></a>    .join(movies, on<span class="op">=</span><span class="st">"movieId"</span>) <span class="op">\</span></span>
+<span id="cb43-9"><a></a>    .select(<span class="st">"title"</span>, <span class="st">"avg_rating"</span>, <span class="st">"num_ratings"</span>) <span class="op">\</span></span>
+<span id="cb43-10"><a></a>    .orderBy(desc(<span class="st">"avg_rating"</span>))</span>
+<span id="cb43-11"><a></a></span>
+<span id="cb43-12"><a></a>top_movies.show(<span class="dv">10</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> The callout’s answer: yes — if some <code>movieId</code> in <code>ratings</code> has no matching row in <code>movies</code> (a deleted or mislabeled film), the inner join silently drops those ratings. This is exactly the kind of thing Lab 8’s Task 2 depends on getting right.</p>
+<p><strong>Timing: 4 min (this slide and the next).</strong> This is deliberately close to Lab 8 Task 2’s actual solution shape — click through the line highlights one step at a time rather than all at once, since chaining six operations together is a lot to take in as a single block the first time. The written walkthrough is on the next sub-slide for students reviewing later.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2042,34 +2340,18 @@ SI
           display:block!important;
       }</style></aside>
 </section>
-<section id="worked-example-a-full-multi-step-query" class="slide level2">
-<h2>Worked Example: A Full Multi-Step Query</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, count, <span class="bu">round</span> <span class="im">as</span> spark_round, desc</span>
-<span id="cb32-2"><a></a></span>
-<span id="cb32-3"><a></a>top_movies <span class="op">=</span> ratings <span class="op">\</span></span>
-<span id="cb32-4"><a></a>    .groupBy(<span class="st">"movieId"</span>) <span class="op">\</span></span>
-<span id="cb32-5"><a></a>    .agg(spark_round(avg(<span class="st">"rating"</span>), <span class="dv">2</span>).alias(<span class="st">"avg_rating"</span>),</span>
-<span id="cb32-6"><a></a>         count(<span class="st">"rating"</span>).alias(<span class="st">"num_ratings"</span>)) <span class="op">\</span></span>
-<span id="cb32-7"><a></a>    .<span class="bu">filter</span>(col(<span class="st">"num_ratings"</span>) <span class="op">&gt;=</span> <span class="dv">50</span>) <span class="op">\</span></span>
-<span id="cb32-8"><a></a>    .join(movies, on<span class="op">=</span><span class="st">"movieId"</span>) <span class="op">\</span></span>
-<span id="cb32-9"><a></a>    .select(<span class="st">"title"</span>, <span class="st">"avg_rating"</span>, <span class="st">"num_ratings"</span>) <span class="op">\</span></span>
-<span id="cb32-10"><a></a>    .orderBy(desc(<span class="st">"avg_rating"</span>))</span>
-<span id="cb32-11"><a></a></span>
-<span id="cb32-12"><a></a>top_movies.show(<span class="dv">10</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Reading this top to bottom: group ratings by film, compute each film’s average and count, keep only films with enough ratings to be meaningful, join in the title, keep just the columns we want, sort by rating, show the top 10.</p>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> This is deliberately close to Lab 8 Task 2’s actual solution shape — walk through it step by step rather than all at once, since chaining six operations together is a lot to take in as a single block the first time.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<section class="slide level2">
+
+<p>Reading it top to bottom:</p>
+<ol type="1">
+<li class="fragment"><em>Group</em> ratings by film (<code>groupBy("movieId")</code>).</li>
+<li class="fragment">Compute each film’s <em>average and count</em> (<code>agg</code>).</li>
+<li class="fragment"><em>Keep only films with ≥ 50 ratings</em>, so a film with a single 5-star rating can’t top the list.</li>
+<li class="fragment"><em>Join in the title</em> from <code>movies</code>.</li>
+<li class="fragment"><em>Keep just the columns</em> we want (<code>select</code>).</li>
+<li class="fragment"><em>Sort</em> by average rating, highest first (<code>orderBy(desc(...))</code>).</li>
+<li class="fragment"><em>Show the top 10</em>, without cutting off long titles (<code>truncate=False</code>).</li>
+</ol>
 </section>
 <section id="checkpoint-5" class="slide level2">
 <h2>Checkpoint 5</h2>
@@ -2132,6 +2414,10 @@ SI
 <td>Pulls all rows to the driver — can crash it on large data</td>
 </tr>
 <tr class="even">
+<td><code>cache()</code></td>
+<td>Keeps a DataFrame in memory so later actions don’t recompute it</td>
+</tr>
+<tr class="odd">
 <td>Join</td>
 <td>Combine two DataFrames on a shared key — inner drops unmatched rows, left keeps them</td>
 </tr>

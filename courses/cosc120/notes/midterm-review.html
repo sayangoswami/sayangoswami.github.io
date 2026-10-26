@@ -1251,7 +1251,35 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-
+<section id="practice-1-solution" class="slide level2">
+<h2>Practice 1 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-2"><a></a>    <span class="dt">int</span> x <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb6-3"><a></a>    <span class="dt">int</span> y <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb6-4"><a></a></span>
+<span id="cb6-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>x <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-6"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Origin"</span><span class="op">);</span></span>
+<span id="cb6-7"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>y <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"On the x-axis"</span><span class="op">);</span></span>
+<span id="cb6-9"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-10"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"On the y-axis"</span><span class="op">);</span></span>
+<span id="cb6-11"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-12"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant I"</span><span class="op">);</span></span>
+<span id="cb6-13"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-14"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant II"</span><span class="op">);</span></span>
+<span id="cb6-15"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-16"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant III"</span><span class="op">);</span></span>
+<span id="cb6-17"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-18"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Quadrant IV"</span><span class="op">);</span></span>
+<span id="cb6-19"><a></a>    <span class="op">}</span></span>
+<span id="cb6-20"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Why the origin goes first:</strong> if <code>y == 0</code> were checked first, <code>(0, 0)</code> would print <code>On the x-axis</code>.</p>
+</div>
+<div class="fragment">
+<p><strong>Why <code>else if (x &lt; 0)</code> is enough for Quadrant III:</strong> by that line we already know neither is 0 and <code>y</code> is not positive.</p>
+</div>
+</section>
 <section id="practice-2-order-of-three" class="slide level2">
 <h2>Practice 2 — Order of Three</h2>
 <aside class="notes">
@@ -1297,7 +1325,27 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-</section>
+<section id="practice-2-solution" class="slide level2">
+<h2>Practice 2 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-2"><a></a>    <span class="dt">int</span> a <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb7-3"><a></a>    <span class="dt">int</span> b <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb7-4"><a></a>    <span class="dt">int</span> c <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb7-5"><a></a></span>
+<span id="cb7-6"><a></a>    <span class="cf">if</span> <span class="op">(</span>a <span class="op">==</span> b <span class="op">&amp;&amp;</span> b <span class="op">==</span> c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"All equal"</span><span class="op">);</span></span>
+<span id="cb7-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>a <span class="op">&lt;</span> b <span class="op">&amp;&amp;</span> b <span class="op">&lt;</span> c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-9"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Increasing"</span><span class="op">);</span></span>
+<span id="cb7-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>a <span class="op">&gt;</span> b <span class="op">&amp;&amp;</span> b <span class="op">&gt;</span> c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-11"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Decreasing"</span><span class="op">);</span></span>
+<span id="cb7-12"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-13"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Mixed"</span><span class="op">);</span></span>
+<span id="cb7-14"><a></a>    <span class="op">}</span></span>
+<span id="cb7-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Common mistake:</strong> writing <code>a &lt; b &lt; c</code>. Java won’t compile it. You need two comparisons joined with <code>&amp;&amp;</code>: <code>a &lt; b &amp;&amp; b &lt; c</code>.</p>
+</div>
+</section></section>
 <section>
 <section id="practice-ifelse-with-strings" class="title-slide slide level1 center">
 <h1>Practice: <code>if</code>/<code>else</code> with Strings</h1>
@@ -1348,7 +1396,27 @@ if (document.readyState === 'loading') {
   </div>
 </div>
 </section>
-
+<section id="practice-3-solution" class="slide level2">
+<h2>Practice 3 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-2"><a></a>    <span class="bu">String</span> name <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb8-3"><a></a></span>
+<span id="cb8-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">5</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Too short"</span><span class="op">);</span></span>
+<span id="cb8-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&gt;</span> <span class="dv">12</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Too long"</span><span class="op">);</span></span>
+<span id="cb8-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span><span class="fu">equals</span><span class="op">(</span><span class="st">"_"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-9"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Cannot start with _"</span><span class="op">);</span></span>
+<span id="cb8-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb8-11"><a></a>        <span class="bu">String</span> fixed <span class="op">=</span> name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span><span class="fu">toUpperCase</span><span class="op">()</span></span>
+<span id="cb8-12"><a></a>                     <span class="op">+</span> name<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">1</span><span class="op">).</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb8-13"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Welcome, "</span> <span class="op">+</span> fixed<span class="op">);</span></span>
+<span id="cb8-14"><a></a>    <span class="op">}</span></span>
+<span id="cb8-15"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><code>name.substring(0, 1)</code> is the first character <strong>as a String</strong>, so we can compare it with <code>.equals()</code>.</p>
+</div>
+</section>
 <section id="practice-4-phone-number-formatter" class="slide level2">
 <h2>Practice 4 — Phone Number Formatter</h2>
 <aside class="notes">
@@ -1394,7 +1462,32 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-</section>
+<section id="practice-4-solution" class="slide level2">
+<h2>Practice 4 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb10-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-2"><a></a>    <span class="bu">String</span> phone <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb10-3"><a></a></span>
+<span id="cb10-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>phone<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">!=</span> <span class="dv">10</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Invalid number"</span><span class="op">);</span></span>
+<span id="cb10-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb10-7"><a></a>        <span class="bu">String</span> area <span class="op">=</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span>
+<span id="cb10-8"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"("</span> <span class="op">+</span> area <span class="op">+</span> <span class="st">") "</span> <span class="op">+</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">)</span> <span class="op">+</span> <span class="st">"-"</span> <span class="op">+</span> phone<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">6</span><span class="op">));</span></span>
+<span id="cb10-9"><a></a></span>
+<span id="cb10-10"><a></a>        <span class="cf">if</span> <span class="op">(</span>area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"410"</span><span class="op">)</span> <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"443"</span><span class="op">)</span></span>
+<span id="cb10-11"><a></a>                <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"240"</span><span class="op">)</span> <span class="op">||</span> area<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"301"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb10-12"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Maryland"</span><span class="op">);</span></span>
+<span id="cb10-13"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb10-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Out of state"</span><span class="op">);</span></span>
+<span id="cb10-15"><a></a>        <span class="op">}</span></span>
+<span id="cb10-16"><a></a>    <span class="op">}</span></span>
+<span id="cb10-17"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Common mistake:</strong> <code>area.equals("410" || "443")</code> won’t compile. Each check needs its own <code>.equals()</code>.</p>
+</div>
+<div class="fragment">
+<p><strong>Check the length first.</strong> Calling <code>substring(6)</code> on a 5-character String crashes the program.</p>
+</div>
+</section></section>
 <section>
 <section id="practice-nested-ifelse" class="title-slide slide level1 center">
 <h1>Practice: Nested <code>if</code>/<code>else</code></h1>
@@ -1568,7 +1661,30 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-5-solution" class="slide level2">
+<h2>Practice 5 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-2"><a></a>    <span class="dt">int</span> n <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb14-3"><a></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-4"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Zero"</span><span class="op">);</span></span>
+<span id="cb14-5"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-6"><a></a>        <span class="cf">if</span> <span class="op">(</span>n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-7"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Positive even"</span><span class="op">);</span></span>
+<span id="cb14-8"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb14-9"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Positive odd"</span><span class="op">);</span></span>
+<span id="cb14-10"><a></a>        <span class="op">}</span></span>
+<span id="cb14-11"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb14-12"><a></a>        <span class="cf">if</span> <span class="op">(</span>n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-13"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Negative even"</span><span class="op">);</span></span>
+<span id="cb14-14"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb14-15"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Negative odd"</span><span class="op">);</span></span>
+<span id="cb14-16"><a></a>        <span class="op">}</span></span>
+<span id="cb14-17"><a></a>    <span class="op">}</span></span>
+<span id="cb14-18"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Common mistake:</strong> testing odd with <code>n % 2 == 1</code>. For <code>-7</code>, <code>n % 2</code> is <code>-1</code>, so that test is false and <code>-7</code> would be called even. Test <code>n % 2 == 0</code> and let <code>else</code> handle odd.</p>
+</div>
+</section>
 <section id="practice-6-phone-battery" class="slide level2">
 <h2>Practice 6 — Phone Battery</h2>
 <aside class="notes">
@@ -1644,7 +1760,31 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-6-solution" class="slide level2">
+<h2>Practice 6 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-2"><a></a>    <span class="dt">int</span> level <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb15-3"><a></a>    <span class="bu">String</span> plugged <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb15-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>plugged<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb15-5"><a></a>        <span class="cf">if</span> <span class="op">(</span>level <span class="op">==</span> <span class="dv">100</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-6"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fully charged"</span><span class="op">);</span></span>
+<span id="cb15-7"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb15-8"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Charging: "</span> <span class="op">+</span> level <span class="op">+</span> <span class="st">"%"</span><span class="op">);</span></span>
+<span id="cb15-9"><a></a>        <span class="op">}</span></span>
+<span id="cb15-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb15-11"><a></a>        <span class="cf">if</span> <span class="op">(</span>level <span class="op">&lt;=</span> <span class="dv">5</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-12"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Critical: plug in now"</span><span class="op">);</span></span>
+<span id="cb15-13"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>level <span class="op">&lt;=</span> <span class="dv">20</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Low battery: "</span> <span class="op">+</span> level <span class="op">+</span> <span class="st">"%"</span><span class="op">);</span></span>
+<span id="cb15-15"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb15-16"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Battery: "</span> <span class="op">+</span> level <span class="op">+</span> <span class="st">"%"</span><span class="op">);</span></span>
+<span id="cb15-17"><a></a>        <span class="op">}</span></span>
+<span id="cb15-18"><a></a>    <span class="op">}</span></span>
+<span id="cb15-19"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Order inside the inner chain matters.</strong> If <code>level &lt;= 20</code> came first, a level of <code>3</code> would print <code>Low battery: 3%</code> and the critical message could never run.</p>
+</div>
+</section>
 <section id="practice-7-elevator" class="slide level2">
 <h2>Practice 7 — Elevator</h2>
 <aside class="notes">
@@ -1712,7 +1852,35 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-7-solution" class="slide level2">
+<h2>Practice 7 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb16-2"><a></a>    <span class="dt">int</span> current <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb16-3"><a></a>    <span class="dt">int</span> requested <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb16-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>current <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> current <span class="op">&gt;</span> <span class="dv">10</span> <span class="op">||</span> requested <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> requested <span class="op">&gt;</span> <span class="dv">10</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Invalid floor"</span><span class="op">);</span></span>
+<span id="cb16-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>current <span class="op">==</span> requested<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Already on floor "</span> <span class="op">+</span> current<span class="op">);</span></span>
+<span id="cb16-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>requested <span class="op">&gt;</span> current<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-9"><a></a>        <span class="dt">int</span> moves <span class="op">=</span> requested <span class="op">-</span> current<span class="op">;</span></span>
+<span id="cb16-10"><a></a>        <span class="cf">if</span> <span class="op">(</span>moves <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-11"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Going up 1 floor"</span><span class="op">);</span></span>
+<span id="cb16-12"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb16-13"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Going up "</span> <span class="op">+</span> moves <span class="op">+</span> <span class="st">" floors"</span><span class="op">);</span></span>
+<span id="cb16-14"><a></a>        <span class="op">}</span></span>
+<span id="cb16-15"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb16-16"><a></a>        <span class="dt">int</span> moves <span class="op">=</span> current <span class="op">-</span> requested<span class="op">;</span></span>
+<span id="cb16-17"><a></a>        <span class="cf">if</span> <span class="op">(</span>moves <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-18"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Going down 1 floor"</span><span class="op">);</span></span>
+<span id="cb16-19"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb16-20"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Going down "</span> <span class="op">+</span> moves <span class="op">+</span> <span class="st">" floors"</span><span class="op">);</span></span>
+<span id="cb16-21"><a></a>        <span class="op">}</span></span>
+<span id="cb16-22"><a></a>    <span class="op">}</span></span>
+<span id="cb16-23"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Each comparison needs both sides.</strong> <code>current &lt; 1 || &gt; 10</code> does not compile. Write <code>current &lt; 1 || current &gt; 10</code>.</p>
+</div>
+</section>
 <section id="practice-8-state-of-water" class="slide level2">
 <h2>Practice 8 — State of Water</h2>
 <aside class="notes">
@@ -1800,7 +1968,35 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-</section>
+<section id="practice-8-solution" class="slide level2">
+<h2>Practice 8 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb17-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-2"><a></a>    <span class="dt">int</span> temp <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb17-3"><a></a>    <span class="bu">String</span> unit <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">().</span><span class="fu">toUpperCase</span><span class="op">();</span></span>
+<span id="cb17-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>unit<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"C"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb17-5"><a></a>        <span class="cf">if</span> <span class="op">(</span>temp <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-6"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Ice"</span><span class="op">);</span></span>
+<span id="cb17-7"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>temp <span class="op">&lt;</span> <span class="dv">100</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-8"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Liquid water"</span><span class="op">);</span></span>
+<span id="cb17-9"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb17-10"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Steam"</span><span class="op">);</span></span>
+<span id="cb17-11"><a></a>        <span class="op">}</span></span>
+<span id="cb17-12"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>unit<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"F"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb17-13"><a></a>        <span class="cf">if</span> <span class="op">(</span>temp <span class="op">&lt;=</span> <span class="dv">32</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Ice"</span><span class="op">);</span></span>
+<span id="cb17-15"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>temp <span class="op">&lt;</span> <span class="dv">212</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-16"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Liquid water"</span><span class="op">);</span></span>
+<span id="cb17-17"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb17-18"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Steam"</span><span class="op">);</span></span>
+<span id="cb17-19"><a></a>        <span class="op">}</span></span>
+<span id="cb17-20"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb17-21"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Unknown unit"</span><span class="op">);</span></span>
+<span id="cb17-22"><a></a>    <span class="op">}</span></span>
+<span id="cb17-23"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Normalize once.</strong> <code>String unit = IO.readln().toUpperCase();</code> means you only compare against <code>"C"</code> and <code>"F"</code>, instead of writing <code>unit.equals("C") || unit.equals("c")</code> everywhere.</p>
+</div>
+</section></section>
 <section>
 <section id="nested-ifelse-with-numbers-and-strings" class="title-slide slide level1 center">
 <h1>Nested <code>if</code>/<code>else</code> with Numbers and Strings</h1>
@@ -1874,7 +2070,33 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-9-solution" class="slide level2">
+<h2>Practice 9 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb18-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-2"><a></a>    <span class="dt">int</span> days <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb18-3"><a></a>    <span class="bu">String</span> member <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb18-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>days <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-5"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"No fee"</span><span class="op">);</span></span>
+<span id="cb18-6"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>member<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb18-7"><a></a>        <span class="dt">int</span> fee <span class="op">=</span> days <span class="op">*</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-8"><a></a>        <span class="cf">if</span> <span class="op">(</span>fee <span class="op">&gt;</span> <span class="dv">10</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-9"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fee: $10 (maximum)"</span><span class="op">);</span></span>
+<span id="cb18-10"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb18-11"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fee: $"</span> <span class="op">+</span> fee<span class="op">);</span></span>
+<span id="cb18-12"><a></a>        <span class="op">}</span></span>
+<span id="cb18-13"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb18-14"><a></a>        <span class="dt">int</span> fee <span class="op">=</span> days <span class="op">*</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-15"><a></a>        <span class="cf">if</span> <span class="op">(</span>fee <span class="op">&gt;</span> <span class="dv">20</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-16"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fee: $20 (maximum)"</span><span class="op">);</span></span>
+<span id="cb18-17"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb18-18"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fee: $"</span> <span class="op">+</span> fee<span class="op">);</span></span>
+<span id="cb18-19"><a></a>        <span class="op">}</span></span>
+<span id="cb18-20"><a></a>    <span class="op">}</span></span>
+<span id="cb18-21"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Test the boundary.</strong> A member who is exactly 10 days late owes $10, which is <em>not more than</em> the maximum, so the output is <code>Fee: $10</code>, without <code>(maximum)</code>.</p>
+</div>
+</section>
 <section id="practice-10-speeding-fine" class="slide level2">
 <h2>Practice 10 — Speeding Fine</h2>
 <aside class="notes">
@@ -1961,7 +2183,35 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-10-solution" class="slide level2">
+<h2>Practice 10 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb19-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-2"><a></a>    <span class="dt">int</span> limit <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb19-3"><a></a>    <span class="dt">int</span> speed <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb19-4"><a></a>    <span class="bu">String</span> schoolZone <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb19-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>speed <span class="op">&lt;=</span> limit<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-6"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"No ticket"</span><span class="op">);</span></span>
+<span id="cb19-7"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb19-8"><a></a>        <span class="dt">int</span> over <span class="op">=</span> speed <span class="op">-</span> limit<span class="op">;</span></span>
+<span id="cb19-9"><a></a>        <span class="dt">int</span> fine<span class="op">;</span></span>
+<span id="cb19-10"><a></a>        <span class="cf">if</span> <span class="op">(</span>over <span class="op">&lt;=</span> <span class="dv">10</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-11"><a></a>            fine <span class="op">=</span> <span class="dv">50</span><span class="op">;</span></span>
+<span id="cb19-12"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>over <span class="op">&lt;=</span> <span class="dv">20</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-13"><a></a>            fine <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb19-14"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb19-15"><a></a>            fine <span class="op">=</span> <span class="dv">200</span><span class="op">;</span></span>
+<span id="cb19-16"><a></a>        <span class="op">}</span></span>
+<span id="cb19-17"><a></a>        <span class="cf">if</span> <span class="op">(</span>schoolZone<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb19-18"><a></a>            fine <span class="op">=</span> fine <span class="op">*</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb19-19"><a></a>        <span class="op">}</span></span>
+<span id="cb19-20"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Over by "</span> <span class="op">+</span> over <span class="op">+</span> <span class="st">" mph"</span><span class="op">);</span></span>
+<span id="cb19-21"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Fine: $"</span> <span class="op">+</span> fine<span class="op">);</span></span>
+<span id="cb19-22"><a></a>    <span class="op">}</span></span>
+<span id="cb19-23"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Two separate decisions inside the <code>else</code>.</strong> The fine chain and the school-zone check are <em>not</em> one <code>else if</code> chain. A school-zone driver still needs a base fine first, so the doubling is its own <code>if</code> after the chain.</p>
+</div>
+</section>
 <section id="practice-11-thermostat" class="slide level2">
 <h2>Practice 11 — Thermostat</h2>
 <aside class="notes">
@@ -2030,7 +2280,34 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-</section>
+<section id="practice-11-solution" class="slide level2">
+<h2>Practice 11 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb20-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-2"><a></a>    <span class="dt">int</span> current <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb20-3"><a></a>    <span class="dt">int</span> target <span class="op">=</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">parseInt</span><span class="op">(</span>IO<span class="op">.</span><span class="fu">readln</span><span class="op">());</span></span>
+<span id="cb20-4"><a></a>    <span class="bu">String</span> mode <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb20-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>mode<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"off"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb20-6"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"System off"</span><span class="op">);</span></span>
+<span id="cb20-7"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>mode<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"heat"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb20-8"><a></a>        <span class="cf">if</span> <span class="op">(</span>current <span class="op">&lt;</span> target<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-9"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Heating to "</span> <span class="op">+</span> target<span class="op">);</span></span>
+<span id="cb20-10"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-11"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Idle"</span><span class="op">);</span></span>
+<span id="cb20-12"><a></a>        <span class="op">}</span></span>
+<span id="cb20-13"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>mode<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"cool"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb20-14"><a></a>        <span class="cf">if</span> <span class="op">(</span>current <span class="op">&gt;</span> target<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-15"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Cooling to "</span> <span class="op">+</span> target<span class="op">);</span></span>
+<span id="cb20-16"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-17"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Idle"</span><span class="op">);</span></span>
+<span id="cb20-18"><a></a>        <span class="op">}</span></span>
+<span id="cb20-19"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-20"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Invalid mode"</span><span class="op">);</span></span>
+<span id="cb20-21"><a></a>    <span class="op">}</span></span>
+<span id="cb20-22"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Don’t flatten it with <code>&amp;&amp;</code>.</strong> With <code>else if (mode.equals("heat") &amp;&amp; current &lt; target)</code>, a heater that is already warm falls through to the <em>next</em> branches and ends up printing <code>Invalid mode</code> instead of <code>Idle</code>.</p>
+</div>
+</section></section>
 <section>
 <section id="nested-ifelse-with-strings" class="title-slide slide level1 center">
 <h1>Nested <code>if</code>/<code>else</code> with Strings</h1>
@@ -2107,7 +2384,31 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-12-solution" class="slide level2">
+<h2>Practice 12 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb21-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb21-2"><a></a>    <span class="bu">String</span> first <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb21-3"><a></a>    <span class="bu">String</span> second <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb21-4"><a></a>    <span class="cf">if</span> <span class="op">(</span>first<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">==</span> second<span class="op">.</span><span class="fu">length</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb21-5"><a></a>        <span class="cf">if</span> <span class="op">(</span>first<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>second<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb21-6"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Identical"</span><span class="op">);</span></span>
+<span id="cb21-7"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>first<span class="op">.</span><span class="fu">toLowerCase</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span>second<span class="op">.</span><span class="fu">toLowerCase</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb21-8"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Same word, different case"</span><span class="op">);</span></span>
+<span id="cb21-9"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb21-10"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Same length, different words"</span><span class="op">);</span></span>
+<span id="cb21-11"><a></a>        <span class="op">}</span></span>
+<span id="cb21-12"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb21-13"><a></a>        <span class="cf">if</span> <span class="op">(</span>first<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&gt;</span> second<span class="op">.</span><span class="fu">length</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb21-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>first <span class="op">+</span> <span class="st">" is longer"</span><span class="op">);</span></span>
+<span id="cb21-15"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb21-16"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>second <span class="op">+</span> <span class="st">" is longer"</span><span class="op">);</span></span>
+<span id="cb21-17"><a></a>        <span class="op">}</span></span>
+<span id="cb21-18"><a></a>    <span class="op">}</span></span>
+<span id="cb21-19"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Check <code>Identical</code> first.</strong> <code>"hello"</code> and <code>"hello"</code> are also equal when you ignore case. If the case-insensitive test came first, identical words would print <code>Same word, different case</code>.</p>
+</div>
+</section>
 <section id="practice-13-rock-paper-scissors" class="slide level2">
 <h2>Practice 13 — Rock, Paper, Scissors</h2>
 <aside class="notes">
@@ -2176,7 +2477,41 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-13-solution" class="slide level2">
+<h2>Practice 13 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb22-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb22-2"><a></a>    <span class="bu">String</span> p1 <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb22-3"><a></a>    <span class="bu">String</span> p2 <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb22-4"><a></a>    <span class="dt">boolean</span> p1Valid <span class="op">=</span> p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"rock"</span><span class="op">)</span> <span class="op">||</span> p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"paper"</span><span class="op">)</span> <span class="op">||</span> p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"scissors"</span><span class="op">);</span></span>
+<span id="cb22-5"><a></a>    <span class="dt">boolean</span> p2Valid <span class="op">=</span> p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"rock"</span><span class="op">)</span> <span class="op">||</span> p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"paper"</span><span class="op">)</span> <span class="op">||</span> p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"scissors"</span><span class="op">);</span></span>
+<span id="cb22-6"><a></a>    <span class="cf">if</span> <span class="op">(!</span>p1Valid <span class="op">||</span> <span class="op">!</span>p2Valid<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-7"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Invalid move"</span><span class="op">);</span></span>
+<span id="cb22-8"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>p2<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-9"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Tie"</span><span class="op">);</span></span>
+<span id="cb22-10"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"rock"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-11"><a></a>        <span class="cf">if</span> <span class="op">(</span>p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"scissors"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-12"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 1 wins"</span><span class="op">);</span></span>
+<span id="cb22-13"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb22-14"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 2 wins"</span><span class="op">);</span></span>
+<span id="cb22-15"><a></a>        <span class="op">}</span></span>
+<span id="cb22-16"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>p1<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"paper"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-17"><a></a>        <span class="cf">if</span> <span class="op">(</span>p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"rock"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-18"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 1 wins"</span><span class="op">);</span></span>
+<span id="cb22-19"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb22-20"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 2 wins"</span><span class="op">);</span></span>
+<span id="cb22-21"><a></a>        <span class="op">}</span></span>
+<span id="cb22-22"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb22-23"><a></a>        <span class="cf">if</span> <span class="op">(</span>p2<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"paper"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-24"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 1 wins"</span><span class="op">);</span></span>
+<span id="cb22-25"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb22-26"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Player 2 wins"</span><span class="op">);</span></span>
+<span id="cb22-27"><a></a>        <span class="op">}</span></span>
+<span id="cb22-28"><a></a>    <span class="op">}</span></span>
+<span id="cb22-29"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Why the inner <code>else</code> is safe:</strong> by the time we’re inside <code>p1.equals("rock")</code>, we already know <code>p2</code> is valid and is <em>not</em> rock, so if it’s not scissors it must be paper.</p>
+</div>
+</section>
 <section id="practice-14-days-in-a-month" class="slide level2">
 <h2>Practice 14 — Days in a Month</h2>
 <aside class="notes">
@@ -2246,7 +2581,31 @@ Output: (410) 555-1234    Output: (212) 555-0199
   </div>
 </div>
 </section>
-
+<section id="practice-14-solution" class="slide level2">
+<h2>Practice 14 — Solution</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb23-1"><a></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-2"><a></a>    <span class="bu">String</span> month <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb23-3"><a></a>    <span class="bu">String</span> leap <span class="op">=</span> IO<span class="op">.</span><span class="fu">readln</span><span class="op">();</span></span>
+<span id="cb23-4"><a></a>    <span class="bu">String</span> name <span class="op">=</span> month<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span><span class="fu">toUpperCase</span><span class="op">()</span> <span class="op">+</span> month<span class="op">.</span><span class="fu">substring</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb23-5"><a></a>    <span class="cf">if</span> <span class="op">(</span>month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"feb"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb23-6"><a></a>        <span class="cf">if</span> <span class="op">(</span>leap<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"yes"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb23-7"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>name <span class="op">+</span> <span class="st">" has 29 days"</span><span class="op">);</span></span>
+<span id="cb23-8"><a></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb23-9"><a></a>            IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>name <span class="op">+</span> <span class="st">" has 28 days"</span><span class="op">);</span></span>
+<span id="cb23-10"><a></a>        <span class="op">}</span></span>
+<span id="cb23-11"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"apr"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"jun"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"sep"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"nov"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb23-12"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>name <span class="op">+</span> <span class="st">" has 30 days"</span><span class="op">);</span></span>
+<span id="cb23-13"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"jan"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"mar"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"may"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"jul"</span><span class="op">)</span></span>
+<span id="cb23-14"><a></a>            <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"aug"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"oct"</span><span class="op">)</span> <span class="op">||</span> month<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">"dec"</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb23-15"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span>name <span class="op">+</span> <span class="st">" has 31 days"</span><span class="op">);</span></span>
+<span id="cb23-16"><a></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb23-17"><a></a>        IO<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Unknown month"</span><span class="op">);</span></span>
+<span id="cb23-18"><a></a>    <span class="op">}</span></span>
+<span id="cb23-19"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Lower-case first, then compare.</strong> Calling <code>.toLowerCase()</code> right after reading means <code>"JUN"</code>, <code>"Jun"</code>, and <code>"jun"</code> all match <code>month.equals("jun")</code>, and the display name can be built from that one clean copy.</p>
+</div>
+</section>
 <section id="exam-checklist" class="slide level2">
 <h2>Exam Checklist</h2>
 <aside class="notes">

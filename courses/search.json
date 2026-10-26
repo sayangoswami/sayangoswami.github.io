@@ -4256,46 +4256,151 @@
     "text": "Quiz 1\nQuiz 1 — Module 1: Concurrency is now open on Blackboard.\n\nMultiple choice / true-false, covering Sessions 1–5\nClosed book, closed notes, no collaboration - Honor Code applies\nEverything you need is on the Module 1 Summary Table from earlier — if you can explain every row of that table in your own words, you’re ready\n\nConnects to: Lab 1, Lab 2, Checkpoint 1, Quiz 1, Midterm Q1–Q12\n\nTiming: 2 min transition, then hand off to Blackboard for the remaining ~12 min. Don’t linger — direct them to Blackboard and let the quiz run."
   },
   {
-    "objectID": "cosc420/notes/el1.html",
-    "href": "cosc420/notes/el1.html",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "objectID": "cosc420/notes/el2.html",
+    "href": "cosc420/notes/el2.html",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
     "section": "",
-    "text": "Due: October 7 Format: Completion-based Engaged Learning activity, done outside class (see syllabus) Notebook: engaged_learning/el_01_python_basics.ipynb (Google Colab) Competency: Enabling. Python syntax prerequisite for CLO4 (PySpark); feeds Lab 6 and Quiz 4"
+    "text": "EL1 covered Python’s syntax and control flow. EL2 covers the other half of what PySpark code relies on: functions (including default arguments and lambda), tuples, lists and list comprehensions, dictionaries, and reading files.\nYou’ll use these to build a complete small pipeline on an 18-row sample shaped like MovieLens, the dataset from Lab 8 and the capstone:\nread files → parse → group by movie → average → join with titles → rank\nThat’s the same sequence you’ll later write in Spark. Doing it in plain Python first shows what groupBy, avg and join do for you, and why one machine stops being enough (Module 3’s shuffle, and Module 4).\nTime: about 45 min of reading + about 75 min on the notebook. The due date is two weeks out because the midterm (Oct 19) falls in this window. Aim to finish it before the Oct 21 Python crash-course lecture.\n\n\n\n\n\nReading: the official Python tutorial:\n\n§4.8 Defining Functions, plus §4.9.1 Default Argument Values, §4.9.2 Keyword Arguments, §4.9.6 Lambda Expressions\n§5 Data Structures: §5.1 (including §5.1.3 List Comprehensions), §5.3 Tuples and Sequences, §5.4 Sets, §5.5 Dictionaries, §5.6 Looping Techniques\n§7.2 Reading and Writing Files, up to but not including §7.2.2 (json is covered in Lab 6)\n\nOptional, for a slower pace: Python for Everybody, in its chapters on functions, files, lists, dictionaries and tuples.\nNotebook: Click on this link, access it with your college email id, and then File → Save a copy in Drive. Go to Tools → Settings → AI Assisgtance and check Hide generative AI features.\n\n\n\n\n\n\n\n\n\n\n\n\n#\nTopic\nWhat you do\n\n\n\n\nSetup\nWriting files\nA given cell writes ratings.csv and movies.csv with open(path, \"w\")\n\n\n1\nFunctions, default args, reading files\nload_lines(path, skip_header=True)\n\n\n2\nReturning tuples, unpacking\nparse_rating(line) → (user, movie, rating); parse_movie(line) → (id, title, [genres])\n\n\n3\nList comprehensions, sets\nParse both files; pull out rating values, high ratings, distinct users\n\n\n4\nDictionaries\nCount a rating distribution (.get), group ratings by movie (the shuffle), then mean() + a dict comprehension (the reduce)\n\n\n5\nJoining on a key\nAttach titles to per-movie stats; notice which movie gets dropped\n\n\n6\nsorted + lambda\ntop_n(rows, n=3, min_count=2), with ties broken by count\n\n\n—\nReflection\nMap the pipeline to MapReduce phases; what breaks at 100 GB\n\n\n\nEvery exercise has a check cell that prints ✅. Exercises 5 and 6 each end with a 1–2 sentence question.\nHow it connects to Lab 6 (same due date): Lab 6 practices comprehensions, lambda/sorted, word count and json. EL2 introduces the first two, so Lab 6 is practice, not first contact. EL2 deliberately does not do word count or json, so the two don’t overlap.\n\n\n\nUpload your completed notebook to the EL2 assignment on Blackboard (File → Download → Download .ipynb).\n\n\n\nEL2 is graded complete/incomplete. It’s complete if:\n\nevery exercise is attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe two short-answer questions (Exercises 5 and 6) and the two reflection questions are answered, even briefly.\n\n\n\n\n\nThe check cells were verified against these solutions. Two more build-time checks confirmed that (a) every check passes with these solutions, and (b) running any exercise with its code still blank fails at its check cell with a readable message, not an unrelated crash.\nData facts, for spot-checking submissions: 18 ratings, 6 movies, 6 users, 12 ratings ≥ 4.0. Movie 999 has one rating but no row in movies.csv.\nExercise 1:\ndef load_lines(path, skip_header=True):\n    lines = []\n    with open(path, \"r\") as f:\n        for line in f:\n            line = line.strip()\n            if line:\n                lines.append(line)\n    if skip_header:\n        lines = lines[1:]\n    return lines\nExercise 2:\ndef parse_rating(line):\n    user_id, movie_id, rating, _timestamp = line.split(\",\")\n    return (int(user_id), int(movie_id), float(rating))\n\ndef parse_movie(line):\n    movie_id, title, genres = line.split(\",\")\n    return (int(movie_id), title, genres.split(\"|\"))\nExercise 3:\nratings = [parse_rating(line) for line in load_lines(\"ratings.csv\")]\nmovies = [parse_movie(line) for line in load_lines(\"movies.csv\")]\nrating_values = [rating for (user, movie, rating) in ratings]\nhigh_ratings = [r for r in ratings if r[2] &gt;= 4.0]\ndistinct_users = len(set(user for (user, movie, rating) in ratings))\nExercise 4: distribution {1.0: 1, 2.5: 1, 3.0: 2, 3.5: 2, 4.0: 4, 4.5: 4, 5.0: 4}.\nfor user_id, movie_id, rating in ratings:\n    distribution[rating] = distribution.get(rating, 0) + 1\n    if movie_id not in ratings_by_movie:\n        ratings_by_movie[movie_id] = []\n    ratings_by_movie[movie_id].append(rating)\n\ndef mean(values):\n    return sum(values) / len(values)\n\nstats = {movie_id: (mean(vals), len(vals)) for movie_id, vals in ratings_by_movie.items()}\nstats: 1 → (4.25, 4), 2 → (3.0, 3), 6 → (5.0, 1), 16 → (3.5, 2), 32 → (4.5, 3), 47 → (4.5, 4), 999 → (1.0, 1). ratings_by_movie.setdefault(movie_id, []).append(rating) is an equally good one-line version of the grouping.\nExercise 5:\ntitles = {movie_id: title for (movie_id, title, genres) in movies}\njoined = [(titles[m], avg, n) for m, (avg, n) in stats.items() if m in titles]\nQuestion: movie 999 is dropped, because it has a rating but no row in movies.csv, so an inner join has nothing to pair it with. A join that kept it (a left join) would need a placeholder title, such as None or \"Unknown\", which is what Spark’s how=\"left\" produces as null.\nExercise 6:\ndef top_n(rows, n=3, min_count=2):\n    eligible = [row for row in rows if row[2] &gt;= min_count]\n    return sorted(eligible, key=lambda row: (row[1], row[2]), reverse=True)[:n]\nResult: Seven (4.5, 4), Twelve Monkeys (4.5, 3), Toy Story (4.25, 4). Question: with min_count=1, Heat wins with a single 5.0 rating. One person’s opinion isn’t evidence that a film is good. A minimum count (≥ 50 in the capstone) keeps films with too few ratings to trust from topping the chart.\nReflection: the pattern to look for: 1. Map = Exercises 2–3 (each line → (movie_id, rating)). Shuffle = Exercise 4b (group by movie_id). Reduce = Exercise 4c (mean per group). Exercise 5’s join is the extra step MapReduce makes awkward and Spark makes one line. 2. The first line to cause trouble is load_lines / the ratings = [...] comprehension (or ratings_by_movie), because it holds every line in memory at once on one machine. At 100 GB that exceeds a laptop’s RAM, and even if it fit, one CPU would process it serially. Spark splits the file into partitions across machines and streams them."
   },
   {
-    "objectID": "cosc420/notes/el1.html#background",
-    "href": "cosc420/notes/el1.html#background",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
-    "section": "Background",
-    "text": "Background\nFrom Module 4 onward, the course is in Python: PySpark, the MongoDB driver, Flask, and the capstone. You already program in Java, so this activity focuses on how Python writes the things you already know, and the places where it behaves differently. EL3 (assigned Oct 9) continues with functions, lists and dictionaries. The Oct 21 Python crash-course lecture and Lab 6 build on both.\nThe exercises use web-server log lines and HTTP status codes from Module 2. They also preview three ideas coming later in the course: splitting records across workers (MapReduce, next week), retry storms (EL5), and re-sharding (Module 5).\nTime: about 45 min of reading + 60–75 min on the notebook."
+    "objectID": "cosc420/notes/el2.html#background",
+    "href": "cosc420/notes/el2.html#background",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "EL1 covered Python’s syntax and control flow. EL2 covers the other half of what PySpark code relies on: functions (including default arguments and lambda), tuples, lists and list comprehensions, dictionaries, and reading files.\nYou’ll use these to build a complete small pipeline on an 18-row sample shaped like MovieLens, the dataset from Lab 8 and the capstone:\nread files → parse → group by movie → average → join with titles → rank\nThat’s the same sequence you’ll later write in Spark. Doing it in plain Python first shows what groupBy, avg and join do for you, and why one machine stops being enough (Module 3’s shuffle, and Module 4).\nTime: about 45 min of reading + about 75 min on the notebook. The due date is two weeks out because the midterm (Oct 19) falls in this window. Aim to finish it before the Oct 21 Python crash-course lecture."
   },
   {
-    "objectID": "cosc420/notes/el1.html#materials",
-    "href": "cosc420/notes/el1.html#materials",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
-    "section": "Materials",
-    "text": "Materials\n\nReading: the official Python tutorial, §3 An Informal Introduction to Python and §4.1–4.6 More Control Flow Tools. Stop before §4.7; functions come in EL3. Optional, for a slower pace: Python for Everybody (free, CC-BY), in its chapters on variables, conditionals, iteration and strings.\nNotebook: Click on this link, access it with your college email id, and then File → Save a copy in Drive. Go to Tools → Settings → AI Assisgtance and check Hide generative AI features."
+    "objectID": "cosc420/notes/el2.html#materials",
+    "href": "cosc420/notes/el2.html#materials",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "Reading: the official Python tutorial:\n\n§4.8 Defining Functions, plus §4.9.1 Default Argument Values, §4.9.2 Keyword Arguments, §4.9.6 Lambda Expressions\n§5 Data Structures: §5.1 (including §5.1.3 List Comprehensions), §5.3 Tuples and Sequences, §5.4 Sets, §5.5 Dictionaries, §5.6 Looping Techniques\n§7.2 Reading and Writing Files, up to but not including §7.2.2 (json is covered in Lab 6)\n\nOptional, for a slower pace: Python for Everybody, in its chapters on functions, files, lists, dictionaries and tuples.\nNotebook: Click on this link, access it with your college email id, and then File → Save a copy in Drive. Go to Tools → Settings → AI Assisgtance and check Hide generative AI features."
   },
   {
-    "objectID": "cosc420/notes/el1.html#whats-in-the-notebook",
-    "href": "cosc420/notes/el1.html#whats-in-the-notebook",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
-    "section": "What’s in the notebook",
-    "text": "What’s in the notebook\n\n\n\n\n\n\n\n\n#\nTopic\nWhat you do\n\n\n\n\n1\nTypes and operators\nPredict 7 expressions (7 / 2, \"7\" + \"2\", …) before running them; fix a Java-style if (status = 200) { … }\n\n\n2\nStrings\nParse one log line with split(), indexing, slicing, int()\n\n\n3\nConditionals\nClassify HTTP status codes into 2xx/3xx/4xx/5xx with if/elif/else\n\n\n4\nfor loops\nSummarize a 10-line log: counts per category, average/slowest latency, error rate\n\n\n5\nwhile loops\nSimulate retry with exponential backoff\n\n\n6\nrange() and %\nPartition 12 record ids across 3 workers by id % n\n\n\n—\nReflection\nTwo 2–3 sentence answers\n\n\n\nEvery exercise is followed by a check cell that prints ✅ when the code is right. Exercises 3–6 also end with a 1–2 sentence question."
+    "objectID": "cosc420/notes/el2.html#whats-in-the-notebook",
+    "href": "cosc420/notes/el2.html#whats-in-the-notebook",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "#\nTopic\nWhat you do\n\n\n\n\nSetup\nWriting files\nA given cell writes ratings.csv and movies.csv with open(path, \"w\")\n\n\n1\nFunctions, default args, reading files\nload_lines(path, skip_header=True)\n\n\n2\nReturning tuples, unpacking\nparse_rating(line) → (user, movie, rating); parse_movie(line) → (id, title, [genres])\n\n\n3\nList comprehensions, sets\nParse both files; pull out rating values, high ratings, distinct users\n\n\n4\nDictionaries\nCount a rating distribution (.get), group ratings by movie (the shuffle), then mean() + a dict comprehension (the reduce)\n\n\n5\nJoining on a key\nAttach titles to per-movie stats; notice which movie gets dropped\n\n\n6\nsorted + lambda\ntop_n(rows, n=3, min_count=2), with ties broken by count\n\n\n—\nReflection\nMap the pipeline to MapReduce phases; what breaks at 100 GB\n\n\n\nEvery exercise has a check cell that prints ✅. Exercises 5 and 6 each end with a 1–2 sentence question.\nHow it connects to Lab 6 (same due date): Lab 6 practices comprehensions, lambda/sorted, word count and json. EL2 introduces the first two, so Lab 6 is practice, not first contact. EL2 deliberately does not do word count or json, so the two don’t overlap."
   },
   {
-    "objectID": "cosc420/notes/el1.html#what-to-submit",
-    "href": "cosc420/notes/el1.html#what-to-submit",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
-    "section": "What to submit",
-    "text": "What to submit\nUpload your completed notebook to the EL1 assignment on Blackboard (File → Download → Download .ipynb)."
+    "objectID": "cosc420/notes/el2.html#what-to-submit",
+    "href": "cosc420/notes/el2.html#what-to-submit",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "Upload your completed notebook to the EL2 assignment on Blackboard (File → Download → Download .ipynb)."
   },
   {
-    "objectID": "cosc420/notes/el1.html#completion-criteria",
-    "href": "cosc420/notes/el1.html#completion-criteria",
-    "title": "EL-01: EL1: Python Basics for Java Programmers",
-    "section": "Completion criteria",
-    "text": "Completion criteria\nEL1 is graded complete/incomplete. It’s complete if:\n\nthe notebook shows every exercise attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe four short-answer questions (Exercises 3–6) and the two reflection questions are answered, even briefly.\n\nA wrong prediction in Exercise 1a is fine, since that exercise is about noticing surprises."
+    "objectID": "cosc420/notes/el2.html#completion-criteria",
+    "href": "cosc420/notes/el2.html#completion-criteria",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "EL2 is graded complete/incomplete. It’s complete if:\n\nevery exercise is attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe two short-answer questions (Exercises 5 and 6) and the two reflection questions are answered, even briefly."
+  },
+  {
+    "objectID": "cosc420/notes/el2.html#sample-solution-instructor-use-only",
+    "href": "cosc420/notes/el2.html#sample-solution-instructor-use-only",
+    "title": "EL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline",
+    "section": "",
+    "text": "The check cells were verified against these solutions. Two more build-time checks confirmed that (a) every check passes with these solutions, and (b) running any exercise with its code still blank fails at its check cell with a readable message, not an unrelated crash.\nData facts, for spot-checking submissions: 18 ratings, 6 movies, 6 users, 12 ratings ≥ 4.0. Movie 999 has one rating but no row in movies.csv.\nExercise 1:\ndef load_lines(path, skip_header=True):\n    lines = []\n    with open(path, \"r\") as f:\n        for line in f:\n            line = line.strip()\n            if line:\n                lines.append(line)\n    if skip_header:\n        lines = lines[1:]\n    return lines\nExercise 2:\ndef parse_rating(line):\n    user_id, movie_id, rating, _timestamp = line.split(\",\")\n    return (int(user_id), int(movie_id), float(rating))\n\ndef parse_movie(line):\n    movie_id, title, genres = line.split(\",\")\n    return (int(movie_id), title, genres.split(\"|\"))\nExercise 3:\nratings = [parse_rating(line) for line in load_lines(\"ratings.csv\")]\nmovies = [parse_movie(line) for line in load_lines(\"movies.csv\")]\nrating_values = [rating for (user, movie, rating) in ratings]\nhigh_ratings = [r for r in ratings if r[2] &gt;= 4.0]\ndistinct_users = len(set(user for (user, movie, rating) in ratings))\nExercise 4: distribution {1.0: 1, 2.5: 1, 3.0: 2, 3.5: 2, 4.0: 4, 4.5: 4, 5.0: 4}.\nfor user_id, movie_id, rating in ratings:\n    distribution[rating] = distribution.get(rating, 0) + 1\n    if movie_id not in ratings_by_movie:\n        ratings_by_movie[movie_id] = []\n    ratings_by_movie[movie_id].append(rating)\n\ndef mean(values):\n    return sum(values) / len(values)\n\nstats = {movie_id: (mean(vals), len(vals)) for movie_id, vals in ratings_by_movie.items()}\nstats: 1 → (4.25, 4), 2 → (3.0, 3), 6 → (5.0, 1), 16 → (3.5, 2), 32 → (4.5, 3), 47 → (4.5, 4), 999 → (1.0, 1). ratings_by_movie.setdefault(movie_id, []).append(rating) is an equally good one-line version of the grouping.\nExercise 5:\ntitles = {movie_id: title for (movie_id, title, genres) in movies}\njoined = [(titles[m], avg, n) for m, (avg, n) in stats.items() if m in titles]\nQuestion: movie 999 is dropped, because it has a rating but no row in movies.csv, so an inner join has nothing to pair it with. A join that kept it (a left join) would need a placeholder title, such as None or \"Unknown\", which is what Spark’s how=\"left\" produces as null.\nExercise 6:\ndef top_n(rows, n=3, min_count=2):\n    eligible = [row for row in rows if row[2] &gt;= min_count]\n    return sorted(eligible, key=lambda row: (row[1], row[2]), reverse=True)[:n]\nResult: Seven (4.5, 4), Twelve Monkeys (4.5, 3), Toy Story (4.25, 4). Question: with min_count=1, Heat wins with a single 5.0 rating. One person’s opinion isn’t evidence that a film is good. A minimum count (≥ 50 in the capstone) keeps films with too few ratings to trust from topping the chart.\nReflection: the pattern to look for: 1. Map = Exercises 2–3 (each line → (movie_id, rating)). Shuffle = Exercise 4b (group by movie_id). Reduce = Exercise 4c (mean per group). Exercise 5’s join is the extra step MapReduce makes awkward and Spark makes one line. 2. The first line to cause trouble is load_lines / the ratings = [...] comprehension (or ratings_by_movie), because it holds every line in memory at once on one machine. At 100 GB that exceeds a laptop’s RAM, and even if it fit, one CPU would process it serially. Spark splits the file into partitions across machines and streams them."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#python-for-java-programmers-everything-pyspark-assumes-you-know",
+    "href": "cosc420/notes/23.html#python-for-java-programmers-everything-pyspark-assumes-you-know",
+    "title": "Python Crash Course",
+    "section": "Python for Java Programmers: Everything PySpark Assumes You Know",
+    "text": "Python for Java Programmers: Everything PySpark Assumes You Know\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Why Python, Why Now\n2 min\n\n\nJava vs. Python at a Glance\n4 min\n\n\nVariables, Types, and type()\n4 min\n\n\n= vs. ==, and Indentation Is Syntax\n4 min\n\n\nStrings: Indexing, Slicing, split()\n4 min\n\n\nLists, len(), and range()\n4 min\n\n\nDictionaries\n4 min\n\n\nFunctions\n4 min\n\n\nPause & Discuss: Predict the Output\n4 min\n\n\nList Comprehensions, lambda, and sorted\n5 min\n\n\nReading a File\n4 min\n\n\nFrom Plain Python to PySpark\n3 min\n\n\nLab 6 + Quiz 4 Preview\n3 min\n\n\n\n13 slides, ~49 min. This is the only Python lecture. It builds on EL1 (syntax, control flow; due Oct 7) and EL2 (functions, lists, dicts, files; due Oct 23), so it’s a consolidation lecture, not first contact: live-code every example in a Colab notebook and let students predict the output before you run it. The midterm was Monday, so energy may be low. Keep it interactive. Quiz 4 (Friday) is drawn directly from these slides."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#recap-why-python-why-now",
+    "href": "cosc420/notes/23.html#recap-why-python-why-now",
+    "title": "Python Crash Course",
+    "section": "Recap: Why Python, Why Now",
+    "text": "Recap: Why Python, Why Now\nModules 1–3 were in Java. From here to the end of the course, everything is Python:\n\nModule 4: PySpark (Spark’s Python API)\nModule 5: the MongoDB Python driver (pymongo)\nModule 6: Flask, and the capstone that ties all of them together\n\n\nYou’ve already started: EL1 covered syntax and control flow, and EL2 covers functions, lists, dictionaries and files. Today puts it all in one place.\n\nTiming: 2 min. Ask for a show of hands on EL2 progress. It’s due Friday with Lab 6, and anyone who hasn’t started should hear that today."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#java-vs.-python-at-a-glance",
+    "href": "cosc420/notes/23.html#java-vs.-python-at-a-glance",
+    "title": "Python Crash Course",
+    "section": "Java vs. Python at a Glance",
+    "text": "Java vs. Python at a Glance\n\n\n\n\n\n\n\n\n\nJava\nPython\n\n\n\n\nTypes\nDeclared: int x = 5;\nInferred at runtime: x = 5\n\n\nBlocks\n{ ... }\nIndentation\n\n\nEnd of statement\n;\nEnd of line\n\n\nRun it\nCompile, then run\nRun directly (interpreter, or a notebook cell)\n\n\nPrint\nSystem.out.println(x);\nprint(x)\n\n\nBoolean ops\n&&, ||, !\nand, or, not\n\n\nComments\n// ...\n# ...\n\n\n\n\nTiming: 4 min. Don’t read the table. Pick the two rows that bite Java programmers most: no declared types, and indentation as syntax (next two slides go deeper on both)."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#variables-types-and-type",
+    "href": "cosc420/notes/23.html#variables-types-and-type",
+    "title": "Python Crash Course",
+    "section": "Variables, Types, and type()",
+    "text": "Variables, Types, and type()\ncount = 42          # int\nprice = 3.14        # float\nname = \"Alice\"      # str\nok = True           # bool\nscores = [90, 85]   # list\nages = {\"Al\": 30}   # dict\n\nprint(type(price))  # &lt;class 'float'&gt;\n\nNo type declarations. The value has a type, and the variable just points at it.\ntype(x) tells you what type a value is. It prints as &lt;class 'float'&gt;, not just float.\nWatch the Java habits: 7 / 2 is 3.5 in Python (true division). Use 7 // 2 for 3.\n\n\nTiming: 4 min. Quiz 4 Q3 asks for the exact output of print(type(3.14)) — point at the &lt;class 'float'&gt; form explicitly. Q10 asks which of int, str, list, char are real Python types — say explicitly that Python has no char type: 'a' is just a 1-character str."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#vs.-and-indentation-is-syntax",
+    "href": "cosc420/notes/23.html#vs.-and-indentation-is-syntax",
+    "title": "Python Crash Course",
+    "section": "= vs. ==, and Indentation Is Syntax",
+    "text": "= vs. ==, and Indentation Is Syntax\nstatus = 200             # = assigns\nif status == 200:        # == compares\n    print(\"OK\")          # indented: inside the if\n    print(\"still OK\")\nprint(\"always runs\")     # not indented: outside the if\n\nOutput:\nOK\nstill OK\nalways runs"
+  },
+  {
+    "objectID": "cosc420/notes/23.html#strings-indexing-slicing-split",
+    "href": "cosc420/notes/23.html#strings-indexing-slicing-split",
+    "title": "Python Crash Course",
+    "section": "Strings: Indexing, Slicing, split()",
+    "text": "Strings: Indexing, Slicing, split()\nword = \"python\"\nword[0]        # 'p'  — zero-indexed, like Java\nword[2]        # 't'\nword[-1]       # 'n'  — negative indexes count from the end\nword[0:3]      # 'pyt' — slice: start up to (not including) end\n\nline = \"GET /index.html 200\"\nparts = line.split(\" \")   # ['GET', '/index.html', '200']\ncode = int(parts[2])      # 200, now an int\n\nTiming: 4 min. Quiz 4 Q7 asks for \"python\"[2]. split() + int() is exactly how Lab 6 and later MapReduce-style code parse a line, which is what EL1 Exercise 2 did with log lines."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#lists-len-and-range",
+    "href": "cosc420/notes/23.html#lists-len-and-range",
+    "title": "Python Crash Course",
+    "section": "Lists, len(), and range()",
+    "text": "Lists, len(), and range()\nnums = [10, 20, 30, 40, 50]\nlen(nums)         # 5\nnums.append(60)   # add to the end\nnums[1]           # 20\n\nfor n in nums:    # loop over the items directly — no index needed\n    print(n)      # 10, 20, 30, 40, 50, 60 (one per line)\n\nfor i in range(3):   # 0, 1, 2   (starts at 0, stops BEFORE 3)\n    print(i)\n\nlen(x) works on lists, strings, dicts: anything with a size.\nrange(n) gives 0, 1, ..., n-1 — it stops before n. range(2, 5) gives 2, 3, 4.\n\n\nTiming: 4 min. Quiz 4 Q1 (len of a 5-item list) and Q5 (range(3) prints 0 1 2) come from this slide. Stress “stops before n” — 1 2 3 and 0 1 2 3 are the wrong answers."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#dictionaries",
+    "href": "cosc420/notes/23.html#dictionaries",
+    "title": "Python Crash Course",
+    "section": "Dictionaries",
+    "text": "Dictionaries\nperson = {\"name\": \"Alice\", \"age\": 30}   # curly braces, key: value\nperson[\"name\"]          # 'Alice'\nperson[\"email\"] = \"a@x.com\"             # add a key\n\ncounts = {}\nfor word in [\"a\", \"b\", \"a\"]:\n    counts[word] = counts.get(word, 0) + 1\n# counts == {'a': 2, 'b': 1}\n\nfor key, value in person.items():\n    print(key, value)   # name Alice / age 30 / email a@x.com\n\nPython’s HashMap: keys map to values. .get(key, default) avoids a crash (KeyError) on a missing key.\nA dict looks exactly like a JSON object — that’s why REST APIs (Module 2), MongoDB documents (Module 5) and Flask’s jsonify (Module 6) all feel natural in Python.\n\n\nTiming: 4 min. Quiz 4 Q4 asks which syntax creates a dict with keys \"name\" and \"age\" — the example on this slide is that answer. The counts.get(...) loop is the word count pattern from Lab 6 Exercise 3 and Module 3’s reduce step."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#functions",
+    "href": "cosc420/notes/23.html#functions",
+    "title": "Python Crash Course",
+    "section": "Functions",
+    "text": "Functions\ndef add(a, b):\n    return a + b\n\nadd(3, 4)          # 7\n\ndef greet(name, greeting=\"Hello\"):   # default argument\n    return greeting + \", \" + name\n\ngreet(\"Bob\")                 # 'Hello, Bob'\ngreet(\"Bob\", \"Hi\")           # 'Hi, Bob'\n\ndef, a name, parameters, a colon, then an indented body. No return type.\nA function with no return returns None (Python’s null).\n\n\nTiming: 4 min. Quiz 4 Q8 is add(3, 4). The distractors are \"a + b\", None and 34 — ask the class which Java or JavaScript habit would lead to 34 (string concatenation) before moving on."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#pause-discuss-predict-the-output",
+    "href": "cosc420/notes/23.html#pause-discuss-predict-the-output",
+    "title": "Python Crash Course",
+    "section": "Pause & Discuss: Predict the Output",
+    "text": "Pause & Discuss: Predict the Output\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndata = {\"alice\": [90, 80], \"bob\": [70]}\nfor name in data:\n    total = 0\n    for s in data[name]:\n        total = total + s\n    print(name, total / len(data[name]))\nprint(len(data))\nWhat does each print line output? What changes if the second print is indented one level?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#answer",
+    "href": "cosc420/notes/23.html#answer",
+    "title": "Python Crash Course",
+    "section": "Answer",
+    "text": "Answer\nalice 85.0\nbob 70.0\n2\n\n85.0, not 85: / always gives a float.\nlen(data) is the number of keys (2), not the number of scores (3).\nIndenting print(len(data)) one level puts it inside the outer for, so it prints 2 twice, once after each student. Same code, different program: indentation is syntax."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#list-comprehensions-lambda-and-sorted",
+    "href": "cosc420/notes/23.html#list-comprehensions-lambda-and-sorted",
+    "title": "Python Crash Course",
+    "section": "List Comprehensions, lambda, and sorted",
+    "text": "List Comprehensions, lambda, and sorted\nnums = [1, 2, 3, 4, 5]\nsquares = [n * n for n in nums]              # [1, 4, 9, 16, 25]\nevens   = [n for n in nums if n % 2 == 0]    # [2, 4]\nA list comprehension builds a new list in one line: [expression for item in list if condition].\n\nIt’s shorthand for a loop you already know how to write:\nevens = []\nfor n in nums:\n    if n % 2 == 0:\n        evens.append(n)\n\nTiming: 5 min across this slide and the next. Write the comprehension as the equivalent for loop first (the second block), then collapse it. Lab 6 Exercise 1 and Exercise 3 both use these directly."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#reading-a-file",
+    "href": "cosc420/notes/23.html#reading-a-file",
+    "title": "Python Crash Course",
+    "section": "Reading a File",
+    "text": "Reading a File\nf = open(\"ratings.csv\", \"r\")     # \"r\" = read mode\nfor line in f:\n    print(line.strip())\nf.close()\n\n# The idiomatic version: the file closes itself when the block ends\nwith open(\"ratings.csv\", \"r\") as f:\n    header = f.readline()            # skip the header row\n    for line in f:\n        user, movie, rating, ts = line.strip().split(\",\")\n\nopen(path, \"r\") to read, \"w\" to write (overwrites the file).\nwith open(...) as f: is preferred: no forgotten close().\nThe unpacking needs one name per field: ratings.csv has four columns (userId,movieId,rating,timestamp), so three names would crash with a ValueError.\n\n\nTiming: 4 min. Quiz 4 Q9 asks which call opens data.txt for reading — open(\"data.txt\", \"r\"). EL2 Exercise 1 is load_lines(path, skip_header=True), built from exactly this pattern; the tuple unpacking on the last line is EL2 Exercise 2."
+  },
+  {
+    "objectID": "cosc420/notes/23.html#from-plain-python-to-pyspark",
+    "href": "cosc420/notes/23.html#from-plain-python-to-pyspark",
+    "title": "Python Crash Course",
+    "section": "From Plain Python to PySpark",
+    "text": "From Plain Python to PySpark\nEverything today runs on one machine. PySpark keeps the Python syntax but runs the work on a cluster:\n\n\n\n\n\n\n\nPlain Python (today)\nPySpark (Monday onward)\n\n\n\n\nopen(...) + a for loop\nspark.read.csv(...)\n\n\n[r for r in rows if r[2] &gt; 4]\ndf.filter(col(\"rating\") &gt; 4)\n\n\na dict of lists, then averages\ndf.groupBy(\"movieId\").avg(\"rating\")\n\n\nsorted(..., key=lambda ...)\ndf.orderBy(..., ascending=False)\n\n\n\n\nEL2’s mini ratings pipeline is this left column. Lab 8 and the capstone are the right column.\n\nTiming: 3 min. Don’t teach PySpark syntax yet. The point is that Monday’s lecture is the same ideas with a different engine underneath."
   },
   {
     "objectID": "cosc420/notes/21-lab4.html",
@@ -6139,11 +6244,25 @@
     "text": "Practice 1 — Point Location\n\nGive students about 8 minutes. Walk around and look for the ordering mistake: students who check x &gt; 0 && y &gt; 0 first are fine, but students who check y == 0 before the origin case will print “On the x-axis” for (0, 0).\n\nRead two ints, x then y (no prompts). Print where the point is:\n\n\n\nCondition\nOutput\n\n\n\n\nboth are 0\nOrigin\n\n\nonly y is 0\nOn the x-axis\n\n\nonly x is 0\nOn the y-axis\n\n\nx &gt; 0, y &gt; 0\nQuadrant I\n\n\nx &lt; 0, y &gt; 0\nQuadrant II\n\n\nx &lt; 0, y &lt; 0\nQuadrant III\n\n\nx &gt; 0, y &lt; 0\nQuadrant IV\n\n\n\nExample: input -3 and 5 → Quadrant II\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-1-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-1-solution",
+    "title": "Midterm Review",
+    "section": "Practice 1 — Solution",
+    "text": "Practice 1 — Solution\nvoid main() {\n    int x = Integer.parseInt(IO.readln());\n    int y = Integer.parseInt(IO.readln());\n\n    if (x == 0 && y == 0) {\n        IO.println(\"Origin\");\n    } else if (y == 0) {\n        IO.println(\"On the x-axis\");\n    } else if (x == 0) {\n        IO.println(\"On the y-axis\");\n    } else if (x &gt; 0 && y &gt; 0) {\n        IO.println(\"Quadrant I\");\n    } else if (x &lt; 0 && y &gt; 0) {\n        IO.println(\"Quadrant II\");\n    } else if (x &lt; 0) {\n        IO.println(\"Quadrant III\");\n    } else {\n        IO.println(\"Quadrant IV\");\n    }\n}\n\nWhy the origin goes first: if y == 0 were checked first, (0, 0) would print On the x-axis.\n\n\nWhy else if (x &lt; 0) is enough for Quadrant III: by that line we already know neither is 0 and y is not positive."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-2-order-of-three",
     "href": "cosc120/notes/midterm-review.html#practice-2-order-of-three",
     "title": "Midterm Review",
     "section": "Practice 2 — Order of Three",
     "text": "Practice 2 — Order of Three\n\nThe trap is the word “strictly”. 1, 1, 2 is Mixed, not Increasing. Students who write a &lt;= b && b &lt;= c get it wrong. Also test 7, 7, 7: All equal must be checked before the others (though with strict &lt; it would fall to Mixed anyway, so the bug shows up as a wrong label).\n\nRead three ints a, b, c (no prompts). Print:\n\nAll equal: all three are the same\nIncreasing: a &lt; b &lt; c, strictly\nDecreasing: a &gt; b &gt; c, strictly\nMixed: anything else\n\nExamples: 2 5 9 → Increasing · 4 1 4 → Mixed · 1 1 2 → Mixed\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-2-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-2-solution",
+    "title": "Midterm Review",
+    "section": "Practice 2 — Solution",
+    "text": "Practice 2 — Solution\nvoid main() {\n    int a = Integer.parseInt(IO.readln());\n    int b = Integer.parseInt(IO.readln());\n    int c = Integer.parseInt(IO.readln());\n\n    if (a == b && b == c) {\n        IO.println(\"All equal\");\n    } else if (a &lt; b && b &lt; c) {\n        IO.println(\"Increasing\");\n    } else if (a &gt; b && b &gt; c) {\n        IO.println(\"Decreasing\");\n    } else {\n        IO.println(\"Mixed\");\n    }\n}\n\nCommon mistake: writing a &lt; b &lt; c. Java won’t compile it. You need two comparisons joined with &&: a &lt; b && b &lt; c."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-3-username-check",
@@ -6153,11 +6272,25 @@
     "text": "Practice 3 — Username Check\n\nTwo ideas here: checking rules in a fixed order (else if), and building a new String from pieces. “ab” should print ”Too short”, not ”Cannot start with ”, because rule 1 comes first. That’s the ordering lesson again.\n\nRead a username (no prompts). Check these rules in order and print the message for the first one that fails:\n\nfewer than 5 characters → Too short\nmore than 12 characters → Too long\nstarts with _ → Cannot start with _\n\nIf all pass, print Welcome, followed by the name with the first letter upper case and the rest lower case.\nExamples: jORDAN → Welcome, Jordan · _ghost → Cannot start with _ · _ab → Too short\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-3-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-3-solution",
+    "title": "Midterm Review",
+    "section": "Practice 3 — Solution",
+    "text": "Practice 3 — Solution\nvoid main() {\n    String name = IO.readln();\n\n    if (name.length() &lt; 5) {\n        IO.println(\"Too short\");\n    } else if (name.length() &gt; 12) {\n        IO.println(\"Too long\");\n    } else if (name.substring(0, 1).equals(\"_\")) {\n        IO.println(\"Cannot start with _\");\n    } else {\n        String fixed = name.substring(0, 1).toUpperCase()\n                     + name.substring(1).toLowerCase();\n        IO.println(\"Welcome, \" + fixed);\n    }\n}\n\nname.substring(0, 1) is the first character as a String, so we can compare it with .equals()."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-4-phone-number-formatter",
     "href": "cosc120/notes/midterm-review.html#practice-4-phone-number-formatter",
     "title": "Midterm Review",
     "section": "Practice 4 — Phone Number Formatter",
     "text": "Practice 4 — Phone Number Formatter\n\nPractice with substring boundaries: (0,3), (3,6), (6). Draw the index boxes 0-9 on the board. Then an OR chain of .equals() calls. Watch for students who write area.equals(“410” || “443”), which does not compile.\n\nRead a phone number typed as digits only, e.g. 4105551234 (no prompts).\n\nNot exactly 10 characters → print Invalid number\nOtherwise print (AAA) BBB-CCCC, then on the next line Maryland if the area code is 410, 443, 240, or 301, else Out of state\n\nInput:  4105551234        Input:  2125550199\nOutput: (410) 555-1234    Output: (212) 555-0199\n        Maryland                  Out of state\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-4-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-4-solution",
+    "title": "Midterm Review",
+    "section": "Practice 4 — Solution",
+    "text": "Practice 4 — Solution\nvoid main() {\n    String phone = IO.readln();\n\n    if (phone.length() != 10) {\n        IO.println(\"Invalid number\");\n    } else {\n        String area = phone.substring(0, 3);\n        IO.println(\"(\" + area + \") \" + phone.substring(3, 6) + \"-\" + phone.substring(6));\n\n        if (area.equals(\"410\") || area.equals(\"443\")\n                || area.equals(\"240\") || area.equals(\"301\")) {\n            IO.println(\"Maryland\");\n        } else {\n            IO.println(\"Out of state\");\n        }\n    }\n}\n\nCommon mistake: area.equals(\"410\" || \"443\") won’t compile. Each check needs its own .equals().\n\n\nCheck the length first. Calling substring(6) on a 5-character String crashes the program."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#why-nest",
@@ -6188,11 +6321,25 @@
     "text": "Practice 5 — Sign and Parity\n\nWarm-up. The outer decision is the sign; the even/odd question is asked inside each branch. The trap: students who write n % 2 == 1 for odd get -7 wrong, because -7 % 2 is -1 in Java. Testing == 0 for even and using else avoids it.\n\nRead one integer and describe it with two facts: its sign and whether it is even or odd.\n\nIf the number is 0, print Zero.\nIf it is positive, print Positive even or Positive odd.\nIf it is negative, print Negative even or Negative odd.\n\nCareful: in Java, -7 % 2 is -1, not 1. Test for even with n % 2 == 0.\nInput (no prompts): One line containing one int.\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n8\nPositive even\n\n\n-7\nNegative odd\n\n\n0\nZero\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-5-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-5-solution",
+    "title": "Midterm Review",
+    "section": "Practice 5 — Solution",
+    "text": "Practice 5 — Solution\nvoid main() {\n    int n = Integer.parseInt(IO.readln());\n    if (n == 0) {\n        IO.println(\"Zero\");\n    } else if (n &gt; 0) {\n        if (n % 2 == 0) {\n            IO.println(\"Positive even\");\n        } else {\n            IO.println(\"Positive odd\");\n        }\n    } else {\n        if (n % 2 == 0) {\n            IO.println(\"Negative even\");\n        } else {\n            IO.println(\"Negative odd\");\n        }\n    }\n}\n\nCommon mistake: testing odd with n % 2 == 1. For -7, n % 2 is -1, so that test is false and -7 would be called even. Test n % 2 == 0 and let else handle odd."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-6-phone-battery",
     "href": "cosc120/notes/midterm-review.html#practice-6-phone-battery",
     "title": "Midterm Review",
     "section": "Practice 6 — Phone Battery",
     "text": "Practice 6 — Phone Battery\n\nThe outer if splits on the String, the inner decisions are on the number. Point out that the inner chain on the ‘no’ side is an ordinary else-if chain, just indented one level. Ordering matters inside it: &lt;= 5 must come before &lt;= 20.\n\nRead a phone’s battery level (0 to 100) and whether it is plugged in (yes or no). Print a status message:\n\nPlugged in (yes):\n\nlevel is 100 → Fully charged\notherwise → Charging: &lt;level&gt;%\n\nNot plugged in (no):\n\nlevel is 5 or less → Critical: plug in now\nlevel is 20 or less → Low battery: &lt;level&gt;%\notherwise → Battery: &lt;level&gt;%\n\n\nInput (no prompts): Two lines: an int (the battery level, 0 to 100), then a String (yes or no, always lower case).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n42yes\nCharging: 42%\n\n\n15no\nLow battery: 15%\n\n\n3no\nCritical: plug in now\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-6-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-6-solution",
+    "title": "Midterm Review",
+    "section": "Practice 6 — Solution",
+    "text": "Practice 6 — Solution\nvoid main() {\n    int level = Integer.parseInt(IO.readln());\n    String plugged = IO.readln();\n    if (plugged.equals(\"yes\")) {\n        if (level == 100) {\n            IO.println(\"Fully charged\");\n        } else {\n            IO.println(\"Charging: \" + level + \"%\");\n        }\n    } else {\n        if (level &lt;= 5) {\n            IO.println(\"Critical: plug in now\");\n        } else if (level &lt;= 20) {\n            IO.println(\"Low battery: \" + level + \"%\");\n        } else {\n            IO.println(\"Battery: \" + level + \"%\");\n        }\n    }\n}\n\nOrder inside the inner chain matters. If level &lt;= 20 came first, a level of 3 would print Low battery: 3% and the critical message could never run."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-7-elevator",
@@ -6202,11 +6349,25 @@
     "text": "Practice 7 — Elevator\n\nValidity check first (an || of four comparisons), then the direction, then a nested singular/plural decision inside each direction. Watch for students who compute requested - current for both directions and print a negative number.\n\nA building has floors 1 through 10. Read the floor the elevator is on and the floor someone requested.\n\nIf either floor is outside 1–10, print Invalid floor.\nOtherwise, if they are the same floor, print Already on floor &lt;floor&gt;.\nOtherwise, print Going up or Going down, followed by how many floors it moves. Use the word floor when it moves exactly 1, and floors otherwise.\n\nInput (no prompts): Two lines, each containing one int: the current floor, then the requested floor.\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n37\nGoing up 4 floors\n\n\n54\nGoing down 1 floor\n\n\n66\nAlready on floor 6\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-7-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-7-solution",
+    "title": "Midterm Review",
+    "section": "Practice 7 — Solution",
+    "text": "Practice 7 — Solution\nvoid main() {\n    int current = Integer.parseInt(IO.readln());\n    int requested = Integer.parseInt(IO.readln());\n    if (current &lt; 1 || current &gt; 10 || requested &lt; 1 || requested &gt; 10) {\n        IO.println(\"Invalid floor\");\n    } else if (current == requested) {\n        IO.println(\"Already on floor \" + current);\n    } else if (requested &gt; current) {\n        int moves = requested - current;\n        if (moves == 1) {\n            IO.println(\"Going up 1 floor\");\n        } else {\n            IO.println(\"Going up \" + moves + \" floors\");\n        }\n    } else {\n        int moves = current - requested;\n        if (moves == 1) {\n            IO.println(\"Going down 1 floor\");\n        } else {\n            IO.println(\"Going down \" + moves + \" floors\");\n        }\n    }\n}\n\nEach comparison needs both sides. current &lt; 1 || &gt; 10 does not compile. Write current &lt; 1 || current &gt; 10."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-8-state-of-water",
     "href": "cosc120/notes/midterm-review.html#practice-8-state-of-water",
     "title": "Midterm Review",
     "section": "Practice 8 — State of Water",
     "text": "Practice 8 — State of Water\n\nSame shape inside each outer branch, with different numbers. Converting the unit to upper case once, right after reading it, means every later .equals() only has to check one spelling.\n\nRead a temperature and its unit, then print whether water at that temperature is Ice, Liquid water, or Steam. The unit is C (Celsius) or F (Fahrenheit), typed in either upper or lower case.\n\n\n\nUnit\nIce\nLiquid water\nSteam\n\n\n\n\nC\n0 or below\nabove 0 and below 100\n100 or above\n\n\nF\n32 or below\nabove 32 and below 212\n212 or above\n\n\n\nIf the unit is anything else, print Unknown unit.\nInput (no prompts): Two lines: an int (the temperature), then a String (the unit).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n25C\nLiquid water\n\n\n212f\nSteam\n\n\n50K\nUnknown unit\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-8-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-8-solution",
+    "title": "Midterm Review",
+    "section": "Practice 8 — Solution",
+    "text": "Practice 8 — Solution\nvoid main() {\n    int temp = Integer.parseInt(IO.readln());\n    String unit = IO.readln().toUpperCase();\n    if (unit.equals(\"C\")) {\n        if (temp &lt;= 0) {\n            IO.println(\"Ice\");\n        } else if (temp &lt; 100) {\n            IO.println(\"Liquid water\");\n        } else {\n            IO.println(\"Steam\");\n        }\n    } else if (unit.equals(\"F\")) {\n        if (temp &lt;= 32) {\n            IO.println(\"Ice\");\n        } else if (temp &lt; 212) {\n            IO.println(\"Liquid water\");\n        } else {\n            IO.println(\"Steam\");\n        }\n    } else {\n        IO.println(\"Unknown unit\");\n    }\n}\n\nNormalize once. String unit = IO.readln().toUpperCase(); means you only compare against \"C\" and \"F\", instead of writing unit.equals(\"C\") || unit.equals(\"c\") everywhere."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-9-library-late-fee",
@@ -6216,11 +6377,25 @@
     "text": "Practice 9 — Library Late Fee\n\nThree levels of decision: late at all? member or not? over the cap? The cap check is nested inside each membership branch because the cap and the rate depend on membership. Boundary to test: exactly at the cap (10 days for a member) prints no ‘(maximum)’.\n\nA library charges for late books. Read how many days late a book is and whether the borrower is a member (yes or no).\n\nIf the book is 0 or fewer days late, print No fee.\nMembers pay $1 per day, up to a maximum of $10.\nNon-members pay $2 per day, up to a maximum of $20.\n\nIf the per-day fee would be more than the maximum, the borrower pays the maximum instead and the line ends with (maximum). A fee exactly equal to the maximum does not get (maximum).\nInput (no prompts): Two lines: an int (days late), then a String (yes or no, always lower case).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n3yes\nFee: $3\n\n\n4no\nFee: $8\n\n\n15yes\nFee: $10 (maximum)\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-9-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-9-solution",
+    "title": "Midterm Review",
+    "section": "Practice 9 — Solution",
+    "text": "Practice 9 — Solution\nvoid main() {\n    int days = Integer.parseInt(IO.readln());\n    String member = IO.readln();\n    if (days &lt;= 0) {\n        IO.println(\"No fee\");\n    } else if (member.equals(\"yes\")) {\n        int fee = days * 1;\n        if (fee &gt; 10) {\n            IO.println(\"Fee: $10 (maximum)\");\n        } else {\n            IO.println(\"Fee: $\" + fee);\n        }\n    } else {\n        int fee = days * 2;\n        if (fee &gt; 20) {\n            IO.println(\"Fee: $20 (maximum)\");\n        } else {\n            IO.println(\"Fee: $\" + fee);\n        }\n    }\n}\n\nTest the boundary. A member who is exactly 10 days late owes $10, which is not more than the maximum, so the output is Fee: $10, without (maximum)."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-10-speeding-fine",
     "href": "cosc120/notes/midterm-review.html#practice-10-speeding-fine",
     "title": "Midterm Review",
     "section": "Practice 10 — Speeding Fine",
     "text": "Practice 10 — Speeding Fine\n\nNew idea: a nested block that does more than print. The else branch computes ‘over’, picks a fine with a chain, then adjusts it with a separate if. Point out that ‘int fine;’ is declared before the chain so every branch can assign it. Also: three input lines, count the readln calls.\n\nRead a speed limit, a driver’s speed, and whether they were in a school zone (yes or no).\nIf the driver was at or under the limit, print No ticket. Otherwise, work out how many mph over the limit they were and the fine:\n\n\n\nmph over the limit\nFine\n\n\n\n\n1 to 10\n$50\n\n\n11 to 20\n$100\n\n\nmore than 20\n$200\n\n\n\nIn a school zone the fine is doubled.\nInput (no prompts): Three lines: an int (the speed limit), an int (the driver’s speed), then a String (yes or no, always lower case).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n3035no\nOver by 5 mphFine: $50\n\n\n2540yes\nOver by 15 mphFine: $200\n\n\n5555no\nNo ticket\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-10-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-10-solution",
+    "title": "Midterm Review",
+    "section": "Practice 10 — Solution",
+    "text": "Practice 10 — Solution\nvoid main() {\n    int limit = Integer.parseInt(IO.readln());\n    int speed = Integer.parseInt(IO.readln());\n    String schoolZone = IO.readln();\n    if (speed &lt;= limit) {\n        IO.println(\"No ticket\");\n    } else {\n        int over = speed - limit;\n        int fine;\n        if (over &lt;= 10) {\n            fine = 50;\n        } else if (over &lt;= 20) {\n            fine = 100;\n        } else {\n            fine = 200;\n        }\n        if (schoolZone.equals(\"yes\")) {\n            fine = fine * 2;\n        }\n        IO.println(\"Over by \" + over + \" mph\");\n        IO.println(\"Fine: $\" + fine);\n    }\n}\n\nTwo separate decisions inside the else. The fine chain and the school-zone check are not one else if chain. A school-zone driver still needs a base fine first, so the doubling is its own if after the chain."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-11-thermostat",
@@ -6230,11 +6405,25 @@
     "text": "Practice 11 — Thermostat\n\nThis is where nested vs. flattened matters. A student who writes ‘else if (mode.equals(“heat”) && current &lt; target)’ and then ‘else if (mode.equals(“cool”) && …)’ sends heat-mode-already-warm to the next branch and eventually prints ‘Invalid mode’. Nesting keeps ‘which mode?’ separate from ‘what does that mode do?’.\n\nA smart thermostat reads the current temperature, the target temperature, and its mode. The mode is heat, cool, or off, typed in any mix of upper and lower case.\n\noff → System off\nheat → if the current temperature is below the target, Heating to &lt;target&gt;; otherwise Idle\ncool → if the current temperature is above the target, Cooling to &lt;target&gt;; otherwise Idle\nany other mode → Invalid mode\n\nInput (no prompts): Three lines: an int (current temperature), an int (target temperature), then a String (the mode).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\n6470heat\nHeating to 70\n\n\n7570COOL\nCooling to 70\n\n\n7270Heat\nIdle\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-11-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-11-solution",
+    "title": "Midterm Review",
+    "section": "Practice 11 — Solution",
+    "text": "Practice 11 — Solution\nvoid main() {\n    int current = Integer.parseInt(IO.readln());\n    int target = Integer.parseInt(IO.readln());\n    String mode = IO.readln().toLowerCase();\n    if (mode.equals(\"off\")) {\n        IO.println(\"System off\");\n    } else if (mode.equals(\"heat\")) {\n        if (current &lt; target) {\n            IO.println(\"Heating to \" + target);\n        } else {\n            IO.println(\"Idle\");\n        }\n    } else if (mode.equals(\"cool\")) {\n        if (current &gt; target) {\n            IO.println(\"Cooling to \" + target);\n        } else {\n            IO.println(\"Idle\");\n        }\n    } else {\n        IO.println(\"Invalid mode\");\n    }\n}\n\nDon’t flatten it with &&. With else if (mode.equals(\"heat\") && current &lt; target), a heater that is already warm falls through to the next branches and ends up printing Invalid mode instead of Idle."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-12-compare-two-words",
     "href": "cosc120/notes/midterm-review.html#practice-12-compare-two-words",
     "title": "Midterm Review",
     "section": "Practice 12 — Compare Two Words",
     "text": "Practice 12 — Compare Two Words\n\nInner chain order is the lesson: the exact .equals() check must come before the case-insensitive one, because identical words also match ignoring case. Also print the original word, not a lower-cased copy.\n\nRead two words and compare them.\n\nIf they have the same length:\n\nexactly the same (same letters, same case) → Identical\nthe same if you ignore upper/lower case → Same word, different case\notherwise → Same length, different words\n\nIf they have different lengths, print the longer word followed by is longer.\n\nInput (no prompts): Two lines, each containing one String (a single word, no spaces).\nExamples\n\n\n\nInput\nOutput\n\n\n\n\nJavajava\nSame word, different case\n\n\ncatdog\nSame length, different words\n\n\napplekiwi\napple is longer\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-12-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-12-solution",
+    "title": "Midterm Review",
+    "section": "Practice 12 — Solution",
+    "text": "Practice 12 — Solution\nvoid main() {\n    String first = IO.readln();\n    String second = IO.readln();\n    if (first.length() == second.length()) {\n        if (first.equals(second)) {\n            IO.println(\"Identical\");\n        } else if (first.toLowerCase().equals(second.toLowerCase())) {\n            IO.println(\"Same word, different case\");\n        } else {\n            IO.println(\"Same length, different words\");\n        }\n    } else {\n        if (first.length() &gt; second.length()) {\n            IO.println(first + \" is longer\");\n        } else {\n            IO.println(second + \" is longer\");\n        }\n    }\n}\n\nCheck Identical first. \"hello\" and \"hello\" are also equal when you ignore case. If the case-insensitive test came first, identical words would print Same word, different case."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#practice-13-rock-paper-scissors",
@@ -6244,11 +6433,25 @@
     "text": "Practice 13 — Rock, Paper, Scissors\n\nThe payoff of checking invalid and tie first: inside each of player 1’s branches there are only two possible player 2 moves left, so one if/else decides it. Storing the validity checks in boolean variables keeps the first condition readable.\n\nRead the moves of two players. Each move is rock, paper, or scissors, typed in any mix of upper and lower case.\n\nIf either move is not one of those three words, print Invalid move.\nOtherwise, if both moves are the same, print Tie.\nOtherwise, decide the winner: rock beats scissors, scissors beats paper, paper beats rock. Print Player 1 wins or Player 2 wins.\n\nHint: once you know the moves are valid and different, look at player 1’s move first. For each of player 1’s three moves there is exactly one player 2 move that loses to it.\nInput (no prompts): Two lines, each containing one String: player 1’s move, then player 2’s move.\nExamples\n\n\n\nInput\nOutput\n\n\n\n\nrockscissors\nPlayer 1 wins\n\n\nPaperSCISSORS\nPlayer 2 wins\n\n\nrockRock\nTie\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
   },
   {
+    "objectID": "cosc120/notes/midterm-review.html#practice-13-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-13-solution",
+    "title": "Midterm Review",
+    "section": "Practice 13 — Solution",
+    "text": "Practice 13 — Solution\nvoid main() {\n    String p1 = IO.readln().toLowerCase();\n    String p2 = IO.readln().toLowerCase();\n    boolean p1Valid = p1.equals(\"rock\") || p1.equals(\"paper\") || p1.equals(\"scissors\");\n    boolean p2Valid = p2.equals(\"rock\") || p2.equals(\"paper\") || p2.equals(\"scissors\");\n    if (!p1Valid || !p2Valid) {\n        IO.println(\"Invalid move\");\n    } else if (p1.equals(p2)) {\n        IO.println(\"Tie\");\n    } else if (p1.equals(\"rock\")) {\n        if (p2.equals(\"scissors\")) {\n            IO.println(\"Player 1 wins\");\n        } else {\n            IO.println(\"Player 2 wins\");\n        }\n    } else if (p1.equals(\"paper\")) {\n        if (p2.equals(\"rock\")) {\n            IO.println(\"Player 1 wins\");\n        } else {\n            IO.println(\"Player 2 wins\");\n        }\n    } else {\n        if (p2.equals(\"paper\")) {\n            IO.println(\"Player 1 wins\");\n        } else {\n            IO.println(\"Player 2 wins\");\n        }\n    }\n}\n\nWhy the inner else is safe: by the time we’re inside p1.equals(\"rock\"), we already know p2 is valid and is not rock, so if it’s not scissors it must be paper."
+  },
+  {
     "objectID": "cosc120/notes/midterm-review.html#practice-14-days-in-a-month",
     "href": "cosc120/notes/midterm-review.html#practice-14-days-in-a-month",
     "title": "Midterm Review",
     "section": "Practice 14 — Days in a Month",
     "text": "Practice 14 — Days in a Month\n\nStrings + nesting + capitalization. Only February has an inner decision. The capitalization line uses the same substring(0,1).toUpperCase() + substring(1) pattern from the Strings lecture. Since every valid month is exactly 3 letters, substring is safe for all inputs we test; mention that an empty input would crash it.\n\nRead a three-letter month abbreviation (jan, feb, …, dec, typed in any mix of upper and lower case) and whether the year is a leap year (yes or no). Print how many days that month has:\n\nfeb → 29 in a leap year, 28 otherwise\napr, jun, sep, nov → 30\njan, mar, may, jul, aug, oct, dec → 31\nanything else → print Unknown month\n\nPrint the month with its first letter upper case and the other two lower case, e.g. Feb has 29 days.\nInput (no prompts): Two lines, each containing one String: the month abbreviation, then yes or no (always lower case). The second line is always present, even though only February uses it.\nExamples\n\n\n\nInput\nOutput\n\n\n\n\nfebyes\nFeb has 29 days\n\n\nJUNno\nJun has 30 days\n\n\noctno\nOct has 31 days\n\n\n\n\n  \n    Java\n    \n      ▶ Run\n      ■ Stop\n    \n  \n  \n    \n  \n  \n    \n      \n      \n      \n      Terminal"
+  },
+  {
+    "objectID": "cosc120/notes/midterm-review.html#practice-14-solution",
+    "href": "cosc120/notes/midterm-review.html#practice-14-solution",
+    "title": "Midterm Review",
+    "section": "Practice 14 — Solution",
+    "text": "Practice 14 — Solution\nvoid main() {\n    String month = IO.readln().toLowerCase();\n    String leap = IO.readln();\n    String name = month.substring(0, 1).toUpperCase() + month.substring(1);\n    if (month.equals(\"feb\")) {\n        if (leap.equals(\"yes\")) {\n            IO.println(name + \" has 29 days\");\n        } else {\n            IO.println(name + \" has 28 days\");\n        }\n    } else if (month.equals(\"apr\") || month.equals(\"jun\") || month.equals(\"sep\") || month.equals(\"nov\")) {\n        IO.println(name + \" has 30 days\");\n    } else if (month.equals(\"jan\") || month.equals(\"mar\") || month.equals(\"may\") || month.equals(\"jul\")\n            || month.equals(\"aug\") || month.equals(\"oct\") || month.equals(\"dec\")) {\n        IO.println(name + \" has 31 days\");\n    } else {\n        IO.println(\"Unknown month\");\n    }\n}\n\nLower-case first, then compare. Calling .toLowerCase() right after reading means \"JUN\", \"Jun\", and \"jun\" all match month.equals(\"jun\"), and the display name can be built from that one clean copy."
   },
   {
     "objectID": "cosc120/notes/midterm-review.html#exam-checklist",
@@ -9891,11 +10094,53 @@
     "text": "Submission\nUpload to Blackboard:\n\nScreenshot 1 — hdfs dfs -ls /user/&lt;your-username&gt;/lab5/ showing your uploaded file\nScreenshot 2 — the Word Count job running (showing map/reduce progress)\nScreenshot 3 — hdfs dfs -cat .../output/part-r-00000 showing the word counts\nAnswers — paste your 5 answers into the Blackboard text box"
   },
   {
+    "objectID": "cosc420/notes/el1.html",
+    "href": "cosc420/notes/el1.html",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "",
+    "text": "Due: October 7 Format: Completion-based Engaged Learning activity, done outside class (see syllabus) Notebook: engaged_learning/el_01_python_basics.ipynb (Google Colab) Competency: Enabling. Python syntax prerequisite for CLO4 (PySpark); feeds Lab 6 and Quiz 4"
+  },
+  {
+    "objectID": "cosc420/notes/el1.html#background",
+    "href": "cosc420/notes/el1.html#background",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "Background",
+    "text": "Background\nFrom Module 4 onward, the course is in Python: PySpark, the MongoDB driver, Flask, and the capstone. You already program in Java, so this activity focuses on how Python writes the things you already know, and the places where it behaves differently. EL3 (assigned Oct 9) continues with functions, lists and dictionaries. The Oct 21 Python crash-course lecture and Lab 6 build on both.\nThe exercises use web-server log lines and HTTP status codes from Module 2. They also preview three ideas coming later in the course: splitting records across workers (MapReduce, next week), retry storms (EL5), and re-sharding (Module 5).\nTime: about 45 min of reading + 60–75 min on the notebook."
+  },
+  {
+    "objectID": "cosc420/notes/el1.html#materials",
+    "href": "cosc420/notes/el1.html#materials",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "Materials",
+    "text": "Materials\n\nReading: the official Python tutorial, §3 An Informal Introduction to Python and §4.1–4.6 More Control Flow Tools. Stop before §4.7; functions come in EL3. Optional, for a slower pace: Python for Everybody (free, CC-BY), in its chapters on variables, conditionals, iteration and strings.\nNotebook: Click on this link, access it with your college email id, and then File → Save a copy in Drive. Go to Tools → Settings → AI Assisgtance and check Hide generative AI features."
+  },
+  {
+    "objectID": "cosc420/notes/el1.html#whats-in-the-notebook",
+    "href": "cosc420/notes/el1.html#whats-in-the-notebook",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "What’s in the notebook",
+    "text": "What’s in the notebook\n\n\n\n\n\n\n\n\n#\nTopic\nWhat you do\n\n\n\n\n1\nTypes and operators\nPredict 7 expressions (7 / 2, \"7\" + \"2\", …) before running them; fix a Java-style if (status = 200) { … }\n\n\n2\nStrings\nParse one log line with split(), indexing, slicing, int()\n\n\n3\nConditionals\nClassify HTTP status codes into 2xx/3xx/4xx/5xx with if/elif/else\n\n\n4\nfor loops\nSummarize a 10-line log: counts per category, average/slowest latency, error rate\n\n\n5\nwhile loops\nSimulate retry with exponential backoff\n\n\n6\nrange() and %\nPartition 12 record ids across 3 workers by id % n\n\n\n—\nReflection\nTwo 2–3 sentence answers\n\n\n\nEvery exercise is followed by a check cell that prints ✅ when the code is right. Exercises 3–6 also end with a 1–2 sentence question."
+  },
+  {
+    "objectID": "cosc420/notes/el1.html#what-to-submit",
+    "href": "cosc420/notes/el1.html#what-to-submit",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "What to submit",
+    "text": "What to submit\nUpload your completed notebook to the EL1 assignment on Blackboard (File → Download → Download .ipynb)."
+  },
+  {
+    "objectID": "cosc420/notes/el1.html#completion-criteria",
+    "href": "cosc420/notes/el1.html#completion-criteria",
+    "title": "EL-01: EL1: Python Basics for Java Programmers",
+    "section": "Completion criteria",
+    "text": "Completion criteria\nEL1 is graded complete/incomplete. It’s complete if:\n\nthe notebook shows every exercise attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe four short-answer questions (Exercises 3–6) and the two reflection questions are answered, even briefly.\n\nA wrong prediction in Exercise 1a is fine, since that exercise is about noticing surprises."
+  },
+  {
     "objectID": "cosc420/notes/index.html",
     "href": "cosc420/notes/index.html",
     "title": "COSC420 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nPython Crash Course\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nEL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc420/slides/module_2.html#what-makes-distributed-systems-hard",
@@ -10469,14 +10714,14 @@
     "href": "cosc420/slides/module_4.html#recap-why-python-why-now",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Recap: Why Python, Why Now",
-    "text": "Recap: Why Python, Why Now\nModules 1–3 were in Java. From here to the end of the course, everything is Python:\n\nModule 4: PySpark (Spark’s Python API)\nModule 5: the MongoDB Python driver (pymongo)\nModule 6: Flask, and the capstone that ties all of them together\n\nYou’ve already started: EL1 covered syntax and control flow, and EL3 covers functions, lists, dictionaries and files. Today puts it all in one place.\n\nTiming: 2 min. Ask for a show of hands on EL3 progress. It’s due Friday with Lab 6, and anyone who hasn’t started should hear that today."
+    "text": "Recap: Why Python, Why Now\nModules 1–3 were in Java. From here to the end of the course, everything is Python:\n\nModule 4: PySpark (Spark’s Python API)\nModule 5: the MongoDB Python driver (pymongo)\nModule 6: Flask, and the capstone that ties all of them together\n\n\nYou’ve already started: EL1 covered syntax and control flow, and EL3 covers functions, lists, dictionaries and files. Today puts it all in one place.\n\nTiming: 2 min. Ask for a show of hands on EL3 progress. It’s due Friday with Lab 6, and anyone who hasn’t started should hear that today."
   },
   {
     "objectID": "cosc420/slides/module_4.html#java-vs.-python-at-a-glance",
     "href": "cosc420/slides/module_4.html#java-vs.-python-at-a-glance",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Java vs. Python at a Glance",
-    "text": "Java vs. Python at a Glance\n\n\n\n\n\n\n\n\n\nJava\nPython\n\n\n\n\nTypes\nDeclared: int x = 5;\nInferred at runtime: x = 5\n\n\nBlocks\n{ ... }\nIndentation\n\n\nEnd of statement\n;\nEnd of line\n\n\nRun it\nCompile, then run\nRun directly (interpreter, or a notebook cell)\n\n\nPrint\nSystem.out.println(x);\nprint(x)\n\n\nBoolean ops\n&&, \\|\\|, !\nand, or, not\n\n\nComments\n// ...\n# ...\n\n\n\n\nTiming: 4 min. Don’t read the table. Pick the two rows that bite Java programmers most: no declared types, and indentation as syntax (next two slides go deeper on both)."
+    "text": "Java vs. Python at a Glance\n\n\n\n\n\n\n\n\n\nJava\nPython\n\n\n\n\nTypes\nDeclared: int x = 5;\nInferred at runtime: x = 5\n\n\nBlocks\n{ ... }\nIndentation\n\n\nEnd of statement\n;\nEnd of line\n\n\nRun it\nCompile, then run\nRun directly (interpreter, or a notebook cell)\n\n\nPrint\nSystem.out.println(x);\nprint(x)\n\n\nBoolean ops\n&&, ||, !\nand, or, not\n\n\nComments\n// ...\n# ...\n\n\n\n\nTiming: 4 min. Don’t read the table. Pick the two rows that bite Java programmers most: no declared types, and indentation as syntax (next two slides go deeper on both)."
   },
   {
     "objectID": "cosc420/slides/module_4.html#variables-types-and-type",
@@ -10490,7 +10735,7 @@
     "href": "cosc420/slides/module_4.html#vs.-and-indentation-is-syntax",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "= vs. ==, and Indentation Is Syntax",
-    "text": "= vs. ==, and Indentation Is Syntax\nstatus = 200             # = assigns\nif status == 200:        # == compares\n    print(\"OK\")          # indented: inside the if\n    print(\"still OK\")\nprint(\"always runs\")     # not indented: outside the if\n\n= assigns; == compares. Writing if status = 200: is a syntax error in Python.\nThere are no braces. Indentation defines the block, and it’s required, not a style choice. Mixing up indentation changes what your program does, or stops it from running.\nEvery block-opening line (if, for, while, def) ends with a colon :.\n\n\nTiming: 4 min. Quiz 4 Q2 (indentation is required) and Q6 (= vs. ==) come from this slide. Live demo: delete the indent on line 3 and run it, then indent line 5 and run it again."
+    "text": "= vs. ==, and Indentation Is Syntax\nstatus = 200             # = assigns\nif status == 200:        # == compares\n    print(\"OK\")          # indented: inside the if\n    print(\"still OK\")\nprint(\"always runs\")     # not indented: outside the if\n\nOutput:\nOK\nstill OK\nalways runs"
   },
   {
     "objectID": "cosc420/slides/module_4.html#strings-indexing-slicing-split",
@@ -10504,14 +10749,14 @@
     "href": "cosc420/slides/module_4.html#lists-len-and-range",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Lists, len(), and range()",
-    "text": "Lists, len(), and range()\nnums = [10, 20, 30, 40, 50]\nlen(nums)         # 5\nnums.append(60)   # add to the end\nnums[1]           # 20\n\nfor n in nums:    # loop over the items directly — no index needed\n    print(n)\n\nfor i in range(3):   # 0, 1, 2   (starts at 0, stops BEFORE 3)\n    print(i)\n\nlen(x) works on lists, strings, dicts: anything with a size.\nrange(n) gives 0, 1, ..., n-1. range(2, 5) gives 2, 3, 4.\n\n\nTiming: 4 min. Quiz 4 Q1 (len of a 5-item list) and Q5 (range(3) prints 0 1 2) come from this slide. Stress “stops before n” — 1 2 3 and 0 1 2 3 are the wrong answers."
+    "text": "Lists, len(), and range()\nnums = [10, 20, 30, 40, 50]\nlen(nums)         # 5\nnums.append(60)   # add to the end\nnums[1]           # 20\n\nfor n in nums:    # loop over the items directly — no index needed\n    print(n)      # 10, 20, 30, 40, 50, 60 (one per line)\n\nfor i in range(3):   # 0, 1, 2   (starts at 0, stops BEFORE 3)\n    print(i)\n\nlen(x) works on lists, strings, dicts: anything with a size.\nrange(n) gives 0, 1, ..., n-1 — it stops before n. range(2, 5) gives 2, 3, 4.\n\n\nTiming: 4 min. Quiz 4 Q1 (len of a 5-item list) and Q5 (range(3) prints 0 1 2) come from this slide. Stress “stops before n” — 1 2 3 and 0 1 2 3 are the wrong answers."
   },
   {
     "objectID": "cosc420/slides/module_4.html#dictionaries",
     "href": "cosc420/slides/module_4.html#dictionaries",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Dictionaries",
-    "text": "Dictionaries\nperson = {\"name\": \"Alice\", \"age\": 30}   # curly braces, key: value\nperson[\"name\"]          # 'Alice'\nperson[\"email\"] = \"a@x.com\"             # add a key\n\ncounts = {}\nfor word in [\"a\", \"b\", \"a\"]:\n    counts[word] = counts.get(word, 0) + 1\n# counts == {'a': 2, 'b': 1}\n\nfor key, value in person.items():\n    print(key, value)\n\nPython’s HashMap: keys map to values. .get(key, default) avoids a crash on a missing key.\nA dict looks exactly like a JSON object — that’s why REST APIs (Module 2), MongoDB documents (Module 5) and Flask’s jsonify (Module 6) all feel natural in Python.\n\n\nTiming: 4 min. Quiz 4 Q4 asks which syntax creates a dict with keys \"name\" and \"age\" — the example on this slide is that answer. The counts.get(...) loop is the word count pattern from Lab 6 Exercise 3 and Module 3’s reduce step."
+    "text": "Dictionaries\nperson = {\"name\": \"Alice\", \"age\": 30}   # curly braces, key: value\nperson[\"name\"]          # 'Alice'\nperson[\"email\"] = \"a@x.com\"             # add a key\n\ncounts = {}\nfor word in [\"a\", \"b\", \"a\"]:\n    counts[word] = counts.get(word, 0) + 1\n# counts == {'a': 2, 'b': 1}\n\nfor key, value in person.items():\n    print(key, value)   # name Alice / age 30 / email a@x.com\n\nPython’s HashMap: keys map to values. .get(key, default) avoids a crash (KeyError) on a missing key.\nA dict looks exactly like a JSON object — that’s why REST APIs (Module 2), MongoDB documents (Module 5) and Flask’s jsonify (Module 6) all feel natural in Python.\n\n\nTiming: 4 min. Quiz 4 Q4 asks which syntax creates a dict with keys \"name\" and \"age\" — the example on this slide is that answer. The counts.get(...) loop is the word count pattern from Lab 6 Exercise 3 and Module 3’s reduce step."
   },
   {
     "objectID": "cosc420/slides/module_4.html#functions",
@@ -10525,28 +10770,35 @@
     "href": "cosc420/slides/module_4.html#pause-discuss-predict-the-output",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Pause & Discuss: Predict the Output",
-    "text": "Pause & Discuss: Predict the Output\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndata = {\"alice\": [90, 80], \"bob\": [70]}\nfor name in data:\n    total = 0\n    for s in data[name]:\n        total = total + s\n    print(name, total / len(data[name]))\nprint(len(data))\nWhat does each print line output? What changes if the second print is indented one level?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nalice 85.0, bob 70.0, then 2. Note 85.0, not 85: / always gives a float.\nlen(data) is the number of keys (2), not the number of scores (3).\nIndenting print(len(data)) one level puts it inside the outer for, so it prints 2 twice, once after each student. Same code, different program: indentation is syntax."
+    "text": "Pause & Discuss: Predict the Output\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndata = {\"alice\": [90, 80], \"bob\": [70]}\nfor name in data:\n    total = 0\n    for s in data[name]:\n        total = total + s\n    print(name, total / len(data[name]))\nprint(len(data))\nWhat does each print line output? What changes if the second print is indented one level?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/slides/module_4.html#answer",
+    "href": "cosc420/slides/module_4.html#answer",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Answer",
+    "text": "Answer\nalice 85.0\nbob 70.0\n2\n\n85.0, not 85: / always gives a float.\nlen(data) is the number of keys (2), not the number of scores (3).\nIndenting print(len(data)) one level puts it inside the outer for, so it prints 2 twice, once after each student. Same code, different program: indentation is syntax."
   },
   {
     "objectID": "cosc420/slides/module_4.html#list-comprehensions-lambda-and-sorted",
     "href": "cosc420/slides/module_4.html#list-comprehensions-lambda-and-sorted",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "List Comprehensions, lambda, and sorted",
-    "text": "List Comprehensions, lambda, and sorted\nnums = [1, 2, 3, 4, 5]\nsquares = [n * n for n in nums]              # [1, 4, 9, 16, 25]\nevens   = [n for n in nums if n % 2 == 0]    # [2, 4]\n\npairs = [(\"bob\", 70), (\"alice\", 85), (\"carol\", 92)]\nsorted(pairs, key=lambda p: p[1], reverse=True)\n# [('carol', 92), ('alice', 85), ('bob', 70)]\n\nA list comprehension builds a new list in one line: [expression for item in list if condition].\nA lambda is a tiny unnamed function. lambda p: p[1] means “given p, return p[1].”\nYou’ll see both in Lab 6 and all over Python code. In PySpark, though, you’ll use Spark’s own filter/select instead of comprehensions (Session 2 shows why).\n\n\nTiming: 5 min. This is the densest slide. Write the comprehension as the equivalent for loop first, then collapse it. Lab 6 Exercise 1 and Exercise 3 both use these directly."
+    "text": "List Comprehensions, lambda, and sorted\nnums = [1, 2, 3, 4, 5]\nsquares = [n * n for n in nums]              # [1, 4, 9, 16, 25]\nevens   = [n for n in nums if n % 2 == 0]    # [2, 4]\nA list comprehension builds a new list in one line: [expression for item in list if condition].\n\nIt’s shorthand for a loop you already know how to write:\nevens = []\nfor n in nums:\n    if n % 2 == 0:\n        evens.append(n)\n\nTiming: 5 min across this slide and the next. Write the comprehension as the equivalent for loop first (the second block), then collapse it. Lab 6 Exercise 1 and Exercise 3 both use these directly."
   },
   {
     "objectID": "cosc420/slides/module_4.html#reading-a-file",
     "href": "cosc420/slides/module_4.html#reading-a-file",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Reading a File",
-    "text": "Reading a File\nf = open(\"ratings.csv\", \"r\")     # \"r\" = read mode\nfor line in f:\n    print(line.strip())\nf.close()\n\n# The idiomatic version: the file closes itself when the block ends\nwith open(\"ratings.csv\", \"r\") as f:\n    header = f.readline()\n    for line in f:\n        user, movie, rating = line.strip().split(\",\")\n\nopen(path, \"r\") to read, \"w\" to write (overwrites the file).\nwith open(...) as f: is preferred: no forgotten close().\n\n\nTiming: 4 min. Quiz 4 Q9 asks which call opens data.txt for reading — open(\"data.txt\", \"r\"). EL3 Exercise 1 is load_lines(path, skip_header=True), built from exactly this pattern; the tuple unpacking on the last line is EL3 Exercise 2."
+    "text": "Reading a File\nf = open(\"ratings.csv\", \"r\")     # \"r\" = read mode\nfor line in f:\n    print(line.strip())\nf.close()\n\n# The idiomatic version: the file closes itself when the block ends\nwith open(\"ratings.csv\", \"r\") as f:\n    header = f.readline()            # skip the header row\n    for line in f:\n        user, movie, rating, ts = line.strip().split(\",\")\n\nopen(path, \"r\") to read, \"w\" to write (overwrites the file).\nwith open(...) as f: is preferred: no forgotten close().\nThe unpacking needs one name per field: ratings.csv has four columns (userId,movieId,rating,timestamp), so three names would crash with a ValueError.\n\n\nTiming: 4 min. Quiz 4 Q9 asks which call opens data.txt for reading — open(\"data.txt\", \"r\"). EL3 Exercise 1 is load_lines(path, skip_header=True), built from exactly this pattern; the tuple unpacking on the last line is EL3 Exercise 2."
   },
   {
     "objectID": "cosc420/slides/module_4.html#from-plain-python-to-pyspark",
     "href": "cosc420/slides/module_4.html#from-plain-python-to-pyspark",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "From Plain Python to PySpark",
-    "text": "From Plain Python to PySpark\nEverything today runs on one machine. PySpark keeps the Python syntax but runs the work on a cluster:\n\n\n\n\n\n\n\nPlain Python (today)\nPySpark (Monday onward)\n\n\n\n\nopen(...) + a for loop\nspark.read.csv(...)\n\n\n[r for r in rows if r[2] &gt; 4]\ndf.filter(col(\"rating\") &gt; 4)\n\n\na dict of lists, then averages\ndf.groupBy(\"movieId\").avg(\"rating\")\n\n\nsorted(..., key=lambda ...)\ndf.orderBy(..., ascending=False)\n\n\n\nEL3’s mini ratings pipeline is this left column. Lab 8 and the capstone are the right column.\n\nTiming: 3 min. Don’t teach PySpark syntax yet. The point is that Monday’s lecture is the same ideas with a different engine underneath."
+    "text": "From Plain Python to PySpark\nEverything today runs on one machine. PySpark keeps the Python syntax but runs the work on a cluster:\n\n\n\n\n\n\n\nPlain Python (today)\nPySpark (Monday onward)\n\n\n\n\nopen(...) + a for loop\nspark.read.csv(...)\n\n\n[r for r in rows if r[2] &gt; 4]\ndf.filter(col(\"rating\") &gt; 4)\n\n\na dict of lists, then averages\ndf.groupBy(\"movieId\").avg(\"rating\")\n\n\nsorted(..., key=lambda ...)\ndf.orderBy(..., ascending=False)\n\n\n\n\nEL3’s mini ratings pipeline is this left column. Lab 8 and the capstone are the right column.\n\nTiming: 3 min. Don’t teach PySpark syntax yet. The point is that Monday’s lecture is the same ideas with a different engine underneath."
   },
   {
     "objectID": "cosc420/slides/module_4.html#lab-6-quiz-4-preview",
@@ -10560,42 +10812,42 @@
     "href": "cosc420/slides/module_4.html#what-is-spark-architecture-rdds-vs.-dataframes-lazy-evaluation",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation",
-    "text": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Hadoop to Spark\n3 min\n\n\nWhat Is Apache Spark?\n4 min\n\n\nWhy Spark Improves on MapReduce\n4 min\n\n\nRDDs vs. DataFrames\n5 min\n\n\nSpark Architecture\n4 min\n\n\nSparkSession — Your Entry Point\n3 min\n\n\nCreating and Inspecting a DataFrame\n4 min\n\n\nDataFrames Are Immutable\n3 min\n\n\nLazy Evaluation — The Core Idea\n5 min\n\n\nPause & Discuss: What Actually Ran?\n4 min\n\n\nTransformations vs. Actions\n4 min\n\n\nLab 6 Recap / Lab 7 Preview\n3 min\n\n\nBridge: Two More Sessions to Go\n2 min\n\n\n\n12 slides, ~44 min. Module 4 only gets three real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here."
+    "text": "What Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Hadoop to Spark\n3 min\n\n\nWhat Is Apache Spark?\n4 min\n\n\nWhy Spark Improves on MapReduce\n4 min\n\n\nRDDs vs. DataFrames\n5 min\n\n\nSpark Architecture\n4 min\n\n\nSparkSession — Your Entry Point\n3 min\n\n\nCreating and Inspecting a DataFrame\n4 min\n\n\nDataFrames Are Immutable\n3 min\n\n\nLazy Evaluation — The Core Idea\n5 min\n\n\nPause & Discuss: What Actually Ran?\n4 min\n\n\nTransformations vs. Actions\n4 min\n\n\nLab 6 Recap / Lab 7 Preview\n3 min\n\n\nBridge: Two More Sessions to Go\n2 min\n\n\n\n13 slides, ~48 min (several split into sub-slides; the times cover each slide’s sub-slides too). Module 4 only gets three real lecture days total in the syllabus (today, Oct 28 + Checkpoint 4, Nov 2 + Checkpoint 5) — Nov 4 is Wellness Day, and the module’s other two days are Fri labs (Lab 7 on Oct 30, Lab 8 on Nov 6). Everything across all three sessions has to earn its place; save deeper hands-on practice for the labs rather than re-deriving it here."
   },
   {
     "objectID": "cosc420/slides/module_4.html#recap-from-hadoop-to-spark",
     "href": "cosc420/slides/module_4.html#recap-from-hadoop-to-spark",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Recap: From Hadoop to Spark",
-    "text": "Recap: From Hadoop to Spark\nModule 3 ended with MapReduce’s biggest weakness: every job writes its intermediate results to disk, even between steps of the same pipeline. For a job that only runs once, that’s fine. For anything iterative — trying 100 variations of a machine-learning model, or chaining ten transformations together — writing to disk every single step is slow.\nApache Spark was built to fix exactly this.\n\nTiming: 3 min. Just re-anchor: MapReduce’s map→shuffle→reduce→disk cycle from Module 3 is the thing Spark is reacting against. Don’t re-teach MapReduce, just point at the pain point."
+    "text": "Recap: From Hadoop to Spark\nModule 3 ended with MapReduce’s biggest weakness: every job writes its intermediate results to disk, even between steps of the same pipeline. For a job that only runs once, that’s fine. For anything iterative — trying 100 variations of a machine-learning model, or chaining ten transformations together — writing to disk every single step is slow.\n\nApache Spark was built to fix exactly this.\n\nTiming: 3 min. Just re-anchor: MapReduce’s map→shuffle→reduce→disk cycle from Module 3 is the thing Spark is reacting against. Don’t re-teach MapReduce, just point at the pain point."
   },
   {
     "objectID": "cosc420/slides/module_4.html#what-is-apache-spark",
     "href": "cosc420/slides/module_4.html#what-is-apache-spark",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "What Is Apache Spark?",
-    "text": "What Is Apache Spark?\nApache Spark is a distributed data-processing engine — the successor to Hadoop MapReduce for most large-scale data work today.\n\nKey idea: keep intermediate data in memory across steps of a pipeline, instead of writing every step to disk the way MapReduce does.\nResult: 10–100× faster for workloads that reuse the same data across multiple steps (iterative algorithms, interactive queries, multi-stage pipelines).\nWritten in Scala, but has full APIs in Python (PySpark — what we use), Java, R, and SQL.\nBeyond the batch DataFrame work this course focuses on, Spark also has Spark SQL (write actual SQL queries against a DataFrame), Structured Streaming (process data as it arrives, not just in batches), and MLlib (distributed machine learning) — all part of the same engine, not separate tools. We only use the batch/DataFrame piece this semester.\nIn our classroom cluster, Spark jobs happen to read from HDFS and get scheduled by YARN, both from Module 3 — but that’s a choice about our setup, not a requirement of Spark itself. Spark can just as easily read from S3, local files, a database, or a Kafka stream; it isn’t tied to HDFS the way MapReduce, in practice, always was.\n\n\nTiming: 4 min. Emphasize continuity, not replacement: HDFS and YARN don’t go away in our setup. Spark is a new way to compute, sitting on the same storage and scheduling layer already taught — but say explicitly that this is our classroom’s configuration, not a general Spark requirement (Final Q17 tests this distinction directly: Spark is not tied to HDFS). The SQL/ streaming/MLlib bullet is Quiz 5 Q9’s multi-select — keep it to one sentence each, this course never touches any of the three."
+    "text": "What Is Apache Spark?\nApache Spark is a distributed data-processing engine — the successor to Hadoop MapReduce for most large-scale data work today.\n\nKey idea: keep intermediate data in memory across steps of a pipeline, instead of writing every step to disk the way MapReduce does.\nResult: 10–100× faster for workloads that reuse the same data across multiple steps (iterative algorithms, interactive queries, multi-stage pipelines).\nWritten in Scala, but has full APIs in Python (PySpark — what we use), Java, R, and SQL."
   },
   {
     "objectID": "cosc420/slides/module_4.html#why-spark-improves-on-mapreduce",
     "href": "cosc420/slides/module_4.html#why-spark-improves-on-mapreduce",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Why Spark Improves on MapReduce",
-    "text": "Why Spark Improves on MapReduce\nPicture a pipeline with three steps: filter, then group, then sort.\n\nMapReduce: step 1 writes its full output to disk. Step 2 reads it back from disk, computes, writes its output to disk. Step 3 does the same. Three disk round-trips for one pipeline.\nSpark: step 1’s output stays in memory. Step 2 reads it from memory, computes, keeps its result in memory. Step 3 does the same. Disk is only touched if you explicitly ask Spark to save something, or if data is too big to fit in memory.\n\n\n\n\n\n\n\nImportant\n\n\nThis matters most for iterative workloads — anything that reuses the same data repeatedly, like training a machine-learning model over many passes. A single MapReduce-style batch job that runs once and finishes isn’t dramatically slower in MapReduce; it’s repeated work over the same data where Spark’s in-memory model wins big.\n\n\n\n\nTiming: 4 min. This is Quiz 5’s Q1 almost verbatim — spend real time here. The wrong-but- tempting answer is “Spark just has better algorithms”; the right answer is specifically about avoiding repeated disk I/O across steps."
+    "text": "Why Spark Improves on MapReduce\nPicture a pipeline with three steps: filter, then group, then sort.\n\nMapReduce: step 1 writes its full output to disk. Step 2 reads it back from disk, computes, writes its output to disk. Step 3 does the same. A disk round-trip between every pair of steps.\nSpark: step 1’s output stays in memory. Step 2 reads it from memory, computes, keeps its result in memory. Step 3 does the same. Disk is only touched to read the input, save the result, or when data is too big to fit in memory.\n\n\nTiming: 4 min (this slide and its two sub-slides). This is Quiz 5’s Q1 almost verbatim — spend real time here. The wrong-but-tempting answer is “Spark just has better algorithms”; the right answer is specifically about avoiding repeated disk I/O across steps."
   },
   {
     "objectID": "cosc420/slides/module_4.html#rdds-vs.-dataframes",
     "href": "cosc420/slides/module_4.html#rdds-vs.-dataframes",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "RDDs vs. DataFrames",
-    "text": "RDDs vs. DataFrames\nSpark actually has two ways to represent distributed data. You need to know both exist, even though we will work almost entirely with the second one.\n\n\n\n\n\n\n\n\n\nRDD (Resilient Distributed Dataset)\nDataFrame\n\n\n\n\nWhat it is\nA low-level, distributed collection of arbitrary Python objects\nA distributed table — named columns, with a schema\n\n\nStructure\nNone enforced — Spark doesn’t know what’s inside\nSpark knows every column’s name and type\n\n\nOptimization\nNone — you write exactly what runs\nSpark’s optimizer can rewrite your query to run faster\n\n\nFeels like\nA distributed Python list\nA distributed spreadsheet\n\n\n\n\nRDDs came first (Spark’s original data structure) and are still there underneath everything.\nDataFrames were added later, and are what virtually everyone uses for tabular data today — including everything in this course, the labs, and the capstone.\n\n\n\n\n\n\n\nThink about it\n\n\nIf Spark doesn’t know what’s inside an RDD, what can’t it do that it can do with a DataFrame? (Hint: think about what “optimizing a query” requires knowing about the data first.)\n\n\n\n\nTiming: 5 min. This slide exists specifically because Quiz 5’s Q2 asks students to distinguish RDD from DataFrame directly — don’t let this be a one-line footnote. The answer to the callout: without column names/types, Spark can’t reorder operations, push filters down, or pick an efficient join strategy — it just has to run your code as literally written."
+    "text": "RDDs vs. DataFrames\nSpark actually has two ways to represent distributed data. You need to know both exist, even though we will work almost entirely with the second one.\n\n\n\n\n\n\n\n\n\nRDD (Resilient Distributed Dataset)\nDataFrame\n\n\n\n\nWhat it is\nA low-level, distributed collection of arbitrary Python objects\nA distributed table — named columns, with a schema\n\n\nStructure\nNone enforced — Spark doesn’t know what’s inside\nSpark knows every column’s name and type\n\n\nOptimization\nNone — you write exactly what runs\nSpark’s optimizer can rewrite your query to run faster\n\n\nFeels like\nA distributed Python list\nA distributed spreadsheet\n\n\n\n\n\nRDDs came first (Spark’s original data structure) and are still there underneath everything.\nDataFrames were added later, and are what virtually everyone uses for tabular data today — including everything in this course, the labs, and the capstone.\n\n\nTiming: 5 min (this slide and the next). This slide exists specifically because Quiz 5’s Q2 asks students to distinguish RDD from DataFrame directly — don’t let this be a one-line footnote. The callout’s answer is on the next sub-slide, after a pause."
   },
   {
     "objectID": "cosc420/slides/module_4.html#spark-architecture",
     "href": "cosc420/slides/module_4.html#spark-architecture",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Spark Architecture",
-    "text": "Spark Architecture\n┌──────────────────────────────────┐\n│         Driver Program           │  ← your Python script\n│  SparkContext / SparkSession     │\n└──────────────┬───────────────────┘\n               │ task distribution\n    ┌──────────┼──────────┐\n┌───▼───┐  ┌──▼────┐  ┌──▼────┐\n│Exec 1 │  │Exec 2 │  │Exec 3 │  ← workers (run tasks)\n└───────┘  └───────┘  └───────┘\n    ↑           ↑          ↑\n    └───────────┴──────────┘\n         Cluster Manager\n              (YARN)\n\nDriver: coordinates the whole computation — your code runs here, and it decides what work to hand out. Plays the same role Module 3’s ApplicationMaster played for a MapReduce job: one coordinator, dispatched for this one application.\nExecutor: a worker process that actually runs tasks and holds a slice of the data in memory — the same role Module 3’s NodeManager-run tasks played, just for Spark tasks instead of Map/Reduce tasks.\nCluster manager: allocates machines/resources to your job — in our classroom cluster, that’s YARN, the exact same resource manager Module 3 used for MapReduce jobs. Spark doesn’t bring its own scheduler here; it asks YARN for workers, the same way a MapReduce job did.\n\n\n\n\n\n\n\nDiagram to add later (Excalidraw / pyxcd / draw.io)\n\n\nA “Driver” box at the top (drawn like a small laptop/script icon, since it’s literally “your Python code”), with a downward arrow labeled “task distribution” fanning out to three “Executor” icons (worker/gear icons, each shown holding a small stack of data-block icons to represent “holds a slice of the data in memory”). Below all three, one “Cluster Manager (YARN)” icon with upward arrows from each Executor back into it, visually matching Module 3’s YARN diagram’s ResourceManager/NodeManager icon style so students recognize it as the same underlying system. Caption: “Same YARN as Module 3 — just handing out Spark tasks instead of Map/Reduce tasks.”\n\n\n\n\nTiming: 4 min. The payoff line: “you already learned what YARN does in Module 3 — Spark just hands YARN a different kind of job to schedule.” Don’t re-explain YARN from scratch."
+    "text": "Spark Architecture\n\n\nTiming: 4 min (this slide and the next). The payoff line: “you already learned what YARN does in Module 3 — Spark just hands YARN a different kind of job to schedule.” Don’t re-explain YARN from scratch. The figure deliberately reuses Module 3’s YARN figure layout (same violet ResourceManager, same NodeManager worker boxes)."
   },
   {
     "objectID": "cosc420/slides/module_4.html#sparksession-your-entry-point",
@@ -10609,35 +10861,42 @@
     "href": "cosc420/slides/module_4.html#creating-and-inspecting-a-dataframe",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Creating and Inspecting a DataFrame",
-    "text": "Creating and Inspecting a DataFrame\ndata = [\n    (\"Alice\", \"Engineering\", 95000),\n    (\"Bob\",   \"Marketing\",   62000),\n]\ncolumns = [\"name\", \"department\", \"salary\"]\n\ndf = spark.createDataFrame(data, columns)\n\ndf.printSchema()   # show column names and inferred types\ndf.show()           # print the rows\n\nprintSchema() shows you the column names and the types Spark inferred for each.\nshow() prints rows to the screen — and, importantly, it’s the first thing on this slide that actually runs anything (more on why that distinction matters in a few slides).\nYou can also read a DataFrame straight from a file — covered in full next session.\n\n\nTiming: 4 min. This mirrors Lab 7 Task 1 almost exactly — flag that connection so students recognize the lab as “the same two commands you just saw, applied to your own data.”"
+    "text": "Creating and Inspecting a DataFrame\ndata = [\n    (\"Alice\", \"Engineering\", 95000),\n    (\"Bob\",   \"Marketing\",   62000),\n]\ncolumns = [\"name\", \"department\", \"salary\"]\n\ndf = spark.createDataFrame(data, columns)\n\ndf.printSchema()   # show column names and inferred types\ndf.show()          # print the rows\n\nprintSchema() shows you the column names and the types Spark inferred for each.\nshow() prints rows to the screen — and, importantly, it’s the first thing on this slide that actually runs anything (more on why that distinction matters in a few slides).\nYou can also read a DataFrame straight from a file — covered in full next session.\n\n\nTiming: 4 min (this slide and the output on the next). This mirrors Lab 7 Task 1 almost exactly — flag that connection so students recognize the lab as “the same two commands you just saw, applied to your own data.” Have students predict the types before revealing the output."
   },
   {
     "objectID": "cosc420/slides/module_4.html#dataframes-are-immutable",
     "href": "cosc420/slides/module_4.html#dataframes-are-immutable",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "DataFrames Are Immutable",
-    "text": "DataFrames Are Immutable\nEvery PySpark DataFrame, once created, never changes. Every operation returns a brand-new DataFrame — the original is always left untouched.\nfiltered = df.filter(df[\"salary\"] &gt; 70000)\n\n# df itself is completely unchanged here — still has all rows\n# filtered is a NEW DataFrame with only the matching rows\n\n\n\n\n\n\nImportant\n\n\nThis trips up almost everyone coming from pandas or spreadsheets, where you’re used to modifying data in place. In PySpark, if you don’t assign the result of an operation to a variable, the result is thrown away and nothing changes. df.filter(...) on its own line, with no =, does nothing useful.\n\n\n\n\nTiming: 3 min. Quiz 5’s Q6 asks this directly (true/false, “does filter() modify df in place?”). Say the rule out loud, plainly, more than once — it’s one of the most-missed ideas in this whole module."
+    "text": "DataFrames Are Immutable\nEvery PySpark DataFrame, once created, never changes. Every operation returns a brand-new DataFrame — the original is always left untouched.\nfiltered = df.filter(df[\"salary\"] &gt; 70000)\n\n# df itself is completely unchanged here — still has all rows\n# filtered is a NEW DataFrame with only the matching rows\n\n\n\n\n\n\n\nImportant\n\n\nThis trips up almost everyone coming from pandas or spreadsheets, where you’re used to modifying data in place. In PySpark, if you don’t assign the result of an operation to a variable, the result is thrown away and nothing changes. df.filter(...) on its own line, with no =, does nothing useful.\n\n\n\n\nTiming: 3 min. Quiz 5’s Q6 asks this directly (true/false, “does filter() modify df in place?”). Say the rule out loud, plainly, more than once — it’s one of the most-missed ideas in this whole module."
   },
   {
     "objectID": "cosc420/slides/module_4.html#lazy-evaluation-the-core-idea",
     "href": "cosc420/slides/module_4.html#lazy-evaluation-the-core-idea",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Lazy Evaluation — The Core Idea",
-    "text": "Lazy Evaluation — The Core Idea\n# These lines define a PLAN — nothing runs yet\nfiltered   = df.filter(df[\"salary\"] &gt; 70000)\nselected   = filtered.select(\"name\", \"salary\")\nsorted_df  = selected.orderBy(\"salary\", ascending=False)\n\n# THIS triggers computation — Spark executes the whole plan at once\nsorted_df.show()\n\nNothing above sorted_df.show() actually touches the data. Spark just records each step as part of a plan — this is called lazy evaluation.\nThat recorded plan has a name: a DAG (Directed Acyclic Graph) — a chain of steps that only ever flows forward, never loops back on itself. Each transformation you chain adds one more step to the DAG; nothing runs until an action triggers the whole thing at once.\nOnly when you call an action (show(), count(), …) does Spark look at the entire DAG you built, optimize it, and run it all at once.\nWhy bother? Because seeing the whole plan first lets Spark skip unnecessary work — for example, if you filter() then select() two columns, Spark can avoid ever reading the columns you didn’t ask for.\n\n\nTiming: 5 min. Quiz 5’s Q8 tests this definition directly. The “why bother” bullet is the part students usually skip — don’t let this be just “Spark waits to run things,” make sure they leave with why waiting is useful. The DAG bullet is here specifically because Lab 7 Task 2 asks “What is a DAG in Spark? When does Spark build it and when does it execute it?” as a graded question — without this bullet, that question would be untaught."
+    "text": "Lazy Evaluation — The Core Idea\n# These lines define a PLAN — nothing runs yet\nfiltered   = df.filter(df[\"salary\"] &gt; 70000)\nselected   = filtered.select(\"name\", \"salary\")\nsorted_df  = selected.orderBy(\"salary\", ascending=False)\n\n# THIS triggers computation — Spark executes the whole plan at once\nsorted_df.show()\n\nOutput (on the two-row df from before):\n+-----+------+\n| name|salary|\n+-----+------+\n|Alice| 95000|\n+-----+------+"
   },
   {
     "objectID": "cosc420/slides/module_4.html#pause-discuss-what-actually-ran",
     "href": "cosc420/slides/module_4.html#pause-discuss-what-actually-ran",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Pause & Discuss: What Actually Ran?",
-    "text": "Pause & Discuss: What Actually Ran?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndf has 10 billion rows of employee data.\nhigh = df.filter(df[\"salary\"] &gt; 70000)      # line 1\ndf.filter(df[\"department\"] == \"Marketing\")  # line 2\nprint(high.count())                         # line 3\nLines 1 and 2 return instantly. Why?\nWhat does line 3 print: the number of high earners overall, or high earners in Marketing?\nHow many times does Spark actually go through the 10 billion rows?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\nLines 1–2 are instant because transformations are lazy. They only add a step to the plan (the DAG), and no data is touched.\nLine 3 counts high earners in all departments. Line 2 built a new DataFrame that was never assigned, so it was thrown away (immutability). high never knew about it.\nOne pass, at line 3, the only action. Line 2’s plan never runs at all, because nothing ever asked for its result.\n\nThis combines the two previous slides (immutable + lazy) and leads straight into the next one: count() is an action, filter() is a transformation."
+    "text": "Pause & Discuss: What Actually Ran?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\ndf has 10 billion rows of employee data.\nhigh = df.filter(df[\"salary\"] &gt; 70000)      # line 1\ndf.filter(df[\"department\"] == \"Marketing\")  # line 2\nprint(high.count())                         # line 3\nLines 1 and 2 return instantly. Why?\nWhat does line 3 print: the number of high earners overall, or high earners in Marketing?\nHow many times does Spark actually go through the 10 billion rows?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.\nThis combines the two previous slides (immutable + lazy) and leads straight into the next one: count() is an action, filter() is a transformation."
+  },
+  {
+    "objectID": "cosc420/slides/module_4.html#answers",
+    "href": "cosc420/slides/module_4.html#answers",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Answers",
+    "text": "Answers\n\nLines 1–2 are instant because transformations are lazy. They only add a step to the plan (the DAG), and no data is touched.\nLine 3 counts high earners in all departments. Line 2 built a new DataFrame that was never assigned, so it was thrown away (immutability). high never knew about it.\nOne pass, at line 3, the only action. Line 2’s plan never runs at all, because nothing ever asked for its result."
   },
   {
     "objectID": "cosc420/slides/module_4.html#transformations-vs.-actions",
     "href": "cosc420/slides/module_4.html#transformations-vs.-actions",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Transformations vs. Actions",
-    "text": "Transformations vs. Actions\n\n\n\n\n\n\n\nTransformations (lazy — build the plan)\nActions (trigger execution)\n\n\n\n\nfilter()\nshow()\n\n\nselect()\ncount()\n\n\ngroupBy()\ncollect()\n\n\norderBy()\nwrite.csv()\n\n\nwithColumn()\nfirst()\n\n\njoin()\ntake(n)\n\n\n\n\n\n\n\n\n\nTip\n\n\nIf a line of PySpark code returns a DataFrame, it’s a transformation. If it returns data or writes a file, it’s an action.\n\n\n\n\nTiming: 4 min. This table is the single most quiz-relevant slide in the session — Quiz 5 Q10 and Quiz 6 Q2 both hinge on this exact distinction. Have students apply the rule-of-thumb callout to two or three examples out loud before moving on."
+    "text": "Transformations vs. Actions\n\n\n\n\n\n\n\nTransformations (lazy — build the plan)\nActions (trigger execution)\n\n\n\n\nfilter()\nshow()\n\n\nselect()\ncount()\n\n\ngroupBy()\ncollect()\n\n\norderBy()\nwrite.csv()\n\n\nwithColumn()\nfirst()\n\n\njoin()\ntake(n)\n\n\n\n\n\n\n\n\n\n\nTip\n\n\nIf a line of PySpark code returns a DataFrame, it’s a transformation. If it returns data or writes a file, it’s an action.\n(One wrinkle: groupBy() returns a GroupedData object, not a DataFrame. It’s still lazy, and the .agg() or .count() after it turns it back into a DataFrame.)\n\n\n\n\nTiming: 4 min. This table is the single most quiz-relevant slide in the session — Quiz 5 Q10 and Quiz 6 Q2 both hinge on this exact distinction. Have students apply the rule-of-thumb callout to two or three examples out loud before moving on."
   },
   {
     "objectID": "cosc420/slides/module_4.html#lab-6-recap-lab-7-preview",
@@ -10658,14 +10917,14 @@
     "href": "cosc420/slides/module_4.html#loading-filtering-and-selecting-data-checkpoint-4",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Loading, Filtering, and Selecting Data + Checkpoint 4",
-    "text": "Loading, Filtering, and Selecting Data + Checkpoint 4\n\nFull-session timing plan (50 min total, ~15–20 min of which is Checkpoint 4 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Transformations, Actions, Laziness\n3 min\n\n\nLoading Data into Spark\n4 min\n\n\nA Word on Schemas\n3 min\n\n\nFiltering Rows\n4 min\n\n\nSelecting and Renaming Columns\n4 min\n\n\nAdding a Computed Column\n3 min\n\n\nPause & Discuss: Find the Two Bugs\n4 min\n\n\nAvoiding Common PySpark Mistakes\n5 min\n\n\nWorked Example: Filter → Select\n4 min\n\n\nCheckpoint 4\n15–20 min\n\n\n\n9 content slides (~30 min) + Checkpoint 4. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period."
+    "text": "Loading, Filtering, and Selecting Data + Checkpoint 4\n\nFull-session timing plan (50 min total, ~15–20 min of which is Checkpoint 4 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Transformations, Actions, Laziness\n3 min\n\n\nLoading Data into Spark\n4 min\n\n\nA Word on Schemas\n3 min\n\n\nFiltering Rows\n4 min\n\n\nSelecting and Renaming Columns\n4 min\n\n\nAdding a Computed Column\n3 min\n\n\nPause & Discuss: Find the Two Bugs\n4 min\n\n\nAvoiding Common PySpark Mistakes\n5 min\n\n\nWorked Example: Filter → Select\n4 min\n\n\nCheckpoint 4\n15–20 min\n\n\n\n9 content slides (~34 min) + Checkpoint 4 — over by a few minutes if the checkpoint gets the full 20, so trim the Worked Example first. This is deliberately lighter than Session 1 — the checkpoint itself eats a third of the period."
   },
   {
     "objectID": "cosc420/slides/module_4.html#recap-transformations-actions-laziness",
     "href": "cosc420/slides/module_4.html#recap-transformations-actions-laziness",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Recap: Transformations, Actions, Laziness",
-    "text": "Recap: Transformations, Actions, Laziness\nThree ideas from Monday, quickly:\n\nTransformations (filter, select, …) build a plan but don’t run anything.\nActions (show, count, …) trigger Spark to actually execute that plan.\nDataFrames are immutable — every transformation returns a new DataFrame; you must assign the result or it’s discarded.\n\nToday: turning real files into DataFrames, and the two most common transformations you’ll use on almost every dataset — filtering rows and selecting columns.\n\nTiming: 3 min. Fast recap only — the point is to have the vocabulary ready, not re-teach it."
+    "text": "Recap: Transformations, Actions, Laziness\nThree ideas from Monday, quickly:\n\nTransformations (filter, select, …) build a plan but don’t run anything.\nActions (show, count, …) trigger Spark to actually execute that plan.\nDataFrames are immutable — every transformation returns a new DataFrame; you must assign the result or it’s discarded.\n\n\nToday: turning real files into DataFrames, and the two most common transformations you’ll use on almost every dataset — filtering rows and selecting columns.\n\nTiming: 3 min. Fast recap only — the point is to have the vocabulary ready, not re-teach it."
   },
   {
     "objectID": "cosc420/slides/module_4.html#loading-data-into-spark",
@@ -10679,7 +10938,7 @@
     "href": "cosc420/slides/module_4.html#a-word-on-schemas",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "A Word on Schemas",
-    "text": "A Word on Schemas\n\nWithout inferSchema=True, Spark treats every column as a string — even columns that are clearly numbers. Filtering df[\"salary\"] &gt; 70000 on a string column silently does the wrong thing (string comparison, not numeric).\ninferSchema=True costs a little extra time (Spark has to scan the file first), but for anything you’ll filter or aggregate numerically, it’s worth it.\ndf.printSchema() is your first move on any new dataset — confirm the types are what you expect before writing a single transformation.\n\n\n\n\n\n\n\nThink about it\n\n\nYou load a CSV and printSchema() shows a price column typed as string, not double. What’s the most likely cause — and what’s the first thing you’d check in the raw file?\n\n\n\n\nTiming: 3 min. The intended answer to the callout: either inferSchema was left off, or the column has some non-numeric values mixed in (e.g. \"N/A\") that forced Spark to fall back to string for the whole column."
+    "text": "A Word on Schemas\n\nWithout inferSchema=True, Spark treats every column as a string — even columns that are clearly numbers.\nThat fails silently: orderBy(\"salary\") sorts as text, so \"100000\" comes before \"62000\" (it starts with 1), and max(\"salary\") returns the alphabetically last value. Comparing to a number, as in df[\"salary\"] &gt; 70000, happens to work only because Spark quietly converts the text for you.\ninferSchema=True costs a little extra time (Spark has to scan the file first), but for anything you’ll sort, filter or aggregate numerically, it’s worth it.\ndf.printSchema() is your first move on any new dataset — confirm the types are what you expect before writing a single transformation.\n\n\nTiming: 3 min (this slide and the next). Verified on Spark: a string salary column with \"95000\", \"62000\", \"100000\" sorts as 100000, 62000, 95000 and max returns 95000, while &gt; 70000 correctly keeps 95000 and 100000. The callout’s answer is on the next sub-slide."
   },
   {
     "objectID": "cosc420/slides/module_4.html#filtering-rows",
@@ -10693,28 +10952,35 @@
     "href": "cosc420/slides/module_4.html#selecting-and-renaming-columns",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Selecting and Renaming Columns",
-    "text": "Selecting and Renaming Columns\n# Select specific columns\nresult = df.select(\"name\", \"department\", \"salary\")\n\n# Add a new computed column\ndf = df.withColumn(\"salary_k\", col(\"salary\") / 1000)\n\n# Rename a column\ndf = df.withColumnRenamed(\"salary\", \"annual_salary\")\n\nselect() keeps only the columns you name, in the order you name them, dropping the rest.\nwithColumn(name, expression) adds a new column computed from existing ones — or overwrites an existing column if you reuse its name.\nwithColumnRenamed(old, new) changes a column’s name without touching its values.\n\n\nTiming: 4 min. Quiz 5 Q7 tests select() directly. Point out the parallel with the earlier filter-forms slide: these are all just “transformation in, new DataFrame out,” same pattern every time."
+    "text": "Selecting and Renaming Columns\n# Select specific columns\nresult = df.select(\"name\", \"department\", \"salary\")\n\n# Add a new computed column\ndf = df.withColumn(\"salary_k\", col(\"salary\") / 1000)\n\n# Rename a column\ndf = df.withColumnRenamed(\"salary\", \"annual_salary\")\n\nselect() keeps only the columns you name, in the order you name them, dropping the rest.\nwithColumn(name, expression) adds a new computed column — or overwrites an existing column if you reuse its name.\nwithColumnRenamed(old, new) changes a column’s name without touching its values.\n\n\nTiming: 4 min. Quiz 5 Q7 tests select() directly. Point out the parallel with the earlier filter-forms slide: these are all just “transformation in, new DataFrame out,” same pattern every time."
   },
   {
     "objectID": "cosc420/slides/module_4.html#adding-a-computed-column",
     "href": "cosc420/slides/module_4.html#adding-a-computed-column",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Adding a Computed Column",
-    "text": "Adding a Computed Column\nfrom pyspark.sql.functions import col\n\n# Wrong — this is pandas syntax, and it doesn't work in Spark\ndf[\"new_col\"] = df[\"col1\"] * 2\n\n# Right — Spark syntax\ndf = df.withColumn(\"new_col\", col(\"col1\") * 2)\nThe pandas-style assignment on the first line above doesn’t raise an error that’s obviously about this mistake — it just fails, because PySpark DataFrames don’t support item assignment the way pandas DataFrames do. withColumn is the only correct way to add or replace a column.\n\nTiming: 3 min. This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error message is unhelpful, so seeing the correct pattern before hitting the bug saves real debugging time."
+    "text": "Adding a Computed Column\nfrom pyspark.sql.functions import col\n\n# Wrong — this is pandas syntax, and it doesn't work in Spark\ndf[\"new_col\"] = df[\"col1\"] * 2\n\n# Right — Spark syntax\ndf = df.withColumn(\"new_col\", col(\"col1\") * 2)\n\nThe pandas-style line fails straight away with:\nTypeError: 'DataFrame' object does not support item assignment\n\n\nPySpark DataFrames are immutable, so there is nothing to assign into. withColumn (assigned back to df) is the only correct way to add or replace a column.\n\nTiming: 3 min. This is worth its own slide (not folded into “common mistakes”) because it’s the single most common first bug students hit in Lab 7 — the error names the symptom (item assignment) but not the fix, so seeing the correct pattern before hitting the bug saves real debugging time. Tie it back to immutability."
   },
   {
     "objectID": "cosc420/slides/module_4.html#pause-discuss-find-the-two-bugs",
     "href": "cosc420/slides/module_4.html#pause-discuss-find-the-two-bugs",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Pause & Discuss: Find the Two Bugs",
-    "text": "Pause & Discuss: Find the Two Bugs\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nGoal: names and salaries (in thousands) of everyone in Marketing.\ndf = spark.read.csv(\"hdfs:///user/alice/employees.csv\", header=True, inferSchema=True)\ndf.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.select(\"name\", \"salary_k\")\nresult = result.filter(col(\"department\") == \"Marketing\")\nresult.show()\nThis code fails. Find two separate bugs. Which line do you think Spark complains about first?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Let students find these before the next two slides, which cover both bugs.\nAnswer:\n\nBug 1 (line 2): the withColumn result is never assigned (immutability), so df has no salary_k column.\nBug 2 (line 4): it filters on department after select has already dropped that column.\nSpark complains first at line 3, with an AnalysisException saying it can’t resolve salary_k. Worth pointing out: Spark checks that column names exist as you build the plan, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.\n\nFixed version:\ndf = df.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.filter(col(\"department\") == \"Marketing\").select(\"name\", \"salary_k\")"
+    "text": "Pause & Discuss: Find the Two Bugs\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nGoal: names and salaries (in thousands) of everyone in Marketing.\nfrom pyspark.sql.functions import col\n\ndf = spark.read.csv(\"hdfs:///user/alice/employees.csv\", header=True, inferSchema=True)\ndf.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.select(\"name\", \"salary_k\")\nresult = result.filter(col(\"department\") == \"Marketing\")\nresult.show()\nThis code fails. Find two separate bugs. Which line do you think Spark complains about first?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion. Line numbers in the answers count from the df = spark.read... line, skipping the import. Verified on Spark: the select line raises AnalysisException: [UNRESOLVED_COLUMN.WITH_SUGGESTION] ... salary_k cannot be resolved."
+  },
+  {
+    "objectID": "cosc420/slides/module_4.html#answers-1",
+    "href": "cosc420/slides/module_4.html#answers-1",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Answers",
+    "text": "Answers\n\nBug 1 (the withColumn line): its result is never assigned (immutability), so df has no salary_k column.\nBug 2 (the filter line): it filters on department after select has already dropped that column.\nSpark complains first at the select line, with an AnalysisException saying it can’t resolve salary_k. Spark checks column names as you build the plan, even though it doesn’t touch any data until an action. Lazy execution doesn’t mean it skips checking names.\n\n\nFixed version:\ndf = df.withColumn(\"salary_k\", col(\"salary\") / 1000)\nresult = df.filter(col(\"department\") == \"Marketing\").select(\"name\", \"salary_k\")\nresult.show()"
   },
   {
     "objectID": "cosc420/slides/module_4.html#avoiding-common-pyspark-mistakes",
     "href": "cosc420/slides/module_4.html#avoiding-common-pyspark-mistakes",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Avoiding Common PySpark Mistakes",
-    "text": "Avoiding Common PySpark Mistakes\n# ❌ Wrong — using a Python list comprehension on a Spark DataFrame\nresult = [row for row in df if row[\"salary\"] &gt; 70000]  # doesn't use Spark at all\n\n# ✅ Right — use Spark's own filter\nresult = df.filter(col(\"salary\") &gt; 70000)\n\n# ❌ Wrong — forgetting that filter() doesn't modify df in place\ndf.filter(col(\"salary\") &gt; 70000)   # result thrown away — df is unchanged\nhigh_earners = df.filter(col(\"salary\") &gt; 70000)  # correct — result is captured\n\nA Python for loop over a DataFrame technically works, but it pulls everything to a single machine and processes it one row at a time in plain Python — throwing away everything Spark is for.\nThe second mistake is the immutability rule from Session 1, showing up again in real code — if your DataFrame “isn’t changing,” check whether you forgot to assign the result.\n\n\nTiming: 5 min. Both of these are genuinely common — if time is short, prioritize the second one, since it’s the more frequent real bug in student code across every lab this module."
+    "text": "Avoiding Common PySpark Mistakes\nMistake 1: filtering in plain Python instead of in Spark\n# ❌ Wrong — a list comprehension over collect()\nresult = [row for row in df.collect() if row[\"salary\"] &gt; 70000]\n\n# ✅ Right — use Spark's own filter\nresult = df.filter(col(\"salary\") &gt; 70000)\n\nThe wrong version runs, but collect() pulls every row onto one machine (the driver) and filters them one at a time in plain Python — throwing away everything Spark is for. On big data it can crash the driver (more on collect() in Session 3).\nLeaving out collect() doesn’t help: for row in df doesn’t loop over rows at all, and the comprehension fails with ValueError: Cannot convert column into bool.\n\n\nTiming: 5 min (this slide and the next). Both mistakes are genuinely common — if time is short, prioritize the second one, since it’s the more frequent real bug in student code across every lab this module. Verified on Spark: [row for row in df if row[\"salary\"] &gt; 70000] raises CANNOT_CONVERT_COLUMN_INTO_BOOL, because iterating a DataFrame walks its columns by index."
   },
   {
     "objectID": "cosc420/slides/module_4.html#worked-example-filter-select",
@@ -10742,42 +11008,49 @@
     "href": "cosc420/slides/module_4.html#recap-why-today-matters-for-lab-8",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Recap + Why Today Matters for Lab 8",
-    "text": "Recap + Why Today Matters for Lab 8\nSo far: create/load a DataFrame, filter rows, select columns. Today adds the two operations that turn “look at some rows” into “answer an actual analytical question”: grouping data together and combining two datasets.\nThis is also exactly what Friday’s Lab 8 needs — real MovieLens rating data, joined with movie titles, grouped by movie, to find the highest-rated films. Everything today is in direct service of that lab.\n\nTiming: 3 min. Say the Lab 8 connection explicitly and early — it gives today’s content an obvious “why,” which matters since this is the last lecture day before that lab."
+    "text": "Recap + Why Today Matters for Lab 8\nSo far: create/load a DataFrame, filter rows, select columns. Today adds the two operations that turn “look at some rows” into “answer an actual analytical question”: grouping data together and combining two datasets.\n\nThis is also exactly what Friday’s Lab 8 needs — real MovieLens rating data, joined with movie titles, grouped by movie, to find the highest-rated films. Everything today is in direct service of that lab.\n\nTiming: 3 min. Say the Lab 8 connection explicitly and early — it gives today’s content an obvious “why,” which matters since this is the last lecture day before that lab."
   },
   {
     "objectID": "cosc420/slides/module_4.html#groupby-and-aggregation",
     "href": "cosc420/slides/module_4.html#groupby-and-aggregation",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "GroupBy and Aggregation",
-    "text": "GroupBy and Aggregation\nfrom pyspark.sql.functions import avg, count, round as spark_round, desc\n\n# Average salary and headcount by department\ndf.groupBy(\"department\") \\\n  .agg(\n      spark_round(avg(\"salary\"), 2).alias(\"avg_salary\"),\n      count(\"name\").alias(\"num_employees\")\n  ) \\\n  .orderBy(desc(\"avg_salary\")) \\\n  .show()\n\ngroupBy(\"column\") — a transformation; it doesn’t compute anything on its own, it just says “gather rows into groups by this column’s value.”\n.agg(...) — applies one or more aggregation functions (avg, count, sum, …) to each group, producing one output row per group.\n.alias(\"name\") — renames the resulting column to something readable.\n\n\nTiming: 4 min. Quiz 6 Q1 and Q5 both test reading/predicting groupBy().agg() / groupBy().sum() output directly — walk through what the output shape looks like (one row per distinct group value), not just the syntax."
+    "text": "GroupBy and Aggregation\nfrom pyspark.sql.functions import avg, count, round as spark_round, desc\n\n# Average salary and headcount by department\ndf.groupBy(\"department\") \\\n  .agg(\n      spark_round(avg(\"salary\"), 2).alias(\"avg_salary\"),\n      count(\"name\").alias(\"num_employees\")\n  ) \\\n  .orderBy(desc(\"avg_salary\")) \\\n  .show()\n\ngroupBy(\"column\") — a transformation; it doesn’t compute anything on its own, it just says *“gather rows into groups* by this column’s value.”\n.agg(...) — applies one or more aggregation functions (avg, count, sum, …) to each group, producing one output row per group.\n.alias(\"name\") — renames the resulting column to something readable.\n\n\nTiming: 4 min (this slide and the output on the next). Quiz 6 Q1 and Q5 both test reading/predicting groupBy().agg() / groupBy().sum() output directly — walk through what the output shape looks like (one row per distinct group value), not just the syntax."
   },
   {
     "objectID": "cosc420/slides/module_4.html#aggregation-functions-reference",
     "href": "cosc420/slides/module_4.html#aggregation-functions-reference",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Aggregation Functions Reference",
-    "text": "Aggregation Functions Reference\nfrom pyspark.sql.functions import (\n    avg, count, sum as spark_sum, min, max, countDistinct\n)\n\ndf.groupBy(\"category\").agg(\n    count(\"*\").alias(\"total_rows\"),\n    avg(\"price\").alias(\"avg_price\"),\n    spark_sum(\"revenue\").alias(\"total_revenue\"),\n    min(\"price\").alias(\"cheapest\"),\n    max(\"price\").alias(\"most_expensive\")\n)\n\n\n\n\n\n\n\nFunction\nWhat it computes\n\n\n\n\ncount()\nNumber of rows (per group, or count(\"*\") for all rows)\n\n\navg()\nMean of a numeric column\n\n\nsum()\nTotal of a numeric column — note the as spark_sum import alias, since sum is also a Python built-in\n\n\nmin() / max()\nSmallest / largest value\n\n\ncountDistinct()\nNumber of unique values\n\n\n\n\nTiming: 3 min. The sum as spark_sum import quirk is worth calling out explicitly — students who skip it and just write sum(...) get confusing errors from Python’s built-in sum() shadowing the Spark one."
+    "text": "Aggregation Functions Reference\nfrom pyspark.sql.functions import (\n    avg, count, countDistinct,\n    sum as spark_sum, min as spark_min, max as spark_max\n)\n\ndf.groupBy(\"category\").agg(\n    count(\"*\").alias(\"total_rows\"),\n    countDistinct(\"brand\").alias(\"num_brands\"),\n    avg(\"price\").alias(\"avg_price\"),\n    spark_sum(\"revenue\").alias(\"total_revenue\"),\n    spark_min(\"price\").alias(\"cheapest\"),\n    spark_max(\"price\").alias(\"most_expensive\")\n)\n\nTiming: 3 min (this slide and the table on the next). The import aliases are worth calling out explicitly. sum, min and max are also Python built-ins: importing Spark’s versions under the same names replaces the built-ins for the rest of the notebook, so a later plain sum([1, 2, 3]) breaks; not importing them means sum(\"revenue\") calls Python’s built-in and fails. Aliasing avoids both. (round as spark_round on the previous slide is the same story.)"
   },
   {
     "objectID": "cosc420/slides/module_4.html#orderby-and-the-top-n-pattern",
     "href": "cosc420/slides/module_4.html#orderby-and-the-top-n-pattern",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "orderBy and the Top-N Pattern",
-    "text": "orderBy and the Top-N Pattern\n# The \"top N by some metric\" pattern — you'll use this constantly\ntop_5 = df.groupBy(\"department\") \\\n          .agg(spark_round(avg(\"salary\"), 2).alias(\"avg_salary\")) \\\n          .orderBy(\"avg_salary\", ascending=False) \\\n          .limit(5)\n\ntop_5.show()\n\norderBy(column, ascending=False) sorts descending; ascending=True (or omitting it) sorts ascending.\n.limit(n) keeps only the first n rows after sorting.\n.show(n) — a shortcut that sorts-then-limits-then-prints in one call, when you don’t need the limited DataFrame for anything else afterward.\n\n\n\n\n\n\n\nTip\n\n\nThis exact pattern — groupBy → agg → orderBy → limit/show(n) — is precisely what Checkpoint 5 asks you to do, and it’s the core of Lab 8’s “top 10 highest-rated movies” task.\n\n\n\n\nTiming: 4 min. Quiz 6 Q4 tests orderBy(..., ascending=False) syntax directly. Flag the Checkpoint 5 connection out loud — this slide is deliberately the most directly test-relevant one in the session."
+    "text": "orderBy and the Top-N Pattern\n# The \"top N by some metric\" pattern — you'll use this constantly\ntop_5 = df.groupBy(\"department\") \\\n          .agg(spark_round(avg(\"salary\"), 2).alias(\"avg_salary\")) \\\n          .orderBy(\"avg_salary\", ascending=False) \\\n          .limit(5)\n\ntop_5.show()\n\norderBy(column, ascending=False) sorts descending; ascending=True (or omitting it) sorts ascending.\n.limit(n) keeps only the first n rows after sorting, as a new DataFrame — use it when you need the top N for something else (writing it out, joining it).\n.show(n) just prints the first n rows of whatever it’s called on. It doesn’t sort; the orderBy before it does. Use it when you only want to look.\n\n\n\n\n\n\n\n\nTip\n\n\nThis pattern — groupBy → agg → orderBy → limit/show(n) — is the core of Lab 8’s “top 10 highest-rated movies” task. Checkpoint 5 uses the second half: sort descending, then show the top rows.\n\n\n\n\nTiming: 4 min. Quiz 6 Q4 tests orderBy(..., ascending=False) syntax directly. Flag the Checkpoint 5 connection out loud — this slide is deliberately the most directly test-relevant one in the session. (CP5 itself is filter → orderBy → show(3), no groupBy.)"
   },
   {
     "objectID": "cosc420/slides/module_4.html#actions-revisited-the-risk-of-collect",
     "href": "cosc420/slides/module_4.html#actions-revisited-the-risk-of-collect",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Actions, Revisited: The Risk of collect()",
-    "text": "Actions, Revisited: The Risk of collect()\nSession 1 introduced actions as “the things that trigger execution.” One of them deserves a warning of its own.\n# ⚠️ Dangerous on a large DataFrame\nall_rows = df.collect()   # pulls EVERY row to the driver machine, as a Python list\n\n# ✅ Safer — limit first\nsample = df.limit(100).collect()\n\ncollect() brings all matching rows back to the driver program, as ordinary Python objects — not distributed anymore.\nIf the DataFrame is large, this can crash the driver — the driver has one machine’s worth of memory, not the whole cluster’s.\ncount() and show(n) don’t have this problem: count() returns a single number, and show(n) only ever prints n rows without collecting the rest.\n\n\nTiming: 5 min. Quiz 6 Q7 tests this risk directly (“main risk of collect() on a very large DataFrame”) — this is a real, industry-relevant footgun, not a trivia fact, so it’s worth the full 5 minutes."
+    "text": "Actions, Revisited: The Risk of collect()\nSession 1 introduced actions as “the things that trigger execution.” One of them deserves a warning of its own.\n# ⚠️ Dangerous on a large DataFrame\nall_rows = df.collect()   # pulls EVERY row to the driver machine, as a Python list\n\n# ✅ Safer — limit first\nsample = df.limit(100).collect()\n\ncollect() brings all matching rows back to the driver program, as a Python list of Row objects — not distributed anymore.\nIf the DataFrame is large, this can crash the driver — the driver has one machine’s worth of memory, not the whole cluster’s.\ncount() and show(n) don’t have this problem: count() returns a single number, and show(n) only ever brings back n rows.\n\n\nTiming: 5 min. Quiz 6 Q7 tests this risk directly (“main risk of collect() on a very large DataFrame”) — this is a real, industry-relevant footgun, not a trivia fact, so it’s worth the full 5 minutes."
   },
   {
     "objectID": "cosc420/slides/module_4.html#pause-discuss-which-one-crashes-the-driver",
     "href": "cosc420/slides/module_4.html#pause-discuss-which-one-crashes-the-driver",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Pause & Discuss: Which One Crashes the Driver?",
-    "text": "Pause & Discuss: Which One Crashes the Driver?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nratings has 100 million rows but only about 50,000 distinct movies. Which of these are safe, and which could crash the driver?\nratings.count()                                          # (a)\nratings.groupBy(\"movieId\").agg(avg(\"rating\")).collect()  # (b)\nratings.collect()[:10]                                   # (c)\nratings.orderBy(desc(\"rating\")).show(10)                 # (d)\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answer:\n\n(a) Safe. It returns a single number.\n(b) Safe. It collects the result: one small row per movie, about 50,000 rows, not 100 million. What makes collect() risky is the size of what you collect, not the size of the input.\n(c) Dangerous. collect() runs first and pulls all 100M rows onto the driver. The [:10] happens afterward in plain Python, which is too late. Fix: ratings.limit(10).collect() or ratings.take(10).\n(d) Safe. Only 10 rows come back to the driver. The sort itself runs on the executors.\n\nThe rule to leave with: ask “how many rows will land on the driver?”, not “how big is the DataFrame?”"
+    "text": "Pause & Discuss: Which One Crashes the Driver?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nratings has 100 million rows but only about 50,000 distinct movies. Which of these are safe, and which could crash the driver?\nratings.count()                                          # (a)\nratings.groupBy(\"movieId\").agg(avg(\"rating\")).collect()  # (b)\nratings.collect()[:10]                                   # (c)\nratings.orderBy(desc(\"rating\")).show(10)                 # (d)\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/slides/module_4.html#answers-2",
+    "href": "cosc420/slides/module_4.html#answers-2",
+    "title": "Module 4: Apache Spark & PySpark",
+    "section": "Answers",
+    "text": "Answers\n\n(a) Safe. It returns a single number.\n(b) Safe. It collects the result: one small row per movie, about 50,000 rows, not 100 million. What makes collect() risky is the size of what you collect, not the size of the input.\n(c) Dangerous. collect() runs first and pulls all 100M rows onto the driver. The [:10] happens afterward in plain Python, which is too late. Fix: ratings.limit(10).collect() or ratings.take(10).\n(d) Safe. Only 10 rows come back to the driver. The sort itself runs on the executors.\n\n\nThe rule to leave with: ask “how many rows will land on the driver?”, not “how big is the DataFrame?”"
   },
   {
     "objectID": "cosc420/slides/module_4.html#every-action-re-runs-the-plan-unless-you-cache",
@@ -10791,21 +11064,21 @@
     "href": "cosc420/slides/module_4.html#writing-dataframe-output",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Writing DataFrame Output",
-    "text": "Writing DataFrame Output\n# Write as CSV — creates a folder, not a single file\ndf.write.csv(\"output/path\", header=True, mode=\"overwrite\")\n\n# Write as JSON\ndf.write.json(\"output/path\", mode=\"overwrite\")\n\ndf.write.csv(...) is an action — like show() or count(), it triggers Spark to execute the full pending plan, this time saving the result to storage instead of printing it.\nmode=\"overwrite\" replaces existing data at that path; mode=\"error\" (the default) fails if the path already exists, to prevent accidentally destroying previous output.\nThe capstone’s spark_job.py uses this same write pattern — except writing to MongoDB instead of a CSV folder, which Module 5 covers.\n\n\nTiming: 3 min. Quiz 6 Q8 and Q9 both test that write.csv() is an action, not a transformation — reinforce that classification explicitly, since “write” sounds like it should just be setup, not execution."
+    "text": "Writing DataFrame Output\n# Write as CSV — creates a folder, not a single file\ndf.write.csv(\"output/path\", header=True, mode=\"overwrite\")\n\n# Write as JSON\ndf.write.json(\"output/path\", mode=\"overwrite\")\n\ndf.write.csv(...) is an action — like show() or count(), it triggers Spark to execute the full pending plan, this time saving the result instead of printing it.\nThe output is a folder of part-... files, one per partition, because each executor writes its own slice in parallel.\nmode=\"overwrite\" replaces existing data at that path; mode=\"error\" (the default) fails if the path already exists, to prevent accidentally destroying previous output.\nThe capstone’s spark_job.py uses this same write pattern — except writing to MongoDB instead of a CSV folder, which Module 5 covers.\n\n\nTiming: 3 min. Quiz 6 Q8 and Q9 both test that write.csv() is an action, not a transformation — reinforce that classification explicitly, since “write” sounds like it should just be setup, not execution."
   },
   {
     "objectID": "cosc420/slides/module_4.html#joins-in-pyspark",
     "href": "cosc420/slides/module_4.html#joins-in-pyspark",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Joins in PySpark",
-    "text": "Joins in PySpark\n# Inner join: only rows with matching keys in both DataFrames\nresult = ratings.join(movies, on=\"movieId\")\n\n# Left join: all rows from the left DataFrame, matched rows (or nulls) from the right\nresult = ratings.join(movies, on=\"movieId\", how=\"left\")\n\n# Joining on differently-named columns\nresult = df1.join(df2, df1[\"user_id\"] == df2[\"id\"])\n\nA join combines two DataFrames into one, matching rows where a key column agrees.\nInner join (the default): keep only rows that have a match in both DataFrames — rows with no match on either side are dropped.\nLeft join: keep every row from the left DataFrame; unmatched rows get null for the right DataFrame’s columns instead of being dropped.\n\n\n\n\n\n\n\nThink about it\n\n\nratings has a movieId for every rating. movies has a movieId and title for every film. If you inner-join them, could you ever end up with fewer rows than ratings had originally? What would that mean about the data?\n\n\n\n\nTiming: 5 min. The callout’s answer: yes — if some movieId in ratings has no matching row in movies (a deleted or mislabeled film), the inner join silently drops those ratings. This is exactly the kind of thing Lab 8’s Task 2 depends on getting right."
+    "text": "Joins in PySpark\n# Inner join: only rows with matching keys in both DataFrames\nresult = ratings.join(movies, on=\"movieId\")\n\n# Left join: all rows from the left DataFrame, matched rows (or nulls) from the right\nresult = ratings.join(movies, on=\"movieId\", how=\"left\")\n\n# Joining on differently-named columns\nresult = df1.join(df2, df1[\"user_id\"] == df2[\"id\"])\n\nA join combines two DataFrames into one, matching rows where a key column agrees.\nInner join (the default): keep only rows that have a match in both DataFrames — rows with no match on either side are dropped.\nLeft join: keep every row from the left DataFrame; unmatched rows get null for the right DataFrame’s columns instead of being dropped.\n\n\nTiming: 5 min (this slide and its two sub-slides). The worked example on the next sub-slide was run on Spark; the output tables are real. Lab 8’s Task 2 and Task 5 both join ratings with movies on movieId."
   },
   {
     "objectID": "cosc420/slides/module_4.html#worked-example-a-full-multi-step-query",
     "href": "cosc420/slides/module_4.html#worked-example-a-full-multi-step-query",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Worked Example: A Full Multi-Step Query",
-    "text": "Worked Example: A Full Multi-Step Query\nfrom pyspark.sql.functions import col, avg, count, round as spark_round, desc\n\ntop_movies = ratings \\\n    .groupBy(\"movieId\") \\\n    .agg(spark_round(avg(\"rating\"), 2).alias(\"avg_rating\"),\n         count(\"rating\").alias(\"num_ratings\")) \\\n    .filter(col(\"num_ratings\") &gt;= 50) \\\n    .join(movies, on=\"movieId\") \\\n    .select(\"title\", \"avg_rating\", \"num_ratings\") \\\n    .orderBy(desc(\"avg_rating\"))\n\ntop_movies.show(10, truncate=False)\nReading this top to bottom: group ratings by film, compute each film’s average and count, keep only films with enough ratings to be meaningful, join in the title, keep just the columns we want, sort by rating, show the top 10.\n\nTiming: 4 min. This is deliberately close to Lab 8 Task 2’s actual solution shape — walk through it step by step rather than all at once, since chaining six operations together is a lot to take in as a single block the first time."
+    "text": "Worked Example: A Full Multi-Step Query\nfrom pyspark.sql.functions import col, avg, count, round as spark_round, desc\n\ntop_movies = ratings \\\n    .groupBy(\"movieId\") \\\n    .agg(spark_round(avg(\"rating\"), 2).alias(\"avg_rating\"),\n         count(\"rating\").alias(\"num_ratings\")) \\\n    .filter(col(\"num_ratings\") &gt;= 50) \\\n    .join(movies, on=\"movieId\") \\\n    .select(\"title\", \"avg_rating\", \"num_ratings\") \\\n    .orderBy(desc(\"avg_rating\"))\n\ntop_movies.show(10, truncate=False)\n\nTiming: 4 min (this slide and the next). This is deliberately close to Lab 8 Task 2’s actual solution shape — click through the line highlights one step at a time rather than all at once, since chaining six operations together is a lot to take in as a single block the first time. The written walkthrough is on the next sub-slide for students reviewing later."
   },
   {
     "objectID": "cosc420/slides/module_4.html#checkpoint-5",
@@ -10819,7 +11092,7 @@
     "href": "cosc420/slides/module_4.html#module-4-summary",
     "title": "Module 4: Apache Spark & PySpark",
     "section": "Module 4 Summary",
-    "text": "Module 4 Summary\n\n\n\n\n\n\n\nConcept\nKey idea\n\n\n\n\nSpark vs. MapReduce\nKeeps intermediate data in memory instead of writing to disk every step\n\n\nRDD vs. DataFrame\nRDD = unstructured distributed collection; DataFrame = distributed table with a schema\n\n\nSparkSession\nOne entry point per application; %%spark cells already have one built\n\n\nDataFrame\nDistributed, schema-aware, and immutable — every operation returns a new one\n\n\nTransformation\nLazy — builds a plan (filter, select, groupBy, join, …)\n\n\nAction\nTriggers execution (show, count, collect, write.csv, …)\n\n\ncollect() risk\nPulls all rows to the driver — can crash it on large data\n\n\nJoin\nCombine two DataFrames on a shared key — inner drops unmatched rows, left keeps them\n\n\n\nConnects to: Lab 7, Lab 8, Checkpoints 4 & 5, Quizzes 5 & 6, Final Q16–Q30, Capstone (spark_job.py’s five aggregations)\n\nTiming: 3 min. Bridge to Module 5: “Everything computed here has been printed or written to a CSV so far. Module 5 is about where the capstone’s output actually goes — a real, shared, multi-user database — MongoDB.”"
+    "text": "Module 4 Summary\n\n\n\n\n\n\n\nConcept\nKey idea\n\n\n\n\nSpark vs. MapReduce\nKeeps intermediate data in memory instead of writing to disk every step\n\n\nRDD vs. DataFrame\nRDD = unstructured distributed collection; DataFrame = distributed table with a schema\n\n\nSparkSession\nOne entry point per application; %%spark cells already have one built\n\n\nDataFrame\nDistributed, schema-aware, and immutable — every operation returns a new one\n\n\nTransformation\nLazy — builds a plan (filter, select, groupBy, join, …)\n\n\nAction\nTriggers execution (show, count, collect, write.csv, …)\n\n\ncollect() risk\nPulls all rows to the driver — can crash it on large data\n\n\ncache()\nKeeps a DataFrame in memory so later actions don’t recompute it\n\n\nJoin\nCombine two DataFrames on a shared key — inner drops unmatched rows, left keeps them\n\n\n\nConnects to: Lab 7, Lab 8, Checkpoints 4 & 5, Quizzes 5 & 6, Final Q16–Q30, Capstone (spark_job.py’s five aggregations)\n\nTiming: 3 min. Bridge to Module 5: “Everything computed here has been printed or written to a CSV so far. Module 5 is about where the capstone’s output actually goes — a real, shared, multi-user database — MongoDB.”"
   },
   {
     "objectID": "cosc420/slides/module_6.html#cloud-computing-renting-instead-of-owning",
