@@ -31,6 +31,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -861,10 +927,11 @@ if (document.readyState === 'loading') {
 <li>Use a nested <code>for</code> loop to visit every cell of a 2D grid</li>
 <li>Declare an array of values and use <code>.length</code> and <code>arr[i]</code> to read it inside a loop</li>
 <li>Explain why storing related values in one array is better here than declaring a separate variable for each one</li>
+<li>Turn a mouse position into an array index, so clicking on the canvas changes the array</li>
 </ul>
 </section>
-<section id="step-1-one-row-of-circles" class="slide level2">
-<h2>Step 1 — one row of circles</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -874,20 +941,37 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CORAL    = #F05A5A;
+color AMBER    = #FAB43C;
+color MINT     = #50BE8C;
+color AZURE    = #468CE6;
+color VIOLET   = #A064DC;
+color CHARCOAL = #141414;
+
+color[] palette = { CORAL, AMBER, MINT, AZURE, VIOLET };
+
+void setup() {
   size(400, 300);
 }
 
 void draw() {
-  background(20);
+  background(CHARCOAL);
+  noStroke();
 
-  int cols = 8, cell = 45;
+  int cell = 25;
+  int shift = frameCount / 10;
 
-  for (int col = 0; col &lt; cols; col++) {
-    float x = col * cell + cell / 2;
-    fill(200);
-    noStroke();
-    ellipse(x, 50, cell - 10, cell - 10);
+  for (int row = 0; row &lt; height / cell; row++) {
+    for (int col = 0; col &lt; width / cell; col++) {
+      float x = col * cell + cell / 2;
+      float y = row * cell + cell / 2;
+
+      float d = dist(mouseX, mouseY, x, y);
+      float s = max(4, cell - d / 8);
+
+      fill(palette[(row + col + shift) % palette.length]);
+      rect(x - s / 2, y - s / 2, s, s);
+    }
   }
 }</div>
   </div>
@@ -899,11 +983,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>One loop, one row. <code>col * cell</code> converts “which column am I on” into a pixel position.</p>
+<p>Move your mouse around. Two nested loops, one array of five colors, and a little arithmetic — that’s the whole thing.</p>
 </section>
-<section id="step-2-nest-a-second-loop-for-rows" class="slide level2">
-<h2>Step 2 — nest a second loop for rows</h2>
-<p>You have learned that a loop nested inside another loop lets the outer loop’s variable pick a “row” while the inner loop’s variable walks across a “column” within that row — the classic example being a multiplication table.</p>
+<section id="step-1-one-row-of-circles" class="slide level2">
+<h2>Step 1 — one row of circles</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -913,23 +996,23 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color GRAY     = #C8C8C8;
+
+void setup() {
   size(400, 300);
 }
 
 void draw() {
-  background(20);
+  background(CHARCOAL);
 
-  int cols = 8, rows = 6, cell = 45;
+  int cols = 8, cell = 45;
 
-  for (int row = 0; row &lt; rows; row++) {
-    for (int col = 0; col &lt; cols; col++) {
-      float x = col * cell + cell / 2;
-      float y = row * cell + cell / 2;
-      fill(200);
-      noStroke();
-      ellipse(x, y, cell - 10, cell - 10);
-    }
+  for (int col = 0; col &lt; cols; col++) {
+    float x = col * cell + cell / 2;
+    fill(GRAY);
+    noStroke();
+    ellipse(x, 50, cell - 10, cell - 10);
   }
 }</div>
   </div>
@@ -941,10 +1024,11 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>For <code>row = 0</code>, the inner loop runs <code>col = 0, 1, ..., 7</code>, drawing one full row left to right; then <code>row</code> becomes <code>1</code> and the inner loop runs again for the next row down. Same nested structure as a multiplication table, just drawing instead of printing.</p>
+<p>One loop, one row. <code>col * cell</code> converts “which column am I on” into a pixel position.</p>
 </section>
-<section id="step-3-color-each-cell-from-its-rowcol" class="slide level2">
-<h2>Step 3 — color each cell from its row/col</h2>
+<section id="step-2-nest-a-second-loop-for-rows" class="slide level2">
+<h2>Step 2 — nest a second loop for rows</h2>
+<p>You have learned that a loop nested inside another loop lets the outer loop’s variable pick a “row” while the inner loop’s variable walks across a “column” within that row — the classic example being a multiplication table.</p>
 <div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -954,12 +1038,58 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color GRAY     = #C8C8C8;
+
+void setup() {
   size(400, 300);
 }
 
 void draw() {
-  background(20);
+  background(CHARCOAL);
+
+  int cols = 8, rows = 6, cell = 45;
+
+  for (int row = 0; row &lt; rows; row++) {
+    for (int col = 0; col &lt; cols; col++) {
+      float x = col * cell + cell / 2;
+      float y = row * cell + cell / 2;
+      fill(GRAY);
+      noStroke();
+      ellipse(x, y, cell - 10, cell - 10);
+    }
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>For <code>row = 0</code>, the inner loop runs <code>col = 0, 1, ..., 7</code>, drawing one full row left to right; then <code>row</code> becomes <code>1</code> and the inner loop runs again for the next row down. Same nested structure as a multiplication table, just drawing instead of printing.</p>
+</section>
+<section id="step-3-color-each-cell-from-its-rowcol" class="slide level2">
+<h2>Step 3 — color each cell from its row/col</h2>
+<div class="jr-block" id="jr-4" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(CHARCOAL);
 
   int cols = 8, rows = 6, cell = 45;
 
@@ -978,49 +1108,14 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>Same grid, but <code>fill(...)</code> now uses <code>col</code> and <code>row</code>. Try changing <code>cols</code>, <code>rows</code>, or <code>cell</code> and predict the new grid shape before running.</p>
-</section>
-<section id="new-idea-one-variable-many-values" class="slide level2">
-<h2>New idea: one variable, many values</h2>
-<p>Imagine wanting seven different bar heights. Without an array, that’s seven separate variables (<code>h1</code>, <code>h2</code>, …, <code>h7</code>), and a loop that wants to draw “all of them” has no clean way to reach <code>h1</code> through <code>h7</code> by number.</p>
-</section>
-<section id="step-4-declare-the-array" class="slide level2">
-<h2>Step 4 — declare the array</h2>
-<div class="jr-block" id="jr-4" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] heights = { 40, 90, 60, 130, 70, 100, 50 };
-
-void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(240);
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
     <div class="jr-output-label" id="jr-4-lbl">Errors</div>
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>int[] heights = { ... }</code> declares one array holding seven <code>int</code>s — the same array declaration syntax from lecture. Nothing draws yet; this slide is just the declaration.</p>
+<p>Same grid, but <code>fill(...)</code> now uses <code>col</code> and <code>row</code>. Try changing <code>cols</code>, <code>rows</code>, or <code>cell</code> and predict the new grid shape before running.</p>
 </section>
-<section id="step-5-loop-over-it-with-.length-and-arri" class="slide level2">
-<h2>Step 5 — loop over it with <code>.length</code> and <code>arr[i]</code></h2>
+<section id="step-4-a-grid-that-breathes" class="slide level2">
+<h2>Step 4 — a grid that breathes</h2>
 <div class="jr-block" id="jr-5" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1030,21 +1125,26 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] heights = { 40, 90, 60, 130, 70, 100, 50 };
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
 
 void setup() {
-  size(400, 200);
+  size(400, 300);
 }
 
 void draw() {
-  background(240);
+  background(CHARCOAL);
+  noStroke();
 
-  int barWidth = width / heights.length;
+  int cols = 8, rows = 6, cell = 45;
 
-  for (int i = 0; i &lt; heights.length; i++) {
-    fill(60, 130, 200);
-    noStroke();
-    rect(i * barWidth, height - heights[i], barWidth - 4, heights[i]);
+  for (int row = 0; row &lt; rows; row++) {
+    for (int col = 0; col &lt; cols; col++) {
+      float x = col * cell + cell / 2;
+      float y = row * cell + cell / 2;
+      float s = cell * (0.5 + 0.4 * sin(frameCount * 0.05 + row * 0.5 + col * 0.5));
+      fill((col * 30) % 255, (row * 40) % 255, 200);
+      ellipse(x, y, s, s);
+    }
   }
 }</div>
   </div>
@@ -1056,16 +1156,336 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
+<p>Each cell’s size comes from <code>sin(...)</code>, which smoothly swings between <code>-1</code> and <code>1</code>. Feeding it <code>frameCount</code> (the number of frames drawn so far) makes it change over time; adding <code>row</code> and <code>col</code> gives each cell a slightly different starting point, so a ripple rolls diagonally across the grid. Try deleting <code>+ col * 0.5</code> and predict the new motion.</p>
+</section>
+<section id="step-5-a-grid-that-sees-the-mouse" class="slide level2">
+<h2>Step 5 — a grid that sees the mouse</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(CHARCOAL);
+  noStroke();
+
+  int cols = 8, rows = 6, cell = 45;
+
+  for (int row = 0; row &lt; rows; row++) {
+    for (int col = 0; col &lt; cols; col++) {
+      float x = col * cell + cell / 2;
+      float y = row * cell + cell / 2;
+      float d = dist(mouseX, mouseY, x, y);
+      float s = max(6, cell - d / 6);
+      fill(255 - d, 120, d);
+      ellipse(x, y, s, s);
+    }
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>dist(x1, y1, x2, y2)</code> is a built-in method that returns the straight-line distance between two points. Every cell asks “how far am I from the mouse?” and sizes and colors itself from the answer. <code>max(6, ...)</code> returns whichever of its two arguments is bigger, so no cell shrinks below <code>6</code> pixels.</p>
+</section>
+<section id="new-idea-one-variable-many-values" class="slide level2">
+<h2>New idea: one variable, many values</h2>
+<p>Imagine wanting seven different bar heights. Without an array, that’s seven separate variables (<code>h1</code>, <code>h2</code>, …, <code>h7</code>), and a loop that wants to draw “all of them” has no clean way to reach <code>h1</code> through <code>h7</code> by number.</p>
+</section>
+<section id="step-6-declare-the-array" class="slide level2">
+<h2>Step 6 — declare the array</h2>
+<div class="jr-block" id="jr-7" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+
+int[] heights = { 40, 90, 60, 130, 70, 100, 50 };
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(PAPER);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>int[] heights = { ... }</code> declares one array holding seven <code>int</code>s — the same array declaration syntax from lecture. Nothing draws yet; this slide is just the declaration.</p>
+</section>
+<section id="step-7-loop-over-it-with-.length-and-arri" class="slide level2">
+<h2>Step 7 — loop over it with <code>.length</code> and <code>arr[i]</code></h2>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #3C82C8;
+
+int[] heights = { 40, 90, 60, 130, 70, 100, 50 };
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(PAPER);
+
+  int barWidth = width / heights.length;
+
+  for (int i = 0; i &lt; heights.length; i++) {
+    fill(BLUE);
+    noStroke();
+    rect(i * barWidth, height - heights[i], barWidth - 4, heights[i]);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
 <p><code>heights.length</code> tells the loop exactly how many bars to draw; <code>heights[i]</code> reads the height of the <code>i</code>-th bar. Notice the loop’s upper bound is written as <code>i &lt; heights.length</code>, not a hardcoded <code>7</code> — add or remove numbers from the <code>{ ... }</code> list and the loop automatically adjusts, with no other code changes needed.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
-<h2>Your turn (before class)</h2>
-<p>In the grid sketch, change <code>cols</code>/<code>rows</code>/<code>cell</code> and predict the new grid shape before running. In the array sketch, add an eighth value to <code>heights</code> and change one existing value — confirm the loop picks up the new bar automatically.</p>
+<section id="step-8-an-array-of-colors" class="slide level2">
+<h2>Step 8 — an array of colors</h2>
+<p>An array’s element type doesn’t have to be <code>int</code>. Here’s an array of <code>color</code> values — a palette:</p>
+<div class="jr-block" id="jr-9" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CORAL    = #F05A5A;
+color AMBER    = #FAB43C;
+color MINT     = #50BE8C;
+color AZURE    = #468CE6;
+color VIOLET   = #A064DC;
+color CHARCOAL = #141414;
+
+color[] palette = { CORAL, AMBER, MINT, AZURE, VIOLET };
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(CHARCOAL);
+  noStroke();
+
+  int cols = 8, rows = 6, cell = 50;
+
+  for (int row = 0; row &lt; rows; row++) {
+    for (int col = 0; col &lt; cols; col++) {
+      fill(palette[(row + col) % palette.length]);
+      rect(col * cell, row * cell, cell - 4, cell - 4);
+    }
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>(row + col) % palette.length</code> always lands on a valid index, <code>0</code> through <code>4</code>, no matter how big the grid is. Cells along each diagonal share a <code>row + col</code> sum, so they share a color — which is why you see stripes. The array holds named colors, so reading the <code>{ ... }</code> list tells you the palette at a glance. Add a sixth color to <code>palette</code> and the stripes adjust on their own.</p>
 </section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC6 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<section id="new-idea-from-mouse-position-to-array-index" class="slide level2">
+<h2>New idea: from mouse position to array index</h2>
+<p>You have learned that <code>int</code> division throws away the remainder. That turns a pixel position into “which bar am I over”:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">int</span> i <span class="op">=</span> mouseX <span class="op">/</span> barWidth<span class="op">;</span>    <span class="co">// 0 for the first bar, 1 for the next, ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>One catch: if <code>width</code> doesn’t divide evenly, the last few pixels can produce an index one past the end. In Java, reading <code>heights[heights.length]</code> crashes your program — so check first.</p>
+</section>
+<section id="step-9-click-a-bar-to-grow-it" class="slide level2">
+<h2>Step 9 — click a bar to grow it</h2>
+<div class="jr-block" id="jr-10" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER  = #F0F0F0;
+color ORANGE = #E6783C;
+color BLUE   = #3C82C8;
+
+int[] heights = { 40, 90, 60, 130, 70, 100, 50 };
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(PAPER);
+
+  int barWidth = width / heights.length;
+  int over = mouseX / barWidth;
+
+  if (mousePressed &amp;&amp; over &gt;= 0 &amp;&amp; over &lt; heights.length &amp;&amp; heights[over] &lt; height) {
+    heights[over] += 3;
+  }
+
+  for (int i = 0; i &lt; heights.length; i++) {
+    if (i == over) {
+      fill(ORANGE);
+    } else {
+      fill(BLUE);
+    }
+    noStroke();
+    rect(i * barWidth, height - heights[i], barWidth - 4, heights[i]);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The bar under the mouse lights up orange. Hold the mouse button down and it grows. <code>mousePressed</code> is a <code>boolean</code> Processing keeps updated: <code>true</code> while a button is held. The <code>&amp;&amp;</code> chain is the same short-circuit you know: if <code>over</code> is out of range, Java stops before ever reading <code>heights[over]</code>.</p>
+<p>Notice that the array is declared <em>above</em> <code>setup()</code>, so its values survive from one frame to the next — a bar you grow stays grown.</p>
+</section>
+<section id="step-10-the-mosaic" class="slide level2">
+<h2>Step 10 — the mosaic</h2>
+<div class="jr-block" id="jr-11" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-11-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CORAL    = #F05A5A;
+color AMBER    = #FAB43C;
+color MINT     = #50BE8C;
+color AZURE    = #468CE6;
+color VIOLET   = #A064DC;
+color CHARCOAL = #141414;
+
+color[] palette = { CORAL, AMBER, MINT, AZURE, VIOLET };
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(CHARCOAL);
+  noStroke();
+
+  int cell = 25;
+  int shift = frameCount / 10;
+
+  for (int row = 0; row &lt; height / cell; row++) {
+    for (int col = 0; col &lt; width / cell; col++) {
+      float x = col * cell + cell / 2;
+      float y = row * cell + cell / 2;
+
+      float d = dist(mouseX, mouseY, x, y);
+      float s = max(4, cell - d / 8);
+
+      fill(palette[(row + col + shift) % palette.length]);
+      rect(x - s / 2, y - s / 2, s, s);
+    }
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-11-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-11-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The sketch from the start. It combines everything in this deck:</p>
+<ul>
+<li>nested loops visit every cell</li>
+<li><code>dist</code> sizes each tile by how close it is to the mouse</li>
+<li>the palette array picks each tile’s color, and <code>shift</code> — <code>frameCount / 10</code>, so it goes up by one every 10 frames — makes the stripes march across the grid</li>
+</ul>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
+<h2>Your turn (before class)</h2>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li>Make the mosaic your own: change the palette colors, the <code>cell</code> size, or swap <code>rect</code> for <code>ellipse</code>. Try <code>(row * col + shift)</code> instead of <code>(row + col + shift)</code>.</li>
+<li>In the click-to-grow bars, make the bar <em>shrink</em> while the mouse is pressed in the top half of the canvas and grow in the bottom half.</li>
+<li>In the grid that sees the mouse, make cells <em>shrink</em> near the mouse instead of grow.</li>
+</ol>
+<div class="jr-block" id="jr-12" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-12-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-12-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-12-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC6 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

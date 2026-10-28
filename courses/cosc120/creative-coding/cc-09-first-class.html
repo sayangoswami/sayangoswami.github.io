@@ -928,10 +928,11 @@ if (document.readyState === 'loading') {
 <li>Write a class with fields and a constructor</li>
 <li>Create several different objects from the same class using <code>new</code></li>
 <li>Read <code>object.field</code> to access one particular object’s data</li>
+<li>Change <code>object.field</code> to move one particular object — and only that one</li>
 </ul>
 </section>
-<section id="step-1-one-circle-loose-variables" class="slide level2">
-<h2>Step 1 — one circle, loose variables</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -941,17 +942,49 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">float x1 = 80, y1 = 150, r1 = 40;
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CORAL = #F06E5A;
+color SKY   = #5AAAE6;
+color GOLD  = #FAC83C;
+color NIGHT = #1E1E2D;
+
+class Blob {
+  float x, y, r;
+  color c;
+
+  Blob(float xPos, float yPos, float radius, color col) {
+    x = xPos;
+    y = yPos;
+    r = radius;
+    c = col;
+  }
+}
+
+Blob b1, b2, b3;
 
 void setup() {
   size(400, 250);
+  b1 = new Blob(80, 150, 20, CORAL);
+  b2 = new Blob(200, 100, 30, SKY);
+  b3 = new Blob(320, 180, 12, GOLD);
 }
 
 void draw() {
-  background(240);
-  fill(90, 150, 220);
+  background(NIGHT);
   noStroke();
-  ellipse(x1, y1, r1, r1);
+
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b1.x, b1.y) &lt; b1.r) {
+    b1.x = mouseX; b1.y = mouseY;
+  }
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b2.x, b2.y) &lt; b2.r) {
+    b2.x = mouseX; b2.y = mouseY;
+  }
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b3.x, b3.y) &lt; b3.r) {
+    b3.x = mouseX; b3.y = mouseY;
+  }
+
+  fill(b1.c); ellipse(b1.x, b1.y, b1.r * 2, b1.r * 2);
+  fill(b2.c); ellipse(b2.x, b2.y, b2.r * 2, b2.r * 2);
+  fill(b3.c); ellipse(b3.x, b3.y, b3.r * 2, b3.r * 2);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -962,10 +995,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Three variables, <code>x1</code>/<code>y1</code>/<code>r1</code>, that only make sense <em>together</em> — nothing in the code says so except the shared <code>1</code> in their names.</p>
+<p>Grab a blob and drag it. Each one remembers where you left it — because each one is an <strong>object</strong> with its own <code>x</code> and <code>y</code>.</p>
 </section>
-<section id="step-2-three-circles-the-problem" class="slide level2">
-<h2>Step 2 — three circles (the problem)</h2>
+<section id="step-1-one-circle-loose-variables" class="slide level2">
+<h2>Step 1 — one circle, loose variables</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -975,21 +1008,20 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">float x1 = 80,  y1 = 150, r1 = 40;
-float x2 = 200, y2 = 100, r2 = 60;
-float x3 = 320, y3 = 180, r3 = 25;
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+float x1 = 80, y1 = 150, r1 = 20;
 
 void setup() {
   size(400, 250);
 }
 
 void draw() {
-  background(240);
-  fill(90, 150, 220);
+  background(PAPER);
+  fill(BLUE);
   noStroke();
-  ellipse(x1, y1, r1, r1);
-  ellipse(x2, y2, r2, r2);
-  ellipse(x3, y3, r3, r3);
+  ellipse(x1, y1, r1 * 2, r1 * 2);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -998,6 +1030,47 @@ void draw() {
   <div class="jr-output-wrap">
     <div class="jr-output-label" id="jr-2-lbl">Errors</div>
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Three variables, <code>x1</code>/<code>y1</code>/<code>r1</code>, that only make sense <em>together</em> — nothing in the code says so except the shared <code>1</code> in their names. <code>r1</code> is the radius, so the circle’s width and height are <code>r1 * 2</code>.</p>
+</section>
+<section id="step-2-three-circles-the-problem" class="slide level2">
+<h2>Step 2 — three circles (the problem)</h2>
+<div class="jr-block" id="jr-3" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+float x1 = 80,  y1 = 150, r1 = 20;
+float x2 = 200, y2 = 100, r2 = 30;
+float x3 = 320, y3 = 180, r3 = 12;
+
+void setup() {
+  size(400, 250);
+}
+
+void draw() {
+  background(PAPER);
+  fill(BLUE);
+  noStroke();
+  ellipse(x1, y1, r1 * 2, r1 * 2);
+  ellipse(x2, y2, r2 * 2, r2 * 2);
+  ellipse(x3, y3, r3 * 2, r3 * 2);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Nine variables now, tied together only by naming convention. As the number of circles grows, so does the chance of a typo — using <code>r2</code> where you meant <code>r1</code>. This is the signal worth learning to watch for: several variables that only make sense together, repeated once per “thing.” It means “this should be a class.”</p>
@@ -1021,7 +1094,7 @@ void draw() {
 </section>
 <section id="step-4-build-one-object" class="slide level2">
 <h2>Step 4 — build one object</h2>
-<div class="jr-block" id="jr-3" data-type="processing">
+<div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1030,7 +1103,10 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+class Blob {
   float x, y, r;
 
   Blob(float xPos, float yPos, float radius) {
@@ -1044,29 +1120,29 @@ Blob b1;
 
 void setup() {
   size(400, 250);
-  b1 = new Blob(80, 150, 40);
+  b1 = new Blob(80, 150, 20);
 }
 
 void draw() {
-  background(240);
-  fill(90, 150, 220);
+  background(PAPER);
+  fill(BLUE);
   noStroke();
-  ellipse(b1.x, b1.y, b1.r, b1.r);
+  ellipse(b1.x, b1.y, b1.r * 2, b1.r * 2);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>Blob b1;</code> declares a variable whose type is <code>Blob</code> — the same idea as declaring an <code>int</code> variable before assigning it a value. <code>new Blob(80, 150, 40)</code> calls the constructor, which runs <code>x = xPos; y = yPos; r = radius;</code> using the three numbers you passed in, and hands back a brand-new <code>Blob</code> with those field values. <code>b1.x</code>, <code>b1.y</code>, <code>b1.r</code> read <code>b1</code>’s own fields — the dot means “this field, belonging to this particular object.”</p>
+<p><code>Blob b1;</code> declares a variable whose type is <code>Blob</code> — the same idea as declaring an <code>int</code> variable before assigning it a value. <code>new Blob(80, 150, 20)</code> calls the constructor, which runs <code>x = xPos; y = yPos; r = radius;</code> using the three numbers you passed in, and hands back a brand-new <code>Blob</code> with those field values. <code>b1.x</code>, <code>b1.y</code>, <code>b1.r</code> read <code>b1</code>’s own fields — the dot means “this field, belonging to this particular object.”</p>
 </section>
 <section id="step-5-build-three-objects" class="slide level2">
 <h2>Step 5 — build three objects</h2>
-<div class="jr-block" id="jr-4" data-type="processing">
+<div class="jr-block" id="jr-5" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1075,7 +1151,10 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+class Blob {
   float x, y, r;
 
   Blob(float xPos, float yPos, float radius) {
@@ -1089,38 +1168,205 @@ Blob b1, b2, b3;
 
 void setup() {
   size(400, 250);
-  b1 = new Blob(80, 150, 40);
-  b2 = new Blob(200, 100, 60);
-  b3 = new Blob(320, 180, 25);
+  b1 = new Blob(80, 150, 20);
+  b2 = new Blob(200, 100, 30);
+  b3 = new Blob(320, 180, 12);
 }
 
 void draw() {
-  background(240);
-  fill(90, 150, 220);
+  background(PAPER);
+  fill(BLUE);
   noStroke();
-  ellipse(b1.x, b1.y, b1.r, b1.r);
-  ellipse(b2.x, b2.y, b2.r, b2.r);
-  ellipse(b3.x, b3.y, b3.r, b3.r);
+  ellipse(b1.x, b1.y, b1.r * 2, b1.r * 2);
+  ellipse(b2.x, b2.y, b2.r * 2, b2.r * 2);
+  ellipse(b3.x, b3.y, b3.r * 2, b3.r * 2);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Same picture as Step 2’s three circles, but now each circle’s three numbers live together, inside one object, instead of being scattered variables tied together only by a naming convention. <code>b2.x</code> is a completely different piece of memory from <code>b1.x</code>, even though they share a field <em>name</em>, because <code>b1</code> and <code>b2</code> are two separate objects.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
-<h2>Your turn (before class)</h2>
-<p>Add a <code>color c</code> field to <code>Blob</code>, set it in the constructor (give the constructor a fourth parameter for it), and pass a different <code>color(...)</code> value to each of the three <code>new Blob(...)</code> calls. Then use <code>b1.c</code>/<code>b2.c</code>/<code>b3.c</code> in <code>fill(...)</code> instead of one shared color for all three.</p>
+<section id="new-idea-fields-can-be-changed-too" class="slide level2">
+<h2>New idea: fields can be changed, too</h2>
+<p><code>b1.x</code> reads <code>b1</code>’s <code>x</code> — and <code>b1.x = 250;</code> <em>changes</em> it, just like assigning any variable. The other blobs aren’t affected: <code>b2.x</code> is a different piece of memory.</p>
+<p>To grab a blob with the mouse, you need to know whether the mouse is inside it. For a circle, that’s one comparison: is the mouse closer to the center than the radius?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="fu">dist</span><span class="op">(</span>mouseX<span class="op">,</span> mouseY<span class="op">,</span> b1<span class="op">.</span><span class="fu">x</span><span class="op">,</span> b1<span class="op">.</span><span class="fu">y</span><span class="op">)</span> <span class="op">&lt;</span> b1<span class="op">.</span><span class="fu">r</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>dist(x1, y1, x2, y2)</code> is a built-in method that returns the distance between two points.</p>
 </section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC9 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<section id="step-6-hover-to-highlight" class="slide level2">
+<h2>Step 6 — hover to highlight</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER  = #F0F0F0;
+color BLUE   = #5A96DC;
+color ORANGE = #F0783C;
+
+class Blob {
+  float x, y, r;
+
+  Blob(float xPos, float yPos, float radius) {
+    x = xPos;
+    y = yPos;
+    r = radius;
+  }
+}
+
+Blob b1, b2, b3;
+
+void setup() {
+  size(400, 250);
+  b1 = new Blob(80, 150, 20);
+  b2 = new Blob(200, 100, 30);
+  b3 = new Blob(320, 180, 12);
+}
+
+void draw() {
+  background(PAPER);
+  noStroke();
+
+  fill(BLUE);
+  if (dist(mouseX, mouseY, b1.x, b1.y) &lt; b1.r) fill(ORANGE);
+  ellipse(b1.x, b1.y, b1.r * 2, b1.r * 2);
+
+  fill(BLUE);
+  if (dist(mouseX, mouseY, b2.x, b2.y) &lt; b2.r) fill(ORANGE);
+  ellipse(b2.x, b2.y, b2.r * 2, b2.r * 2);
+
+  fill(BLUE);
+  if (dist(mouseX, mouseY, b3.x, b3.y) &lt; b3.r) fill(ORANGE);
+  ellipse(b3.x, b3.y, b3.r * 2, b3.r * 2);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Each blob turns orange only when the mouse is over <em>that</em> blob — the test uses that object’s own <code>x</code>, <code>y</code>, and <code>r</code>.</p>
+</section>
+<section id="step-7-drag-them-around" class="slide level2">
+<h2>Step 7 — drag them around</h2>
+<div class="jr-block" id="jr-7" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CORAL = #F06E5A;
+color SKY   = #5AAAE6;
+color GOLD  = #FAC83C;
+color NIGHT = #1E1E2D;
+
+class Blob {
+  float x, y, r;
+  color c;
+
+  Blob(float xPos, float yPos, float radius, color col) {
+    x = xPos;
+    y = yPos;
+    r = radius;
+    c = col;
+  }
+}
+
+Blob b1, b2, b3;
+
+void setup() {
+  size(400, 250);
+  b1 = new Blob(80, 150, 20, CORAL);
+  b2 = new Blob(200, 100, 30, SKY);
+  b3 = new Blob(320, 180, 12, GOLD);
+}
+
+void draw() {
+  background(NIGHT);
+  noStroke();
+
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b1.x, b1.y) &lt; b1.r) {
+    b1.x = mouseX; b1.y = mouseY;
+  }
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b2.x, b2.y) &lt; b2.r) {
+    b2.x = mouseX; b2.y = mouseY;
+  }
+  if (mousePressed &amp;&amp; dist(mouseX, mouseY, b3.x, b3.y) &lt; b3.r) {
+    b3.x = mouseX; b3.y = mouseY;
+  }
+
+  fill(b1.c); ellipse(b1.x, b1.y, b1.r * 2, b1.r * 2);
+  fill(b2.c); ellipse(b2.x, b2.y, b2.r * 2, b2.r * 2);
+  fill(b3.c); ellipse(b3.x, b3.y, b3.r * 2, b3.r * 2);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>mousePressed</code> is a <code>boolean</code> Processing keeps updated — <code>true</code> while the button is held. While it’s held over a blob, that blob’s <code>x</code> and <code>y</code> are set to the mouse position, so it follows. Each blob also has a <code>color</code> field now, set by a fourth constructor parameter.</p>
+<p>Two things to try: drag one blob on top of another and keep dragging (what happens?), and move the mouse <em>very</em> fast (why does the blob get left behind?).</p>
+</section>
+<section id="notice-the-repetition" class="slide level2">
+<h2>Notice the repetition</h2>
+<p>Look at <code>draw()</code> in Step 7: the same <code>if</code> test and the same <code>fill</code>/<code>ellipse</code> pair, written three times, once per blob. That’s the same smell you’ve seen before — copy-pasted code that differs only in <em>which</em> object it uses. The fix is to give <code>Blob</code> its own <strong>methods</strong>, so each blob can check and draw <em>itself</em>. That’s exactly where this series goes next.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
+<h2>Your turn (before class)</h2>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li>Add a fourth blob, <code>b4</code>, with its own color, and make it draggable too.</li>
+<li>Add a <code>float growth</code> field, set by the constructor. While a blob is being dragged, make its <code>r</code> grow by its own <code>growth</code> each frame (<code>b1.r += b1.growth;</code>), so each blob swells at its own rate.</li>
+<li>Give <code>Blob</code> a second color field, <code>hoverColor</code>, and use it when the mouse is over the blob (combine Step 6 and Step 7).</li>
+</ol>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC9 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

@@ -31,6 +31,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -862,10 +928,12 @@ if (document.readyState === 'loading') {
 <li>Write a <code>void</code> method that takes parameters and call it multiple times with different arguments</li>
 <li>Explain the difference between a <strong>parameter</strong> (in the method’s definition) and an <strong>argument</strong> (at a specific call site)</li>
 <li>Use a method with several parameters, including one of type <code>color</code></li>
+<li>Write a color three ways — gray, red/green/blue, or a hex code — and give colors you reuse a name</li>
+<li>Pass <em>live</em> values like <code>mouseX</code> and <code>frameCount</code> as arguments, so the same method animates and follows the mouse</li>
 </ul>
 </section>
-<section id="step-1-one-triangle" class="slide level2">
-<h2>Step 1 — one triangle</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -875,7 +943,69 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT  = #0F142D;
+color CREAM  = #FFF0B4;
+color ICE    = #C8DCFF;
+color WHITE  = #FFFFFF;
+color PINK   = #FFC8DC;
+color GOLD   = #FFDC64;
+color FOREST = #1E3C32;
+color PINE   = #142D28;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(NIGHT);
+
+  star(60,  50,  12, CREAM);
+  star(150, 90,  18, ICE);
+  star(330, 40,  10, WHITE);
+  star(260, 120, 14, PINK);
+
+  star(mouseX, mouseY, 10 + frameCount % 20, GOLD);
+
+  hill(90,  300, FOREST);
+  hill(330, 260, PINE);
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}
+
+void hill(float x, float w, color c) {
+  noStroke();
+  fill(c);
+  ellipse(x, height, w, w / 2);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Run it and move your mouse over the sky. Every star and both hills come from two short methods you’ll write by the end of this deck. You’ll understand every line by then — for now, just play.</p>
+</section>
+<section id="step-1-one-triangle" class="slide level2">
+<h2>Step 1 — one triangle</h2>
+<div class="jr-block" id="jr-2" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
   size(400, 200);
 }
 
@@ -890,15 +1020,15 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p><code>triangle(x1, y1, x2, y2, x3, y3)</code> draws a triangle through those three points.</p>
 </section>
 <section id="step-2-copy-pasted-for-three-triangles-the-problem" class="slide level2">
 <h2>Step 2 — copy-pasted for three triangles (the problem)</h2>
-<div class="jr-block" id="jr-2" data-type="processing">
+<div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -907,7 +1037,7 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
   size(400, 200);
 }
 
@@ -928,8 +1058,8 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Three near-identical blocks — only the x positions actually differ. That repetition is the smell that means “this should be a method with a parameter.” If you needed to change the triangle’s color, you’d have to remember to update it in three places instead of one.</p>
@@ -937,43 +1067,6 @@ void draw() {
 <section id="step-3-pull-it-into-a-method" class="slide level2">
 <h2>Step 3 — pull it into a method</h2>
 <p>A method is a <strong>stamp</strong>: design it once, then press it down onto the canvas as many times as you like, in different places, just by changing the arguments.</p>
-<div class="jr-block" id="jr-3" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 200);
-}
-
-void draw() {
-  background(240);
-
-  triangleAt(50, 40);
-}
-
-void triangleAt(float x, float baseWidth) {
-  fill(230, 180, 40);
-  noStroke();
-  triangle(x, 150, x + baseWidth, 60, x + baseWidth * 2, 150);
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>One triangle again, but now drawn by calling <code>triangleAt(50, 40)</code> instead of writing the <code>triangle(...)</code> call directly.</p>
-</section>
-<section id="step-4-call-it-three-times" class="slide level2">
-<h2>Step 4 — call it three times</h2>
 <div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -991,14 +1084,12 @@ void draw() {
   background(240);
 
   triangleAt(50, 40);
-  triangleAt(150, 80);
-  triangleAt(250, 20);
 }
 
-void triangleAt(float x, float baseWidth) {
+void triangleAt(float x, float halfWidth) {
   fill(230, 180, 40);
   noStroke();
-  triangle(x, 150, x + baseWidth, 60, x + baseWidth * 2, 150);
+  triangle(x, 150, x + halfWidth, 60, x + halfWidth * 2, 150);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -1009,11 +1100,10 @@ void triangleAt(float x, float baseWidth) {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Same three triangles as Step 2, but the drawing code now exists exactly once, inside <code>triangleAt</code>. <code>x</code> and <code>baseWidth</code> are the method’s <strong>parameters</strong> — placeholder names it uses internally. Each call supplies different <strong>arguments</strong> — the actual values plugged in for that one call.</p>
-<p>Try it: add a fourth <code>triangleAt(...)</code> call with your own numbers.</p>
+<p>One triangle again, but now drawn by calling <code>triangleAt(50, 40)</code> instead of writing the <code>triangle(...)</code> call directly. <code>halfWidth</code> is how far the peak sits from the left corner — the whole base is twice that.</p>
 </section>
-<section id="step-5-a-method-with-three-parameters" class="slide level2">
-<h2>Step 5 — a method with three parameters</h2>
+<section id="step-4-call-it-three-times" class="slide level2">
+<h2>Step 4 — call it three times</h2>
 <div class="jr-block" id="jr-5" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1024,6 +1114,46 @@ void triangleAt(float x, float baseWidth) {
   </div>
   <div class="jr-editor-wrap">
     <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(240);
+
+  triangleAt(50, 40);
+  triangleAt(150, 40);
+  triangleAt(250, 40);
+}
+
+void triangleAt(float x, float halfWidth) {
+  fill(230, 180, 40);
+  noStroke();
+  triangle(x, 150, x + halfWidth, 60, x + halfWidth * 2, 150);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Same three triangles as Step 2, but the drawing code now exists exactly once, inside <code>triangleAt</code>. <code>x</code> and <code>halfWidth</code> are the method’s <strong>parameters</strong> — placeholder names it uses internally. Each call supplies different <strong>arguments</strong> — the actual values plugged in for that one call.</p>
+<p>Try it: change the second call to <code>triangleAt(150, 70)</code> and predict what happens to its neighbor on the right before you run it.</p>
+</section>
+<section id="step-5-a-method-with-three-parameters" class="slide level2">
+<h2>Step 5 — a method with three parameters</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
   size(400, 300);
 }
 
@@ -1043,15 +1173,15 @@ void star(float x, float y, float r) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Same idea, one more parameter: <code>x</code>, <code>y</code>, and <code>r</code> now all come from the call.</p>
 </section>
 <section id="step-6-a-fourth-parameter-of-type-color" class="slide level2">
 <h2>Step 6 — a fourth parameter, of type <code>color</code></h2>
-<div class="jr-block" id="jr-6" data-type="processing">
+<div class="jr-block" id="jr-7" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1060,7 +1190,7 @@ void star(float x, float y, float r) {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
   size(400, 300);
 }
 
@@ -1073,30 +1203,403 @@ void draw() {
 }
 
 void star(float x, float y, float r, color c) {
-  fill(c);
   noStroke();
-  ellipse(x, y, r, r);
-  ellipse(x, y, r * 2.4, r * 2.4);   // faint glow behind, reuses r
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);   // faint glow, drawn FIRST so it sits behind
+  fill(c);
+  ellipse(x, y, r, r);               // solid core, drawn on top
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>color</code> is a type Processing adds; <code>color(255, 220, 100)</code> packages three red/green/blue numbers into one value, the same way you might package several related pieces of data together in your head. Notice <code>r</code> gets <em>reused</em> inside the method body, in <code>r * 2.4</code>, to size a second, larger glowing circle behind the first — one parameter driving two related shapes.</p>
+<p><code>color</code> is a type Processing adds; <code>color(255, 220, 100)</code> packages three red/green/blue numbers into one value. Notice <code>r</code> gets <em>reused</em> inside the method body, in <code>r * 2.4</code>, to size a second, larger circle — one parameter driving two related shapes.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
+<section id="how-the-glow-works" class="slide level2">
+<h2>How the glow works</h2>
+<p><code>fill(c, 60)</code> — a <strong>second</strong> number after a color is its <em>opacity</em>: <code>0</code> is invisible, <code>255</code> is solid. At <code>60</code>, the big circle is mostly see-through, so it reads as a soft glow — always the same color as the star, whatever color was passed in.</p>
+<p>Order matters: shapes drawn later sit on top. Swap the two <code>ellipse</code> lines and the solid core disappears under the haze.</p>
+</section>
+<section id="color-properly-how-many-numbers" class="slide level2">
+<h2>Color, properly — how many numbers?</h2>
+<p>You’ve been writing colors two different ways without it ever being spelled out. Here’s the whole rule:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You write</th>
+<th>It means</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>one</strong> number</td>
+<td>a shade of gray: <code>0</code> black → <code>255</code> white</td>
+<td><code>background(230)</code> — light gray</td>
+</tr>
+<tr class="even">
+<td><strong>three</strong> numbers</td>
+<td>red, green, blue, each <code>0</code>–<code>255</code></td>
+<td><code>fill(255, 220, 100)</code> — warm yellow</td>
+</tr>
+<tr class="odd">
+<td>one <strong>extra</strong> number at the end</td>
+<td>opacity: <code>0</code> invisible → <code>255</code> solid</td>
+<td><code>fill(255, 220, 100, 60)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The same rule works for <code>background</code>, <code>fill</code>, <code>stroke</code>, and <code>color(...)</code>.</p>
+<p>Red/green/blue mix like <strong>light</strong>, not paint: all three at <code>255</code> is white, all three at <code>0</code> is black, red + green with no blue is yellow.</p>
+</section>
+<section id="step-7-a-color-mixer" class="slide level2">
+<h2>Step 7 — a color mixer</h2>
+<p>The fastest way to get a feel for red/green/blue is to mix them live.</p>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  float r = mouseX * 255.0 / width;    // left → right: no red → full red
+  float b = mouseY * 255.0 / height;   // top → bottom: no blue → full blue
+  float g = 120;
+
+  background(r, g, b);
+
+  noStroke();
+  fill(255, 0, 0);
+  rect(20, 220, r / 2, 15);            // how much red
+  fill(0, 255, 0);
+  rect(20, 240, g / 2, 15);            // how much green
+  fill(0, 0, 255);
+  rect(20, 260, b / 2, 15);            // how much blue
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Move the mouse around. The three bars show how much of each color is in the mix right now. Try to find yellow, purple, and the darkest color you can make — then change <code>g</code> to <code>0</code> or <code>255</code> and explore again.</p>
+</section>
+<section id="hex-codes-colors-from-a-color-picker" class="slide level2">
+<h2>Hex codes — colors from a color picker</h2>
+<p>Typing three numbers for every color gets old fast, and guessing them is hard. Processing also accepts a <strong>hex code</strong>, the same six-character color code every design tool and website uses:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="fu">fill</span><span class="op">(</span>#FFDC64<span class="op">);</span>           <span class="co">// same color as fill(255, 220, 100)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The six characters are three pairs — <code>FF</code> <code>DC</code> <code>64</code> — one each for red, green, and blue, written in base 16 (<code>00</code> is <code>0</code>, <code>FF</code> is <code>255</code>). You never need to convert by hand: search for “color picker” in your browser, pick a color, and copy the code that starts with <code>#</code>.</p>
+</section>
+<section id="naming-your-colors" class="slide level2">
+<h2>Naming your colors</h2>
+<p>A sketch that says <code>fill(#FFDC64)</code> in five places has the same problem as copy-pasted code: to change it, you have to find all five. Give it a <strong>name</strong> instead:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a>color GOLD <span class="op">=</span> #FFDC64<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two new things here:</p>
+<ul>
+<li>The variable is declared <strong>above <code>setup()</code></strong>, outside every method. A variable declared there can be used inside <em>any</em> method in the sketch — <code>setup()</code>, <code>draw()</code>, or one you wrote.</li>
+<li>The name is in <code>UPPER_CASE</code>. That’s the Java convention for a value that’s set once and never changes — the same reason <code>PI</code> is written in capitals.</li>
+</ul>
+</section>
+<section id="step-8-a-palette-of-named-colors" class="slide level2">
+<h2>Step 8 — a palette of named colors</h2>
+<div class="jr-block" id="jr-9" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F142D;
+color GOLD  = #FFDC64;
+color ICE   = #C8DCFF;
+color PINK  = #FFC8DC;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(NIGHT);
+
+  star(100, 80,  25, GOLD);
+  star(250, 150, 40, ICE);
+  star(320, 60,  15, PINK);
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>draw()</code> now reads like a sentence — “a gold star, an ice-blue star, a pink star.” Change <code>GOLD</code>’s hex code once, at the top, and every gold thing in the sketch changes with it.</p>
+<p>Named colors are for colors that <em>stay the same</em>. When a color has to be <strong>computed</strong> — from the mouse, from a loop counter, from time — you still build it from numbers with <code>color(...)</code>, like the color mixer above.</p>
+</section>
+<section id="new-idea-arguments-can-be-live-values" class="slide level2">
+<h2>New idea: arguments can be <em>live</em> values</h2>
+<p>An argument doesn’t have to be a number you typed. It can be any expression — including <code>mouseX</code> and <code>mouseY</code>, which change every frame.</p>
+<div class="jr-block" id="jr-10" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor">color ICE  = #C8DCFF;
+color GOLD = #FFDC64;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(20, 20, 40);
+
+  star(100, 80, 25, ICE);
+  star(mouseX, mouseY, 30, GOLD);
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The <code>star</code> method didn’t change at all. It has no idea the mouse exists — it just draws wherever its <code>x</code> and <code>y</code> parameters say. The <em>caller</em> decided to pass the mouse position in.</p>
+</section>
+<section id="new-idea-framecount" class="slide level2">
+<h2>New idea: <code>frameCount</code></h2>
+<p><code>frameCount</code> is another variable Processing keeps updated for you: how many frames have been drawn since the sketch started — <code>1</code>, <code>2</code>, <code>3</code>, … going up by one every frame, forever.</p>
+<p>On its own it just grows. Combine it with <code>%</code>, and it <strong>cycles</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a></a>frameCount <span class="op">%</span> <span class="dv">20</span>     <span class="co">// 0, 1, 2, ..., 19, 0, 1, 2, ..., 19, 0, ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That’s the same “remainder can only be <code>0</code> to <code>n - 1</code>” trick you’ve used before — now driven by time instead of by a loop counter.</p>
+</section>
+<section id="step-9-a-pulsing-star" class="slide level2">
+<h2>Step 9 — a pulsing star</h2>
+<div class="jr-block" id="jr-11" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-11-ace" class="jr-ace-editor" aria-label="Processing source code editor">color GOLD = #FFDC64;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(20, 20, 40);
+
+  star(200, 150, 20 + frameCount % 30, GOLD);
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-11-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-11-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The size argument <code>20 + frameCount % 30</code> is a different number on every frame: it climbs from <code>20</code> to <code>49</code>, snaps back to <code>20</code>, and climbs again. One call, one method — and it’s animated.</p>
+</section>
+<section id="step-10-the-stamp-tool" class="slide level2">
+<h2>Step 10 — the stamp tool</h2>
+<p>What if you <em>don’t</em> clear the canvas every frame? Move <code>background(...)</code> into <code>setup()</code> so it only runs once, and every star you draw stays put.</p>
+<div class="jr-block" id="jr-12" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-12-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+  size(400, 300);
+  background(20, 20, 40);
+}
+
+void draw() {
+  if (mousePressed) {
+    star(mouseX, mouseY, 8 + frameCount % 25, color(mouseX * 255 / width, 180, 255));
+  }
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-12-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-12-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Hold the mouse button down and drag. <code>mousePressed</code> is a <code>boolean</code> Processing keeps updated — <code>true</code> while a button is held down, <code>false</code> otherwise — so it slots straight into an <code>if</code>. The color argument uses <code>mouseX</code> too, so the brush shifts from blue to pink as you move right — a <em>computed</em> color, which is why it’s built with <code>color(...)</code> instead of a named hex code.</p>
+<p>Click <strong>Run</strong> again to clear the canvas and start over.</p>
+</section>
+<section id="step-11-a-whole-scene-from-two-methods" class="slide level2">
+<h2>Step 11 — a whole scene from two methods</h2>
+<div class="jr-block" id="jr-13" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-13-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT  = #0F142D;
+color CREAM  = #FFF0B4;
+color ICE    = #C8DCFF;
+color WHITE  = #FFFFFF;
+color PINK   = #FFC8DC;
+color GOLD   = #FFDC64;
+color FOREST = #1E3C32;
+color PINE   = #142D28;
+
+void setup() {
+  size(400, 300);
+}
+
+void draw() {
+  background(NIGHT);
+
+  star(60,  50,  12, CREAM);
+  star(150, 90,  18, ICE);
+  star(330, 40,  10, WHITE);
+  star(260, 120, 14, PINK);
+
+  star(mouseX, mouseY, 10 + frameCount % 20, GOLD);
+
+  hill(90,  300, FOREST);
+  hill(330, 260, PINE);
+}
+
+void star(float x, float y, float r, color c) {
+  noStroke();
+  fill(c, 60);
+  ellipse(x, y, r * 2.4, r * 2.4);
+  fill(c);
+  ellipse(x, y, r, r);
+}
+
+void hill(float x, float w, color c) {
+  noStroke();
+  fill(c);
+  ellipse(x, height, w, w / 2);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-13-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-13-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>This is the sketch from the start of the deck, with every fixed color named at the top. <code>hill</code> is a second method with its own parameters: an ellipse centered on the bottom edge, so only its top half shows. Notice that <code>draw()</code> now reads almost like a description of the picture — “four stars, a star at the mouse, two hills” — because the <em>how</em> lives inside the methods.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
 <h2>Your turn (before class)</h2>
-<p>Add a fourth call to <code>star(...)</code> (or <code>triangleAt(...)</code>) with your own arguments. Then give the method a <strong>new</strong> parameter of your own — for example, a <code>flicker</code> amount that nudges <code>r</code> up or down inside the method body — and pass a different value for it at each call site.</p>
-</section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC4 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li><strong>Build your own scene.</strong> Write a new method of your own — <code>tree(x, y, size)</code>, <code>house(x, y, w, c)</code>, <code>cloud(x, y, size)</code> — and call it several times with different arguments to fill the sky sketch above.</li>
+<li><strong>Twinkle.</strong> Give <code>star</code> a fifth parameter, <code>speed</code>, and use it inside the method to make each star pulse at its own rate (hint: <code>frameCount % speed</code>).</li>
+<li><strong>Repaint it.</strong> Use a color picker to choose your own palette — sunset, underwater, neon — and change only the named colors at the top of the scene.</li>
+<li><strong>Make your own brush.</strong> In the stamp tool, replace <code>star(...)</code> with a method you wrote, and pass in arguments that change with <code>mouseX</code>, <code>mouseY</code>, or <code>frameCount</code>.</li>
+</ol>
+<div class="jr-block" id="jr-14" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-14-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-14-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-14-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC4 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

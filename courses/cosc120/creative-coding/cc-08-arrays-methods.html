@@ -31,6 +31,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -861,10 +927,11 @@ if (document.readyState === 'loading') {
 <li>Watch, visually, why changing a primitive parameter inside a method does <em>not</em> affect the caller’s variable</li>
 <li>Watch, visually, why changing an array parameter’s contents <em>does</em> persist after the method returns</li>
 <li>Explain the difference in your own words: primitives are passed as copies; arrays are passed by reference to the same underlying data</li>
+<li>Build a small tool out of several methods that each change the same array in place</li>
 </ul>
 </section>
-<section id="step-1-a-variable-and-a-rectangle" class="slide level2">
-<h2>Step 1 — a variable and a rectangle</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -874,17 +941,75 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">int score = 10;
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color SKY    = #96C8F0;
+color SNOW   = #F5F5F5;
+color ROCK   = #6E7864;
+color GRASS  = #509646;
+color BUTTER = #FFF096;
+color CORAL  = #E66E5A;
+
+int[] land = new int[80];
 
 void setup() {
-  size(400, 150);
+  size(400, 250);
+  flatten(land, 40);
 }
 
 void draw() {
-  background(240);
+  background(SKY);
+
+  int barWidth = width / land.length;
+  int over = mouseX / barWidth;
+  if (mousePressed &amp;&amp; mouseY &gt; 40 &amp;&amp; over &gt;= 0 &amp;&amp; over &lt; land.length) {
+    sculpt(land, over);
+  }
+
   noStroke();
-  fill(90, 150, 220);
-  rect(20, 50, score * 10, 40);
+  for (int i = 0; i &lt; land.length; i++) {
+    if (land[i] &gt; 150) {
+      fill(SNOW);
+    } else if (land[i] &gt; 80) {
+      fill(ROCK);
+    } else {
+      fill(GRASS);
+    }
+    rect(i * barWidth, height - land[i], barWidth, land[i]);
+  }
+
+  fill(BUTTER);
+  rect(10, 10, 60, 20);
+  fill(CORAL);
+  rect(80, 10, 60, 20);
+}
+
+void mousePressed() {
+  if (mouseY &gt; 10 &amp;&amp; mouseY &lt; 30) {
+    if (mouseX &gt; 10 &amp;&amp; mouseX &lt; 70) {
+      smoothOut(land);
+    } else if (mouseX &gt; 80 &amp;&amp; mouseX &lt; 140) {
+      flatten(land, 40);
+    }
+  }
+}
+
+void sculpt(int[] arr, int center) {
+  for (int i = center - 3; i &lt;= center + 3; i++) {
+    if (i &gt;= 0 &amp;&amp; i &lt; arr.length &amp;&amp; arr[i] &lt; height - 50) {
+      arr[i] += 3;
+    }
+  }
+}
+
+void smoothOut(int[] arr) {
+  for (int i = 1; i &lt; arr.length - 1; i++) {
+    arr[i] = (arr[i - 1] + arr[i] + arr[i + 1]) / 3;
+  }
+}
+
+void flatten(int[] arr, int level) {
+  for (int i = 0; i &lt; arr.length; i++) {
+    arr[i] = level;
+  }
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -895,11 +1020,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>A rectangle whose width is <code>score * 10</code>. Nothing changes it yet — it’s the same width every frame.</p>
+<p>Drag on the canvas to raise mountains. The yellow button smooths them; the red one flattens everything. Three methods, one array, every change permanent.</p>
 </section>
-<section id="step-2-try-to-double-it-inside-a-method" class="slide level2">
-<h2>Step 2 — try to double it inside a method</h2>
-<p>You have learned that Java passes primitive values like <code>int</code> and <code>double</code> as <em>copies</em> — a method can do whatever it wants to its own parameter, and the caller’s original variable is untouched once the method returns.</p>
+<section id="step-1-a-variable-and-a-rectangle" class="slide level2">
+<h2>Step 1 — a variable and a rectangle</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -909,22 +1033,20 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">int score = 10;
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+int score = 10;
 
 void setup() {
   size(400, 150);
 }
 
 void draw() {
-  background(240);
-  tryToDouble(score);
+  background(PAPER);
   noStroke();
-  fill(90, 150, 220);
-  rect(20, 50, score * 10, 40);   // still uses the ORIGINAL score
-}
-
-void tryToDouble(int n) {
-  n = n * 2;   // only changes the local copy n
+  fill(BLUE);
+  rect(20, 50, score * 10, 40);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -935,10 +1057,11 @@ void tryToDouble(int n) {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>tryToDouble(score)</code> passes a <strong>copy</strong> of <code>score</code> into the parameter <code>n</code>. Doubling <code>n</code> inside the method only changes that local copy — <code>score</code> itself never changes. Run this: the rectangle’s width never grows, no matter how many frames go by.</p>
+<p>A rectangle whose width is <code>score * 10</code>. Nothing changes it yet — it’s the same width every frame.</p>
 </section>
-<section id="step-3-an-array-drawn-as-bars" class="slide level2">
-<h2>Step 3 — an array, drawn as bars</h2>
+<section id="step-2-try-to-double-it-inside-a-method" class="slide level2">
+<h2>Step 2 — try to double it inside a method</h2>
+<p>You have learned that Java passes primitive values like <code>int</code> and <code>double</code> as <em>copies</em> — a method can do whatever it wants to its own parameter, and the caller’s original variable is untouched once the method returns.</p>
 <div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -948,20 +1071,28 @@ void tryToDouble(int n) {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] bars = { 20, 20, 20, 20, 20 };
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+int score = 10;
 
 void setup() {
-  size(400, 200);
+  size(400, 150);
 }
 
 void draw() {
-  background(240);
-  int barWidth = width / bars.length;
-  for (int i = 0; i &lt; bars.length; i++) {
-    fill(70, 150, 110);
-    noStroke();
-    rect(i * barWidth, height - bars[i], barWidth - 4, bars[i]);
-  }
+  background(PAPER);
+  noStroke();
+  fill(BLUE);
+  rect(20, 50, score * 10, 40);   // still uses the ORIGINAL score
+}
+
+void mousePressed() {
+  tryToDouble(score);
+}
+
+void tryToDouble(int n) {
+  n = n * 2;   // only changes the local copy n
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -972,11 +1103,11 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Five equal bars, same array-loop pattern as before.</p>
+<p><code>tryToDouble(score)</code> passes a <strong>copy</strong> of <code>score</code> into the parameter <code>n</code>. Doubling <code>n</code> inside the method only changes that local copy — <code>score</code> itself never changes. Run this and click as many times as you like: the rectangle never grows.</p>
+<p><code>void mousePressed() { ... }</code> is a method Processing calls for you exactly once per click — you never call it yourself, just like <code>draw()</code>.</p>
 </section>
-<section id="step-4-pass-the-array-to-a-method-that-mutates-it" class="slide level2">
-<h2>Step 4 — pass the array to a method that mutates it</h2>
-<p>You have also learned that arrays behave differently from primitives: an array parameter refers to the <em>same</em> array the caller has, so changes made through it inside the method are still there afterward.</p>
+<section id="step-3-an-array-drawn-as-bars" class="slide level2">
+<h2>Step 3 — an array, drawn as bars</h2>
 <div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -986,17 +1117,61 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] bars = { 20, 20, 20, 20, 20 };
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color TEAL  = #46966E;
+
+int[] bars = { 20, 20, 20, 20, 20 };
 
 void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
   int barWidth = width / bars.length;
   for (int i = 0; i &lt; bars.length; i++) {
-    fill(70, 150, 110);
+    fill(TEAL);
+    noStroke();
+    rect(i * barWidth, height - bars[i], barWidth - 4, bars[i]);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Five equal bars, same array-loop pattern as before.</p>
+</section>
+<section id="step-4-pass-the-array-to-a-method-that-mutates-it" class="slide level2">
+<h2>Step 4 — pass the array to a method that mutates it</h2>
+<p>You have also learned that arrays behave differently from primitives: an array parameter refers to the <em>same</em> array the caller has, so changes made through it inside the method are still there afterward.</p>
+<div class="jr-block" id="jr-5" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color TEAL  = #46966E;
+
+int[] bars = { 20, 20, 20, 20, 20 };
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(PAPER);
+  int barWidth = width / bars.length;
+  for (int i = 0; i &lt; bars.length; i++) {
+    fill(TEAL);
     noStroke();
     rect(i * barWidth, height - bars[i], barWidth - 4, bars[i]);
   }
@@ -1016,20 +1191,170 @@ void growAll(int[] arr) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Click repeatedly: every bar grows and <strong>stays</strong> grown, click after click. The key line is <code>growAll(bars)</code>: it passes a reference to the very same array <code>draw()</code> reads from, not a copy of its contents. Inside <code>growAll</code>, the parameter is named <code>arr</code> rather than <code>bars</code>, but <code>arr</code> and <code>bars</code> refer to the identical array in memory — modifying <code>arr[i]</code> inside the method <em>is</em> modifying <code>bars[i]</code>, seen from the caller’s side. That’s why the growth persists after the method returns, unlike <code>score</code> in Step 2.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
-<h2>Your turn (before class)</h2>
-<p>Write a second method, <code>shrinkAll(int[] arr)</code>, that does the opposite of <code>growAll</code> (subtract instead of add), and swap which method <code>mousePressed()</code> calls to confirm it works the same way in reverse.</p>
+<section id="step-5-several-methods-one-array" class="slide level2">
+<h2>Step 5 — several methods, one array</h2>
+<p>Once a method can change an array in place, you can write a whole <strong>toolbox</strong> of them, each doing one job to the same array. Here are three, for an array of 80 ground heights:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">sculpt</span><span class="op">(</span><span class="dt">int</span><span class="op">[]</span> arr<span class="op">,</span> <span class="dt">int</span> center<span class="op">)</span> <span class="op">{</span>       <span class="co">// raise the 7 bars around center</span></span>
+<span id="cb1-2"><a></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> center <span class="op">-</span> <span class="dv">3</span><span class="op">;</span> i <span class="op">&lt;=</span> center <span class="op">+</span> <span class="dv">3</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">&gt;=</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> i <span class="op">&lt;</span> arr<span class="op">.</span><span class="fu">length</span> <span class="op">&amp;&amp;</span> arr<span class="op">[</span>i<span class="op">]</span> <span class="op">&lt;</span> height <span class="op">-</span> <span class="dv">50</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a></a>      arr<span class="op">[</span>i<span class="op">]</span> <span class="op">+=</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb1-5"><a></a>    <span class="op">}</span></span>
+<span id="cb1-6"><a></a>  <span class="op">}</span></span>
+<span id="cb1-7"><a></a><span class="op">}</span></span>
+<span id="cb1-8"><a></a></span>
+<span id="cb1-9"><a></a><span class="dt">void</span> <span class="fu">smoothOut</span><span class="op">(</span><span class="dt">int</span><span class="op">[]</span> arr<span class="op">)</span> <span class="op">{</span>                <span class="co">// each bar becomes the average of itself + neighbors</span></span>
+<span id="cb1-10"><a></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> arr<span class="op">.</span><span class="fu">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb1-11"><a></a>    arr<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="op">(</span>arr<span class="op">[</span>i <span class="op">-</span> <span class="dv">1</span><span class="op">]</span> <span class="op">+</span> arr<span class="op">[</span>i<span class="op">]</span> <span class="op">+</span> arr<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">])</span> <span class="op">/</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb1-12"><a></a>  <span class="op">}</span></span>
+<span id="cb1-13"><a></a><span class="op">}</span></span>
+<span id="cb1-14"><a></a></span>
+<span id="cb1-15"><a></a><span class="dt">void</span> <span class="fu">flatten</span><span class="op">(</span><span class="dt">int</span><span class="op">[]</span> arr<span class="op">,</span> <span class="dt">int</span> level<span class="op">)</span> <span class="op">{</span>       <span class="co">// every bar the same height</span></span>
+<span id="cb1-16"><a></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> arr<span class="op">.</span><span class="fu">length</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb1-17"><a></a>    arr<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> level<span class="op">;</span></span>
+<span id="cb1-18"><a></a>  <span class="op">}</span></span>
+<span id="cb1-19"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>None of them returns anything, and none of them draws anything. They only change <code>arr</code> — and since <code>arr</code> <em>is</em> the caller’s array, that’s enough.</p>
 </section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC8 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<section id="step-6-the-terrain-sculptor" class="slide level2">
+<h2>Step 6 — the terrain sculptor</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color SKY    = #96C8F0;
+color SNOW   = #F5F5F5;
+color ROCK   = #6E7864;
+color GRASS  = #509646;
+color BUTTER = #FFF096;
+color CORAL  = #E66E5A;
+
+int[] land = new int[80];
+
+void setup() {
+  size(400, 250);
+  flatten(land, 40);
+}
+
+void draw() {
+  background(SKY);
+
+  int barWidth = width / land.length;
+  int over = mouseX / barWidth;
+  if (mousePressed &amp;&amp; mouseY &gt; 40 &amp;&amp; over &gt;= 0 &amp;&amp; over &lt; land.length) {
+    sculpt(land, over);
+  }
+
+  noStroke();
+  for (int i = 0; i &lt; land.length; i++) {
+    if (land[i] &gt; 150) {
+      fill(SNOW);
+    } else if (land[i] &gt; 80) {
+      fill(ROCK);
+    } else {
+      fill(GRASS);
+    }
+    rect(i * barWidth, height - land[i], barWidth, land[i]);
+  }
+
+  fill(BUTTER);
+  rect(10, 10, 60, 20);       // "smooth" button
+  fill(CORAL);
+  rect(80, 10, 60, 20);       // "flatten" button
+}
+
+void mousePressed() {
+  if (mouseY &gt; 10 &amp;&amp; mouseY &lt; 30) {
+    if (mouseX &gt; 10 &amp;&amp; mouseX &lt; 70) {
+      smoothOut(land);
+    } else if (mouseX &gt; 80 &amp;&amp; mouseX &lt; 140) {
+      flatten(land, 40);
+    }
+  }
+}
+
+void sculpt(int[] arr, int center) {
+  for (int i = center - 3; i &lt;= center + 3; i++) {
+    if (i &gt;= 0 &amp;&amp; i &lt; arr.length &amp;&amp; arr[i] &lt; height - 50) {
+      arr[i] += 3;
+    }
+  }
+}
+
+void smoothOut(int[] arr) {
+  for (int i = 1; i &lt; arr.length - 1; i++) {
+    arr[i] = (arr[i - 1] + arr[i] + arr[i + 1]) / 3;
+  }
+}
+
+void flatten(int[] arr, int level) {
+  for (int i = 0; i &lt; arr.length; i++) {
+    arr[i] = level;
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The sketch from the start. Things to notice:</p>
+<ul>
+<li><code>land</code> is created empty (<code>new int[80]</code> is all zeros); <code>setup()</code> calls <code>flatten(land, 40)</code> to give it a starting height.</li>
+<li>Dragging calls <code>sculpt</code> every frame the mouse is down (the <code>mousePressed</code> <em>variable</em>); the buttons run once per click (the <code>mousePressed()</code> <em>method</em>). Both exist side by side.</li>
+<li>The two buttons are the same rectangle hit-test you already know — just using <code>&amp;&amp;</code> split across two nested <code>if</code>s.</li>
+<li>Mountain color is an <code>else if</code> chain on the height: snow on the peaks, rock, then grass.</li>
+</ul>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
+<h2>Your turn (before class)</h2>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li>Write your own method <code>dig(int[] arr, int center)</code> that <em>lowers</em> the ground, and make dragging in the top half of the canvas dig instead of sculpt.</li>
+<li>Add a third button that calls a new method <code>invert(int[] arr)</code> — every height <code>h</code> becomes <code>200 - h</code>, so mountains become valleys.</li>
+<li>In the simpler sketch from Step 4, write <code>shrinkAll(int[] arr)</code>, the opposite of <code>growAll</code>, and swap which method <code>mousePressed()</code> calls to confirm it works the same way in reverse.</li>
+</ol>
+<div class="jr-block" id="jr-7" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC8 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

@@ -927,7 +927,97 @@ if (document.readyState === 'loading') {
 <li>Add instance methods to a class and call them on individual objects</li>
 <li>Explain why calling a method on one object never affects another object of the same class</li>
 <li>Add a <code>static</code> field to a class and explain how it’s different from an instance field — one shared copy vs.&nbsp;one copy per object</li>
+<li>Write an instance method that <em>returns</em> an answer about its object (<code>contains</code>), and use it to click on individual objects</li>
 </ul>
+</section>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
+<div class="jr-block" id="jr-1" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color WHITE = #FFFFFF;
+color NIGHT = #14192D;
+
+class Blob {
+  static int count = 0;
+
+  float x, y, r, dx, dy;
+  boolean frozen;
+  color c;
+
+  Blob(float xPos, float yPos) {
+    x = xPos; y = yPos;
+    r = random(10, 25);
+    dx = random(-3, 3); dy = random(-3, 3);
+    c = color(random(100, 255), random(100, 255), 255, 200);
+    count++;
+  }
+
+  void move() {
+    if (frozen) return;
+    x += dx; y += dy;
+    if (x - r &lt; 0 || x + r &gt; width)  dx *= -1;
+    if (y - r &lt; 0 || y + r &gt; height) dy *= -1;
+  }
+
+  boolean contains(float px, float py) {
+    return dist(px, py, x, y) &lt; r;
+  }
+
+  void display() {
+    noStroke();
+    if (frozen) {
+      fill(WHITE);
+    } else {
+      fill(c);
+    }
+    ellipse(x, y, r * 2, r * 2);
+  }
+}
+
+Blob[] blobs = new Blob[40];
+
+void setup() {
+  size(400, 250);
+}
+
+void draw() {
+  background(NIGHT);
+  for (int i = 0; i &lt; Blob.count; i++) {
+    blobs[i].move();
+    blobs[i].display();
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; Blob.count; i++) {
+    if (blobs[i].contains(mouseX, mouseY)) {
+      blobs[i].frozen = !blobs[i].frozen;
+      return;
+    }
+  }
+  if (Blob.count &lt; blobs.length &amp;&amp; mouseX &gt; 25 &amp;&amp; mouseX &lt; width - 25
+      &amp;&amp; mouseY &gt; 25 &amp;&amp; mouseY &lt; height - 25) {
+    int slot = Blob.count;
+    blobs[slot] = new Blob(mouseX, mouseY);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Click empty space to launch a bubble. Click a bubble to freeze it; click it again to let it go.</p>
 </section>
 <section id="reminder-blob-so-far" class="slide level2">
 <h2>Reminder — <code>Blob</code> so far</h2>
@@ -946,53 +1036,6 @@ if (document.readyState === 'loading') {
 </section>
 <section id="step-1-add-a-display-method" class="slide level2">
 <h2>Step 1 — add a <code>display()</code> method</h2>
-<div class="jr-block" id="jr-1" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
-  float x, y, r;
-
-  Blob(float xPos, float yPos, float radius) {
-    x = xPos; y = yPos; r = radius;
-  }
-
-  void display() {
-    fill(90, 150, 220);
-    noStroke();
-    ellipse(x, y, r, r);
-  }
-}
-
-Blob b1;
-
-void setup() {
-  size(400, 250);
-  b1 = new Blob(80, 100, 40);
-}
-
-void draw() {
-  background(240);
-  b1.display();
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p><code>b1.display()</code> runs the <code>display()</code> method using <code>b1</code>’s own <code>x</code>/<code>y</code>/<code>r</code>. One circle, drawn through a method call instead of a direct <code>ellipse(...)</code> in <code>draw()</code>.</p>
-</section>
-<section id="step-2-add-a-move-method" class="slide level2">
-<h2>Step 2 — add a <code>move()</code> method</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1002,7 +1045,60 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color BLUE  = #5A96DC;
+color PAPER = #F0F0F0;
+
+class Blob {
+  float x, y, r;
+
+  Blob(float xPos, float yPos, float radius) {
+    x = xPos; y = yPos; r = radius;
+  }
+
+  void display() {
+    fill(BLUE);
+    noStroke();
+    ellipse(x, y, r * 2, r * 2);
+  }
+}
+
+Blob b1;
+
+void setup() {
+  size(400, 250);
+  b1 = new Blob(80, 100, 20);
+}
+
+void draw() {
+  background(PAPER);
+  b1.display();
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>b1.display()</code> runs the <code>display()</code> method using <code>b1</code>’s own <code>x</code>/<code>y</code>/<code>r</code>. One circle, drawn through a method call instead of a direct <code>ellipse(...)</code> in <code>draw()</code>.</p>
+</section>
+<section id="step-2-add-a-move-method" class="slide level2">
+<h2>Step 2 — add a <code>move()</code> method</h2>
+<div class="jr-block" id="jr-3" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color BLUE  = #5A96DC;
+color PAPER = #F0F0F0;
+
+class Blob {
   float x, y, r, dx;
 
   Blob(float xPos, float yPos, float radius, float speed) {
@@ -1015,9 +1111,9 @@ void draw() {
   }
 
   void display() {
-    fill(90, 150, 220);
+    fill(BLUE);
     noStroke();
-    ellipse(x, y, r, r);
+    ellipse(x, y, r * 2, r * 2);
   }
 }
 
@@ -1025,11 +1121,11 @@ Blob b1;
 
 void setup() {
   size(400, 250);
-  b1 = new Blob(80, 100, 40, 2);
+  b1 = new Blob(80, 100, 20, 2);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
   b1.move();
   b1.display();
 }</div>
@@ -1038,15 +1134,15 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>move()</code> reads and changes only <code>b1</code>’s own <code>x</code>/<code>dx</code>. <code>dx *= -1</code> flips the direction whenever the circle’s edge would go past the canvas boundary. Run it — one bouncing circle.</p>
+<p><code>move()</code> reads and changes only <code>b1</code>’s own <code>x</code>/<code>dx</code>. <code>dx *= -1</code> flips the direction whenever the circle’s edge would go past the canvas boundary — <code>x - r</code> is the circle’s left edge and <code>x + r</code> its right edge, since <code>r</code> is the radius. Run it — one bouncing circle.</p>
 </section>
 <section id="step-3-three-independent-bouncing-circles" class="slide level2">
 <h2>Step 3 — three independent bouncing circles</h2>
-<div class="jr-block" id="jr-3" data-type="processing">
+<div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1055,7 +1151,10 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color BLUE  = #5A96DC;
+color PAPER = #F0F0F0;
+
+class Blob {
   float x, y, r, dx;
 
   Blob(float xPos, float yPos, float radius, float speed) {
@@ -1068,9 +1167,9 @@ void draw() {
   }
 
   void display() {
-    fill(90, 150, 220);
+    fill(BLUE);
     noStroke();
-    ellipse(x, y, r, r);
+    ellipse(x, y, r * 2, r * 2);
   }
 }
 
@@ -1078,77 +1177,16 @@ Blob b1, b2, b3;
 
 void setup() {
   size(400, 250);
-  b1 = new Blob(80, 100, 40, 2);
-  b2 = new Blob(200, 150, 60, -3);
-  b3 = new Blob(320, 60,  25, 1.5);
+  b1 = new Blob(80, 100, 20, 2);
+  b2 = new Blob(200, 150, 30, -3);
+  b3 = new Blob(320, 60,  12, 1.5);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
   b1.move(); b1.display();
   b2.move(); b2.display();
   b3.move(); b3.display();
-}</div>
-  </div>
-  <div class="jr-canvas-wrap" style="display:none">
-    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
-  </div>
-  <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
-  </div>
-</div>
-<p>Three objects, three independent behaviors, from one shared method definition — <code>b1.move()</code> has no way to touch <code>b2</code> or <code>b3</code>’s data at all.</p>
-</section>
-<section id="new-idea-static-one-copy-shared-by-the-whole-class" class="slide level2">
-<h2>New idea: <code>static</code> — one copy, shared by the whole class</h2>
-<p>You have learned that a normal field is an <strong>instance</strong> field: every object gets its own separate copy (that’s why <code>b1.x</code> and <code>b2.x</code> can hold different numbers at once). A <code>static</code> field is the opposite — there is exactly <strong>one</strong> copy, shared by the class itself. Every object can read and change it, and every object sees the same value.</p>
-</section>
-<section id="step-4-a-static-counter" class="slide level2">
-<h2>Step 4 — a <code>static</code> counter</h2>
-<div class="jr-block" id="jr-4" data-type="processing">
-  <div class="jr-toolbar">
-    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
-    <div style="display:flex;gap:0.5rem">
-      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
-      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
-    </div>
-  </div>
-  <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
-  static int count = 0;   // ONE copy, shared by the whole class
-
-  float x, y, r;
-
-  Blob(float xPos, float yPos, float radius) {
-    x = xPos; y = yPos; r = radius;
-    count++;              // every new Blob bumps the shared counter
-  }
-
-  void display() {
-    fill(90, 150, 220);
-    noStroke();
-    ellipse(x, y, r, r);
-  }
-}
-
-Blob b1, b2, b3;
-
-void setup() {
-  size(400, 250);
-  b1 = new Blob(80, 150, 40);
-  b2 = new Blob(200, 100, 60);
-  b3 = new Blob(320, 180, 25);
-}
-
-void draw() {
-  background(240);
-  b1.display();
-  b2.display();
-  b3.display();
-
-  fill(0);
-  rect(10, 10, 20 + Blob.count * 4, 10);   // a bar whose length is the STATIC count
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -1159,10 +1197,14 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>Blob.count</code> is written on the <strong>class</strong> (<code>Blob.count</code>), not on an object — there’s no <code>b1.</code> in front of it, a signal that it belongs to the class as a whole. Every time a <code>Blob</code> gets constructed, <code>count++</code> bumps that one shared number, so after building three <code>Blob</code>s, <code>Blob.count</code> is <code>3</code> — no matter which object you ask.</p>
+<p>Three objects, three independent behaviors, from one shared method definition — <code>b1.move()</code> has no way to touch <code>b2</code> or <code>b3</code>’s data at all.</p>
 </section>
-<section id="step-5-an-array-of-objects" class="slide level2">
-<h2>Step 5 — an array of objects</h2>
+<section id="new-idea-static-one-copy-shared-by-the-whole-class" class="slide level2">
+<h2>New idea: <code>static</code> — one copy, shared by the whole class</h2>
+<p>You have learned that a normal field is an <strong>instance</strong> field: every object gets its own separate copy (that’s why <code>b1.x</code> and <code>b2.x</code> can hold different numbers at once). A <code>static</code> field is the opposite — there is exactly <strong>one</strong> copy, shared by the class itself. Every object can read and change it, and every object sees the same value.</p>
+</section>
+<section id="step-4-a-static-counter" class="slide level2">
+<h2>Step 4 — a <code>static</code> counter</h2>
 <div class="jr-block" id="jr-5" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1172,39 +1214,44 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Blob {
-  static int count = 0;
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color BLUE  = #5A96DC;
+color PAPER = #F0F0F0;
+color BLACK = #000000;
+
+class Blob {
+  static int count = 0;   // ONE copy, shared by the whole class
 
   float x, y, r;
 
   Blob(float xPos, float yPos, float radius) {
     x = xPos; y = yPos; r = radius;
-    count++;
+    count++;              // every new Blob bumps the shared counter
   }
 
   void display() {
-    fill(90, 150, 220);
+    fill(BLUE);
     noStroke();
-    ellipse(x, y, r, r);
+    ellipse(x, y, r * 2, r * 2);
   }
 }
 
-Blob[] blobs = new Blob[5];
+Blob b1, b2, b3;
 
 void setup() {
   size(400, 250);
-  for (int i = 0; i &lt; blobs.length; i++) {
-    blobs[i] = new Blob(random(width), random(height), random(20, 50));
-  }
+  b1 = new Blob(80, 150, 20);
+  b2 = new Blob(200, 100, 30);
+  b3 = new Blob(320, 180, 12);
 }
 
 void draw() {
-  background(240);
-  for (int i = 0; i &lt; blobs.length; i++) {
-    blobs[i].display();
-  }
-  fill(0);
-  rect(10, 10, 20 + Blob.count * 4, 10);
+  background(PAPER);
+  b1.display();
+  b2.display();
+  b3.display();
+
+  fill(BLACK);
+  rect(10, 10, 20 + Blob.count * 4, 10);   // a bar whose length is the STATIC count
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -1215,16 +1262,211 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p><code>Blob[] blobs = new Blob[5];</code> declares an array of five slots, each meant to hold a <code>Blob</code>, filled in one at a time by the loop in <code>setup()</code> — a preview of putting arrays and classes together, which is exactly where this series is headed next. <code>random(width)</code> returns a random <code>float</code> between <code>0</code> and <code>width</code>; <code>random(20, 50)</code> returns one between <code>20</code> and <code>50</code> — handy for “put these somewhere/some-size, and I don’t care exactly where.”</p>
+<p><code>Blob.count</code> is written on the <strong>class</strong> (<code>Blob.count</code>), not on an object — there’s no <code>b1.</code> in front of it, a signal that it belongs to the class as a whole. Every time a <code>Blob</code> gets constructed, <code>count++</code> bumps that one shared number, so after building three <code>Blob</code>s, <code>Blob.count</code> is <code>3</code> — no matter which object you ask.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
+<section id="step-5-an-array-of-objects" class="slide level2">
+<h2>Step 5 — an array of objects</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color BLUE  = #5A96DC;
+color PAPER = #F0F0F0;
+color BLACK = #000000;
+
+class Blob {
+  static int count = 0;
+
+  float x, y, r;
+
+  Blob(float xPos, float yPos, float radius) {
+    x = xPos; y = yPos; r = radius;
+    count++;
+  }
+
+  void display() {
+    fill(BLUE);
+    noStroke();
+    ellipse(x, y, r * 2, r * 2);
+  }
+}
+
+Blob[] blobs = new Blob[5];
+
+void setup() {
+  size(400, 250);
+  for (int i = 0; i &lt; blobs.length; i++) {
+    blobs[i] = new Blob(random(width), random(height), random(10, 25));
+  }
+}
+
+void draw() {
+  background(PAPER);
+  for (int i = 0; i &lt; blobs.length; i++) {
+    blobs[i].display();
+  }
+  fill(BLACK);
+  rect(10, 10, 20 + Blob.count * 4, 10);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>Blob[] blobs = new Blob[5];</code> declares an array of five slots, each meant to hold a <code>Blob</code>, filled in one at a time by the loop in <code>setup()</code> — a preview of putting arrays and classes together, which is exactly where this series is headed next. <code>random(width)</code> returns a random <code>float</code> between <code>0</code> and <code>width</code>; <code>random(10, 25)</code> returns one between <code>10</code> and <code>25</code> — handy for “put these somewhere/some-size, and I don’t care exactly where.”</p>
+</section>
+<section id="new-idea-a-method-that-answers-a-question" class="slide level2">
+<h2>New idea: a method that answers a question</h2>
+<p>Instance methods don’t have to draw or move. A method can also <strong>return</strong> an answer about its own object:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a><span class="dt">boolean</span> <span class="fu">contains</span><span class="op">(</span><span class="dt">float</span> px<span class="op">,</span> <span class="dt">float</span> py<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a></a>  <span class="cf">return</span> <span class="fu">dist</span><span class="op">(</span>px<span class="op">,</span> py<span class="op">,</span> x<span class="op">,</span> y<span class="op">)</span> <span class="op">&lt;</span> r<span class="op">;</span></span>
+<span id="cb2-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>blobs[3].contains(mouseX, mouseY)</code> asks blob number 3, “is this point inside <em>you</em>?” — using blob 3’s own <code>x</code>, <code>y</code>, and <code>r</code>. <code>dist(...)</code> is a built-in method that returns the distance between two points; if that’s less than the radius, the point is inside the circle.</p>
+</section>
+<section id="new-idea-static-count-as-how-many-are-filled" class="slide level2">
+<h2>New idea: <code>static count</code> as “how many are filled”</h2>
+<p>So far, every slot of <code>blobs</code> was filled in <code>setup()</code>. But an array can also start <em>empty</em> and fill up over time — as long as something keeps track of how many slots are in use.</p>
+<p><code>Blob.count</code> already does exactly that: it goes up by one every time a <code>Blob</code> is constructed. So the next empty slot is always <code>blobs[Blob.count]</code>, and every loop runs <code>i &lt; Blob.count</code> instead of <code>i &lt; blobs.length</code>, skipping the slots that are still empty.</p>
+</section>
+<section id="step-6-the-bubble-pen" class="slide level2 scrollable">
+<h2>Step 6 — the bubble pen</h2>
+<div class="jr-block" id="jr-7" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">color WHITE = #FFFFFF;
+color NIGHT = #14192D;
+
+class Blob {
+  static int count = 0;
+
+  float x, y, r, dx, dy;
+  boolean frozen;
+  color c;
+
+  Blob(float xPos, float yPos) {
+    x = xPos; y = yPos;
+    r = random(10, 25);
+    dx = random(-3, 3); dy = random(-3, 3);
+    c = color(random(100, 255), random(100, 255), 255, 200);
+    count++;
+  }
+
+  void move() {
+    if (frozen) return;
+    x += dx; y += dy;
+    if (x - r &lt; 0 || x + r &gt; width)  dx *= -1;
+    if (y - r &lt; 0 || y + r &gt; height) dy *= -1;
+  }
+
+  boolean contains(float px, float py) {
+    return dist(px, py, x, y) &lt; r;
+  }
+
+  void display() {
+    noStroke();
+    if (frozen) {
+      fill(WHITE);
+    } else {
+      fill(c);
+    }
+    ellipse(x, y, r * 2, r * 2);
+  }
+}
+
+Blob[] blobs = new Blob[40];
+
+void setup() {
+  size(400, 250);
+}
+
+void draw() {
+  background(NIGHT);
+  for (int i = 0; i &lt; Blob.count; i++) {
+    blobs[i].move();
+    blobs[i].display();
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; Blob.count; i++) {
+    if (blobs[i].contains(mouseX, mouseY)) {
+      blobs[i].frozen = !blobs[i].frozen;
+      return;
+    }
+  }
+  if (Blob.count &lt; blobs.length &amp;&amp; mouseX &gt; 25 &amp;&amp; mouseX &lt; width - 25
+      &amp;&amp; mouseY &gt; 25 &amp;&amp; mouseY &lt; height - 25) {
+    int slot = Blob.count;
+    blobs[slot] = new Blob(mouseX, mouseY);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The sketch from the start. Read <code>mousePressed()</code> top to bottom:</p>
+<ol type="1">
+<li>Ask every existing blob <code>contains(mouseX, mouseY)</code>. The first one that says yes gets its own <code>frozen</code> field flipped with <code>!</code>, and <code>return</code> ends the method early — no new blob.</li>
+<li>Otherwise, if there’s room (and the click isn’t too close to an edge for a big blob to fit), build a new <code>Blob</code> in the next empty slot. Its constructor bumps <code>Blob.count</code>, so the loops in <code>draw()</code> immediately include it.</li>
+</ol>
+<p><code>if (frozen) return;</code> at the top of <code>move()</code> is the same early exit: a frozen blob skips the rest of the method. Freezing blob 5 never touches blob 6 — each has its own <code>frozen</code> field.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
 <h2>Your turn (before class)</h2>
-<p>In the bouncing-circle sketch, add a <code>dy</code> field and make <code>move()</code> bounce vertically too, not just horizontally. In the array sketch, change what <code>Blob.count</code> controls — for example, tint the background based on it instead of a bar’s length.</p>
-</section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC10 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li>In the bubble pen, give each blob gravity: add <code>dy += 0.2;</code> in <code>move()</code>, and watch bubbles bounce like balls. (If they start sinking into the floor, also set <code>y = height - r;</code> when one bounces off the bottom.)</li>
+<li>Add a <code>grow()</code> instance method that makes a blob a little bigger, and call it on a blob when it’s clicked instead of freezing it.</li>
+<li>In the bubble pen, use <code>Blob.count</code> to tint the background — the more bubbles, the redder the sky.</li>
+</ol>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC10 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

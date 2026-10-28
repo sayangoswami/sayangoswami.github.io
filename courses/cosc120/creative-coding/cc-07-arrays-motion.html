@@ -927,10 +927,12 @@ if (document.readyState === 'loading') {
 <li>Reuse the sum/average/max accumulator pattern you’ve learned, using the result to affect a drawing instead of printing it</li>
 <li>Reuse the in-place reverse algorithm and watch it physically reorder shapes on screen</li>
 <li>Use <code>mousePressed()</code> to run code exactly once per click, instead of every frame</li>
+<li>Step through an algorithm one move per click, so you can <em>watch</em> it work</li>
+<li>Use a second array to animate smoothly from the old values to the new ones</li>
 </ul>
 </section>
-<section id="step-1-plain-bars-from-an-array" class="slide level2">
-<h2>Step 1 — plain bars from an array</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -940,20 +942,43 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #191928;
+color CORAL = #FA785A;
+color SKY   = #5AAAE6;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40, 150, 70, 110 };
+float[] shown = new float[values.length];
 
 void setup() {
   size(400, 220);
 }
 
 void draw() {
-  background(240);
+  background(NIGHT);
+  noStroke();
+
+  int maxVal = values[0];
+  for (int i = 0; i &lt; values.length; i++) {
+    shown[i] += (values[i] - shown[i]) * 0.1;
+    if (values[i] &gt; maxVal) maxVal = values[i];
+  }
 
   int barWidth = width / values.length;
   for (int i = 0; i &lt; values.length; i++) {
-    fill(90, 150, 220);
-    noStroke();
-    rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
+    if (values[i] == maxVal) {
+      fill(CORAL);
+    } else {
+      fill(SKY);
+    }
+    rect(i * barWidth, height - shown[i], barWidth - 4, shown[i]);
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; values.length / 2; i++) {
+    int temp = values[i];
+    values[i] = values[values.length - 1 - i];
+    values[values.length - 1 - i] = temp;
   }
 }</div>
   </div>
@@ -965,11 +990,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Same array-loop pattern from before — nothing new here, just the starting point.</p>
+<p>Click the canvas a few times. The bars grow in from nothing and <em>glide</em> to their new spots on every click.</p>
 </section>
-<section id="step-2-accumulate-the-sum-and-average" class="slide level2">
-<h2>Step 2 — accumulate the sum and average</h2>
-<p>You have learned how to walk an array once, accumulating a running sum.</p>
+<section id="step-1-plain-bars-from-an-array" class="slide level2">
+<h2>Step 1 — plain bars from an array</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -979,31 +1003,24 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
 
 void setup() {
   size(400, 220);
 }
 
 void draw() {
-  background(240);
-
-  int sum = 0;
-  for (int i = 0; i &lt; values.length; i++) {
-    sum += values[i];
-  }
-  float avg = (float) sum / values.length;
+  background(PAPER);
 
   int barWidth = width / values.length;
   for (int i = 0; i &lt; values.length; i++) {
-    fill(90, 150, 220);
+    fill(BLUE);
     noStroke();
     rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
   }
-
-  stroke(0);
-  float avgY = height - avg;
-  line(0, avgY, width, avgY);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -1014,10 +1031,11 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Notice this sketch has <strong>two</strong> separate loops: the first only computes <code>sum</code> — it draws nothing. The second does the drawing. The black horizontal line is literally <code>avg</code> converted into a y-position. <code>(float) sum</code> is a cast, converting the <code>int</code> sum to a decimal number before dividing, so the average doesn’t get truncated by integer division.</p>
+<p>Same array-loop pattern from before — nothing new here, just the starting point.</p>
 </section>
-<section id="step-3-track-the-max-and-highlight-it" class="slide level2">
-<h2>Step 3 — track the max, and highlight it</h2>
+<section id="step-2-accumulate-the-sum-and-average" class="slide level2">
+<h2>Step 2 — accumulate the sum and average</h2>
+<p>You have learned how to walk an array once, accumulating a running sum.</p>
 <div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1027,34 +1045,33 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color BLUE  = #5A96DC;
+color BLACK = #000000;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
 
 void setup() {
   size(400, 220);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
 
-  int sum = 0, maxVal = values[0];
+  int sum = 0;
   for (int i = 0; i &lt; values.length; i++) {
     sum += values[i];
-    if (values[i] &gt; maxVal) maxVal = values[i];
   }
   float avg = (float) sum / values.length;
 
   int barWidth = width / values.length;
   for (int i = 0; i &lt; values.length; i++) {
-    if (values[i] == maxVal) {
-      fill(230, 90, 90);
-    } else {
-      fill(90, 150, 220);
-    }
+    fill(BLUE);
     noStroke();
     rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
   }
 
-  stroke(0);
+  stroke(BLACK);
   float avgY = height - avg;
   line(0, avgY, width, avgY);
 }</div>
@@ -1067,19 +1084,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Same accumulator loop, now also tracking <code>maxVal</code> — the same running-max pattern from lecture. The bar matching <code>maxVal</code> gets a different color: both the line and the highlight are array-algorithm results you already know how to compute, now visible as pixels instead of a printed number.</p>
+<p>Notice this sketch has <strong>two</strong> separate loops: the first only computes <code>sum</code> — it draws nothing. The second does the drawing. The black horizontal line is literally <code>avg</code> converted into a y-position. <code>(float) sum</code> is a cast, converting the <code>int</code> sum to a decimal number before dividing, so the average doesn’t get truncated by integer division.</p>
 </section>
-<section id="new-idea-mousepressed-runs-once-not-every-frame" class="slide level2">
-<h2>New idea: <code>mousePressed()</code> runs once, not every frame</h2>
-<p><code>draw()</code> runs continuously, dozens of times a second — great for things that should constantly update, but wrong for something that should happen exactly once per click. Processing gives you a separate method for that:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">mousePressed</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb1-2"><a></a>  <span class="co">// runs exactly once, the instant the mouse button is clicked</span></span>
-<span id="cb1-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>draw()</code> keeps running as normal in between clicks; <code>mousePressed()</code> only fires on the click.</p>
-</section>
-<section id="step-4-swap-the-first-and-last-value-on-click" class="slide level2">
-<h2>Step 4 — swap the first and last value on click</h2>
-<p>You have learned the in-place reverse algorithm: two indices, one at each end, swapping and moving toward the middle.</p>
+<section id="step-3-track-the-max-and-highlight-it" class="slide level2">
+<h2>Step 3 — track the max, and highlight it</h2>
 <div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -1089,17 +1097,148 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color RED   = #E65A5A;
+color BLUE  = #5A96DC;
+color BLACK = #000000;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+
+void setup() {
+  size(400, 220);
+}
+
+void draw() {
+  background(PAPER);
+
+  int sum = 0, maxVal = values[0];
+  for (int i = 0; i &lt; values.length; i++) {
+    sum += values[i];
+    if (values[i] &gt; maxVal) maxVal = values[i];
+  }
+  float avg = (float) sum / values.length;
+
+  int barWidth = width / values.length;
+  for (int i = 0; i &lt; values.length; i++) {
+    if (values[i] == maxVal) {
+      fill(RED);
+    } else {
+      fill(BLUE);
+    }
+    noStroke();
+    rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
+  }
+
+  stroke(BLACK);
+  float avgY = height - avg;
+  line(0, avgY, width, avgY);
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Same accumulator loop, now also tracking <code>maxVal</code> — the same running-max pattern from lecture. The bar matching <code>maxVal</code> gets a different color: both the line and the highlight are array-algorithm results you already know how to compute, now visible as pixels instead of a printed number.</p>
+</section>
+<section id="step-4-a-threshold-you-drag" class="slide level2">
+<h2>Step 4 — a threshold you drag</h2>
+<p>You have learned the counting pattern: walk the array, and add one to a counter every time an element passes some test. Here the test is “is this bar taller than the mouse line?”</p>
+<div class="jr-block" id="jr-5" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color GREEN = #5AC878;
+color GRAY  = #C8C8C8;
+color BLACK = #000000;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+
+void setup() {
+  size(400, 220);
+}
+
+void draw() {
+  background(PAPER);
+
+  float threshold = height - mouseY;   // mouse line, as a bar height
+  int count = 0;
+
+  int barWidth = width / values.length;
+  for (int i = 0; i &lt; values.length; i++) {
+    if (values[i] &gt; threshold) {
+      fill(GREEN);
+      count++;
+    } else {
+      fill(GRAY);
+    }
+    noStroke();
+    rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
+  }
+
+  stroke(BLACK);
+  line(0, mouseY, width, mouseY);
+
+  noStroke();
+  fill(BLACK);
+  for (int k = 0; k &lt; count; k++) {
+    ellipse(15 + k * 14, 15, 10, 10);   // one dot per bar above the line
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Move the mouse up and down. Bars taller than the line turn green, and the row of dots in the corner shows <code>count</code> — the same counter you’d normally print, drawn instead.</p>
+</section>
+<section id="new-idea-mousepressed-runs-once-not-every-frame" class="slide level2">
+<h2>New idea: <code>mousePressed()</code> runs once, not every frame</h2>
+<p><code>draw()</code> runs continuously, dozens of times a second — great for things that should constantly update, but wrong for something that should happen exactly once per click. Processing gives you a separate method for that:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">void</span> <span class="fu">mousePressed</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>  <span class="co">// runs exactly once, the instant the mouse button is clicked</span></span>
+<span id="cb1-3"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>draw()</code> keeps running as normal in between clicks; <code>mousePressed()</code> only fires on the click.</p>
+</section>
+<section id="step-5-swap-the-first-and-last-value-on-click" class="slide level2">
+<h2>Step 5 — swap the first and last value on click</h2>
+<p>You have learned the in-place reverse algorithm: two indices, one at each end, swapping and moving toward the middle.</p>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color TEAL  = #46966E;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
 
 void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
   int barWidth = width / values.length;
   for (int i = 0; i &lt; values.length; i++) {
-    fill(70, 150, 110);
+    fill(TEAL);
     noStroke();
     rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
   }
@@ -1115,15 +1254,15 @@ void mousePressed() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Click the canvas: only the first and last bars swap. <code>draw()</code> doesn’t change at all between clicks — it always just draws whatever <code>values</code> currently holds.</p>
 </section>
-<section id="step-5-the-full-reverse" class="slide level2">
-<h2>Step 5 — the full reverse</h2>
-<div class="jr-block" id="jr-5" data-type="processing">
+<section id="step-6-the-full-reverse" class="slide level2">
+<h2>Step 6 — the full reverse</h2>
+<div class="jr-block" id="jr-7" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1132,17 +1271,20 @@ void mousePressed() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color TEAL  = #46966E;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
 
 void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
   int barWidth = width / values.length;
   for (int i = 0; i &lt; values.length; i++) {
-    fill(70, 150, 110);
+    fill(TEAL);
     noStroke();
     rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
   }
@@ -1164,20 +1306,181 @@ void reverseArray() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Same swap as Step 4, now looped from both ends toward the middle — the full reverse algorithm. The loop only needs to go halfway (<code>i &lt; values.length / 2</code>) because each swap handles a pair of elements at once — running it the full length would just swap everything back to where it started.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
-<h2>Your turn (before class)</h2>
-<p>Change <code>reverseArray()</code> into a <strong>rotate</strong>: shift every value one slot to the left, with the first value wrapping around to the last slot. (Hint: you’ll need one temp variable to hold the value that’s about to be overwritten, saved <em>before</em> the loop starts — not swapped pairwise like the reverse.) Watch the bars shift by one on every click instead of flipping.</p>
+<section id="step-7-one-swap-per-click" class="slide level2">
+<h2>Step 7 — one swap per click</h2>
+<p>The full reverse happens so fast you can’t see it. Slow it down: keep the loop’s <code>i</code> in a variable <em>outside</em> the method, and do one swap per click.</p>
+<div class="jr-block" id="jr-8" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER  = #F0F0F0;
+color ORANGE = #F09632;
+color TEAL   = #46966E;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40 };
+int step = 0;
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(PAPER);
+  int barWidth = width / values.length;
+  int other = values.length - 1 - step;
+
+  for (int i = 0; i &lt; values.length; i++) {
+    if (i == step || i == other) {
+      fill(ORANGE);    // the pair about to be swapped
+    } else {
+      fill(TEAL);
+    }
+    noStroke();
+    rect(i * barWidth, height - values[i], barWidth - 4, values[i]);
+  }
+}
+
+void mousePressed() {
+  int other = values.length - 1 - step;
+  int temp = values[step];
+  values[step] = values[other];
+  values[other] = temp;
+
+  step++;
+  int half = values.length / 2;
+  if (step &gt;= half) {
+    step = 0;               // finished — the next click starts over
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The two orange bars are the pair the <em>next</em> click will swap. Click through it: each click is one pass of the reverse loop’s body, and <code>step</code> plays the role of the loop variable <code>i</code>. After three clicks the array is reversed and <code>step</code> wraps back to <code>0</code>.</p>
 </section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC7 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<section id="new-idea-data-vs.-whats-on-screen" class="slide level2">
+<h2>New idea: data vs.&nbsp;what’s on screen</h2>
+<p>Every sketch so far draws <code>values[i]</code> directly, so a change shows up instantly — a jump, not a motion. To make bars <em>glide</em>, keep two arrays:</p>
+<ul>
+<li><code>values</code> — the real data. Algorithms change this.</li>
+<li><code>shown</code> — the heights actually drawn. Every frame, each one moves 10% of the way toward its value in <code>values</code>:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a></a>shown<span class="op">[</span>i<span class="op">]</span> <span class="op">+=</span> <span class="op">(</span>values<span class="op">[</span>i<span class="op">]</span> <span class="op">-</span> shown<span class="op">[</span>i<span class="op">])</span> <span class="op">*</span> <span class="fl">0.1</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Far from the target, that’s a big step; close to it, a tiny one — so bars slow down as they arrive.</p>
+</section>
+<section id="step-8-bars-that-glide" class="slide level2">
+<h2>Step 8 — bars that glide</h2>
+<div class="jr-block" id="jr-9" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #191928;
+color CORAL = #FA785A;
+color SKY   = #5AAAE6;
+
+int[] values = { 30, 80, 45, 120, 60, 95, 40, 150, 70, 110 };
+float[] shown = new float[values.length];
+
+void setup() {
+  size(400, 220);
+}
+
+void draw() {
+  background(NIGHT);
+  noStroke();
+
+  int maxVal = values[0];
+  for (int i = 0; i &lt; values.length; i++) {
+    shown[i] += (values[i] - shown[i]) * 0.1;
+    if (values[i] &gt; maxVal) maxVal = values[i];
+  }
+
+  int barWidth = width / values.length;
+  for (int i = 0; i &lt; values.length; i++) {
+    if (values[i] == maxVal) {
+      fill(CORAL);
+    } else {
+      fill(SKY);
+    }
+    rect(i * barWidth, height - shown[i], barWidth - 4, shown[i]);
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; values.length / 2; i++) {
+    int temp = values[i];
+    values[i] = values[values.length - 1 - i];
+    values[values.length - 1 - i] = temp;
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>new float[values.length]</code> makes a second array the same size, filled with <code>0.0</code> — which is why the bars grow in from nothing when you first run it. <code>mousePressed()</code> is exactly the reverse from Step 6; it never touches <code>shown</code>. The animation comes entirely from <code>draw()</code> chasing the data.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
+<h2>Your turn (before class)</h2>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li><strong>Rotate.</strong> Change the reverse into a rotate: shift every value one slot to the left, with the first value wrapping around to the last slot. (Hint: you’ll need one temp variable to hold the value that’s about to be overwritten, saved <em>before</em> the loop starts — not swapped pairwise like the reverse.) Put it in the gliding sketch and watch the bars flow left on every click.</li>
+<li><strong>Two buttons.</strong> In the gliding sketch, draw two rectangles at the top of the canvas and use the hit-test you know (<code>mouseX &gt; ... &amp;&amp; mouseX &lt; ... &amp;&amp; ...</code>) inside <code>mousePressed()</code> to pick which algorithm runs: reverse on the left button, rotate on the right.</li>
+<li>Change <code>0.1</code> in the gliding sketch to <code>0.02</code> or <code>0.5</code>, and predict how the motion changes.</li>
+</ol>
+<div class="jr-block" id="jr-10" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC7 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

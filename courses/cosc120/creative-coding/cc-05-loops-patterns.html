@@ -31,6 +31,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #3c3836;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #3c3836; } /* Normal */
+    code span.al { color: #282828; background-color: #cc241d; font-weight: bold; } /* Alert */
+    code span.an { color: #98971a; } /* Annotation */
+    code span.at { color: #d79921; } /* Attribute */
+    code span.bn { color: #f67400; } /* BaseN */
+    code span.bu { color: #d65d0e; } /* BuiltIn */
+    code span.cf { color: #cc241d; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #b16286; } /* Char */
+    code span.cn { color: #b16286; font-weight: bold; } /* Constant */
+    code span.co { color: #928374; } /* Comment */
+    code span.cv { color: #928374; } /* CommentVar */
+    code span.do { color: #98971a; } /* Documentation */
+    code span.dt { color: #d79921; } /* DataType */
+    code span.dv { color: #f67400; } /* DecVal */
+    code span.er { color: #cc241d; text-decoration: underline; } /* Error */
+    code span.ex { color: #689d6a; font-weight: bold; } /* Extension */
+    code span.fl { color: #f67400; } /* Float */
+    code span.fu { color: #689d6a; } /* Function */
+    code span.im { color: #689d6a; } /* Import */
+    code span.in { color: #282828; background-color: #83a598; } /* Information */
+    code span.kw { color: #3c3836; font-weight: bold; } /* Keyword */
+    code span.op { color: #3c3836; } /* Operator */
+    code span.ot { color: #689d6a; } /* Other */
+    code span.pp { color: #d65d0e; } /* Preprocessor */
+    code span.re { color: #928374; background-color: #f9f5d7; } /* RegionMarker */
+    code span.sc { color: #b16286; } /* SpecialChar */
+    code span.ss { color: #98971a; } /* SpecialString */
+    code span.st { color: #98971a; } /* String */
+    code span.va { color: #458588; } /* Variable */
+    code span.vs { color: #98971a; } /* VerbatimString */
+    code span.wa { color: #282828; background-color: #fabd2f; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-068ece45722238cafec58f611cf4d708.css">
   <link rel="stylesheet" href="../../custom.css">
@@ -862,10 +928,11 @@ if (document.readyState === 'loading') {
 <li>Write a method that <strong>returns</strong> a value instead of drawing or printing directly</li>
 <li>Have a <code>for</code> loop call a returning method once per iteration and use each returned value</li>
 <li>Recognize this “loop calls a method that returns per-iteration data” shape as exactly what the graded Processing project will later ask you to build</li>
+<li>Animate a drawing by feeding a returning method a value that changes every frame</li>
 </ul>
 </section>
-<section id="step-1-one-circle" class="slide level2">
-<h2>Step 1 — one circle</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -875,15 +942,43 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
-  size(400, 200);
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color SAND    = #FAD7AA;
+color SUN     = #FF8C50;
+color SHALLOW = #78AADC;
+color OCEAN   = #3C78C8;
+color DEEP    = #144696;
+
+void setup() {
+  size(400, 250);
 }
 
 void draw() {
-  background(240);
-  fill(200, 100, 50);
+  background(SAND);
   noStroke();
-  ellipse(20, 100, 30, 30);
+  fill(SUN);
+  ellipse(300, 80, 70, 70);
+
+  float storm = 5 + mouseY / 6.0;
+
+  drawWave(130, storm,       1, SHALLOW);
+  drawWave(160, storm * 0.8, 2, OCEAN);
+  drawWave(190, storm * 0.6, 3, DEEP);
+}
+
+void drawWave(float base, float amp, float speed, color c) {
+  fill(c, 190);
+  noStroke();
+  beginShape();
+  vertex(0, height);
+  for (int x = 0; x &lt;= width; x += 4) {
+    vertex(x, waveHeight(x + frameCount * speed, base, amp));
+  }
+  vertex(width, height);
+  endShape(CLOSE);
+}
+
+float waveHeight(float x, float base, float amp) {
+  return base + sin(x * 0.03) * amp;
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -894,10 +989,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
   </div>
 </div>
+<p>Move your mouse up and down over the canvas. Three layers of ocean, all traced by <strong>one</strong> method that returns a number — called hundreds of times per frame by a <code>for</code> loop.</p>
 </section>
-<section id="step-2-a-for-loop-draws-ten" class="slide level2">
-<h2>Step 2 — a <code>for</code> loop draws ten</h2>
-<p>You have learned <code>for</code> loops for repeating a block of code a set number of times.</p>
+<section id="step-1-one-circle" class="slide level2">
+<h2>Step 1 — one circle</h2>
 <div class="jr-block" id="jr-2" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -907,19 +1002,18 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color CLAY  = #C86432;
+
+void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(240);
-
-  for (int i = 0; i &lt; 10; i++) {
-    float x = i * 40 + 20;
-    fill(200, 100, 50);
-    noStroke();
-    ellipse(x, 100, 30, 30);
-  }
+  background(PAPER);
+  fill(CLAY);
+  noStroke();
+  ellipse(20, 100, 30, 30);
 }</div>
   </div>
   <div class="jr-canvas-wrap" style="display:none">
@@ -930,10 +1024,11 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Ten circles, one <code>for</code> loop, zero copy-pasting. Each pass through the loop draws one more circle, at a position computed from the loop variable <code>i</code>.</p>
+<p>The lines at the top name the colors the sketch uses — <code>color NAME = #hexcode;</code>, one per color, in <code>UPPER_CASE</code> because they never change. Every sketch in this deck starts that way. Colors that are <em>computed</em> (from <code>i</code>, from the mouse) are still built from numbers.</p>
 </section>
-<section id="step-3-vary-the-color-with-i" class="slide level2">
-<h2>Step 3 — vary the color with <code>i</code></h2>
+<section id="step-2-a-for-loop-draws-ten" class="slide level2">
+<h2>Step 2 — a <code>for</code> loop draws ten</h2>
+<p>You have learned <code>for</code> loops for repeating a block of code a set number of times.</p>
 <div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -943,16 +1038,19 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+color CLAY  = #C86432;
+
+void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(240);
+  background(PAPER);
 
   for (int i = 0; i &lt; 10; i++) {
     float x = i * 40 + 20;
-    fill(255 - i * 20, 100, i * 25);
+    fill(CLAY);
     noStroke();
     ellipse(x, 100, 30, 30);
   }
@@ -966,14 +1064,10 @@ void draw() {
     <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
-<p>Same loop, but <code>fill(...)</code> now also uses <code>i</code> — the color drifts across the row. Try changing <code>10</code> to <code>20</code>, or <code>40</code> to <code>20</code>, and predict what happens before you re-run.</p>
+<p>Ten circles, one <code>for</code> loop, zero copy-pasting. Each pass through the loop draws one more circle, at a position computed from the loop variable <code>i</code>.</p>
 </section>
-<section id="new-idea-a-method-that-only-returns-and-does-nothing-else" class="slide level2">
-<h2>New idea: a method that only returns, and does nothing else</h2>
-<p>You have learned the difference between a <code>void</code> method (does something, returns nothing) and a method with a return type. An important habit: a returning method usually shouldn’t print or draw anything itself — its only job is to <strong>compute and hand back a number</strong>. It’s the <em>caller’s</em> job to decide what to do with that number.</p>
-</section>
-<section id="step-4-a-method-that-returns-a-y-position" class="slide level2">
-<h2>Step 4 — a method that returns a <code>y</code> position</h2>
+<section id="step-3-vary-the-color-with-i" class="slide level2">
+<h2>Step 3 — vary the color with <code>i</code></h2>
 <div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -983,14 +1077,59 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color PAPER = #F0F0F0;
+
+void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(20);
+  background(PAPER);
+
+  for (int i = 0; i &lt; 10; i++) {
+    float x = i * 40 + 20;
+    fill(255 - i * 20, 100, i * 25);
+    noStroke();
+    ellipse(x, 100, 30, 30);
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Same loop, but <code>fill(...)</code> now also uses <code>i</code> — the color drifts across the row. Try changing <code>10</code> to <code>20</code>, or <code>40</code> to <code>20</code>, and predict what happens before you re-run.</p>
+</section>
+<section id="new-idea-a-method-that-only-returns-and-does-nothing-else" class="slide level2">
+<h2>New idea: a method that only returns, and does nothing else</h2>
+<p>You have learned the difference between a <code>void</code> method (does something, returns nothing) and a method with a return type. An important habit: a returning method usually shouldn’t print or draw anything itself — its only job is to <strong>compute and hand back a number</strong>. It’s the <em>caller’s</em> job to decide what to do with that number.</p>
+</section>
+<section id="step-4-a-method-that-returns-a-y-position" class="slide level2">
+<h2>Step 4 — a method that returns a <code>y</code> position</h2>
+<div class="jr-block" id="jr-5" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color WHITE    = #FFFFFF;
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(CHARCOAL);
   float y = waveHeight(200);
-  fill(255);
+  fill(WHITE);
   noStroke();
   ellipse(200, y, 20, 20);
 }
@@ -1004,15 +1143,15 @@ float waveHeight(float x) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p><code>waveHeight(x)</code> computes a single number and returns it — it never calls <code>fill</code>, <code>ellipse</code>, or <code>println</code>. <code>sin(...)</code> is the trigonometric sine function, built in and ready to call, smoothly rising and falling between <code>-1</code> and <code>1</code> as its input grows. That’s all a wave really is. Run it and you’ll see one dot, sitting partway up the canvas.</p>
 </section>
 <section id="step-5-a-loop-calls-it-for-every-x" class="slide level2">
 <h2>Step 5 — a loop calls it for every <code>x</code></h2>
-<div class="jr-block" id="jr-5" data-type="processing">
+<div class="jr-block" id="jr-6" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1021,13 +1160,16 @@ float waveHeight(float x) {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color WHITE    = #FFFFFF;
+
+void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(20);
-  fill(255);
+  background(CHARCOAL);
+  fill(WHITE);
   noStroke();
 
   for (int x = 0; x &lt; width; x += 20) {
@@ -1045,15 +1187,15 @@ float waveHeight(float x) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>The <code>for</code> loop is deciding what to <em>do</em> with each returned value: call <code>ellipse(x, y, 8, 8)</code> at that spot. Now the dots trace the shape of a wave, because <code>waveHeight</code> returns a slightly different <code>y</code> for every <code>x</code>.</p>
 </section>
 <section id="step-6-connect-the-dots-into-a-line" class="slide level2">
 <h2>Step 6 — connect the dots into a line</h2>
-<div class="jr-block" id="jr-6" data-type="processing">
+<div class="jr-block" id="jr-7" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1062,13 +1204,16 @@ float waveHeight(float x) {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color WHITE    = #FFFFFF;
+
+void setup() {
   size(400, 200);
 }
 
 void draw() {
-  background(20);
-  stroke(255);
+  background(CHARCOAL);
+  stroke(WHITE);
   noFill();
 
   beginShape();
@@ -1088,15 +1233,15 @@ float waveHeight(float x) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p><code>beginShape()</code>/<code>vertex(...)</code>/<code>endShape()</code> together draw a connected outline through every point added between them — “start tracing a line, add points one at a time, stop tracing.” Here it traces a smooth wave.</p>
 </section>
 <section id="combine-both-bars-from-a-returning-method" class="slide level2">
 <h2>Combine both: bars from a returning method</h2>
-<div class="jr-block" id="jr-7" data-type="processing">
+<div class="jr-block" id="jr-8" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -1105,17 +1250,20 @@ float waveHeight(float x) {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor">void setup() {
+    <div id="jr-8-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CREAM = #FAF5EB;
+color BLUE  = #3C82C8;
+
+void setup() {
   size(400, 250);
 }
 
 void draw() {
-  background(250, 245, 235);
+  background(CREAM);
 
   for (int i = 0; i &lt; 12; i++) {
     float x = i * 33 + 10;
     float h = barHeight(i);
-    fill(60, 130, 200);
+    fill(BLUE);
     noStroke();
     rect(x, height - h, 20, h);
   }
@@ -1129,24 +1277,269 @@ float barHeight(int i) {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-8-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-8-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p><code>barHeight(i)</code> returns a different number for each <code>i</code>, computed with <code>%</code> — the same modulo trick from earlier, back again. Notice there’s no array anywhere in this sketch; you haven’t learned arrays yet, so this gets per-bar variety purely from arithmetic on the loop index.</p>
 </section>
-<section id="your-turn-before-class" class="slide level2">
+<section id="step-7-make-the-wave-move" class="slide level2">
+<h2>Step 7 — make the wave move</h2>
+<p><code>waveHeight</code> doesn’t know anything about time. But if the <em>argument</em> you pass it shifts a little every frame, the value it returns shifts too:</p>
+<div class="jr-block" id="jr-9" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-9-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color WHITE    = #FFFFFF;
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(CHARCOAL);
+  stroke(WHITE);
+  noFill();
+
+  beginShape();
+  for (int x = 0; x &lt; width; x += 4) {
+    float y = waveHeight(x + frameCount * 2);
+    vertex(x, y);
+  }
+  endShape();
+}
+
+float waveHeight(float x) {
+  float mid = height / 2;
+  return mid + sin(x * 0.05) * 40;
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-9-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-9-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>frameCount</code> is a variable Processing keeps updated — how many frames have been drawn so far — so <code>x + frameCount * 2</code> asks “what’s the wave height a little further along?” The method didn’t change at all; only the argument did. Change <code>2</code> to <code>-2</code> and predict which way it flows.</p>
+</section>
+<section id="step-8-a-second-parameter-from-the-mouse" class="slide level2">
+<h2>Step 8 — a second parameter, from the mouse</h2>
+<div class="jr-block" id="jr-10" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-10-ace" class="jr-ace-editor" aria-label="Processing source code editor">color CHARCOAL = #141414;
+color WHITE    = #FFFFFF;
+
+void setup() {
+  size(400, 200);
+}
+
+void draw() {
+  background(CHARCOAL);
+  stroke(WHITE);
+  noFill();
+
+  float amp = mouseY / 2.0;
+
+  beginShape();
+  for (int x = 0; x &lt; width; x += 4) {
+    vertex(x, waveHeight(x + frameCount * 2, amp));
+  }
+  endShape();
+}
+
+float waveHeight(float x, float amp) {
+  float mid = height / 2;
+  return mid + sin(x * 0.05) * amp;
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-10-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-10-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p><code>amp</code> (short for <em>amplitude</em>) controls how tall the wave swings. The caller computes it from <code>mouseY</code> and passes it in. Move the mouse to the top for a flat line, to the bottom for a big swell.</p>
+</section>
+<section id="new-idea-a-returning-method-that-decides" class="slide level2">
+<h2>New idea: a returning method that <em>decides</em></h2>
+<p>A returning method can do more than one line of math — it can use <code>if</code> to decide <strong>which</strong> value to hand back.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource java number-lines code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a></a><span class="dt">float</span> <span class="fu">sizeNear</span><span class="op">(</span><span class="dt">float</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a></a>  <span class="dt">float</span> d <span class="op">=</span> <span class="fu">abs</span><span class="op">(</span>mouseX <span class="op">-</span> x<span class="op">);</span>     <span class="co">// how far is this x from the mouse?</span></span>
+<span id="cb1-3"><a></a>  <span class="cf">if</span> <span class="op">(</span>d <span class="op">&gt;</span> <span class="dv">100</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a></a>    <span class="cf">return</span> <span class="dv">10</span><span class="op">;</span>                   <span class="co">// far away: small</span></span>
+<span id="cb1-5"><a></a>  <span class="op">}</span></span>
+<span id="cb1-6"><a></a>  <span class="cf">return</span> <span class="dv">10</span> <span class="op">+</span> <span class="op">(</span><span class="dv">100</span> <span class="op">-</span> d<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span>     <span class="co">// close: up to 60 right under the mouse</span></span>
+<span id="cb1-7"><a></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>abs(...)</code> is a built-in method that returns the absolute value — it turns <code>-30</code> into <code>30</code>, so <code>d</code> is a distance whichever side of the mouse <code>x</code> is on.</p>
+</section>
+<section id="step-9-the-magnifier" class="slide level2">
+<h2>Step 9 — the magnifier</h2>
+<div class="jr-block" id="jr-11" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-11-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #1E1E2D;
+
+void setup() {
+  size(400, 160);
+}
+
+void draw() {
+  background(NIGHT);
+  noStroke();
+
+  for (int x = 20; x &lt; width; x += 24) {
+    float s = sizeNear(x);
+    fill(120 + s * 2, 160, 255 - s * 2);
+    ellipse(x, height / 2, s, s);
+  }
+}
+
+float sizeNear(float x) {
+  float d = abs(mouseX - x);
+  if (d &gt; 100) {
+    return 10;
+  }
+  return 10 + (100 - d) / 2;
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-11-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-11-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Sweep the mouse along the row. The loop asks <code>sizeNear</code> about every dot, and each dot gets its own answer: big near the mouse, small far away. The color is computed from the same returned value, so the big dots also turn warmer.</p>
+</section>
+<section id="step-10-the-ocean" class="slide level2">
+<h2>Step 10 — the ocean</h2>
+<div class="jr-block" id="jr-12" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-12-ace" class="jr-ace-editor" aria-label="Processing source code editor">color SAND    = #FAD7AA;
+color SUN     = #FF8C50;
+color SHALLOW = #78AADC;
+color OCEAN   = #3C78C8;
+color DEEP    = #144696;
+
+void setup() {
+  size(400, 250);
+}
+
+void draw() {
+  background(SAND);
+  noStroke();
+  fill(SUN);
+  ellipse(300, 80, 70, 70);
+
+  float storm = 5 + mouseY / 6.0;
+
+  drawWave(130, storm,       1, SHALLOW);
+  drawWave(160, storm * 0.8, 2, OCEAN);
+  drawWave(190, storm * 0.6, 3, DEEP);
+}
+
+void drawWave(float base, float amp, float speed, color c) {
+  fill(c, 190);
+  noStroke();
+  beginShape();
+  vertex(0, height);
+  for (int x = 0; x &lt;= width; x += 4) {
+    vertex(x, waveHeight(x + frameCount * speed, base, amp));
+  }
+  vertex(width, height);
+  endShape(CLOSE);
+}
+
+float waveHeight(float x, float base, float amp) {
+  return base + sin(x * 0.03) * amp;
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-12-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-12-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The sketch from the start. Two methods working together:</p>
+<ul>
+<li><code>waveHeight</code> <strong>returns</strong> a number and draws nothing.</li>
+<li><code>drawWave</code> is a <code>void</code> method that <strong>draws</strong> — and calls <code>waveHeight</code> once per point.</li>
+</ul>
+<p>The shape starts at the bottom-left corner, traces the wave, ends at the bottom-right, and <code>endShape(CLOSE)</code> joins it back up so it can be filled. <code>fill(c, 190)</code> makes every layer slightly see-through (the second number is opacity), so the back layers show through the front ones.</p>
+</section>
+<section id="your-turn-before-class" class="slide level2 scrollable">
 <h2>Your turn (before class)</h2>
-<p>In the wave sketch, change <code>sin</code> to <code>cos</code>, or change <code>0.05</code>/<code>40</code>, and predict the new shape before running. In the bars sketch, rewrite <code>barHeight</code> to return something based on <code>mouseY</code> instead of <code>i</code>, and watch every bar respond live as you move the mouse.</p>
+<p>Pick one (or more):</p>
+<ol type="1">
+<li>In the ocean, add a fourth wave layer, or give <code>waveHeight</code> a <code>frequency</code> parameter so each layer has a different wavelength (the <code>0.03</code>).</li>
+<li>In the magnifier, return a <em>different</em> shape of answer — e.g.&nbsp;make dots near the mouse <strong>smaller</strong> instead of bigger, or use <code>mouseY</code> too.</li>
+<li>In the bars sketch, rewrite <code>barHeight</code> to return something based on <code>mouseY</code> instead of <code>i</code>, and watch every bar respond live as you move the mouse.</li>
+</ol>
+<div class="jr-block" id="jr-13" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-13-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-13-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-13-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
 </section>
 <section id="whats-next" class="slide level2">
 <h2>What’s next</h2>
 <p>The graded Programming Project (see <code>project/README.md</code>) picks up from here with its own in-class Processing demo. Everything above — computed coordinates, conditionals on color, boolean hit-tests, parameterized methods, and loops calling methods that return values — is exactly the toolbox the project rubric later asks you to demonstrate.</p>
-</section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC5 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC5 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>

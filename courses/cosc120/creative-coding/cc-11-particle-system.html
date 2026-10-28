@@ -861,14 +861,11 @@ if (document.readyState === 'loading') {
 <li>Put arrays and classes together: an array whose element type is a class you wrote</li>
 <li>Loop over an array of objects, calling an instance method on each one every frame</li>
 <li>Recognize this “array of objects, each running its own behavior” shape as the core structure behind almost any Processing animation with more than a couple of moving pieces</li>
+<li>Change one method or one line and watch it change all 150 objects at once</li>
 </ul>
 </section>
-<section id="new-idea-an-array-of-objects" class="slide level2">
-<h2>New idea: an array <em>of objects</em></h2>
-<p>You have learned arrays of primitives (like <code>int[]</code>) and you’ve learned to write your own class. Those two ideas combine directly: an array’s element type doesn’t have to be <code>int</code> or <code>float</code> — it can be a class you defined yourself.</p>
-</section>
-<section id="step-1-one-particle" class="slide level2">
-<h2>Step 1 — one particle</h2>
+<section id="where-this-deck-ends-up" class="slide level2">
+<h2>Where this deck ends up</h2>
 <div class="jr-block" id="jr-1" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
@@ -878,7 +875,103 @@ if (document.readyState === 'loading') {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Particle {
+    <div id="jr-1-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
+  float x, y, vx, vy, r;
+  color c;
+
+  Particle() {
+    reset();
+    r = random(1, 24);      // start at different sizes, so they don't all fade together
+  }
+
+  void reset() {
+    x = mouseX;
+    y = mouseY;
+    vx = random(-1, 1);
+    vy = random(-3, -1);
+    r = random(10, 24);
+    c = color(255, random(80, 200), random(0, 60));
+  }
+
+  void burst() {
+    reset();
+    vx = random(-6, 6);
+    vy = random(-6, 6);
+  }
+
+  void move() {
+    x += vx;
+    y += vy;
+    r *= 0.96;              // shrink a little every frame
+    if (r &lt; 1) {
+      reset();
+    }
+  }
+
+  void display() {
+    noStroke();
+    fill(c);
+    ellipse(x, y, r, r);
+  }
+}
+
+Particle[] particles = new Particle[150];
+
+void setup() {
+  size(400, 300);
+  background(NIGHT);
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i] = new Particle();
+  }
+}
+
+void draw() {
+  noStroke();
+  fill(NIGHT, 60);
+  rect(0, 0, width, height);
+
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i].move();
+    particles[i].display();
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i].burst();
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Move your mouse over the canvas — it’s on fire. Click for a burst.</p>
+</section>
+<section id="new-idea-an-array-of-objects" class="slide level2">
+<h2>New idea: an array <em>of objects</em></h2>
+<p>You have learned arrays of primitives (like <code>int[]</code>) and you’ve learned to write your own class. Those two ideas combine directly: an array’s element type doesn’t have to be <code>int</code> or <code>float</code> — it can be a class you defined yourself.</p>
+</section>
+<section id="step-1-one-particle" class="slide level2">
+<h2>Step 1 — one particle</h2>
+<div class="jr-block" id="jr-2" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
   float x, y, vy, r;
   color c;
 
@@ -909,7 +1002,7 @@ void setup() {
 }
 
 void draw() {
-  background(15, 15, 35);
+  background(NIGHT);
   p1.move();
   p1.display();
 }</div>
@@ -918,15 +1011,15 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-1-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-1-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>One <code>Particle</code>, drifting upward and eventually off the top of the canvas. Its constructor picks random values for <code>y</code>, <code>vy</code>, <code>r</code>, and <code>c</code>, so every particle you build will look and move slightly differently.</p>
 </section>
 <section id="step-2-recycle-it-when-it-leaves-the-screen" class="slide level2">
 <h2>Step 2 — recycle it when it leaves the screen</h2>
-<div class="jr-block" id="jr-2" data-type="processing">
+<div class="jr-block" id="jr-3" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -935,7 +1028,9 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-2-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Particle {
+    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
   float x, y, vy, r;
   color c;
 
@@ -970,7 +1065,7 @@ void setup() {
 }
 
 void draw() {
-  background(15, 15, 35);
+  background(NIGHT);
   p1.move();
   p1.display();
 }</div>
@@ -979,15 +1074,15 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-2-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-2-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p>Once <code>y &lt; -r</code> (the particle has drifted off the top), <code>move()</code> resets it to a new random position below the bottom edge, as if it were brand new. That’s what will let the animation run forever with a fixed number of particles, instead of them all eventually disappearing.</p>
 </section>
 <section id="step-3-an-array-of-forty-particles" class="slide level2">
 <h2>Step 3 — an array of forty particles</h2>
-<div class="jr-block" id="jr-3" data-type="processing">
+<div class="jr-block" id="jr-4" data-type="processing">
   <div class="jr-toolbar">
     <span class="jr-lang-badge" aria-hidden="true">Processing</span>
     <div style="display:flex;gap:0.5rem">
@@ -996,7 +1091,9 @@ void draw() {
     </div>
   </div>
   <div class="jr-editor-wrap">
-    <div id="jr-3-ace" class="jr-ace-editor" aria-label="Processing source code editor">class Particle {
+    <div id="jr-4-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
   float x, y, vy, r;
   color c;
 
@@ -1033,7 +1130,7 @@ void setup() {
 }
 
 void draw() {
-  background(15, 15, 35);
+  background(NIGHT);
   for (int i = 0; i &lt; particles.length; i++) {
     particles[i].move();
     particles[i].display();
@@ -1044,29 +1141,224 @@ void draw() {
     <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
   </div>
   <div class="jr-output-wrap">
-    <div class="jr-output-label" id="jr-3-lbl">Errors</div>
-    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-3-lbl" tabindex="0"></pre>
+    <div class="jr-output-label" id="jr-4-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-4-lbl" tabindex="0"></pre>
   </div>
 </div>
 <p><code>Particle[] particles</code> is an array where every slot holds one whole <code>Particle</code> object, each with its own <code>x</code>, <code>y</code>, <code>vy</code>, <code>r</code>, and <code>c</code>. Read <code>draw()</code> first — it’s short on purpose: one loop, and inside it, two method calls, <code>particles[i].move()</code> then <code>particles[i].display()</code>. Everything interesting is hidden inside the <code>Particle</code> class — <code>draw()</code> doesn’t need to know <em>how</em> a particle moves or what color it is, only that every particle can <code>move()</code> and <code>display()</code> itself.</p>
 <p>This is the same array-of-objects loop pattern as <code>Blob[] blobs</code> from last time, just with a class that has more fields, and enough objects (<code>40</code>, not <code>5</code>) that it stops looking like a demo and starts looking like a piece.</p>
 </section>
+<section id="step-4-trails" class="slide level2">
+<h2>Step 4 — trails</h2>
+<p>One line changes the whole mood. Instead of wiping the canvas with a solid <code>background(...)</code> every frame, cover it with a <strong>see-through</strong> rectangle:</p>
+<div class="jr-block" id="jr-5" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-5-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
+  float x, y, vy, r;
+  color c;
+
+  Particle(float startX) {
+    x = startX;
+    y = height + random(50);
+    vy = -random(1, 3);
+    r = random(6, 16);
+    c = color(random(150, 255), random(100, 200), 255);
+  }
+
+  void move() {
+    y += vy;
+    if (y &lt; -r) {
+      y = height + random(50);
+      x = random(width);
+    }
+  }
+
+  void display() {
+    fill(c);
+    noStroke();
+    ellipse(x, y, r, r);
+  }
+}
+
+Particle[] particles = new Particle[40];
+
+void setup() {
+  size(400, 300);
+  background(NIGHT);
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i] = new Particle(random(width));
+  }
+}
+
+void draw() {
+  noStroke();
+  fill(NIGHT, 30);       // the background color, but only 30 out of 255 opaque
+  rect(0, 0, width, height);
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i].move();
+    particles[i].display();
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-5-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-5-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The second number in <code>fill(NIGHT, 30)</code> is opacity: <code>0</code> is invisible, <code>255</code> is solid. At <code>30</code>, each frame only <em>partly</em> covers the last one, so old positions fade out slowly instead of vanishing — every particle leaves a tail. Try <code>10</code> and <code>100</code>. (<code>background(...)</code> moved into <code>setup()</code>, so the canvas starts dark.)</p>
+</section>
+<section id="step-5-fire-that-follows-the-mouse" class="slide level2">
+<h2>Step 5 — fire that follows the mouse</h2>
+<p>Now change the <em>class</em>, and leave the array and <code>draw()</code> loop alone:</p>
+<ul>
+<li>A new method, <code>reset()</code>, puts a particle back at the mouse with a fresh random speed, size, and color. The constructor just calls it.</li>
+<li><code>move()</code> shrinks the particle a little every frame (<code>r *= 0.96</code>). Once it’s tiny, it calls <code>reset()</code> and is reborn at the mouse.</li>
+<li>Colors are now reds, oranges, and yellows, and there are 150 particles instead of 40.</li>
+</ul>
+<p>A method calling another method of the <em>same object</em> (<code>reset()</code> inside <code>move()</code>) works just like calling it from outside — without the <code>particles[i].</code> in front, it means “this particle.”</p>
+</section>
+<section id="step-6-the-finished-sketch" class="slide level2">
+<h2>Step 6 — the finished sketch</h2>
+<div class="jr-block" id="jr-6" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-6-ace" class="jr-ace-editor" aria-label="Processing source code editor">color NIGHT = #0F0F23;
+
+class Particle {
+  float x, y, vx, vy, r;
+  color c;
+
+  Particle() {
+    reset();
+    r = random(1, 24);      // start at different sizes, so they don't all fade together
+  }
+
+  void reset() {
+    x = mouseX;
+    y = mouseY;
+    vx = random(-1, 1);
+    vy = random(-3, -1);
+    r = random(10, 24);
+    c = color(255, random(80, 200), random(0, 60));
+  }
+
+  void burst() {
+    reset();
+    vx = random(-6, 6);
+    vy = random(-6, 6);
+  }
+
+  void move() {
+    x += vx;
+    y += vy;
+    r *= 0.96;              // shrink a little every frame
+    if (r &lt; 1) {
+      reset();
+    }
+  }
+
+  void display() {
+    noStroke();
+    fill(c);
+    ellipse(x, y, r, r);
+  }
+}
+
+Particle[] particles = new Particle[150];
+
+void setup() {
+  size(400, 300);
+  background(NIGHT);
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i] = new Particle();
+  }
+}
+
+void draw() {
+  noStroke();
+  fill(NIGHT, 60);
+  rect(0, 0, width, height);
+
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i].move();
+    particles[i].display();
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i &lt; particles.length; i++) {
+    particles[i].burst();
+  }
+}</div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-6-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-6-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>The sketch from the start. The only other new piece is <code>burst()</code>: it resets a particle and then overwrites its speed with a big random one in <em>any</em> direction. <code>mousePressed()</code> calls <code>burst()</code> on every particle at once — one click, 150 objects each doing their own thing with their own fields.</p>
+</section>
 <section id="your-turn-before-class-pick-one" class="slide level2 scrollable">
 <h2>Your turn (before class) — pick one</h2>
 <ol type="1">
-<li>Add a <code>mousePressed()</code> method that resets every particle’s <code>y</code> to <code>height</code>, so clicking makes them all “restart” from the bottom at once.</li>
-<li>Give <code>Particle</code>’s constructor a second parameter that controls its color range, and pass different values when building the first half of the array vs.&nbsp;the second half (you’ll need an <code>if</code> inside the <code>setup()</code> loop, checking <code>i</code>).</li>
-<li>Change the recycling condition in <code>move()</code> so particles fall instead of rise (<code>vy</code> positive, wrap at the bottom instead of the top) — snow instead of embers.</li>
+<li><strong>Snow.</strong> Change <code>reset()</code> so particles start at a random <code>x</code> along the <em>top</em> of the canvas, fall downward, and are white — and don’t shrink. (When should <code>move()</code> call <code>reset()</code> now?)</li>
+<li><strong>Your colors.</strong> Give <code>Particle</code> a second constructor parameter, or a <code>static</code> color field, and make clicking cycle the whole system through different palettes.</li>
+<li><strong>Gravity.</strong> Add <code>vy += 0.1;</code> to <code>move()</code> so bursts arc and fall like fireworks.</li>
+<li><strong>Two systems.</strong> Make two arrays — one following the mouse, one fixed at the center of the canvas — with different colors.</li>
 </ol>
+<div class="jr-block" id="jr-7" data-type="processing">
+  <div class="jr-toolbar">
+    <span class="jr-lang-badge" aria-hidden="true">Processing</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="jr-run-btn" aria-label="Run Processing sketch">▶ Run</button>
+      <button type="button" class="jr-pause-btn" aria-label="Pause or resume animation" aria-pressed="false" disabled="">⏸ Pause</button>
+    </div>
+  </div>
+  <div class="jr-editor-wrap">
+    <div id="jr-7-ace" class="jr-ace-editor" aria-label="Processing source code editor"></div>
+  </div>
+  <div class="jr-canvas-wrap" style="display:none">
+    <canvas aria-label="Processing sketch output" width="1" height="1"></canvas>
+  </div>
+  <div class="jr-output-wrap">
+    <div class="jr-output-label" id="jr-7-lbl">Errors</div>
+    <pre class="jr-output" role="log" aria-live="assertive" aria-label="Sketch errors" aria-labelledby="jr-7-lbl" tabindex="0"></pre>
+  </div>
+</div>
+<p>Copy the code you ended up with for the exercise above and paste it in Blackboard.</p>
 </section>
 <section id="from-here" class="slide level2">
 <h2>From here</h2>
 <p>This small sketch already hits several items on the Programming Project’s rubric checklist: variables and arithmetic, the <code>draw</code> loop combined with an explicit <code>for</code> loop over repeated elements, an array holding the visual data, and a student-written class instantiated into multiple objects. The project (<code>project/README.md</code>) is where you take an idea shaped like this one and make it entirely your own.</p>
-</section>
-<section id="submit-before-class-completion-only" class="slide level2">
-<h2>Submit (before class) — completion only</h2>
-<p>Copy the code you ended up with for the exercise above and paste it into the <a href="TODO-add-form-link">CC11 completion check</a> before class.</p>
-<p>This isn’t graded and nobody checks it for correctness — it’s just a completion check, so paste what you tried even if it doesn’t run. Nothing here affects your grade; it only confirms you did the reading.</p>
+<!-- ## Submit (before class) — completion only
+
+Copy the code you ended up with for the exercise above and paste it into the
+[CC11 completion check](TODO-add-form-link) before class.
+
+This isn't graded and nobody checks it for correctness — it's just a completion check, so paste
+what you tried even if it doesn't run. Nothing here affects your grade; it only confirms you did
+the reading. -->
 
 
 </section>
