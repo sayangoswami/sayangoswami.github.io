@@ -1023,12 +1023,20 @@ two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
 <span id="cb12-12"><a></a>    col <span class="op">=</span> cuda.blockIdx.x <span class="op">*</span> TILE <span class="op">+</span> tx</span>
 <span id="cb12-13"><a></a></span>
 <span id="cb12-14"><a></a>    acc <span class="op">=</span> numba.float32(<span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li class="fragment"><strong>Line 1:</strong> <code>TILE</code> is a <em>module-level constant</em>, so Numba can <em>fix the shared-array shape</em> at compile time</li>
-<li class="fragment"><strong>Lines 6–7:</strong> the block’s <em>shared scratchpad</em>: one tile of A and one of B</li>
-<li class="fragment"><strong>Lines 10–12:</strong> <em><code>x</code> → column</em>, as Oct 21 showed. <code>row</code>/<code>col</code> are the thread’s <em>global</em> output position; <code>tx</code>/<code>ty</code> its <em>local</em> position in the tile</li>
-<li class="fragment"><strong>Line 14:</strong> a <em><code>float32</code> accumulator</em> (a plain <code>0.0</code> would be float64, Lab 5’s trap)</li>
-</ul>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Line 1:</strong> <code>TILE</code> is a <em>module-level constant</em>, so Numba can <em>fix the shared-array shape</em> at compile time</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 6–7:</strong> the block’s <em>shared scratchpad</em>: one tile of A and one of B</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 10–12:</strong> <em><code>x</code> → column</em>, as Oct 21 showed. <code>row</code>/<code>col</code> are the thread’s <em>global</em> output position; <code>tx</code>/<code>ty</code> its <em>local</em> position in the tile</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Line 14:</strong> a <em><code>float32</code> accumulator</em> (a plain <code>0.0</code> would be float64, Lab 5’s trap)</p>
+</div>
+</div>
 <aside class="notes">
 <p>~3 min. UPDATED 2026-10-21: the layout used to be x → row (blockIdx.x * TILE + threadIdx.x on row), which makes both global loads strided. Now matches Lab 09 Part 2, CK-09 and the lab key. The grid must match too: blocks = (ceil(N / TILE), ceil(M / TILE)) — x covers columns. Point out that this setup runs once per thread, before the tile loop.</p>
 <style type="text/css">
@@ -1068,6 +1076,26 @@ two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
 <span id="cb13-21"><a></a></span>
 <span id="cb13-22"><a></a>    <span class="cf">if</span> row <span class="op">&lt;</span> C.shape[<span class="dv">0</span>] <span class="kw">and</span> col <span class="op">&lt;</span> C.shape[<span class="dv">1</span>]:</span>
 <span id="cb13-23"><a></a>        C[row, col] <span class="op">=</span> acc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><strong>Line 1:</strong> number of tiles along the shared dimension, <em>rounded up</em> so a partial last tile still counts</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 4–13:</strong> each thread loads <em>one element of each tile</em>. Consecutive <code>tx</code> read <em>consecutive columns</em>: <em>coalesced</em></p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 9, 13:</strong> anything <em>off the edge</em> becomes 0, so it <em>adds nothing</em> to the dot product. This is what makes sizes that <em>aren’t multiples of TILE</em> work</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 15, 20:</strong> the <em>two barriers</em>. The next slide shows why <em>both</em> are needed</p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 17–18:</strong> the inner loop reads <em>only shared memory</em>: TILE multiply-adds per tile, <em>no global reads</em></p>
+</div>
+<div class="fragment fade-in-then-out">
+<p><strong>Lines 22–23:</strong> threads <em>outside C</em> still helped load tiles; they just <em>don’t write</em></p>
+</div>
+</div>
 <aside class="notes">
 <p>~4 min across this and the next sub-slide. CK-09 (Friday) asks students to write the guarded loads and place the barriers on rectangular, non-multiple-of-TILE matrices — this slide is the walkthrough for that. Verified in the CUDA simulator on 40×30 @ 30×20.</p>
 <style type="text/css">
@@ -1081,17 +1109,6 @@ two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</section>
-<section class="slide level2">
-
-<ul>
-<li class="fragment"><strong>Line 1:</strong> number of tiles along the shared dimension, <em>rounded up</em> so a partial last tile still counts</li>
-<li class="fragment"><strong>Lines 4–13:</strong> each thread loads <em>one element of each tile</em>. Consecutive <code>tx</code> read <em>consecutive columns</em>: <em>coalesced</em></li>
-<li class="fragment"><strong>Lines 9, 13:</strong> anything <em>off the edge</em> becomes 0, so it <em>adds nothing</em> to the dot product. This is what makes sizes that <em>aren’t multiples of TILE</em> work</li>
-<li class="fragment"><strong>Lines 15, 20:</strong> the <em>two barriers</em>. The next slide shows why <em>both</em> are needed</li>
-<li class="fragment"><strong>Lines 17–18:</strong> the inner loop reads <em>only shared memory</em>: TILE multiply-adds per tile, <em>no global reads</em></li>
-<li class="fragment"><strong>Lines 22–23:</strong> threads <em>outside C</em> still helped load tiles; they just <em>don’t write</em></li>
-</ul>
 <aside class="notes">
 <p>~2 min. The last bullet is the subtle one: out-of-range threads must not return early, because they still have to load their part of the tile and reach both barriers.</p>
 <style type="text/css">
@@ -1133,6 +1150,32 @@ two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
 </ul>
 <aside class="notes">
 <p>~3 min. This is the module’s centerpiece. The second bug is the one students rarely predict.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="tiled-kernel-launch" class="slide level2">
+<h2>Tiled Kernel: Launch</h2>
+<p>For <code>A</code> (M×K) @ <code>B</code> (K×N) = <code>C</code> (M×N):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a>threads <span class="op">=</span> (TILE, TILE)</span>
+<span id="cb14-2"><a></a>blocks  <span class="op">=</span> ((N <span class="op">+</span> TILE <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> TILE,    <span class="co"># x covers the columns of C</span></span>
+<span id="cb14-3"><a></a>           (M <span class="op">+</span> TILE <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> TILE)    <span class="co"># y covers the rows of C</span></span>
+<span id="cb14-4"><a></a>matmul_tiled[blocks, threads](A, B, C)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><em>One block per TILE×TILE tile of C</em>, one thread per element of C. For 1024×1024 at TILE = 16: <em>64 × 64 = 4,096 blocks</em> of 256 threads</li>
+<li class="fragment">Each block writes <em>one</em> tile of C, but <em>loops over</em> <code>ceil(K / TILE)</code> tiles of A and B, reusing the <em>same two shared arrays</em> every pass (64 passes in the example)</li>
+<li class="fragment">Blocks don’t share shared memory: an A tile is loaded <em>once per block that needs it</em>, not once per thread</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Two meanings of “tile” collide here — output tiles of C (one per block, fixed) and input tiles of A/B (many per block, streamed through the t loop). Name the distinction explicitly. The grid order must match the setup slide’s x → column layout: blocks[0] covers N (columns), blocks[1] covers M (rows) — the reverse of the naive kernel’s grid in Lab 09 Part 1. Same launch as Lab 09’s tiled_blocks() and CK-09’s blocks_per_grid (both given, not graded).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1232,16 +1275,16 @@ two-syncs-timeline; roofline-t4.svg from diags/make_roofline_chart.py.
 <section id="the-capstone-connection" class="slide level2">
 <h2>The Capstone Connection</h2>
 <p>The capstone’s tiled similarity kernel (CK-14 Part A) uses the same pattern on a different problem:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="at">@cuda.jit</span></span>
-<span id="cb14-2"><a></a><span class="kw">def</span> tiled_similarity(Q, D, sim, n_q, n_db, d):</span>
-<span id="cb14-3"><a></a>    tile_Q <span class="op">=</span> ...          <span class="co"># Gap 1a — a (TILE, TILE) shared tile for Q</span></span>
-<span id="cb14-4"><a></a>    tile_D <span class="op">=</span> ...          <span class="co"># Gap 1b — a (TILE, TILE) shared tile for D</span></span>
-<span id="cb14-5"><a></a>    ...</span>
-<span id="cb14-6"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(n_tiles):</span>
-<span id="cb14-7"><a></a>        ...               <span class="co"># load one element of each tile</span></span>
-<span id="cb14-8"><a></a>        ...               <span class="co"># Gap 2 — barrier after loading</span></span>
-<span id="cb14-9"><a></a>        ...               <span class="co"># accumulate from the shared tiles</span></span>
-<span id="cb14-10"><a></a>        ...               <span class="co"># Gap 3 — barrier before the next tile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb15-2"><a></a><span class="kw">def</span> tiled_similarity(Q, D, sim, n_q, n_db, d):</span>
+<span id="cb15-3"><a></a>    tile_Q <span class="op">=</span> ...          <span class="co"># Gap 1a — a (TILE, TILE) shared tile for Q</span></span>
+<span id="cb15-4"><a></a>    tile_D <span class="op">=</span> ...          <span class="co"># Gap 1b — a (TILE, TILE) shared tile for D</span></span>
+<span id="cb15-5"><a></a>    ...</span>
+<span id="cb15-6"><a></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(n_tiles):</span>
+<span id="cb15-7"><a></a>        ...               <span class="co"># load one element of each tile</span></span>
+<span id="cb15-8"><a></a>        ...               <span class="co"># Gap 2 — barrier after loading</span></span>
+<span id="cb15-9"><a></a>        ...               <span class="co"># accumulate from the shared tiles</span></span>
+<span id="cb15-10"><a></a>        ...               <span class="co"># Gap 3 — barrier before the next tile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li class="fragment">Same loop as today: <em>declare</em> shared tiles, <em>load</em> once per block, <em>sync</em>, <em>accumulate</em> from shared memory, <em>sync again</em></li>
 <li class="fragment">CK-14 gives you this skeleton with the <em>declarations and barriers removed</em> — exactly what this session covered</li>

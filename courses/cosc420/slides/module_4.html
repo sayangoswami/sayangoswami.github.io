@@ -736,12 +736,12 @@ bob 70.0
 <section id="lab-6-quiz-4-preview" class="slide level2">
 <h2>Lab 6 + Quiz 4 Preview</h2>
 <ul>
-<li><strong>Lab 6 (this Friday, Oct 23):</strong> Python exercises in Colab (lists, dicts, functions, <code>lambda</code>, <code>json</code>), then set up <code>sparkmagic</code> on your laptop against the classroom cluster.</li>
+<li><strong>Lab 6 (this Friday, Oct 23):</strong> Python exercises in Colab (lists, dicts, functions, <code>lambda</code>, <code>json</code>), then start your first Spark session right inside Colab.</li>
 <li><strong>Quiz 4 (end of Friday’s lab):</strong> Python basics — types, indentation, <code>=</code> vs.&nbsp;<code>==</code>, strings, lists, <code>range</code>, dicts, functions, and opening files. Everything on today’s slides.</li>
 <li><strong>EL3</strong> is due Friday too.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Remind students to install Python + Jupyter on their laptop before Friday if they can — the <code>sparkmagic</code> half of Lab 6 goes much faster when that’s already done.</p>
+<p><strong>Timing: 3 min.</strong> Nothing to install beforehand: Lab 6 is entirely in Colab (<code>pip install</code> of PySpark happens in the notebook). Just make sure everyone can sign in to Colab.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1055,7 +1055,7 @@ bob 70.0
 <ul>
 <li class="fragment">Every PySpark program starts by creating (or reusing) <em>exactly one</em> <code>SparkSession</code>.</li>
 <li class="fragment"><code>.getOrCreate()</code> — if a session <em>already exists, reuse it</em>; otherwise, create a new one.</li>
-<li class="fragment"><strong>In our classroom setup:</strong> every <code>%%spark</code> notebook cell (via <code>sparkmagic</code>, from Lab 6) <em>already has a <code>spark</code> object</em> ready to use — you skip the <code>SparkSession.builder</code> step entirely in Labs 7 and 8 and the capstone. You’ll <em>still write it by hand for Checkpoint 4</em>, since checkpoints are graded as standalone code.</li>
+<li class="fragment"><strong>In our classroom setup:</strong> in Colab (Labs 6–7) you build the session yourself, with <code>.master("local[*]")</code>. On the classroom cluster, every <code>%%spark</code> cell (via <code>sparkmagic</code>, from Lab 7) <em>already has a <code>spark</code> object</em> ready to use, so you skip the <code>SparkSession.builder</code> step in Lab 8 and the capstone. You’ll <em>still write it by hand for Checkpoint 4</em>, since checkpoints are graded as standalone code.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Flag the discrepancy explicitly: checkpoints want the full <code>SparkSession.builder...</code> line (Quiz 5 Q3 tests this exact syntax); the labs’ <code>%%spark</code> cells already have <code>spark</code> built for you. Both are correct, in their own context — this is not a contradiction.</p>
@@ -1319,12 +1319,12 @@ bob 70.0
 <section id="lab-6-recap-lab-7-preview" class="slide level2">
 <h2>Lab 6 Recap / Lab 7 Preview</h2>
 <ul>
-<li><strong>Lab 6 (Oct 23, already done):</strong> Python fluency in Colab, plus getting <code>sparkmagic</code> connected to the classroom cluster from your own laptop.</li>
-<li><strong>Lab 7 (this Friday, Oct 30):</strong> your first real PySpark job — create a DataFrame, apply transformations, and watch the transformation-vs-action distinction play out live, including using <code>.explain()</code> to see Spark’s execution plan for yourself.</li>
+<li><strong>Lab 6 (Oct 23):</strong> Python fluency in Colab, plus your first local Spark session in Colab.</li>
+<li><strong>Lab 7 (this Friday, Oct 30):</strong> your first real PySpark job, in Colab — create a DataFrame, apply transformations, and watch the transformation-vs-action distinction play out live, including using <code>.explain()</code> to see Spark’s execution plan for yourself. Then connect to the classroom cluster with <code>sparkmagic</code> and run the same code there.</li>
 </ul>
-<p>If <code>sparkmagic</code> isn’t connecting yet, sort that out <strong>before</strong> Friday — Lab 7 assumes it works.</p>
+<p>Have your classroom-terminal username and password (Lab 4/5) handy on Friday — Lab 7’s last task uses them.</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Practical logistics slide — leave a moment for questions about <code>sparkmagic</code> setup specifically, since that’s the most common blocker going into Lab 7.</p>
+<p><strong>Timing: 3 min.</strong> Practical logistics slide. Ask who has forgotten their classroom-terminal password and reset those before Friday: it’s the most likely blocker for Lab 7’s Task 4.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

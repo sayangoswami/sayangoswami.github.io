@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2026-09-04">
 
-<title>Lab 6: Python in Colab + sparkmagic Setup – Class Notes</title>
+<title>Lab 6: Python in Colab + Your First Spark Session – Class Notes</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -178,7 +178,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#lab-6-python-in-colab-sparkmagic-setup" id="toc-lab-6-python-in-colab-sparkmagic-setup" class="nav-link active" data-scroll-target="#lab-6-python-in-colab-sparkmagic-setup">Lab 6: Python in Colab + <code>sparkmagic</code> Setup</a>
+  <li><a href="#lab-6-python-in-colab-your-first-spark-session" id="toc-lab-6-python-in-colab-your-first-spark-session" class="nav-link active" data-scroll-target="#lab-6-python-in-colab-your-first-spark-session">Lab 6: Python in Colab + Your First Spark Session</a>
   <ul class="collapse">
   <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">Background</a></li>
   <li><a href="#part-1-python-exercises-in-google-colab-30-min" id="toc-part-1-python-exercises-in-google-colab-30-min" class="nav-link" data-scroll-target="#part-1-python-exercises-in-google-colab-30-min">Part 1 — Python Exercises in Google Colab (30 min)</a>
@@ -188,7 +188,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#exercise-3-functions-and-lambda" id="toc-exercise-3-functions-and-lambda" class="nav-link" data-scroll-target="#exercise-3-functions-and-lambda">Exercise 3 — Functions and Lambda</a></li>
   <li><a href="#exercise-4-working-with-json" id="toc-exercise-4-working-with-json" class="nav-link" data-scroll-target="#exercise-4-working-with-json">Exercise 4 — Working with JSON</a></li>
   </ul></li>
-  <li><a href="#part-2-sparkmagic-setup-20-min" id="toc-part-2-sparkmagic-setup-20-min" class="nav-link" data-scroll-target="#part-2-sparkmagic-setup-20-min">Part 2 — <code>sparkmagic</code> Setup (20 min)</a></li>
+  <li><a href="#part-2-your-first-spark-session-in-colab-20-min" id="toc-part-2-your-first-spark-session-in-colab-20-min" class="nav-link" data-scroll-target="#part-2-your-first-spark-session-in-colab-20-min">Part 2 — Your First Spark Session, in Colab (20 min)</a></li>
   <li><a href="#submission" id="toc-submission" class="nav-link" data-scroll-target="#submission">Submission</a></li>
   </ul></li>
   </ul>
@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lab 6: Python in Colab + <code>sparkmagic</code> Setup</h1>
+<h1 class="title">Lab 6: Python in Colab + Your First Spark Session</h1>
 </div>
 
 
@@ -222,8 +222,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="lab-6-python-in-colab-sparkmagic-setup" class="level1">
-<h1>Lab 6: Python in Colab + <code>sparkmagic</code> Setup</h1>
+<section id="lab-6-python-in-colab-your-first-spark-session" class="level1">
+<h1>Lab 6: Python in Colab + Your First Spark Session</h1>
 <p><strong>Date:</strong> October 23<br>
 <strong>Duration:</strong> 50 minutes<br>
 <strong>Points:</strong> 10<br>
@@ -231,7 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>PySpark is Python. Before you can write Spark jobs, you need to be comfortable with the Python features that PySpark uses constantly: lists, dictionaries, functions, and list comprehensions. Today you practice these in Google Colab, then set up <code>sparkmagic</code> — a local Jupyter extension that lets you write PySpark in a notebook on your own laptop while the actual computation runs on the classroom Hadoop/Spark cluster. This is what you’ll use for Labs 7 and 8 and the capstone.</p>
+<p>PySpark is Python. Before you can write Spark jobs, you need to be comfortable with the Python features that PySpark uses constantly: lists, dictionaries, functions, and list comprehensions. Today you practice these in Google Colab, then start your first Spark session right inside the same Colab notebook. Everything in this course’s PySpark work (Labs 7 and 8 and the capstone) happens in Colab; starting in Lab 7, you’ll also connect that notebook to the classroom Hadoop/Spark cluster.</p>
 <hr>
 </section>
 <section id="part-1-python-exercises-in-google-colab-30-min" class="level2">
@@ -306,49 +306,36 @@ Hint: <code>sorted(result.items(), key=lambda x: x[1], reverse=True)</code></p>
 <hr>
 </section>
 </section>
-<section id="part-2-sparkmagic-setup-20-min" class="level2">
-<h2 class="anchored" data-anchor-id="part-2-sparkmagic-setup-20-min">Part 2 — <code>sparkmagic</code> Setup (20 min)</h2>
-<p><code>sparkmagic</code> gives your local Jupyter notebook <code>%%spark</code> cell magics that submit code to the classroom cluster over HTTPS and send results back. Nothing runs on your laptop except the notebook interface itself — the actual Spark execution happens on the classroom server, isolated and capped the same way MapReduce jobs are.</p>
+<section id="part-2-your-first-spark-session-in-colab-20-min" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-your-first-spark-session-in-colab-20-min">Part 2 — Your First Spark Session, in Colab (20 min)</h2>
+<p>PySpark is just a Python library, so the quickest way to meet Spark is to run it right inside your Colab notebook. Spark’s <code>local[*]</code> mode runs the whole engine on the Colab VM (the driver and the workers become threads in one process) instead of spreading work across a cluster. You write exactly the same DataFrame code either way, which is why we start here: Lab 7 builds your first real PySpark job in this setup, then runs the same code unchanged on the classroom cluster.</p>
 <p><strong>Steps:</strong></p>
 <ol type="1">
-<li><p>Install <code>sparkmagic</code> and register its PySpark kernel:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install jupyter sparkmagic</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter-kernelspec</span> install <span class="at">--user</span> <span class="dt">\</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"</span><span class="va">$(</span><span class="ex">pip</span> show sparkmagic <span class="kw">|</span> <span class="fu">grep</span> Location <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">' '</span> <span class="at">-f2</span><span class="va">)</span><span class="st">/sparkmagic/kernels/pysparkkernel"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
-<li><p>Create <code>~/.sparkmagic/config.json</code> with your own credentials (the same username/password from Lab 4/5):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"kernel_python_credentials"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"username"</span><span class="fu">:</span> <span class="st">"&lt;your-linux-username&gt;"</span><span class="fu">,</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"password"</span><span class="fu">:</span> <span class="st">"&lt;your-linux-password&gt;"</span><span class="fu">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"https://&lt;SPARK_HOSTNAME&gt;"</span><span class="fu">,</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"auth"</span><span class="fu">:</span> <span class="st">"Basic_Access"</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"session_configs"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"driverMemory"</span><span class="fu">:</span> <span class="st">"512m"</span><span class="fu">,</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"executorMemory"</span><span class="fu">:</span> <span class="st">"512m"</span><span class="fu">,</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"numExecutors"</span><span class="fu">:</span> <span class="dv">1</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
-<li><p>Launch Jupyter (<code>jupyter notebook</code>), create a new notebook, and select the <strong>PySpark</strong> kernel</p></li>
-<li><p>In the first cell, run:</p>
+<li><p>In a new cell in the same Colab notebook, install PySpark at the same version as the classroom cluster (Spark 3.5.x):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>q <span class="st">"pyspark==3.5.*"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>Start a local Spark session:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    .master(<span class="st">"local[*]"</span>) <span class="op">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"Lab6"</span>) <span class="op">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>In the next cell, run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(spark.version)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>spark.<span class="bu">range</span>(<span class="dv">5</span>).show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(spark.sparkContext.master)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(spark.sparkContext.defaultParallelism)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>spark.<span class="bu">range</span>(<span class="dv">5</span>).show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Take a screenshot of the output</p></li>
 </ol>
-<p><strong>No laptop? Using a classroom desktop?</strong> You can’t install a custom Jupyter kernel in Google Colab, so the steps above won’t work as written — use <code>sparkmagic</code>’s <strong>magics-only mode</strong> instead, inside an ordinary Colab notebook:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install sparkmagic</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext sparkmagic.magics</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>spark add <span class="op">-</span>s classroom <span class="op">-</span>l python <span class="op">-</span>u https:<span class="op">//&lt;</span>SPARK_HOSTNAME<span class="op">&gt;</span> <span class="op">-</span>a <span class="op">&lt;</span>your<span class="op">-</span>linux<span class="op">-</span>username<span class="op">&gt;</span> <span class="op">-</span>k</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This prompts for your password instead of reading it from a config file. Then run Step 4’s code in a <code>%%spark</code> cell:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>spark</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(spark.version)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>spark.<span class="bu">range</span>(<span class="dv">5</span>).show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Important:</strong> Colab’s runtime resets between sessions — there’s no persisted config the way a local install has. You’ll need to re-run the <code>pip install</code> / <code>%load_ext</code> / <code>%spark add</code> cells every time you start a new Colab session for Labs 7–8 and the capstone, not just once today. Get in the habit of keeping those three cells at the top of every notebook you write from a classroom desktop.</p>
+<blockquote class="blockquote">
+<p><strong>Call it <code>spark</code>, not <code>spark_local</code> or anything else.</strong> On the classroom cluster (Lab 7 onward), the session is created <em>for</em> you and it’s always named <code>spark</code>. Using the same name here means every line you write locally runs unchanged on the cluster.</p>
+</blockquote>
+<p><strong>Important:</strong> Colab’s runtime resets between sessions, and the installed PySpark and your <code>spark</code> session disappear with it. Re-run the Step 1 and Step 2 cells at the top of the notebook each time you come back. Get in the habit of keeping them as the first two cells.</p>
 <p><strong>Questions:</strong></p>
 <ol type="1">
-<li>What version of Spark is running on the classroom cluster?</li>
+<li>What version of Spark are you running?</li>
 <li>What does <code>spark.range(5).show()</code> print? What type of object is the result of <code>spark.range(5)</code>?</li>
-<li>When you ran the cell above, where did the actual computation happen — your own machine (laptop or Colab), or the classroom server? How do you know?</li>
+<li>What do <code>spark.sparkContext.master</code> and <code>spark.sparkContext.defaultParallelism</code> print? Based on that, where did the computation actually happen, and on how many machines?</li>
 </ol>
 <hr>
 </section>
@@ -357,10 +344,11 @@ Hint: <code>sorted(result.items(), key=lambda x: x[1], reverse=True)</code></p>
 <p>Upload to Blackboard:</p>
 <ol type="1">
 <li><strong>Screenshot 1</strong> — your Colab notebook showing all four exercises running with correct output</li>
-<li><strong>Screenshot 2</strong> — your local Jupyter notebook (PySpark kernel) showing <code>spark.version</code> and <code>spark.range(5).show()</code> output</li>
+<li><strong>Screenshot 2</strong> — the same notebook showing your Part 2 output (<code>spark.version</code>, <code>master</code>, <code>defaultParallelism</code>, and <code>spark.range(5).show()</code>)</li>
 <li><strong>Notebook file</strong> — download your Colab notebook (File → Download → <code>.ipynb</code>) and upload it</li>
-<li><strong>Answers</strong> — paste your 3 <code>sparkmagic</code> answers into the Blackboard text box</li>
+<li><strong>Answers</strong> — paste your 3 Part 2 answers into the Blackboard text box</li>
 </ol>
+<hr>
 
 
 </section>

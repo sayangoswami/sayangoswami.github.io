@@ -696,7 +696,7 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
 <ul>
 <li class="fragment">Images, matrices, and (soon) the capstone’s similarity table are inherently two-dimensional</li>
 <li class="fragment">Same idea as 1D, doubled: one thread per <code>(row, col)</code> pair instead of one thread per index</li>
-<li class="fragment"><code>cuda.grid(2)</code> returns a <code>(row, col)</code> tuple directly — you don’t need to compute it by hand from <code>blockIdx</code>/<code>threadIdx</code> (though you still can, next slide shows the underlying formula)</li>
+<li class="fragment"><code>cuda.grid(2)</code> returns the global <code>(x, y)</code> thread index, which we unpack as <code>(row, col)</code> — you don’t need to compute it by hand from <code>blockIdx</code>/<code>threadIdx</code> (though you still can, next slide shows the underlying formula)</li>
 </ul>
 <div class="fragment">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="at">@cuda.jit</span></span>
@@ -708,7 +708,7 @@ Memory bandwidth                  : ~320 GB/s</code></pre>
 <li class="fragment">The bounds guard is now <strong>two conditions ANDed together</strong> — a thread must be in-bounds on <em>both</em> axes to do useful work</li>
 </ul>
 <aside class="notes">
-<p>~3 min. <code>cuda.grid(2)</code> returning <code>(row, col)</code> directly is the convention used in every 2D checkpoint and lab this semester (CK-05, Lab 05) — always unpack it as <code>row, col = cuda.grid(2)</code>, never reorder it.</p>
+<p>~3 min. <code>cuda.grid(2)</code> returns <code>(x, y)</code>; naming them <code>row, col</code> is a choice, not something the function does. It’s the convention used in the Module 2–3 2D checkpoints and labs (CK-05, Lab 05), so keep it for now — but don’t call it the only correct order. It puts the fast-varying <code>threadIdx.x</code> on <code>row</code>, which makes row-major reads strided; Oct 21 (Module 4, Lab 08 Ex 3) revisits this and has students swap to <code>col, row</code> for coalesced access. If asked now: “which way round is faster is a Module 4 question — hold that thought.”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

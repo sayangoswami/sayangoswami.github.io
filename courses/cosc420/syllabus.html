@@ -340,7 +340,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="course-requirements" class="level2">
 <h2 class="anchored" data-anchor-id="course-requirements">Course Requirements</h2>
-<p>A laptop/desktop with an internet connection is required for this course because the labs and capstone project depend on it. You will run Java locally, use Google Colab in the browser for Python, and install <code>sparkmagic</code> (<code>pip install</code>) to submit PySpark jobs to the instructor-hosted classroom cluster; MongoDB Atlas and Blackboard are used through the browser. Tablets generally don’t work with these tools. <strong>No credit card is required for any tool</strong> — MongoDB Atlas and Google Colab need only a free account. If you don’t have a laptop/desktop, you can borrow a <em>Chromebook</em> from the Library (first-come, first-served; semester-long loan due May 1 or December 1), or work on <em>library desktop computers</em> (Windows) available on the first and second floors. See the <a href="https://library.smcm.edu/services/computers/">SMCM library computing page</a> for details.</p>
+<p>A laptop/desktop with an internet connection is required for this course because the labs and capstone project depend on it. You will run Java locally, use Google Colab in the browser for Python and PySpark (including submitting PySpark jobs to the instructor-hosted classroom cluster via <code>sparkmagic</code>, installed inside Colab); MongoDB Atlas and Blackboard are used through the browser. Tablets generally don’t work with these tools. <strong>No credit card is required for any tool</strong> — MongoDB Atlas and Google Colab need only a free account. If you don’t have a laptop/desktop, you can borrow a <em>Chromebook</em> from the Library (first-come, first-served; semester-long loan due May 1 or December 1), or work on <em>library desktop computers</em> (Windows) available on the first and second floors. See the <a href="https://library.smcm.edu/services/computers/">SMCM library computing page</a> for details.</p>
 </section>
 <section id="methods-of-evaluation" class="level2">
 <h2 class="anchored" data-anchor-id="methods-of-evaluation">Methods of Evaluation</h2>
@@ -713,7 +713,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Oct 23</td>
 <td>Fri</td>
 <td><strong>Lab 6</strong> + <strong>Quiz 4</strong></td>
-<td>Python exercises in Colab; <code>sparkmagic</code> setup against the classroom cluster → Quiz 4: Python basics (EL3 due)</td>
+<td>Python exercises in Colab; first local Spark session in Colab → Quiz 4: Python basics (EL3 due)</td>
 </tr>
 </tbody>
 </table>
@@ -752,7 +752,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Oct 30</td>
 <td>Fri</td>
 <td><strong>Lab 7</strong> + <strong>Quiz 5</strong></td>
-<td>First PySpark job on the classroom cluster via <code>sparkmagic</code> — create and inspect a DataFrame, chain transformations, and see lazy evaluation / transformations vs.&nbsp;actions with <code>.explain()</code> → Quiz 5: Spark intro</td>
+<td>First PySpark job, in Colab — create and inspect a DataFrame, chain transformations, and see lazy evaluation / transformations vs.&nbsp;actions with <code>.explain()</code>; then connect to the classroom cluster via <code>sparkmagic</code> and run the same code there → Quiz 5: Spark intro</td>
 </tr>
 <tr class="even">
 <td>Nov 2</td>
