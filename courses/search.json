@@ -2282,6 +2282,90 @@
     "text": "Reflection Prompts\nWrite a 200–300 word reflection on Blackboard for EL-02. Address all three prompts:\n1. The memory hierarchy. Describe in your own words the difference between the GPU’s on-chip memory and its off-chip DRAM. How does this map to the distinction between shared memory and global memory in Numba? (Hint: what we call “shared memory” in CUDA lives on-chip.)\n2. Threads and arithmetic units. The video shows how many ALUs (arithmetic logic units) a modern GPU packs onto a chip. Why does having thousands of arithmetic units only help if you also have enough work to keep them busy? Connect this to something you observed in Lab 06 (GPU timing).\n3. The bottleneck. After watching, what do you think is the main bottleneck in a typical GPU computation — the arithmetic units running out of work, or the memory system not supplying data fast enough? What evidence from the video or from your labs supports your answer?"
   },
   {
+    "objectID": "cosc435/notes/16.html#todays-plan",
+    "href": "cosc435/notes/16.html#todays-plan",
+    "title": "Tiled matrix multiply",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\nThe naive matmul kernel’s memory problem, in concrete numbers\nThe tiling idea: load once per block, reuse many times\nA complete tiled kernel, built up piece by piece\nTile size as a real design decision, and the capstone connection\n\n\n~1 min. Full 50-min session, no quiz. This is “the canonical GPU optimization” per schedule.md’s own description — worth treating as the centerpiece lecture of the module."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#the-naive-approach",
+    "href": "cosc435/notes/16.html#the-naive-approach",
+    "title": "Tiled matrix multiply",
+    "section": "The Naive Approach",
+    "text": "The Naive Approach\n@cuda.jit\ndef matmul_naive(A, B, C):\n    row, col = cuda.grid(2)\n    if row &lt; C.shape[0] and col &lt; C.shape[1]:\n        acc = numba.float32(0.0)\n        for k in range(A.shape[1]):    # inner dimension\n            acc += A[row, k] * B[k, col]\n        C[row, col] = acc\n\nThread (row, col) reads all of row row of A and all of column col of B\nRow row of A is needed by every thread in that row of C: N_col threads, each fetching it separately. Column col of B: N_row times\nEvery element of A and B is fetched from global memory about N times, when once would do. That’s why it sits at 0.25 FLOP/byte on the roofline\n\n\n~2 min. This is Lab 5’s kernel with the x → row layout, the same as Lab 9 Part 1 (kept on purpose as the baseline). Caches catch some of the repeat reads in practice (Lab 6), but nothing guarantees it."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#the-tiling-idea",
+    "href": "cosc435/notes/16.html#the-tiling-idea",
+    "title": "Tiled matrix multiply",
+    "section": "The Tiling Idea",
+    "text": "The Tiling Idea"
+  },
+  {
+    "objectID": "cosc435/notes/16.html#tiled-kernel-setup",
+    "href": "cosc435/notes/16.html#tiled-kernel-setup",
+    "title": "Tiled matrix multiply",
+    "section": "Tiled Kernel: Setup",
+    "text": "Tiled Kernel: Setup\nTILE = 16\n\n@cuda.jit\ndef matmul_tiled(A, B, C):\n    # Shared memory tiles — size TILE×TILE each\n    tile_A = cuda.shared.array((TILE, TILE), numba.float32)\n    tile_B = cuda.shared.array((TILE, TILE), numba.float32)\n\n    # x walks the columns (coalesced, Oct 21); y walks the rows\n    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y\n    row = cuda.blockIdx.y * TILE + ty\n    col = cuda.blockIdx.x * TILE + tx\n\n    acc = numba.float32(0.0)\n\n\nLine 1: TILE is a module-level constant, so Numba can fix the shared-array shape at compile time\n\n\nLines 6–7: the block’s shared scratchpad: one tile of A and one of B\n\n\nLines 10–12: x → column, as Oct 21 showed. row/col are the thread’s global output position; tx/ty its local position in the tile\n\n\nLine 14: a float32 accumulator (a plain 0.0 would be float64, Lab 5’s trap)\n\n\n\n~3 min. UPDATED 2026-10-21: the layout used to be x → row (blockIdx.x * TILE + threadIdx.x on row), which makes both global loads strided. Now matches Lab 09 Part 2, CK-09 and the lab key. The grid must match too: blocks = (ceil(N / TILE), ceil(M / TILE)) — x covers columns. Point out that this setup runs once per thread, before the tile loop."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#tiled-kernel-loop-over-tiles",
+    "href": "cosc435/notes/16.html#tiled-kernel-loop-over-tiles",
+    "title": "Tiled matrix multiply",
+    "section": "Tiled Kernel: Loop Over Tiles",
+    "text": "Tiled Kernel: Loop Over Tiles\n    n_tiles = (A.shape[1] + TILE - 1) // TILE\n\n    for t in range(n_tiles):\n        a_col = t * TILE + tx                    # this thread's column in A\n        b_row = t * TILE + ty                    # this thread's row in B\n        if row &lt; A.shape[0] and a_col &lt; A.shape[1]:\n            tile_A[ty, tx] = A[row, a_col]       # load: global → shared\n        else:\n            tile_A[ty, tx] = 0.0                 # off the edge: pad with 0\n        if b_row &lt; B.shape[0] and col &lt; B.shape[1]:\n            tile_B[ty, tx] = B[b_row, col]\n        else:\n            tile_B[ty, tx] = 0.0\n\n        cuda.syncthreads()                       # sync 1: tiles fully loaded\n\n        for k in range(TILE):\n            acc += tile_A[ty, k] * tile_B[k, tx]\n\n        cuda.syncthreads()                       # sync 2: everyone done reading\n\n    if row &lt; C.shape[0] and col &lt; C.shape[1]:\n        C[row, col] = acc\n\n\nLine 1: number of tiles along the shared dimension, rounded up so a partial last tile still counts\n\n\nLines 4–13: each thread loads one element of each tile. Consecutive tx read consecutive columns: coalesced\n\n\nLines 9, 13: anything off the edge becomes 0, so it adds nothing to the dot product. This is what makes sizes that aren’t multiples of TILE work\n\n\nLines 15, 20: the two barriers. The next slide shows why both are needed\n\n\nLines 17–18: the inner loop reads only shared memory: TILE multiply-adds per tile, no global reads\n\n\nLines 22–23: threads outside C still helped load tiles; they just don’t write\n\n\n\n~4 min across this and the next sub-slide. CK-09 (Friday) asks students to write the guarded loads and place the barriers on rectangular, non-multiple-of-TILE matrices — this slide is the walkthrough for that. Verified in the CUDA simulator on 40×30 @ 30×20.\n\n\n~2 min. The last bullet is the subtle one: out-of-range threads must not return early, because they still have to load their part of the tile and reach both barriers."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#why-two-syncthreads",
+    "href": "cosc435/notes/16.html#why-two-syncthreads",
+    "title": "Tiled matrix multiply",
+    "section": "Why Two syncthreads()?",
+    "text": "Why Two syncthreads()?\n\n\n~2 min on the figure. Before revealing the next sub-slide, ask: what goes wrong with only sync 1? With only sync 2? The two failure modes are different enough that guessing correctly requires understanding the loop, not pattern-matching “GPU code needs syncthreads somewhere.”"
+  },
+  {
+    "objectID": "cosc435/notes/16.html#tiled-kernel-launch",
+    "href": "cosc435/notes/16.html#tiled-kernel-launch",
+    "title": "Tiled matrix multiply",
+    "section": "Tiled Kernel: Launch",
+    "text": "Tiled Kernel: Launch\nFor A (M×K) @ B (K×N) = C (M×N):\nthreads = (TILE, TILE)\nblocks  = ((N + TILE - 1) // TILE,    # x covers the columns of C\n           (M + TILE - 1) // TILE)    # y covers the rows of C\nmatmul_tiled[blocks, threads](A, B, C)\n\nOne block per TILE×TILE tile of C, one thread per element of C. For 1024×1024 at TILE = 16: 64 × 64 = 4,096 blocks of 256 threads\nEach block writes one tile of C, but loops over ceil(K / TILE) tiles of A and B, reusing the same two shared arrays every pass (64 passes in the example)\nBlocks don’t share shared memory: an A tile is loaded once per block that needs it, not once per thread\n\n\n~2 min. Two meanings of “tile” collide here — output tiles of C (one per block, fixed) and input tiles of A/B (many per block, streamed through the t loop). Name the distinction explicitly. The grid order must match the setup slide’s x → column layout: blocks[0] covers N (columns), blocks[1] covers M (rows) — the reverse of the naive kernel’s grid in Lab 09 Part 1. Same launch as Lab 09’s tiled_blocks() and CK-09’s blocks_per_grid (both given, not graded)."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#tile-size-and-performance",
+    "href": "cosc435/notes/16.html#tile-size-and-performance",
+    "title": "Tiled matrix multiply",
+    "section": "TILE Size and Performance",
+    "text": "TILE Size and Performance\nOn a T4 (max 1,024 threads and 16 blocks per SM, 64 KB shared memory per SM):\n\n\n\n\n\n\n\n\n\n\nTILE\nThreads / block\nShared mem / block\nBlocks per SM\nReuse per global load\n\n\n\n\n8\n64\n2×8×8×4 B = 512 B\n16 (block limit)\n8×\n\n\n16\n256\n2 KB\n4\n16×\n\n\n32\n1,024\n8 KB\n1\n32×\n\n\n\n\nAll three fill the SM with 1,024 threads, and shared memory is nowhere near the 64 KB limit\nWhat changes is reuse (bigger is better) and how many blocks the SM can switch between\n\n\n~2 min. Same occupancy reasoning as module03’s “Why 16×16 Won Here”: on a T4 all three configs are at 100% theoretical occupancy. The old version of this slide said larger tiles lower occupancy via shared memory, which isn’t true at these sizes."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#the-capstone-connection",
+    "href": "cosc435/notes/16.html#the-capstone-connection",
+    "title": "Tiled matrix multiply",
+    "section": "The Capstone Connection",
+    "text": "The Capstone Connection\nThe capstone’s tiled similarity kernel (CK-14 Part A) uses the same pattern on a different problem:\n@cuda.jit\ndef tiled_similarity(Q, D, sim, n_q, n_db, d):\n    tile_Q = ...          # Gap 1a — a (TILE, TILE) shared tile for Q\n    tile_D = ...          # Gap 1b — a (TILE, TILE) shared tile for D\n    ...\n    for t in range(n_tiles):\n        ...               # load one element of each tile\n        ...               # Gap 2 — barrier after loading\n        ...               # accumulate from the shared tiles\n        ...               # Gap 3 — barrier before the next tile\n\nSame loop as today: declare shared tiles, load once per block, sync, accumulate from shared memory, sync again\nCK-14 gives you this skeleton with the declarations and barriers removed — exactly what this session covered\n\n\n~2 min. Plant this explicitly as reassurance for a checkpoint that’s still many weeks away (capstone milestones land in Module 7). The skeleton is abbreviated; names and gap numbers match checkpoints/ck14-capstone-milestone2.md. (CK-14 itself still uses the x → row layout; its correctness doesn’t depend on it.)"
+  },
+  {
+    "objectID": "cosc435/notes/16.html#module-4-wrap-up",
+    "href": "cosc435/notes/16.html#module-4-wrap-up",
+    "title": "Tiled matrix multiply",
+    "section": "Module 4 Wrap-Up",
+    "text": "Module 4 Wrap-Up\n\nOct 21: Access pattern decides how many transactions a warp needs. Make threadIdx.x walk the last index so a warp’s reads are coalesced\nOct 26: Shared memory lets a block load data once and reuse it; syncthreads() must separate writes from other threads’ reads, and never sit inside a branch only some threads take. Bank conflicts serialize shared-memory access\nOct 28: Tiled matmul combines both: coalesced tile loads, TILE× fewer global reads, and two barriers per tile\n\n\n~1 min. Good slide to put up again just before Quiz 5, which covers this whole module."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#looking-ahead",
+    "href": "cosc435/notes/16.html#looking-ahead",
+    "title": "Tiled matrix multiply",
+    "section": "Looking Ahead",
+    "text": "Looking Ahead\n\nLab 09 (Fri, Oct 30): Implement the tiled matmul kernel yourself — time it against naive matmul and NumPy at 512×512, and sweep tile size — CK-09 same day\nQuiz 5 opens Lab 10 (Fri, Nov 6, moved there by the Nov 4 Wellness Day) and covers all of Module 4\nModule 5 starts Nov 2: parallel reduction — the stride-halving pattern from today’s block-max example, done properly\n\n\n~1 min. Flag the Quiz 5 date/placement explicitly — it’s unusual (inside a lab session, not opening a lecture) and easy to miscommunicate if not called out."
+  },
+  {
+    "objectID": "cosc435/notes/16.html#checkpoint-preview",
+    "href": "cosc435/notes/16.html#checkpoint-preview",
+    "title": "Tiled matrix multiply",
+    "section": "Checkpoint Preview",
+    "text": "Checkpoint Preview\nCheckpoint CK-09 will ask you to:\n\nComplete a tiled matmul kernel for rectangular matrices whose sizes aren’t multiples of TILE\nWrite the bounds-guarded tile loads yourself, and decide where the barriers go\nYour kernel is re-run several times and must be correct every time, so races are caught\n\n\n~1 min. 20-minute timed, paired with Lab 09 (Oct 30). REWRITTEN 2026-10-02: the guarded loads used to be given, the barriers were labeled, and the matrices were square multiples of 16. No new concepts: the zero-padded loads are exactly the walkthrough on the tiled-kernel slides."
+  },
+  {
     "objectID": "cosc435/notes/14.html#todays-plan",
     "href": "cosc435/notes/14.html#todays-plan",
     "title": "Memory Coalescing",
@@ -4309,7 +4393,7 @@
     "href": "cosc420/notes/25-lab6.html",
     "title": "Lab 6: Python in Colab + Your First Spark Session",
     "section": "",
-    "text": "Date: October 23\nDuration: 50 minutes\nPoints: 10\nCompetency: Enabling lab — Python fluency for PySpark (EL1/EL3 prerequisite)\n\n\n\nPySpark is Python. Before you can write Spark jobs, you need to be comfortable with the Python features that PySpark uses constantly: lists, dictionaries, functions, and list comprehensions. Today you practice these in Google Colab, then start your first Spark session right inside the same Colab notebook. Everything in this course’s PySpark work (Labs 7 and 8 and the capstone) happens in Colab; starting in Lab 7, you’ll also connect that notebook to the classroom Hadoop/Spark cluster.\n\n\n\n\nOpen colab.research.google.com and create a new notebook. Complete the following exercises in separate cells.\n\n\n\nYou are given a list of temperatures in Fahrenheit. Convert each to Celsius using the formula C = (F - 32) * 5/9.\nfahrenheit = [32, 68, 98.6, 212, -40, 77, 100]\n\n# YOUR CODE HERE\n# Use a for loop to build a new list called celsius\n# Print both lists side by side\nExpected output:\n32°F  →  0.0°C\n68°F  →  20.0°C\n98.6°F  →  37.0°C\n...\nThen repeat using a list comprehension (one line).\n\n\n\n\nYou are given a list of student scores. Compute the average score for each student and store results in a dictionary.\nscores = {\n    \"Alice\":  [85, 92, 78, 90],\n    \"Bob\":    [70, 65, 80, 75],\n    \"Carol\":  [95, 98, 92, 97],\n    \"Dave\":   [60, 55, 70, 65],\n}\n\n# YOUR CODE HERE\n# Build a new dict: averages = {\"Alice\": 86.25, \"Bob\": ..., ...}\n# Print each student and their average, sorted by average descending\n\n\n\n\nWrite a function word_count(text) that takes a string and returns a dictionary mapping each word to how many times it appears (case-insensitive).\ndef word_count(text):\n    # YOUR CODE HERE\n    pass\n\nresult = word_count(\"the cat sat on the mat the cat sat\")\nprint(result)\n# Expected: {'the': 3, 'cat': 2, 'sat': 2, 'on': 1, 'mat': 1}\nThen sort the dictionary by count descending and print the top 3 words.\nHint: sorted(result.items(), key=lambda x: x[1], reverse=True)\n\n\n\n\nimport json\n\n# This simulates a response you might get from a REST API\ndata = '''\n[\n  {\"name\": \"Alice\", \"dept\": \"Engineering\", \"salary\": 95000},\n  {\"name\": \"Bob\",   \"dept\": \"Marketing\",   \"salary\": 62000},\n  {\"name\": \"Carol\", \"dept\": \"Engineering\", \"salary\": 78000},\n  {\"name\": \"Dave\",  \"dept\": \"Marketing\",   \"salary\": 71000}\n]\n'''\n\nemployees = json.loads(data)\n\n# YOUR CODE HERE:\n# 1. Print all Engineering employees\n# 2. Compute average salary for each department\n# 3. Find the highest-paid employee\n\n\n\n\n\nPySpark is just a Python library, so the quickest way to meet Spark is to run it right inside your Colab notebook. Spark’s local[*] mode runs the whole engine on the Colab VM (the driver and the workers become threads in one process) instead of spreading work across a cluster. You write exactly the same DataFrame code either way, which is why we start here: Lab 7 builds your first real PySpark job in this setup, then runs the same code unchanged on the classroom cluster.\nSteps:\n\nIn a new cell in the same Colab notebook, install PySpark at the same version as the classroom cluster (Spark 3.5.x):\n!pip install -q \"pyspark==3.5.*\"\nStart a local Spark session:\nfrom pyspark.sql import SparkSession\n\nspark = SparkSession.builder \\\n    .master(\"local[*]\") \\\n    .appName(\"Lab6\") \\\n    .getOrCreate()\nIn the next cell, run:\nprint(spark.version)\nprint(spark.sparkContext.master)\nprint(spark.sparkContext.defaultParallelism)\nspark.range(5).show()\nTake a screenshot of the output\n\n\nCall it spark, not spark_local or anything else. On the classroom cluster (Lab 7 onward), the session is created for you and it’s always named spark. Using the same name here means every line you write locally runs unchanged on the cluster.\n\nImportant: Colab’s runtime resets between sessions, and the installed PySpark and your spark session disappear with it. Re-run the Step 1 and Step 2 cells at the top of the notebook each time you come back. Get in the habit of keeping them as the first two cells.\nQuestions:\n\nWhat version of Spark are you running?\nWhat does spark.range(5).show() print? What type of object is the result of spark.range(5)?\nWhat do spark.sparkContext.master and spark.sparkContext.defaultParallelism print? Based on that, where did the computation actually happen, and on how many machines?\n\n\n\n\n\nUpload to Blackboard:\n\nScreenshot 1 — your Colab notebook showing all four exercises running with correct output\nScreenshot 2 — the same notebook showing your Part 2 output (spark.version, master, defaultParallelism, and spark.range(5).show())\nNotebook file — download your Colab notebook (File → Download → .ipynb) and upload it\nAnswers — paste your 3 Part 2 answers into the Blackboard text box"
+    "text": "Date: October 23\nDuration: 50 minutes\nPoints: 10\nCompetency: Enabling lab — Python fluency for PySpark (EL1/EL3 prerequisite)\n\n\n\nPySpark is Python. Before you can write Spark jobs, you need to be comfortable with the Python features that PySpark uses constantly: lists, dictionaries, functions, and list comprehensions. Today you practice these in Google Colab, then start your first Spark session right inside the same Colab notebook. Everything in this course’s PySpark work (Labs 7 and 8 and the capstone) happens in Colab; starting in Lab 7, you’ll also connect that notebook to the classroom Hadoop/Spark cluster.\n\n\n\n\nOpen colab.research.google.com and create a new notebook. Complete the following exercises in separate cells.\n\n\n\nYou are given a list of temperatures in Fahrenheit. Convert each to Celsius using the formula C = (F - 32) * 5/9.\nfahrenheit = [32, 68, 98.6, 212, -40, 77, 100]\n\n# YOUR CODE HERE\n# Use a for loop to build a new list called celsius\n# Print both lists side by side\nExpected output:\n32°F  →  0.0°C\n68°F  →  20.0°C\n98.6°F  →  37.0°C\n...\nThen repeat using a list comprehension (one line).\n\n\n\n\nYou are given a list of student scores. Compute the average score for each student and store results in a dictionary.\nscores = {\n    \"Alice\":  [85, 92, 78, 90],\n    \"Bob\":    [70, 65, 80, 75],\n    \"Carol\":  [95, 98, 92, 97],\n    \"Dave\":   [60, 55, 70, 65],\n}\n\n# YOUR CODE HERE\n# Build a new dict: averages = {\"Alice\": 86.25, \"Bob\": ..., ...}\n# Print each student and their average, sorted by average descending\n\n\n\n\nWrite a function word_count(text) that takes a string and returns a dictionary mapping each word to how many times it appears (case-insensitive).\ndef word_count(text):\n    # YOUR CODE HERE\n    pass\n\nresult = word_count(\"the cat sat on the mat the cat sat\")\nprint(result)\n# Expected: {'the': 3, 'cat': 2, 'sat': 2, 'on': 1, 'mat': 1}\nThen sort the dictionary by count descending and print the top 3 words.\nHint: sorted(result.items(), key=lambda x: x[1], reverse=True)\n\n\n\n\nimport json\n\n# This simulates a response you might get from a REST API\ndata = '''\n[\n  {\"name\": \"Alice\", \"dept\": \"Engineering\", \"salary\": 95000},\n  {\"name\": \"Bob\",   \"dept\": \"Marketing\",   \"salary\": 62000},\n  {\"name\": \"Carol\", \"dept\": \"Engineering\", \"salary\": 78000},\n  {\"name\": \"Dave\",  \"dept\": \"Marketing\",   \"salary\": 71000}\n]\n'''\n\nemployees = json.loads(data)\n\n# YOUR CODE HERE:\n# 1. Print all Engineering employees\n# 2. Compute average salary for each department\n# 3. Find the highest-paid employee\n\n\n\n\n\nPySpark is just a Python library, so the quickest way to meet Spark is to run it right inside your Colab notebook. Spark’s local[*] mode runs the whole engine on the Colab VM (the driver and the workers become threads in one process) instead of spreading work across a cluster. You write exactly the same DataFrame code either way, which is why we start here: Lab 7 builds your first real PySpark job in this setup, then runs the same code unchanged on the classroom cluster.\nSteps:\n\nIn a new cell in the same Colab notebook, install PySpark at the same version as the classroom cluster (Spark 3.5.x):\n!pip install -q \"pyspark==4.0.0\"\nStart a local Spark session:\nfrom pyspark.sql import SparkSession\n\nspark = SparkSession.builder \\\n    .master(\"local[*]\") \\\n    .appName(\"Lab6\") \\\n    .getOrCreate()\nIn the next cell, run:\nprint(spark.version)\nprint(spark.sparkContext.master)\nprint(spark.sparkContext.defaultParallelism)\nspark.range(5).show()\nTake a screenshot of the output\n\n\nCall it spark, not spark_local or anything else. On the classroom cluster (Lab 7 onward), the session is created for you and it’s always named spark. Using the same name here means every line you write locally runs unchanged on the cluster.\n\nImportant: Colab’s runtime resets between sessions, and the installed PySpark and your spark session disappear with it. Re-run the Step 1 and Step 2 cells at the top of the notebook each time you come back. Get in the habit of keeping them as the first two cells.\nQuestions:\n\nWhat version of Spark are you running?\nWhat does spark.range(5).show() print? What type of object is the result of spark.range(5)?\nWhat do spark.sparkContext.master and spark.sparkContext.defaultParallelism print? Based on that, where did the computation actually happen, and on how many machines?\n\n\n\n\n\nUpload to Blackboard:\n\nScreenshot 1 — your Colab notebook showing all four exercises running with correct output\nScreenshot 2 — the same notebook showing your Part 2 output (spark.version, master, defaultParallelism, and spark.range(5).show())\nNotebook file — download your Colab notebook (File → Download → .ipynb) and upload it\nAnswers — paste your 3 Part 2 answers into the Blackboard text box"
   },
   {
     "objectID": "cosc420/notes/25-lab6.html#background",
@@ -4330,7 +4414,7 @@
     "href": "cosc420/notes/25-lab6.html#part-2-your-first-spark-session-in-colab-20-min",
     "title": "Lab 6: Python in Colab + Your First Spark Session",
     "section": "",
-    "text": "PySpark is just a Python library, so the quickest way to meet Spark is to run it right inside your Colab notebook. Spark’s local[*] mode runs the whole engine on the Colab VM (the driver and the workers become threads in one process) instead of spreading work across a cluster. You write exactly the same DataFrame code either way, which is why we start here: Lab 7 builds your first real PySpark job in this setup, then runs the same code unchanged on the classroom cluster.\nSteps:\n\nIn a new cell in the same Colab notebook, install PySpark at the same version as the classroom cluster (Spark 3.5.x):\n!pip install -q \"pyspark==3.5.*\"\nStart a local Spark session:\nfrom pyspark.sql import SparkSession\n\nspark = SparkSession.builder \\\n    .master(\"local[*]\") \\\n    .appName(\"Lab6\") \\\n    .getOrCreate()\nIn the next cell, run:\nprint(spark.version)\nprint(spark.sparkContext.master)\nprint(spark.sparkContext.defaultParallelism)\nspark.range(5).show()\nTake a screenshot of the output\n\n\nCall it spark, not spark_local or anything else. On the classroom cluster (Lab 7 onward), the session is created for you and it’s always named spark. Using the same name here means every line you write locally runs unchanged on the cluster.\n\nImportant: Colab’s runtime resets between sessions, and the installed PySpark and your spark session disappear with it. Re-run the Step 1 and Step 2 cells at the top of the notebook each time you come back. Get in the habit of keeping them as the first two cells.\nQuestions:\n\nWhat version of Spark are you running?\nWhat does spark.range(5).show() print? What type of object is the result of spark.range(5)?\nWhat do spark.sparkContext.master and spark.sparkContext.defaultParallelism print? Based on that, where did the computation actually happen, and on how many machines?"
+    "text": "PySpark is just a Python library, so the quickest way to meet Spark is to run it right inside your Colab notebook. Spark’s local[*] mode runs the whole engine on the Colab VM (the driver and the workers become threads in one process) instead of spreading work across a cluster. You write exactly the same DataFrame code either way, which is why we start here: Lab 7 builds your first real PySpark job in this setup, then runs the same code unchanged on the classroom cluster.\nSteps:\n\nIn a new cell in the same Colab notebook, install PySpark at the same version as the classroom cluster (Spark 3.5.x):\n!pip install -q \"pyspark==4.0.0\"\nStart a local Spark session:\nfrom pyspark.sql import SparkSession\n\nspark = SparkSession.builder \\\n    .master(\"local[*]\") \\\n    .appName(\"Lab6\") \\\n    .getOrCreate()\nIn the next cell, run:\nprint(spark.version)\nprint(spark.sparkContext.master)\nprint(spark.sparkContext.defaultParallelism)\nspark.range(5).show()\nTake a screenshot of the output\n\n\nCall it spark, not spark_local or anything else. On the classroom cluster (Lab 7 onward), the session is created for you and it’s always named spark. Using the same name here means every line you write locally runs unchanged on the cluster.\n\nImportant: Colab’s runtime resets between sessions, and the installed PySpark and your spark session disappear with it. Re-run the Step 1 and Step 2 cells at the top of the notebook each time you come back. Get in the habit of keeping them as the first two cells.\nQuestions:\n\nWhat version of Spark are you running?\nWhat does spark.range(5).show() print? What type of object is the result of spark.range(5)?\nWhat do spark.sparkContext.master and spark.sparkContext.defaultParallelism print? Based on that, where did the computation actually happen, and on how many machines?"
   },
   {
     "objectID": "cosc420/notes/25-lab6.html#submission",
@@ -12355,6 +12439,83 @@
     "text": "Checkpoint Preview\nCheckpoint CK-07 will ask you to:\n\nWrite a 2D weighted stencil kernel (an edge filter, with weights given as a 3×3 array)\nHandle the boundary with one of today’s three policies, which won’t necessarily be the one Lab 7 uses\n\n\n~1 min. 20-minute timed, paired with Lab 07 (Oct 16). REWRITTEN 2026-10-02: it was the 1D moving-average demo with blanks. Now a weighted 3×3 stencil with ZERO-PADDING, so students transfer the idea instead of recalling the lab’s clamp line."
   },
   {
+    "objectID": "cosc435/notes/15.html#todays-plan",
+    "href": "cosc435/notes/15.html#todays-plan",
+    "title": "Shared Memory",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\nQuiz 4 first (15 min, Blackboard) — covers Module 3 and Oct 21’s coalescing content\nThen: why coalescing alone isn’t enough, and what shared memory buys you on top of it\nDeclaring and using shared memory in Numba, and the barrier it requires\nShared memory banks and bank conflicts — the one subtlety that can silently undercut a shared-memory kernel\n\n\n~1 min. ~35 min of lecture time after the quiz. This session sets up Oct 28’s tiled matmul directly — everything here is the “why” and “how” that tiling then applies to a real kernel."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#why-coalescing-alone-isnt-enough",
+    "href": "cosc435/notes/15.html#why-coalescing-alone-isnt-enough",
+    "title": "Shared Memory",
+    "section": "Why Coalescing Alone Isn’t Enough",
+    "text": "Why Coalescing Alone Isn’t Enough\nColab’s T4, from Oct 7:\n\nGlobal memory delivers 320 GB/s. At 4 bytes per float32, that’s about 80 billion floats per second\nThe ALUs can do 8,100 GFLOP/s: about 100 FLOPs for every float memory can deliver\nArithmetic intensity (FLOPs per byte moved, Oct 7) decides which limit you hit. Below the T4’s ridge point of 25.3 FLOP/byte, memory runs out first\nCoalescing makes each transaction as cheap as possible, but does nothing to the number of bytes a kernel needs. That’s the gap shared memory closes\n\n\n~3 min. Explicit framing: coalescing (last session) and shared-memory reuse (this session) are two different levers on the same memory-wall problem — one makes each access cheaper, the other reduces the number of accesses needed at all. Numbers deliberately match module03’s ridge-point slide."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#the-roofline",
+    "href": "cosc435/notes/15.html#the-roofline",
+    "title": "Shared Memory",
+    "section": "The Roofline",
+    "text": "The Roofline\n\nOct 7’s ridge point, drawn as a picture: a kernel’s ceiling is whichever roof is lower at its intensity.\n\n~2 min. This is the roofline that module03 promised (“formalized as the roofline in Module 4”). Point at the corner: it’s exactly the ridge point students computed on Oct 7."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#declaring-shared-memory",
+    "href": "cosc435/notes/15.html#declaring-shared-memory",
+    "title": "Shared Memory",
+    "section": "Declaring Shared Memory",
+    "text": "Declaring Shared Memory\n@cuda.jit\ndef offset_from_first(arr, out):\n    # One shared slot per thread: launch with 256 threads per block\n    s = cuda.shared.array(shape=256, dtype=numba.float32)\n\n    i  = cuda.grid(1)\n    ti = cuda.threadIdx.x           # local index within the block\n\n    if i &lt; arr.shape[0]:\n        s[ti] = arr[i]              # load: global → shared\n    cuda.syncthreads()              # every thread in the block waits here\n\n    if i &lt; arr.shape[0]:\n        out[i] = s[ti] - s[0]       # s[0] was written by thread 0, not by me\n\nLine 4: cuda.shared.array declares the block’s shared scratchpad, with a shape fixed at compile time\nLine 10: each thread copies one value from global memory into its own slot\nLine 11: cuda.syncthreads() is the barrier: no thread continues until all 256 have reached it. It sits outside the if so every thread reaches it\nLine 14: each thread reads another thread’s slot (s[0]), which is only safe because of line 11\n\n\n~3 min. FIXED 2026-10-21: the old example called syncthreads() inside if i &lt; n, which is the divergent-barrier bug the barrier slide warns about, and read only its own slot (so the barrier wasn’t even needed). The new kernel reads a slot written by a different thread, which is what makes the barrier necessary. Verified in the CUDA simulator."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#rules-of-shared-memory",
+    "href": "cosc435/notes/15.html#rules-of-shared-memory",
+    "title": "Shared Memory",
+    "section": "Rules of Shared Memory",
+    "text": "Rules of Shared Memory\n\nShared scope: visible to every thread in the same block, and not to threads in other blocks, even ones running on the same SM\nSize fixed at compile time: shape= must be a literal or a constant (a module-level constant, or a variable captured from an enclosing function, as Lab 9’s make_tiled_matmul(TILE) does), never a value computed at runtime\nLifetime: exists only while the block runs — allocated when the block starts, gone when it finishes\nSynchronization required: after writing shared memory, call cuda.syncthreads() before any thread reads another thread’s value\n\n\n~3 min. The most common bug this session sets up for Lab 9: forgetting syncthreads() after writing to shared memory, so one thread reads a value before another thread has finished writing it — a race condition producing a silent wrong answer, no crash. Foreshadow this explicitly; Oct 28’s tiled kernel has two separate places this can go wrong."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#cuda.syncthreads-the-barrier",
+    "href": "cosc435/notes/15.html#cuda.syncthreads-the-barrier",
+    "title": "Shared Memory",
+    "section": "cuda.syncthreads() — The Barrier",
+    "text": "cuda.syncthreads() — The Barrier\n\nThe barrier is a rendezvous, not a delay: the fastest thread waits for the slowest.\n\n~2 min. Map this onto offset_from_first: thread 5 is any thread reading s[0]; thread 0 is the one writing it."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#a-worked-example-block-level-maximum",
+    "href": "cosc435/notes/15.html#a-worked-example-block-level-maximum",
+    "title": "Shared Memory",
+    "section": "A Worked Example: Block-Level Maximum",
+    "text": "A Worked Example: Block-Level Maximum\n@cuda.jit\ndef block_max_kernel(arr, out):\n    s  = cuda.shared.array(shape=256, dtype=numba.float32)\n    i  = cuda.grid(1)\n    ti = cuda.threadIdx.x\n\n    if i &lt; arr.shape[0]:\n        s[ti] = arr[i]\n    else:\n        s[ti] = numba.float32(-1e38)   # smaller than any real input\n    cuda.syncthreads()\n\n    stride = 128                       # half the block\n    while stride &gt; 0:\n        if ti &lt; stride:\n            if s[ti + stride] &gt; s[ti]:\n                s[ti] = s[ti + stride]\n        cuda.syncthreads()\n        stride //= 2\n\n    if ti == 0:\n        out[cuda.blockIdx.x] = s[0]\n\n~2 min for the code, ~3 min across the next two sub-slides. History: this slide used to be titled “Lab 08: Block Statistics”; Lab 8 is Memory Coalescing (no shared memory), so it’s kept purely as a worked illustration of the shared-memory + syncthreads pattern. The graded version of this stride-halving reduction is Module 5 (Nov 2, Lab 10 / CK-10); the graded double-syncthreads pattern is Lab 9’s tiled matmul."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#shared-memory-banks",
+    "href": "cosc435/notes/15.html#shared-memory-banks",
+    "title": "Shared Memory",
+    "section": "Shared Memory Banks",
+    "text": "Shared Memory Banks\n\nShared memory is split into 32 banks (one per warp lane). Consecutive 4-byte words go to consecutive banks, wrapping around: word k lives in bank k % 32\nEach bank serves one request per cycle, but different banks work simultaneously\nWhen a warp’s 32 threads hit 32 different banks, every read happens at once. Straightforward consecutive access gets this by default\n\n\n~3 min. This is the shared-memory analogue of coalescing (Oct 21) — same underlying idea (parallel hardware wants parallel, non-overlapping requests), one level closer to the compute units."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#bank-conflicts",
+    "href": "cosc435/notes/15.html#bank-conflicts",
+    "title": "Shared Memory",
+    "section": "Bank Conflicts",
+    "text": "Bank Conflicts\n\nDrawn with 8 banks for readability; real hardware has 32."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#avoiding-bank-conflicts-padding",
+    "href": "cosc435/notes/15.html#avoiding-bank-conflicts-padding",
+    "title": "Shared Memory",
+    "section": "Avoiding Bank Conflicts: Padding",
+    "text": "Avoiding Bank Conflicts: Padding\nTILE = 32\n\n# Conflict-prone: each row is exactly 32 words, so column c is all in bank c\ntile = cuda.shared.array((TILE, TILE), numba.float32)\n\n# Padded: 33 words per row, so each row starts one bank later\ntile_padded = cuda.shared.array((TILE, TILE + 1), numba.float32)\n\nAllocate one extra column you never use. Each row then starts one bank later, so a column’s 32 elements land in 32 different banks\nThe padding is pure overhead: a few bytes traded for unserialized access\nOct 28’s tiled kernel doesn’t need it: a warp reads tile_A[ty, k] (one address, broadcast) and tile_B[k, tx] (consecutive, different banks)\nNot required in labs or checkpoints. It’s in your toolkit for when a profiler points at bank conflicts\n\n\n~2 min. The “today’s kernel doesn’t need it” bullet is true for TILE = 8, 16 and 32 with the x → col layout: within a warp, tile_A reads hit at most 4 distinct addresses in different banks (or broadcast), and tile_B reads are consecutive. Don’t go deeper than that."
+  },
+  {
+    "objectID": "cosc435/notes/15.html#this-week",
+    "href": "cosc435/notes/15.html#this-week",
+    "title": "Shared Memory",
+    "section": "This Week",
+    "text": "This Week\n\nOct 28 (next lecture): Tiled matrix multiplication — putting today’s declaration, barrier, and bank awareness to work in one complete kernel\nLab 09 (Fri, Oct 30): Implement the tiled kernel yourself, compare its speed to naive matmul, and experiment with tile size — CK-09 same day\n\n\n~1 min. Quick pointer slide."
+  },
+  {
     "objectID": "cosc435/notes/el1.html",
     "href": "cosc435/notes/el1.html",
     "title": "EL-01: The Shape of a Dot Product",
@@ -12387,7 +12548,7 @@
     "href": "cosc435/notes/index.html",
     "title": "COSC435 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nThe End of Free Lunch\n\n\n\n\n\n\n\n\n\nCPU vs. GPU Design Philosophy\n\n\n\n\n\n\n\n\n\nInside a GPU\n\n\n\n\n\n\n\n\n\nThe Execution Model\n\n\n\n\n\n\n\n\n\nGPU Memory Hierarchy\n\n\n\n\n\n\n\n\n\nWarps, Occupancy & Divergence\n\n\n\n\n\n\n\n\n\nKernel Design Patterns & Debugging\n\n\n\n\n\n\n\n\n\nProfiling GPU Kernels\n\n\n\n\n\n\n\n\n\nStencil Kernels\n\n\n\n\n\n\n\n\n\nMemory Coalescing\n\n\n\n\n\n\n\n\n\nEL-01: The Shape of a Dot Product\n\n\n\n\n\n\n\n\n\nEL-02: Inside a GPU — The Hardware Behind the Code\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC435.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nPython for Java Developers\n\n\n\n\n\n\n\n\n\nNumPy Foundations\n\n\n\n\n\n\n\n\n\nThe End of Free Lunch\n\n\n\n\n\n\n\n\n\nCPU vs. GPU Design Philosophy\n\n\n\n\n\n\n\n\n\nInside a GPU\n\n\n\n\n\n\n\n\n\nThe Execution Model\n\n\n\n\n\n\n\n\n\nGPU Memory Hierarchy\n\n\n\n\n\n\n\n\n\nWarps, Occupancy & Divergence\n\n\n\n\n\n\n\n\n\nKernel Design Patterns & Debugging\n\n\n\n\n\n\n\n\n\nProfiling GPU Kernels\n\n\n\n\n\n\n\n\n\nStencil Kernels\n\n\n\n\n\n\n\n\n\nMemory Coalescing\n\n\n\n\n\n\n\n\n\nShared Memory\n\n\n\n\n\n\n\n\n\nTiled matrix multiply\n\n\n\n\n\n\n\n\n\nEL-01: The Shape of a Dot Product\n\n\n\n\n\n\n\n\n\nEL-02: Inside a GPU — The Hardware Behind the Code\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc435/slides/module01-why-gpus.html#todays-plan",
