@@ -274,7 +274,7 @@ SI
 </tr>
 </tbody>
 </table>
-<p>9 content slides (~31 min) + Checkpoint 6. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”</p>
+<p>9 content slides (~33 min) + Checkpoint 6 + bridge = 50 min. If running long, trim the two “Cost of…” slides to 2 min each. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -290,7 +290,11 @@ SI
 <section id="recap-from-compute-to-storage" class="slide level2">
 <h2>Recap: From Compute to Storage</h2>
 <p>Module 4 answered “how do you <em>compute</em> something at scale?” — load data into Spark, transform it, aggregate it, write out a result.</p>
-<p>Module 5 answers the next question: <strong>where does that result actually live</strong>, once it’s computed, so that thousands of users can read it reliably at the same time? A single machine running a single database has exactly the same limits Module 3 opened with — one disk, one CPU, one point of failure — just for <em>storage</em> instead of <em>processing</em>.</p>
+<div class="fragment">
+<p>Module 5 answers the next question: <strong>where does that result actually live</strong>, once it’s computed, so that thousands of users can read it reliably at the same time?</p>
+</div>
+<div class="fragment">
+<p>A single machine running a single database has exactly the same limits Module 3 opened with — one disk, one CPU, one point of failure — just for <em>storage</em> instead of <em>processing</em>.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Quick bridge only — the point is that “why distribute” is a question we’ve already answered once (Module 3’s big-data motivation), now being asked again about storage specifically.</p>
 <style type="text/css">
@@ -304,14 +308,15 @@ SI
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-problem-one-machine-too-much-load" class="slide level2">
 <h2>The Problem: One Machine, Too Much Load</h2>
 <p>A single database server can fail in two different ways as demand grows, and they call for two different fixes:</p>
 <ul>
-<li><strong>Too much traffic, data fits fine:</strong> the machine simply can’t answer requests fast enough — every read and write funnels through one CPU, one network connection.</li>
-<li><strong>Too much data, traffic is fine:</strong> the dataset itself no longer fits on one machine’s disk (or even in a reasonable multiple of it), regardless of how much traffic there is.</li>
-<li><strong>Single point of failure</strong>, either way: if that one machine goes down, the data is completely unreachable until it comes back — recall Module 2’s “partial failures” idea, except now there’s nothing partial about it. One machine down means <em>everything</em> is down.</li>
+<li class="fragment"><strong>Too much traffic, data fits fine:</strong> the machine <em>can’t answer requests fast enough</em> — every read and write funnels through one CPU, one network connection.</li>
+<li class="fragment"><strong>Too much data, traffic is fine:</strong> the dataset itself <em>no longer fits on one machine’s disk</em>, regardless of how much traffic there is.</li>
+<li class="fragment"><strong>Single point of failure</strong>, either way: if that one machine goes down, the data is <em>completely unreachable</em> until it comes back. Module 2’s failures were “partial”; here there’s nothing partial about it.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Setting up the two-problems framing explicitly here pays off on the very next two slides — replication answers the first bullet, sharding answers the second.</p>
@@ -331,39 +336,13 @@ SI
 <h2>Replication: Many Copies of the Same Data</h2>
 <p><strong>Replication</strong> means keeping multiple full copies of the same data on different machines.</p>
 <ul>
-<li>Every replica holds the <strong>entire</strong> dataset — not a piece of it.</li>
-<li>Reads can be served by <strong>any</strong> replica, spreading read traffic across multiple machines instead of funneling it through one.</li>
-<li>If one replica goes down, the others still have every record — the single-point-of-failure problem from the last slide goes away for reads.</li>
-<li>Writes are more subtle: usually one replica (the <strong>primary</strong>) accepts writes, and the change is then copied out to the others.</li>
+<li class="fragment">Every replica holds the <em>entire dataset</em> — not a piece of it.</li>
+<li class="fragment">Reads can be served by <em>any replica</em>, spreading read traffic across machines instead of funneling it through one.</li>
+<li class="fragment">If one replica goes down, the others still have every record — the single point of failure <em>goes away for reads</em>.</li>
+<li class="fragment">Writes are more subtle: usually one replica (the <strong>primary</strong>) accepts writes, and the change is then <em>copied out</em> to the others.</li>
 </ul>
-<div class="callout callout-important callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Important</strong></p>
-</div>
-<div class="callout-content">
-<p>You’ve actually seen a first, simpler version of this already: Module 3’s HDFS stored each block on 3 machines — like stocking the same ingredient at 3 kitchen branches, so one branch’s fridge breaking down doesn’t lose it. That was replication for <em>file blocks</em>, specifically for MapReduce jobs to read. Today’s version is the general idea, for <em>any</em> database, read and written directly by users — not just batch jobs.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Diagram to add later (Excalidraw / pyxcd / draw.io)</strong></p>
-</div>
-<div class="callout-content">
-<p>One database-cylinder icon labeled “Primary” at the top, with two arrows fanning down to two more cylinder icons labeled “Replica 1” and “Replica 2,” each holding an identical small stack of document icons (same three icons repeated in all three cylinders, to show it’s a <em>full</em> copy each time). A read arrow pointing into any of the three; a write arrow pointing only into the Primary. Caption: “Same data, three times over. Reads go anywhere. Writes go through the primary.”</p>
-</div>
-</div>
-</div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Keep the “primary accepts writes” detail brief here — Session 2 goes deep on exactly <em>how</em> that copying happens (sync vs.&nbsp;async) and why it matters for consistency.</p>
+<p><strong>Timing: 4 min (this slide and its two sub-slides).</strong> Keep the “primary accepts writes” detail brief here — Session 2 goes deep on exactly <em>how</em> that copying happens (sync vs.&nbsp;async) and why it matters for consistency.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -376,22 +355,34 @@ SI
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+
+<img data-src="diags/05-replication.svg" alt="Three database boxes. Top center, an orange box labeled &quot;Primary&quot; holding three document chips: A, B, C. Bottom left, a box labeled &quot;Replica 1&quot;, and bottom right, a box labeled &quot;Replica 2&quot;, each holding the same three chips A, B, C. Dashed violet arrows labeled &quot;copy every change&quot; go from the Primary down to each replica. A red arrow labeled &quot;WRITE&quot; points into the Primary only. Blue arrows labeled &quot;read&quot; point into all three boxes. Caption: &quot;Same data, three times over. Reads go anywhere. Writes go through the primary.&quot;" width="760" class="r-stretch"></section>
+<section class="slide level2">
+
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>You’ve seen this before</strong></p>
+</div>
+<div class="callout-content">
+<p>Module 3’s HDFS stored each block on <strong>3 machines</strong> — like stocking the same ingredient at 3 kitchen branches, so one branch’s fridge breaking down doesn’t lose it. That was replication for <em>file blocks</em>, read by MapReduce jobs.</p>
+<p>Today’s version is the general idea, for <em>any</em> database, read and written directly by users — not just batch jobs.</p>
+</div>
+</div>
+</div>
+</section>
 <section id="sharding-splitting-the-data-itself" class="slide level2">
 <h2>Sharding: Splitting the Data Itself</h2>
 <p><strong>Sharding</strong> means splitting the dataset itself across multiple machines — each machine holds a different <strong>slice</strong> of the data, not a full copy.</p>
-<pre><code>Shard key: user_id
-
-Shard 1: user_id 0 – 9,999,999
-Shard 2: user_id 10,000,000 – 19,999,999
-Shard 3: user_id 20,000,000+</code></pre>
-<ul>
-<li>Each shard holds only <strong>its own fraction</strong> of the total data — together, all shards make up the whole dataset.</li>
-<li>Both <strong>storage</strong> and <strong>write traffic</strong> get spread across machines, since different records live (and are written) on different shards.</li>
-<li>The field used to decide which shard a record belongs to is called the <strong>shard key</strong>.</li>
-<li>A query for one specific record only needs to go to the one shard that holds it — but a query that spans many records may need to check every shard.</li>
-</ul>
+<div class="fragment">
+<p><img data-src="diags/05-sharding.svg" alt="Top: a dashed box labeled &quot;The whole dataset (too big for one machine)&quot; holding nine document chips A through I. Three violet arrows, with the label &quot;split by shard key&quot;, go down to three shard boxes. Shard 1 holds A, B, C and is labeled user_id 0 – 9,999,999. Shard 2 holds D, E, F and is labeled 10,000,000 – 19,999,999. Shard 3 holds G, H, I and is labeled 20,000,000 +. Caption: &quot;Each shard holds a different third. Together they make the whole dataset.&quot;" width="720"></p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Contrast explicitly with the previous slide’s diagram: replication = same data N times; sharding = 1/N of the data, N times. That contrast is the single most important idea in today’s session.</p>
+<p><strong>Timing: 4 min (this slide and its sub-slide).</strong> Contrast explicitly with the replication figure: replication = same data N times; sharding = 1/N of the data, N times. That contrast is the single most important idea in today’s session. Put the two figures side by side if you can (flip back one slide).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -403,6 +394,16 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<p>The field used to decide which shard a record belongs to is called the <strong>shard key</strong>. Above, the shard key is <code>user_id</code>.</p>
+<ul>
+<li class="fragment">Each shard holds only <em>its own fraction</em> of the data — together, all shards make up the whole.</li>
+<li class="fragment">Both <em>storage and write traffic</em> get spread across machines, since different records live (and are written) on different shards.</li>
+<li class="fragment">A query for <em>one specific record</em> goes to the one shard that holds it — but a query that <em>spans many records</em> may need to check every shard.</li>
+</ul>
 </section>
 <section id="replication-vs.-sharding-choosing-between-them" class="slide level2">
 <h2>Replication vs.&nbsp;Sharding — Choosing Between Them</h2>
@@ -442,6 +443,9 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -456,7 +460,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> The callout’s last question is the important one to land: yes, a table can need both at once (e.g., MongoDB’s sharded clusters replicate <em>within</em> each shard) — that’s exactly what Session 5’s “Replication and Sharding in MongoDB” slides come back to.</p>
+<p><strong>Timing: 5 min (including the answer sub-slide).</strong> The callout’s last question is the important one to land: yes, a table can need both at once (e.g., MongoDB’s sharded clusters replicate <em>within</em> each shard) — that’s exactly what Session 5’s “Sharding in MongoDB” slide comes back to.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -469,13 +473,21 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="answer" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong>Profiles (2 GB, 200,000 reads/s):</strong> <em>replication</em>. The data fits easily on one machine; the problem is read traffic, so spread reads across many full copies.</li>
+<li class="fragment"><strong>Upload log (40 TB, growing):</strong> <em>sharding</em>. No single machine holds it, and every upload is a new write, so split both the storage and the writes.</li>
+<li class="fragment"><strong>Both?</strong> Yes. The upload log is sharded for size, but losing one shard would lose its slice — so in practice <em>each shard is itself replicated</em>. Session 5 shows MongoDB doing exactly this.</li>
+</ul>
+</section>
 <section id="the-cost-of-replication" class="slide level2">
 <h2>The Cost of Replication</h2>
 <p>Replication isn’t free — it trades storage and consistency for read throughput and availability.</p>
 <ul>
-<li><strong>Storage cost multiplies:</strong> 3 replicas means 3× the storage for the same data.</li>
-<li><strong>Replicas can briefly disagree:</strong> if a write hasn’t finished copying to every replica yet, a read from a lagging replica can return <strong>stale</strong> (out-of-date) data.</li>
-<li>This lag is usually milliseconds, but it is never exactly zero — “how much staleness is acceptable” is a real design decision, not a solved problem. Session 2 goes deep on this.</li>
+<li class="fragment"><strong>Storage cost multiplies:</strong> 3 replicas means <em>3× the storage</em> for the same data.</li>
+<li class="fragment"><strong>Replicas can briefly disagree:</strong> if a write hasn’t finished copying to every replica yet, a read from a lagging replica can return <em>stale</em> (out-of-date) data.</li>
+<li class="fragment">This lag is usually milliseconds, but <em>never exactly zero</em> — “how much staleness is acceptable” is a real design decision. Wednesday goes deep on this.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Plant this seed deliberately — “replicas can briefly disagree” is precisely what Wednesday’s session expands into strong vs.&nbsp;eventual consistency.</p>
@@ -495,9 +507,9 @@ Shard 3: user_id 20,000,000+</code></pre>
 <h2>The Cost of Sharding</h2>
 <p>Sharding isn’t free either — it trades query simplicity for scale.</p>
 <ul>
-<li><strong>Cross-shard queries are expensive:</strong> “find everyone named Alice” now has to ask <em>every</em> shard and merge the results, instead of asking one machine.</li>
-<li><strong>A bad shard key creates hot spots:</strong> if your shard key clusters too much traffic onto one shard (e.g., sharding by signup date when everyone signs up “today”), that one shard becomes the new single overloaded machine — sharding stops helping.</li>
-<li><strong>Resharding is hard:</strong> once data is split across shards, changing the shard key later means physically moving large amounts of data between machines.</li>
+<li class="fragment"><strong>Cross-shard queries are expensive:</strong> “find everyone named Alice” now has to <em>ask every shard and merge</em> the results, instead of asking one machine.</li>
+<li class="fragment"><strong>A bad shard key creates hot spots:</strong> if the key clusters traffic onto one shard (e.g., sharding by signup date when everyone signs up “today”), that shard becomes <em>the new single overloaded machine</em>.</li>
+<li class="fragment"><strong>Resharding is hard:</strong> changing the shard key later means <em>physically moving</em> large amounts of data between machines.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> The hot-spot point is the one worth emphasizing if time is short — it’s the most common real mistake, and it directly explains <em>why</em> choosing a good shard key matters, not just that one is required.</p>
@@ -531,14 +543,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>(a) <code>order_date</code></strong> is the hot-spot trap. Every order placed today has today’s date, so every Black Friday write lands on the one shard that holds the newest dates, while the other three sit idle. It’s the “sharding by signup date” example from the previous slide.</li>
-<li><strong>(b) <code>customer_country</code></strong> has few distinct values and is heavily skewed (a US store’s orders are mostly US), so you get one giant shard that can’t be split any further.</li>
-<li><strong>(c) <code>customer_id</code></strong> has many values spread evenly, so writes spread out. All of one customer’s orders share the same key, so “my order history” is a single-shard query.</li>
-<li><strong>What (c) makes slower:</strong> any query that isn’t by customer, like “total sales today” or “all orders for product X.” Those now have to ask all 4 shards and merge the answers (the cross-shard cost from the previous slide).</li>
-</ul>
-<p>No shard key makes every query cheap. Choose it for the queries you run most.</p>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -551,14 +556,28 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="answer-1" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong>(a) <code>order_date</code></strong> is the <em>hot-spot trap</em>. Every order placed today has today’s date, so every Black Friday write lands on the one shard holding the newest dates while the other three sit idle.</li>
+<li class="fragment"><strong>(b) <code>customer_country</code></strong> has <em>few, skewed values</em> (a US store’s orders are mostly US), so you get one giant shard that can’t be split any further.</li>
+<li class="fragment"><strong>(c) <code>customer_id</code></strong> has many values spread evenly, so writes spread out, and all of one customer’s orders share a key — <em>“my order history” is a single-shard query</em>.</li>
+<li class="fragment"><strong>What (c) makes slower:</strong> any query that isn’t by customer, like “total sales today.” That has to <em>ask all 4 shards and merge</em>.</li>
+</ul>
+<div class="fragment">
+<p>No shard key makes every query cheap. <strong>Choose it for the queries you run most.</strong></p>
+</div>
+</section>
 <section id="single-points-of-failure-revisited" class="slide level2">
 <h2>Single Points of Failure, Revisited</h2>
-<p>Tie this back to Module 2: a <strong>single point of failure (SPOF)</strong> is any one component whose failure takes down the whole system. An un-replicated database is a textbook SPOF.</p>
+<p>A <strong>single point of failure (SPOF)</strong> is any one component whose failure takes down the whole system. Module 3’s lone NameNode was one; an un-replicated database is another.</p>
 <ul>
-<li>Replication removes the SPOF <strong>for reads</strong> — any surviving replica can still answer queries.</li>
-<li>It does <strong>not</strong>, by itself, remove the SPOF for writes if there’s still exactly one primary accepting them — if the primary goes down, <em>something</em> has to take over, which is a real, nontrivial problem (this is exactly the mechanism behind the GitHub split-brain case study from Module 2, Session 3 — a failover mechanism promoting a new primary is precisely what created that incident).</li>
-<li>Sharding, on its own, does not remove any SPOF — it just changes <em>what</em> is lost when one machine fails: instead of losing everything, you lose that shard’s slice of the data.</li>
+<li class="fragment">Replication removes the SPOF <em>for reads</em> — any surviving replica can still answer queries.</li>
+<li class="fragment">It does <em>not</em>, by itself, remove the SPOF <em>for writes</em>: with one primary, if the primary goes down, <em>something has to take over</em> — a real, nontrivial problem.</li>
+<li class="fragment">Sharding alone removes no SPOF — it changes <em>what is lost</em>: one shard’s slice instead of everything.</li>
 </ul>
+<div class="fragment">
+<p>That “something has to take over” step — <strong>failover</strong> — is exactly what went wrong in Module 2’s GitHub case study: promoting a new primary during a network partition is what created the split-brain.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Explicitly naming the GitHub case study connection here rewards students who retained Module 2 — say it out loud rather than assuming they’ll make the connection themselves.</p>
 <style type="text/css">
@@ -572,27 +591,11 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="checkpoint-6" class="slide level2">
-<h2>Checkpoint 6</h2>
-<p><strong>CP6 (today, last 15 minutes of class):</strong> given a scenario, decide whether replication or sharding better solves the described problem, and explain why in 2–3 sentences.</p>
-<p>Review before you start: ask yourself which of the two problems from the start of today’s session the scenario describes — <strong>too much traffic</strong> on data that fits fine (→ replication), or <strong>too much data / write load</strong> that no longer fits on one machine (→ sharding).</p>
-<aside class="notes">
-<p><strong>Timing: 15 min for the checkpoint itself.</strong> See <code>checkpoints/checkpoint_06.md</code> for the exact graded scenarios — don’t preview its specific news-site/ride-sharing examples before students start; today’s slides deliberately used a different example (the photo-sharing app).</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="bridge-to-wednesday" class="slide level2">
-<h2>Bridge to Wednesday</h2>
+
+<section id="bridge-to-next-session" class="slide level2">
+<h2>Bridge to Next Session</h2>
 <p>Today assumed replicas eventually catch up with each other, and left “how eventually?” mostly unanswered. That question is exactly where Module 2’s CAP theorem comes back — now applied specifically to storage.</p>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Short forward-reference only.</p>
@@ -674,7 +677,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
-<p>10 slides, ~40 min. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it.</p>
+<p>11 slides, ~44 min, leaving ~6 min of slack for discussion. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -690,6 +693,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 <section id="recap-replications-loose-thread" class="slide level2">
 <h2>Recap: Replication’s Loose Thread</h2>
 <p>Monday ended on an unresolved tension: replicas are supposed to hold “the same data,” but a write takes time to copy from the primary to every replica. <strong>For that window of time, they don’t quite agree.</strong></p>
+<div class="fragment">
 <p>Today’s question: what should a read do when it lands in that window?</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> This is the whole session in one sentence — keep this slide tight so it lands as a genuine open question, not a rhetorical one.</p>
@@ -704,6 +708,7 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="recap-the-cap-theorem-from-module-2" class="slide level2">
 <h2>Recap: The CAP Theorem (from Module 2)</h2>
@@ -720,7 +725,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 <tr class="even">
 <td><strong>A</strong>vailability</td>
-<td>Every request gets <em>a</em> response</td>
+<td>Every request to a working node gets <em>a</em> response</td>
 </tr>
 <tr class="odd">
 <td><strong>P</strong>artition tolerance</td>
@@ -728,6 +733,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p><strong>The theorem:</strong> during a network partition, a distributed system must choose between Consistency and Availability — it cannot fully guarantee both at once.</p>
 <aside class="notes">
 <p><strong>Timing: 3 min.</strong> Genuinely just a recap slide — if a student is shaky on this, point them back to Module 2’s slides rather than re-teaching the proof sketch here.</p>
@@ -742,33 +748,22 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="applying-cap-to-a-replicated-database" class="slide level2">
 <h2>Applying CAP to a Replicated Database</h2>
 <p>A replica set (Monday’s picture: one primary, several replicas) is itself a small distributed system — so CAP applies to it directly.</p>
+<div class="fragment">
+<p>If a <strong>network partition</strong> separates a replica from the primary, that replica has a choice:</p>
 <ul>
-<li>If a <strong>network partition</strong> separates a replica from the primary, that replica has a choice:
-<ul>
-<li><strong>Refuse to answer reads</strong> until it can confirm it’s caught up (favors <strong>Consistency</strong>)</li>
-<li><strong>Answer with whatever data it currently has</strong>, possibly stale (favors <strong>Availability</strong>)</li>
-</ul></li>
-<li>This is <em>exactly</em> Module 2’s CAP trade-off, just applied to “should this specific replica answer this specific read” instead of “should the whole system answer this specific request.”</li>
+<li class="fragment"><em>Refuse to answer reads</em> until it can confirm it’s caught up → favors <strong>Consistency</strong></li>
+<li class="fragment"><em>Answer with whatever data it has</em>, possibly stale → favors <strong>Availability</strong></li>
 </ul>
-<div class="callout callout-important callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<p><strong>Important</strong></p>
-</div>
-<div class="callout-content">
-<p>Even <strong>without</strong> a network partition, replication introduces a smaller version of this same choice: does the primary wait for replicas to confirm a write before telling the client “done” — trading speed for certainty — or does it say “done” immediately and let the copying happen in the background? That’s the next four slides.</p>
-</div>
-</div>
-</div>
+<div class="fragment">
+<p>This is exactly Module 2’s trade-off, applied to “should <em>this replica</em> answer <em>this read</em>?”</p>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> The callout is the pivot from “CAP during rare partitions” to “consistency trade-offs during totally normal operation” — make sure that shift is explicit, since it’s easy to think CAP only matters when something is broken.</p>
+<p><strong>Timing: 5 min (this slide and its sub-slide).</strong> The sub-slide’s callout is the pivot from “CAP during rare partitions” to “consistency trade-offs during totally normal operation” — make sure that shift is explicit, since it’s easy to think CAP only matters when something is broken.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -780,14 +775,36 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Even without a partition</strong></p>
+</div>
+<div class="callout-content">
+<p>Replication introduces a smaller version of the same choice <em>every time anything is written</em>:</p>
+<ul>
+<li>Does the primary <strong>wait</strong> for replicas to confirm a write before telling the client “done” — trading speed for certainty?</li>
+<li>Or does it say “done” <strong>immediately</strong> and let the copying happen in the background?</li>
+</ul>
+<p>The next three slides are about exactly this choice.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="strong-consistency" class="slide level2">
 <h2>Strong Consistency</h2>
 <p><strong>Strong consistency:</strong> every read reflects the most recent write, no matter which replica answers it.</p>
 <ul>
-<li>To guarantee this, a write typically can’t be considered “done” until it has been confirmed by enough replicas that no read could possibly see stale data.</li>
-<li><strong>Cost:</strong> writes are slower — the primary has to wait for confirmation before responding to the client.</li>
-<li><strong>Benefit:</strong> no surprises. Once a write succeeds, every subsequent read, from any replica, sees it.</li>
+<li class="fragment">To guarantee this, a write can’t be “done” until <em>enough replicas have confirmed it</em> that no read could see stale data.</li>
+<li class="fragment"><strong>Cost:</strong> <em>writes are slower</em> — the primary waits for confirmation before responding.</li>
+<li class="fragment"><strong>Benefit:</strong> <em>no surprises</em>. Once a write succeeds, every later read, from any replica, sees it.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep this and the next slide symmetric in structure (definition → cost → benefit) so the contrast is easy to hold in mind together.</p>
@@ -807,25 +824,12 @@ Shard 3: user_id 20,000,000+</code></pre>
 <h2>Eventual Consistency</h2>
 <p><strong>Eventual consistency:</strong> replicas are allowed to be temporarily out of sync — but if no new writes happen, they will all <em>eventually</em> converge to the same value.</p>
 <ul>
-<li>The primary can respond “done” to the client as soon as <strong>it</strong> has the write, without waiting for replicas to catch up.</li>
-<li><strong>Cost:</strong> a read immediately after a write might hit a replica that hasn’t caught up yet, and see the old value.</li>
-<li><strong>Benefit:</strong> writes are fast, and the system keeps working even if a replica is temporarily slow or unreachable.</li>
+<li class="fragment">The primary responds “done” as soon as <em>it</em> has the write, <em>without waiting</em> for replicas.</li>
+<li class="fragment"><strong>Cost:</strong> a read right after a write might hit a replica that hasn’t caught up, and <em>see the old value</em>.</li>
+<li class="fragment"><strong>Benefit:</strong> <em>writes are fast</em>, and the system keeps working even if a replica is slow or unreachable.</li>
 </ul>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Think about it</strong></p>
-</div>
-<div class="callout-content">
-<p>Quiz 7 will ask about this directly: <strong>asynchronous replication can lead to replicas temporarily having different versions of the data.</strong> Why “asynchronous,” specifically — what would <em>synchronous</em> replication have to do differently to prevent that?</p>
-</div>
-</div>
-</div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> The callout’s answer is the bridge into the next slide: synchronous replication would have to wait for replicas to confirm before acknowledging the write — which is strong consistency’s mechanism, described from the replication-mechanics angle instead of the CAP angle.</p>
+<p><strong>Timing: 4 min (this slide and its sub-slide).</strong> The callout’s answer is the bridge into the next slide: synchronous replication would have to wait for replicas to confirm before acknowledging the write — which is strong consistency’s mechanism, described from the replication-mechanics angle instead of the CAP angle.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -837,6 +841,25 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Think about it</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Asynchronous replication can lead to replicas temporarily having different versions of the data.</strong> Why “asynchronous,” specifically — what would <em>synchronous</em> replication have to do differently to prevent that?</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Answer:</strong> “asynchronous” means the primary says “done” <em>before</em> the copies are made, so for a moment the replicas really do hold an older version. Synchronous replication would make the primary <em>wait for the replicas to confirm</em> before saying “done” — which is exactly strong consistency’s mechanism. Next slide.</p>
+</div>
 </section>
 <section id="synchronous-vs.-asynchronous-replication" class="slide level2">
 <h2>Synchronous vs.&nbsp;Asynchronous Replication</h2>
@@ -877,12 +900,8 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong>Synchronous</strong> = strong consistency’s mechanism: the primary refuses to say “done” until replicas confirm.</li>
-<li><strong>Asynchronous</strong> = eventual consistency’s mechanism: the primary says “done” immediately and copies the change out afterward.</li>
-</ul>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation.</p>
+<p><strong>Timing: 5 min (this slide and its sub-slide).</strong> This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation. Walk the figure on the next sub-slide arrow by arrow; the red “crash here” box is the last row of the table.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -894,6 +913,14 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/05-sync-async.svg" alt="Two sequence diagrams side by side, time flowing down. Each has three lanes: Client, Primary (orange), Replica. Left, titled &quot;Synchronous&quot;: an arrow &quot;write&quot; from Client to Primary; an arrow &quot;copy&quot; from Primary to Replica; an arrow &quot;got it&quot; from Replica back to Primary; then a thick green arrow &quot;done&quot; from Primary to Client. Below: &quot;✓ by the time you hear done, the replica has it&quot; and &quot;cost: you wait longer&quot;. Right, titled &quot;Asynchronous&quot;: an arrow &quot;write&quot; from Client to Primary; immediately a thick green arrow &quot;done&quot; back to Client; then a red dashed box on the Primary lane reading &quot;crash here = write lost&quot;; then an arrow &quot;copy, later&quot; from Primary to Replica. Below: &quot;✗ you hear done before the replica has it&quot; and &quot;gain: you wait less&quot;. Footer: &quot;time flows down&quot;." width="800" class="r-stretch"><ul>
+<li class="fragment"><strong>Synchronous</strong> = strong consistency’s mechanism: the primary <em>refuses to say “done”</em> until replicas confirm.</li>
+<li class="fragment"><strong>Asynchronous</strong> = eventual consistency’s mechanism: the primary says “done” <em>immediately</em> and copies the change out afterward.</li>
+</ul>
 </section>
 <section id="pause-discuss-where-did-my-comment-go" class="slide level2">
 <h2>Pause &amp; Discuss: Where Did My Comment Go?</h2>
@@ -913,12 +940,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>(a)</strong> The first refresh was served by a replica that hadn’t received the write yet (replication lag). The second was served by the primary or by a replica that had caught up. Nothing was lost; that replica was just behind. This is eventual consistency showing a stale read. (Its name, if a student asks: a <em>read-your-own-writes</em> violation. Common fix: read your own data from the primary.)</li>
-<li><strong>(b)</strong> Yes. With async replication the primary says “done” as soon as <em>it</em> has the write. If it crashes before copying the write to any replica, the new primary never had it, so the write is gone even though the user was told it succeeded. That’s the last row of the sync/async table. Prevention: synchronous replication (or waiting for a majority of replicas), paying extra write latency so that “Saved!” really means saved.</li>
-</ul>
-<p>This sets up the next slide: comments can live with (a), but a bank can’t live with (b).</p>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide; reveal after the discussion. If a student asks, (a) has a name: a <em>read-your-own-writes</em> violation.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -931,14 +953,40 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="answer-2" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong>(a)</strong> The first refresh was served by a replica that <em>hadn’t received the write yet</em> (replication lag); the second by one that had caught up. Nothing was lost — that’s eventual consistency showing a <em>stale read</em>. Common fix: read <em>your own</em> data from the primary.</li>
+<li class="fragment"><strong>(b)</strong> <em>Yes.</em> With async replication the primary says “done” as soon as <em>it</em> has the write. If it crashes before copying it anywhere, the new primary never had it — <em>gone, even though you were told it succeeded</em>. That’s the red box in the async diagram. Prevention: wait for replicas (all, or a majority) before saying “done”, paying extra write latency.</li>
+</ul>
+<div class="fragment">
+<p>Comments can live with (a). A bank can’t live with (b) — next slide.</p>
+</div>
+</section>
 <section id="a-worked-scenario-checking-your-bank-balance" class="slide level2">
 <h2>A Worked Scenario: Checking Your Bank Balance</h2>
 <p>You just transferred $500 out of your checking account. One second later, you refresh the app and check your balance.</p>
 <ul>
-<li><strong>If the bank uses strong consistency:</strong> your new balance is guaranteed correct, every time — worth the extra write latency for money, where “slightly out of date” is unacceptable.</li>
-<li><strong>If the bank instead used eventual consistency and you got unlucky:</strong> you might briefly see your <em>old</em> balance, as if the transfer hadn’t happened — even though it genuinely went through.</li>
-<li>Compare this to a <strong>social media “like” count</strong>: if that count is briefly off by one because of replication lag, essentially nobody notices or cares.</li>
+<li class="fragment"><strong>Strong consistency:</strong> your new balance is <em>guaranteed correct</em>, every time — worth the extra write latency for money, where “slightly out of date” is unacceptable.</li>
+<li class="fragment"><strong>Eventual consistency, and you got unlucky:</strong> you might briefly see your <em>old balance</em>, as if the transfer hadn’t happened — even though it went through.</li>
+<li class="fragment">Compare a <strong>social media “like” count</strong>: if it’s briefly off by one because of replication lag, <em>nobody notices or cares</em>.</li>
 </ul>
+<aside class="notes">
+<p><strong>Timing: 5 min (this slide and its sub-slide).</strong> The intended takeaway for the callout: the deciding property is roughly “cost of showing stale data” versus “cost of slower writes” — not some fixed rule about what kind of app it is.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -952,30 +1000,23 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p><strong>Timing: 5 min.</strong> The intended takeaway for the callout: the deciding property is roughly “cost of showing stale data” versus “cost of slower writes” — not some fixed rule about what kind of app it is.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="fragment">
+<p><strong>Answer (one possibility):</strong> strong for <em>ticket or seat booking</em> (two people must never get the same seat); eventual for <em>view counts or news feeds</em> (a few seconds late harms nobody).</p>
+</div>
+<div class="fragment">
+<p>The deciding property is <strong>the cost of someone briefly seeing stale data</strong>, weighed against <strong>the cost of slower writes</strong> — not what kind of app it is.</p>
+</div>
 </section>
 <section id="read-preference-choosing-where-to-read-from" class="slide level2">
 <h2>Read Preference: Choosing Where to Read From</h2>
 <p>Many real databases let you choose, <strong>per query</strong>, how strict to be — rather than picking strong or eventual consistency for the whole system once and for all.</p>
 <ul>
-<li><strong>Read from the primary:</strong> always current, but funnels all reads through one machine — no read-scaling benefit from having replicas at all.</li>
-<li><strong>Read from any replica</strong> (“secondary” reads): spreads read load across machines, at the cost of possibly-stale results.</li>
-<li>This setting is usually called <strong>read preference</strong>, and it’s a real, named option you’ll see again in MongoDB specifically, in Session 5.</li>
+<li class="fragment"><strong>Read from the primary:</strong> <em>always current</em>, but funnels all reads through one machine — <em>no read-scaling benefit</em> from having replicas at all.</li>
+<li class="fragment"><strong>Read from a replica</strong> (“secondary” reads): <em>spreads read load</em>, at the cost of <em>possibly-stale</em> results.</li>
+<li class="fragment">This setting is usually called <strong>read preference</strong> — a real, named MongoDB option you’ll use in Session 5.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Flag explicitly that this is forward-referencing real MongoDB terminology — students will see “read preference” again in two sessions and should recognize it as the same idea introduced here, not a new concept.</p>
+<p><strong>Timing: 4 min.</strong> Flag explicitly that this is forward-referencing real MongoDB terminology — students will see “read preference” again a week from now (Session 5) and should recognize it as the same idea introduced here, not a new concept.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -992,12 +1033,12 @@ Shard 3: user_id 20,000,000+</code></pre>
 <h2>Consistency Is a Spectrum, Not a Switch</h2>
 <p>Strong and eventual consistency are the two ends of a range, not the only two options:</p>
 <ul>
-<li>Some systems let you require confirmation from just <strong>some</strong> replicas (not all, not just one) — a middle ground between the two extremes.</li>
-<li>Some systems guarantee <strong>causal consistency</strong>: if event B happened <em>because of</em> event A, every node sees A before B — even if unrelated events can still arrive in different orders on different nodes.</li>
-<li>The exact terminology varies by database. What matters for this course: consistency is a design <strong>choice with a dial</strong>, not a single fixed property a database either has or doesn’t.</li>
+<li class="fragment">Some systems let you wait for confirmation from <em>just some replicas</em> — e.g., a <strong>majority</strong> (2 of 3) — a middle ground between the extremes. MongoDB does this by default (Session 5).</li>
+<li class="fragment">Some systems guarantee <strong>causal consistency</strong>: if event B happened <em>because of</em> event A, every node sees <em>A before B</em> — even if unrelated events arrive in different orders on different nodes.</li>
+<li class="fragment">The terminology varies by database. What matters for this course: consistency is a design <em>choice with a dial</em>, not a fixed property a database either has or doesn’t.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Keep this conceptual and brief — the goal is “there’s more nuance here than strong-vs-eventual if you go looking,” not to teach every consistency model by name.</p>
+<p><strong>Timing: 4 min.</strong> Keep this conceptual and brief — the goal is “there’s more nuance here than strong-vs-eventual if you go looking,” not to teach every consistency model by name. Why a majority is a sweet spot, if asked: any two majorities of the same replica set overlap in at least one node, so a newly elected primary is guaranteed to include every majority-confirmed write.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1064,7 +1105,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 <td>10 min</td>
 </tr>
 <tr class="odd">
-<td>Class Discussion: Comparing Answers</td>
+<td>Class Discussion: Comparing Answers (+ answer sub-slides)</td>
 <td>12 min</td>
 </tr>
 <tr class="even">
@@ -1073,7 +1114,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
-<p><strong>Instructor note:</strong> work scenarios in groups of 2–3, on paper or a shared doc. For each, groups should decide: replicate, shard, both, or neither — and if replicating, strong or eventual consistency, and why. There is genuine room for disagreement on all three; resist giving “the” right answer during group work, save it for the discussion slide.</p>
+<p><strong>Instructor note:</strong> work scenarios in groups of 2–3, on paper or a shared doc. For each, groups should decide: replicate, shard, both, or neither — and if replicating, strong or eventual consistency, and why. There is genuine room for disagreement on all three; resist giving “the” right answer during group work. The “One Reasonable Design” sub-slides after the class discussion hold a defensible answer for each scenario, so students reviewing later have them — show them only after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1089,7 +1130,14 @@ Shard 3: user_id 20,000,000+</code></pre>
 <section id="framing-no-new-concepts-today" class="slide level2">
 <h2>Framing: No New Concepts Today</h2>
 <p>Everything you need is already covered: replication, sharding, single points of failure (Monday); strong vs.&nbsp;eventual consistency, synchronous vs.&nbsp;asynchronous replication (Wednesday).</p>
+<div class="fragment">
 <p>Today’s job: <strong>combine</strong> those tools into an actual design decision, for three different scenarios, and defend your reasoning to the class.</p>
+<p>For each scenario, decide:</p>
+<ol type="1">
+<li>Replicate, shard, both, or neither?</li>
+<li>If replicating: strong or eventual consistency — and for <em>which</em> reads?</li>
+<li>What’s the worst thing that happens if you get it wrong?</li>
+</ol>
 <aside class="notes">
 <p><strong>Timing: 2 min.</strong> Set expectations: this is discussion and small-group work, not a lecture.</p>
 <style type="text/css">
@@ -1103,13 +1151,14 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="scenario-1-a-note-taking-app" class="slide level2">
 <h2>Scenario 1: A Note-Taking App</h2>
 <p>A note-taking app has 3 million users. Each user’s notes are small (a few KB total) and are read and written almost exclusively by that one user — nobody else ever sees your notes.</p>
 <p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
 <aside class="notes">
-<p><strong>Timing: 10 min including group work.</strong> Push toward: total data volume is enormous (3M users × notes) but each <em>individual</em> user’s working set is tiny and only touched by one person — this maps cleanly to sharding by user ID, with mild replication for availability; strong consistency isn’t very important since each user only ever reads their own writes.</p>
+<p><strong>Timing: 10 min including group work.</strong> Push groups to <em>do the arithmetic</em>: 3M users × a few KB is on the order of 10–20 GB — that fits on one machine. So volume alone doesn’t force sharding; replication for availability is the must-have. Sharding by <code>user_id</code> is a natural <em>later</em> step because no query ever crosses users. On consistency, the trap is “only one user, so staleness doesn’t matter” — it’s the opposite: this is Wednesday’s read-your-own-writes case. A user who edits a note and sees the old version on refresh will think the app lost their work. See the answer sub-slide after the class discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1127,7 +1176,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 <p>A flight-search engine stores current seat availability for every flight, globally. Millions of users search and book simultaneously. Double-booking the same seat is a serious, costly problem.</p>
 <p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
 <aside class="notes">
-<p><strong>Timing: 10 min including group work.</strong> Push toward: this is the strong-consistency case — two people should never be told the same seat is available after one of them already booked it. Sharding by flight/route is reasonable for scale, but each shard’s availability data needs strong consistency, not eventual.</p>
+<p><strong>Timing: 10 min including group work.</strong> Push toward: booking is the strong-consistency case — two people should never be told the same seat is available after one of them already booked it. Sharding by flight/route is reasonable for scale. Stronger groups will notice the search-vs-booking split: browsing results can tolerate a few seconds of staleness (read from replicas), but the booking step itself must be strongly consistent.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1145,7 +1194,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 <p>A multiplayer game shows a global “Top 100 players this week” leaderboard, updated as players finish matches. Millions of matches finish per hour, worldwide.</p>
 <p><strong>In your group, decide:</strong> replicate, shard, both, or neither? If replicating, strong or eventual consistency? What’s the worst thing that happens if you get this wrong?</p>
 <aside class="notes">
-<p><strong>Timing: 10 min including group work.</strong> Push toward: extremely high write volume (matches finishing constantly) argues for sharding; the leaderboard itself tolerates real staleness — if your new high score takes a few seconds to appear, nobody is harmed — so eventual consistency is an easy, correct call here, in sharp contrast to Scenario 2.</p>
+<p><strong>Timing: 10 min including group work.</strong> Push toward: high write volume (matches finishing constantly) argues for sharding the match/score data; the leaderboard itself tolerates real staleness — if your new high score takes a few seconds to appear, nobody is harmed — so eventual consistency is an easy, correct call here, in sharp contrast to Scenario 2.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1174,7 +1223,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 12 min.</strong> Push toward: the deciding question isn’t “how much traffic” — it’s “what’s the cost of a user briefly seeing wrong/stale data, versus the cost of slower writes.” Scale determines <em>whether you need to shard</em>; the cost of staleness determines <em>how consistent you need to be</em>. These are two separate axes, and today’s scenarios were picked to make that separation visible.</p>
+<p><strong>Timing: 12 min (this slide and the answer sub-slides).</strong> Push toward: the deciding question isn’t “how much traffic” — it’s “what’s the cost of a user briefly seeing wrong/stale data, versus the cost of slower writes.” Scale determines <em>whether you need to shard</em>; the cost of staleness determines <em>how consistent you need to be</em>. These are two separate axes, and today’s scenarios were picked to make that separation visible.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1187,12 +1236,57 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="two-separate-questions" class="slide level2">
+<h2>Two Separate Questions</h2>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>How big / how busy is it?</strong> → decides <em>replicate and/or shard</em>.</li>
+<li class="fragment"><strong>What does a stale read cost?</strong> → decides <em>how strong the consistency</em> must be.</li>
+</ul>
+</div>
+<div class="fragment">
+<p>Scenarios 2 and 3 have similar scale but very different answers to the second question — so they land on opposite ends of the consistency dial.</p>
+</div>
+</section>
+<section id="one-reasonable-design-notes-app" class="slide level2">
+<h2>One Reasonable Design: Notes App</h2>
+<ul>
+<li class="fragment"><strong>Do the arithmetic first:</strong> 3 million users × a few KB ≈ <em>10–20 GB</em>. That fits on one machine, so volume alone <em>doesn’t force sharding</em>.</li>
+<li class="fragment"><strong>Replicate</strong> for availability — losing everyone’s notes, or locking them out, is the worst case.</li>
+<li class="fragment"><strong>Consistency:</strong> the tempting answer is “only one user, so staleness doesn’t matter.” It’s the opposite: you edit a note, refresh, and <em>your edit is gone</em> — Wednesday’s read-your-own-writes problem. Read each user’s notes <em>from the primary</em>.</li>
+<li class="fragment"><strong>Later:</strong> if the app grows, <code>user_id</code> is an <em>ideal shard key</em> — no query ever crosses users.</li>
+</ul>
+</section>
+<section id="one-reasonable-design-flight-search" class="slide level2">
+<h2>One Reasonable Design: Flight Search</h2>
+<ul>
+<li class="fragment"><strong>Shard</strong> by flight or route — global seat data and booking traffic are large.</li>
+<li class="fragment"><strong>Replicate</strong> each shard so one machine failing doesn’t stop bookings.</li>
+<li class="fragment"><strong>Booking a seat:</strong> <em>strong consistency</em>. A double-booked seat is costly and very visible.</li>
+<li class="fragment"><strong>Browsing search results:</strong> can tolerate a few seconds of staleness, so it can <em>read from replicas</em> — the same database, a different read preference per query.</li>
+</ul>
+</section>
+<section id="one-reasonable-design-game-leaderboard" class="slide level2">
+<h2>One Reasonable Design: Game Leaderboard</h2>
+<ul>
+<li class="fragment"><strong>Shard</strong> the match results by player — a constant stream of writes.</li>
+<li class="fragment"><strong>Replicate</strong> for availability.</li>
+<li class="fragment"><strong>Eventual consistency</strong> is fine: a new high score appearing <em>a few seconds late</em> harms nobody.</li>
+<li class="fragment">Same scale question as flights, <em>opposite answer</em> on consistency — because the cost of a stale read is near zero.</li>
+</ul>
+</section>
 <section id="wrap-up" class="slide level2">
 <h2>Wrap-Up</h2>
-<p>Every real storage decision in this course — and in industry — comes down to combining the same handful of tools you now have: replicate for availability and read scale, shard for volume and write scale, and dial consistency to match how much staleness a given piece of data can tolerate.</p>
+<p>Every real storage decision comes down to combining the same handful of tools:</p>
+<ul>
+<li class="fragment"><strong>replicate</strong> for availability and read scale,</li>
+<li class="fragment"><strong>shard</strong> for volume and write scale,</li>
+<li class="fragment">and <strong>dial consistency</strong> to match how much staleness a given piece of data can tolerate.</li>
+</ul>
+<div class="fragment">
 <p><strong>Monday: what kind of database actually implements these tools — the landscape of NoSQL database types.</strong></p>
 <aside class="notes">
-<p><strong>Timing: 6 min</strong> (including whatever discussion time is left over from the previous slide). Close on the forward-reference to keep momentum into Monday.</p>
+<p><strong>Timing: 6 min</strong> (including whatever discussion time is left over from the previous slides). Close on the forward-reference to keep momentum into Monday.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1204,6 +1298,7 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section class="slide level2">
 
@@ -1271,7 +1366,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
-<p>11 slides, ~39 min.</p>
+<p>11 slides, ~43 min, leaving ~7 min of slack.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1305,13 +1400,14 @@ Shard 3: user_id 20,000,000+</code></pre>
 <h2>Why Not Just a Relational Database?</h2>
 <p>Relational databases (PostgreSQL, MySQL) are excellent for structured, transactional data — and remain the right choice for a huge share of real applications. They start to struggle when you need to:</p>
 <ul>
-<li>Store data whose structure <strong>varies</strong> from record to record (not every record has the same fields)</li>
-<li><strong>Scale out</strong>, in Module 3’s terms — spread both data and load across many machines — rather than <strong>scale up</strong> (buying one increasingly expensive bigger machine)</li>
-<li>Serve extremely high read or write volume with a simpler, less rigid query model</li>
+<li class="fragment">Store data whose <em>structure varies</em> from record to record (not every record has the same fields)</li>
+<li class="fragment"><strong>Scale out</strong>, in Module 3’s terms — spread data and load across <em>many machines</em> — rather than <strong>scale up</strong> (buying one bigger, more expensive machine)</li>
+<li class="fragment">Serve <em>extremely high read or write volume</em> with a simpler, less rigid query model</li>
 </ul>
+<div class="fragment">
 <p><strong>NoSQL</strong> (“Not only SQL”) databases are a family of alternatives designed around these needs.</p>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Resist framing this as “NoSQL is better” — it’s a trade-off, and the slide right before the module summary makes that explicit again.</p>
+<p><strong>Timing: 4 min.</strong> Resist framing this as “NoSQL is better” — it’s a trade-off, and this session’s last content slide (“NoSQL vs.&nbsp;Relational — The Real Trade-off”) makes that explicit again.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1323,6 +1419,7 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-nosql-landscape-1" class="slide level2">
 <h2>The NoSQL Landscape</h2>
@@ -1356,7 +1453,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 <tr class="odd">
 <td><strong>Column-Family</strong></td>
-<td>Rows with dynamic columns, optimized for huge write volume</td>
+<td>Rows grouped by a partition key, optimized for huge write volume</td>
 <td>Cassandra, HBase</td>
 <td>Time-series, write-heavy logging</td>
 </tr>
@@ -1368,6 +1465,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <p>We focus on <strong>document stores</strong> (MongoDB) for the rest of this module — the most common general-purpose choice in industry, and what the capstone uses.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 7 Q4 tests “which type is MongoDB” directly — make sure “document store” sticks as MongoDB’s category before moving on.</p>
@@ -1382,34 +1480,65 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="document-stores-the-mental-model" class="slide level2">
 <h2>Document Stores — The Mental Model</h2>
 <ul>
 <li>Data is stored as <strong>documents</strong> — JSON-like objects — instead of rows in a table.</li>
-<li>Documents in the same collection <strong>do not need identical fields.</strong></li>
-<li>There’s no schema to define upfront — you just insert documents, and the structure can vary.</li>
+<li>Documents in the same collection <em>do not need identical fields</em>.</li>
+<li>There’s <em>no schema to define upfront</em> — you just insert documents.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a></a><span class="er">//</span> <span class="er">User</span> <span class="er">document</span></span>
-<span id="cb2-2"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Alice"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"alice@example.com"</span><span class="fu">,</span> <span class="dt">"premium"</span><span class="fu">:</span> <span class="kw">true</span> <span class="fu">}</span></span>
-<span id="cb2-3"><a></a></span>
-<span id="cb2-4"><a></a><span class="er">//</span> <span class="er">Another</span> <span class="er">user</span> <span class="er">document</span> <span class="er">—</span> <span class="er">different</span> <span class="er">fields,</span> <span class="er">same</span> <span class="er">collection</span></span>
-<span id="cb2-5"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Bob"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"bob@example.com"</span><span class="fu">,</span> <span class="dt">"age"</span><span class="fu">:</span> <span class="dv">29</span><span class="fu">,</span> <span class="dt">"plan"</span><span class="fu">:</span> <span class="st">"free"</span> <span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb1-1"><a></a><span class="er">//</span> <span class="er">User</span> <span class="er">document</span></span>
+<span id="cb1-2"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Alice"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"alice@example.com"</span><span class="fu">,</span> <span class="dt">"premium"</span><span class="fu">:</span> <span class="kw">true</span> <span class="fu">}</span></span>
+<span id="cb1-3"><a></a></span>
+<span id="cb1-4"><a></a><span class="er">//</span> <span class="er">Another</span> <span class="er">user</span> <span class="er">document</span> <span class="er">—</span> <span class="er">different</span> <span class="er">fields,</span> <span class="er">same</span> <span class="er">collection</span></span>
+<span id="cb1-5"><a></a><span class="fu">{</span> <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Bob"</span><span class="fu">,</span> <span class="dt">"email"</span><span class="fu">:</span> <span class="st">"bob@example.com"</span><span class="fu">,</span> <span class="dt">"age"</span><span class="fu">:</span> <span class="dv">29</span><span class="fu">,</span> <span class="dt">"plan"</span><span class="fu">:</span> <span class="st">"free"</span> <span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<p><strong>Tip</strong></p>
+<p><strong>The flip side</strong></p>
 </div>
 <div class="callout-content">
-<p>Flexible schema is a genuine trade-off, not a pure win: nothing stops one document from having a typo’d field name that silently doesn’t match the others — the database won’t catch it for you.</p>
+<p>Flexible schema is a trade-off, not a pure win: nothing stops one document from having a typo’d field name (<code>"emial"</code>) that silently doesn’t match the others — the database won’t catch it for you.</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Quiz 7 Q7 tests this exact property (two documents, same collection, different fields — true). The callout previews the “cost” side that the module-end trade-off slide expands on.</p>
+<p><strong>Timing: 4 min.</strong> Quiz 7 Q7 tests this exact property (two documents, same collection, different fields — true). The callout previews the “cost” side that the end-of-session trade-off slide expands on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="key-value-stores" class="slide level2">
+<h2>Key-Value Stores</h2>
+<p>The simplest possible model: every value is stored under a unique key, and you look it up by that key.</p>
+<pre><code>SET session:abc123 "user_id=42,expires=..."
+GET session:abc123</code></pre>
+<div class="fragment">
+<p><strong>Output of the <code>GET</code>:</strong></p>
+<pre><code>"user_id=42,expires=..."</code></pre>
+</div>
+<ul>
+<li class="fragment">You can only find a value <em>by its exact key</em> — there’s no “find every value containing X.”</li>
+<li class="fragment">Extremely fast, often <em>in-memory</em> (Redis) — ideal when you always look things up by one key.</li>
+<li class="fragment">Common uses: caching, session storage, rate limiting, real-time leaderboards.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 4 min (this slide and its sub-slide).</strong> Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it. The sub-slide resolves the obvious question “how can Redis do a leaderboard if values are opaque?”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1422,29 +1551,24 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="key-value-stores" class="slide level2">
-<h2>Key-Value Stores</h2>
-<p>The simplest possible model: every value is stored under a unique key, and that’s it.</p>
-<pre><code>SET session:abc123 "user_id=42,expires=..."
-GET session:abc123</code></pre>
-<ul>
-<li>The database treats the value as an <strong>opaque blob</strong> — it doesn’t know or care what’s inside.</li>
-<li>Extremely fast, often <strong>in-memory</strong> (Redis) — ideal when you always look things up by one exact key and don’t need to query by the value’s contents.</li>
-<li>Common uses: caching, session storage, rate limiting, real-time leaderboards.</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<section class="slide level2">
+
+<p>A plain string value like the one above is an <strong>opaque blob</strong>: the database stores it but doesn’t know what’s inside.</p>
+<div class="fragment">
+<p>Redis also offers a few <em>simple structured values</em> — lists, hashes, and <strong>sorted sets</strong>. A sorted set keeps members ordered by a score, which is exactly how Redis serves a leaderboard:</p>
+<pre><code>ZADD weekly_top 4200 "ana"
+ZADD weekly_top 3900 "raj"
+ZREVRANGE weekly_top 0 1</code></pre>
+<p>The two <code>ZADD</code>s add players with their scores; <code>ZREVRANGE … 0 1</code> asks for the top 2, highest score first.</p>
+<div class="fragment">
+<p><strong>Output of <code>ZREVRANGE</code>:</strong></p>
+<pre><code>1) "ana"
+2) "raj"</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Either way, everything is still reached <em>through its key</em>. You can’t ask “which keys’ values mention headphones?” — keep that in mind for the next slide.</p>
+</div>
 </section>
 <section id="pause-discuss-a-shopping-cart-in-a-key-value-store" class="slide level2">
 <h2>Pause &amp; Discuss: A Shopping Cart in a Key-Value Store?</h2>
@@ -1465,12 +1589,7 @@ GET session:abc123</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong>A user’s own cart:</strong> both work. Redis is likely faster, because it’s in memory and this is an exact-key lookup, which is exactly its sweet spot. Carts and sessions are a classic Redis use.</li>
-<li><strong>Marketing’s question:</strong> this is where you regret Redis. The value is an opaque blob and Redis can’t search inside it, so you’d have to fetch every cart and scan them in your own code. MongoDB can query fields <em>inside</em> documents, so this becomes a single query (Wednesday shows the syntax).</li>
-<li><strong>Principle:</strong> key-value wins when you <em>always</em> look things up by the exact key. As soon as you need to query by what’s <em>inside</em> the value, you want a store that understands the value’s structure. Real systems often use both: Redis for fast per-user reads, and a queryable store as the system of record.</li>
-</ul>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide; reveal after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1483,13 +1602,24 @@ GET session:abc123</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="answer-3" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong>A user’s own cart:</strong> both work. Redis is likely faster — in memory, and an <em>exact-key lookup</em> is its sweet spot. Carts and sessions are a classic Redis use.</li>
+<li class="fragment"><strong>Marketing’s question:</strong> this is where you regret Redis. It <em>can’t search inside the blob</em>, so you’d fetch every cart and scan them in your own code. MongoDB can <em>query fields inside documents</em>, so it’s a single query (Wednesday shows the syntax).</li>
+<li class="fragment"><strong>Principle:</strong> key-value wins when you <em>always</em> look things up by the exact key. Once you need to query by what’s <em>inside</em> the value, you want a store that understands its structure.</li>
+</ul>
+<div class="fragment">
+<p>Real systems often use <strong>both</strong>: Redis for fast per-user reads, and a queryable store as the system of record.</p>
+</div>
+</section>
 <section id="column-family-stores" class="slide level2">
 <h2>Column-Family Stores</h2>
 <p>Designed for <strong>massive write throughput</strong> distributed across many machines — think logging billions of events per day.</p>
 <ul>
-<li>Rows have a partition key; the set of columns can vary per row within a partition (similar flexibility idea to document stores, different underlying structure).</li>
-<li>No joins, and query patterns are deliberately limited — you design your tables around the specific queries you’ll run, not the other way around.</li>
-<li>Used by companies with enormous, constant write volume: Netflix, Apple, Instagram all use Cassandra for parts of their infrastructure.</li>
+<li class="fragment">Rows are grouped by a <em>partition key</em>, and each row stores only the columns it actually has — <em>sparse rows</em> (HBase even lets each row invent new columns on the fly).</li>
+<li class="fragment"><em>No joins</em>, and query patterns are deliberately limited — you <em>design tables around the queries</em> you’ll run, not the other way around.</li>
+<li class="fragment">Used where write volume is enormous and constant: Netflix, Apple, and Instagram all run Cassandra for parts of their infrastructure.</li>
 </ul>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Keep this brief relative to document/key-value — it’s the least directly relevant type to this course’s labs and capstone, included for landscape completeness and because Quiz 7 references NoSQL types generally.</p>
@@ -1509,10 +1639,14 @@ GET session:abc123</code></pre>
 <h2>Graph Databases</h2>
 <p>Built around <strong>relationships</strong> as first-class data, not an afterthought.</p>
 <ul>
-<li><strong>Nodes</strong> (entities) and <strong>edges</strong> (relationships between them), both of which can have their own properties.</li>
-<li>Query language example (Neo4j’s Cypher): <code>MATCH (a:Person)-[:FRIEND]-&gt;(b:Person) RETURN b</code></li>
-<li>Ideal when the interesting questions are about <em>connections</em>: “friends of friends,” “people who bought A also bought B,” fraud rings, recommendation engines.</li>
+<li class="fragment"><strong>Nodes</strong> (entities) and <strong>edges</strong> (relationships between them), both of which can have their own properties.</li>
+<li class="fragment">Ideal when the interesting questions are about <em>connections</em>: “friends of friends,” “people who bought A also bought B,” fraud rings, recommendation engines.</li>
 </ul>
+<div class="fragment">
+<p>A “friends of friends” query in Neo4j’s Cypher language — follow two <code>FRIEND</code> edges out from Ana:</p>
+<pre><code>MATCH (me:Person {name: "Ana"})-[:FRIEND]-&gt;()-[:FRIEND]-&gt;(fof)
+RETURN DISTINCT fof.name</code></pre>
+<p>In a relational database, the same question needs the friendships table <em>joined to itself</em> — and one more self-join for every extra hop.</p>
 <aside class="notes">
 <p><strong>Timing: 4 min.</strong> Quiz 7 Q5’s recommendation-engine question maps directly here — say the “people who bought A also bought B” phrase out loud, since it’s close to the quiz’s own wording.</p>
 <style type="text/css">
@@ -1526,6 +1660,7 @@ GET session:abc123</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="choosing-the-right-type" class="slide level2">
 <h2>Choosing the Right Type</h2>
@@ -1563,6 +1698,7 @@ GET session:abc123</code></pre>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1577,7 +1713,7 @@ GET session:abc123</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> Intended mapping: (1) document store for profiles, (2) column-family for the GPS firehose, (3) graph for the referral relationships — the point is that one real system often uses <em>multiple</em> NoSQL types for different parts of itself, not just one.</p>
+<p><strong>Timing: 5 min (this slide and its answer sub-slide).</strong> The point is that one real system often uses <em>multiple</em> NoSQL types for different parts of itself, not just one.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1589,6 +1725,18 @@ GET session:abc123</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="answer-4" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong>(1) Driver profiles</strong> → <em>document store</em>: flexible records whose fields vary a bit.</li>
+<li class="fragment"><strong>(2) GPS pings</strong> → <em>column-family</em>: an enormous, constant stream of writes.</li>
+<li class="fragment"><strong>(3) Referrals</strong> → <em>graph</em>: the question is about <em>who is connected to whom</em>.</li>
+</ul>
+<div class="fragment">
+<p>One real system, three different database types — each for the part it fits best.</p>
+</div>
 </section>
 <section id="nosql-vs.-relational-the-real-trade-off" class="slide level2">
 <h2>NoSQL vs.&nbsp;Relational — The Real Trade-off</h2>
@@ -1633,6 +1781,7 @@ GET session:abc123</code></pre>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -1659,6 +1808,7 @@ GET session:abc123</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="bridge-mongodb-specifically" class="slide level2">
 <h2>Bridge: MongoDB, Specifically</h2>
@@ -1699,7 +1849,7 @@ GET session:abc123</code></pre>
 <tbody>
 <tr class="odd">
 <td>Recap + Today’s Plan</td>
-<td>3 min</td>
+<td>2 min</td>
 </tr>
 <tr class="even">
 <td>MongoDB Concepts</td>
@@ -1707,10 +1857,10 @@ GET session:abc123</code></pre>
 </tr>
 <tr class="odd">
 <td>CRUD — Create</td>
-<td>4 min</td>
+<td>3 min</td>
 </tr>
 <tr class="even">
-<td>CRUD — Read, and Query Operators</td>
+<td>CRUD — Read (+ projection, operators)</td>
 <td>5 min</td>
 </tr>
 <tr class="odd">
@@ -1723,31 +1873,35 @@ GET session:abc123</code></pre>
 </tr>
 <tr class="odd">
 <td>Replication in MongoDB</td>
-<td>4 min</td>
+<td>3 min</td>
 </tr>
 <tr class="even">
 <td>Sharding in MongoDB</td>
-<td>4 min</td>
+<td>3 min</td>
 </tr>
 <tr class="odd">
 <td>Beyond CRUD: Counting for the Capstone</td>
-<td>3 min</td>
+<td>2 min</td>
 </tr>
 <tr class="even">
 <td>MongoDB Atlas</td>
-<td>3 min</td>
+<td>2 min</td>
 </tr>
 <tr class="odd">
+<td>Shell Syntax vs.&nbsp;Python Syntax</td>
+<td>2 min</td>
+</tr>
+<tr class="even">
 <td>Checkpoint 7</td>
 <td>15 min</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Module 5 Summary + Bridge</td>
 <td>2 min</td>
 </tr>
 </tbody>
 </table>
-<p>10 content slides (~33 min) + Checkpoint 7. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory.</p>
+<p>11 content slides (~33 min) + Checkpoint 7 + summary = 50 min. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory. The CRUD examples deliberately use a <code>movies</code> collection (the capstone’s domain) rather than an employees collection, so they don’t preview Checkpoint 7’s data.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1764,7 +1918,7 @@ GET session:abc123</code></pre>
 <h2>Recap + Today’s Plan</h2>
 <p>Monday and last week gave you the concepts (replication, sharding, consistency, document stores). Today: the actual syntax — MongoDB’s terminology, and the four CRUD operations (Create, Read, Update, Delete) you’ll be tested on today and use for the rest of the course.</p>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Brief orientation only.</p>
+<p><strong>Timing: 2 min.</strong> Brief orientation only.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1809,13 +1963,15 @@ GET session:abc123</code></pre>
 </tr>
 </tbody>
 </table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
-<span id="cb4-2"><a></a></span>
-<span id="cb4-3"><a></a>client <span class="op">=</span> MongoClient(<span class="st">"mongodb+srv://..."</span>)</span>
-<span id="cb4-4"><a></a>db     <span class="op">=</span> client[<span class="st">"my_database"</span>]</span>
-<span id="cb4-5"><a></a>col    <span class="op">=</span> db[<span class="st">"my_collection"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p>In Python, the <code>pymongo</code> driver gets you from a connection to a collection in three lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
+<span id="cb7-2"><a></a></span>
+<span id="cb7-3"><a></a>client <span class="op">=</span> MongoClient(<span class="st">"mongodb+srv://..."</span>)   <span class="co"># your Atlas connection string</span></span>
+<span id="cb7-4"><a></a>db     <span class="op">=</span> client[<span class="st">"cosc420"</span>]</span>
+<span id="cb7-5"><a></a>col    <span class="op">=</span> db[<span class="st">"movies"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> This mapping table is worth reading straight through once — it’s the Rosetta Stone for everything that follows.</p>
+<p><strong>Timing: 3 min.</strong> This mapping table is worth reading straight through once — it’s the Rosetta Stone for everything that follows. Neither the database nor the collection has to exist beforehand: MongoDB creates both the first time you insert into them.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1827,28 +1983,29 @@ GET session:abc123</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="crud-create" class="slide level2">
 <h2>CRUD — Create</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="co"># Insert one document</span></span>
-<span id="cb5-2"><a></a>result <span class="op">=</span> col.insert_one({</span>
-<span id="cb5-3"><a></a>    <span class="st">"name"</span>: <span class="st">"Alice"</span>,</span>
-<span id="cb5-4"><a></a>    <span class="st">"dept"</span>: <span class="st">"Engineering"</span>,</span>
-<span id="cb5-5"><a></a>    <span class="st">"salary"</span>: <span class="dv">95000</span></span>
-<span id="cb5-6"><a></a>})</span>
-<span id="cb5-7"><a></a><span class="bu">print</span>(result.inserted_id)  <span class="co"># the auto-generated _id</span></span>
-<span id="cb5-8"><a></a></span>
-<span id="cb5-9"><a></a><span class="co"># Insert many documents at once</span></span>
-<span id="cb5-10"><a></a>col.insert_many([</span>
-<span id="cb5-11"><a></a>    {<span class="st">"name"</span>: <span class="st">"Bob"</span>,  <span class="st">"salary"</span>: <span class="dv">62000</span>},</span>
-<span id="cb5-12"><a></a>    {<span class="st">"name"</span>: <span class="st">"Carol"</span>,<span class="st">"salary"</span>: <span class="dv">78000</span>},</span>
-<span id="cb5-13"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li><code>_id</code> is created automatically for every document — a unique identifier, unless you supply your own.</li>
-<li><code>insert_one</code> returns one new <code>_id</code>; <code>insert_many</code> returns a list of them.</li>
-</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Insert one document</span></span>
+<span id="cb8-2"><a></a>result <span class="op">=</span> col.insert_one({<span class="st">"title"</span>: <span class="st">"Toy Story"</span>, <span class="st">"genre"</span>: <span class="st">"Animation"</span>,</span>
+<span id="cb8-3"><a></a>                         <span class="st">"year"</span>: <span class="dv">1995</span>, <span class="st">"rating"</span>: <span class="fl">4.0</span>})</span>
+<span id="cb8-4"><a></a><span class="bu">print</span>(result.inserted_id)</span>
+<span id="cb8-5"><a></a></span>
+<span id="cb8-6"><a></a><span class="co"># Insert many documents at once</span></span>
+<span id="cb8-7"><a></a>result <span class="op">=</span> col.insert_many([</span>
+<span id="cb8-8"><a></a>    {<span class="st">"title"</span>: <span class="st">"Heat"</span>,    <span class="st">"genre"</span>: <span class="st">"Crime"</span>,     <span class="st">"year"</span>: <span class="dv">1995</span>, <span class="st">"rating"</span>: <span class="fl">3.5</span>},</span>
+<span id="cb8-9"><a></a>    {<span class="st">"title"</span>: <span class="st">"Jumanji"</span>, <span class="st">"genre"</span>: <span class="st">"Adventure"</span>, <span class="st">"year"</span>: <span class="dv">1995</span>, <span class="st">"rating"</span>: <span class="fl">3.0</span>},</span>
+<span id="cb8-10"><a></a>    {<span class="st">"title"</span>: <span class="st">"Up"</span>,      <span class="st">"genre"</span>: <span class="st">"Animation"</span>, <span class="st">"year"</span>: <span class="dv">2009</span>, <span class="st">"rating"</span>: <span class="fl">4.5</span>},</span>
+<span id="cb8-11"><a></a>])</span>
+<span id="cb8-12"><a></a><span class="bu">print</span>(<span class="bu">len</span>(result.inserted_ids))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output</strong> (your <code>ObjectId</code> will differ):</p>
+<pre><code>6738f1c2a4b9e3d1f0c2a7e1
+3</code></pre>
+</div>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> Quiz 7 Q8 tests <code>insertOne</code> syntax directly (shell form: <code>db.students.insertOne(...)</code>) — note that the Python driver spells it <code>insert_one</code> (snake_case) while the MongoDB shell spells it <code>insertOne</code> (camelCase); both are correct in their own context, and worth pointing out explicitly since Lab 9 uses the Python form and Checkpoint 7 uses shell syntax.</p>
+<p><strong>Timing: 3 min.</strong> Quiz 7 Q8 tests <code>insertOne</code> syntax directly (shell form: <code>db.students.insertOne(...)</code>) — the Python driver spells it <code>insert_one</code> (snake_case) while the MongoDB shell spells it <code>insertOne</code> (camelCase). Lab 9 uses the Python form and Checkpoint 7 uses shell syntax; the “Shell Syntax vs.&nbsp;Python Syntax” slide before the checkpoint puts the mapping on screen.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1861,52 +2018,129 @@ GET session:abc123</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="crud-read-and-query-operators" class="slide level2">
-<h2>CRUD — Read, and Query Operators</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="co"># Find all documents</span></span>
-<span id="cb6-2"><a></a><span class="cf">for</span> doc <span class="kw">in</span> col.find():</span>
-<span id="cb6-3"><a></a>    <span class="bu">print</span>(doc)</span>
-<span id="cb6-4"><a></a></span>
-<span id="cb6-5"><a></a><span class="co"># Find with an exact-match filter</span></span>
-<span id="cb6-6"><a></a>engineers <span class="op">=</span> col.find({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
-<span id="cb6-7"><a></a></span>
-<span id="cb6-8"><a></a><span class="co"># Filter with a comparison operator</span></span>
-<span id="cb6-9"><a></a>high_earners <span class="op">=</span> col.find({<span class="st">"salary"</span>: {<span class="st">"$gt"</span>: <span class="dv">80000</span>}})</span>
-<span id="cb6-10"><a></a></span>
-<span id="cb6-11"><a></a><span class="co"># Sort and limit</span></span>
-<span id="cb6-12"><a></a>col.find().sort(<span class="st">"salary"</span>, <span class="op">-</span><span class="dv">1</span>).limit(<span class="dv">5</span>)   <span class="co"># top 5 by salary</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><code>_id</code> is created <em>automatically</em> for every document — a unique <code>ObjectId</code>, unless you supply your own <code>_id</code>.</li>
+<li class="fragment"><code>insert_one</code> returns a result whose <code>.inserted_id</code> is the <em>one new <code>_id</code></em>; <code>insert_many</code>’s <code>.inserted_ids</code> is a <em>list of them</em>, one per document.</li>
+<li class="fragment">The rest of today’s examples use these <em>four movies</em>.</li>
+</ul>
+</section>
+<section id="crud-read" class="slide level2">
+<h2>CRUD — Read</h2>
+<p><code>find(filter)</code> returns every document matching the filter. <code>find({})</code> (or <code>find()</code>) matches <em>everything</em>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="co"># Exact-match filter: every Animation film</span></span>
+<span id="cb10-2"><a></a><span class="cf">for</span> m <span class="kw">in</span> col.find({<span class="st">"genre"</span>: <span class="st">"Animation"</span>}):</span>
+<span id="cb10-3"><a></a>    <span class="bu">print</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>{'_id': ObjectId('6738f1c2a4b9e3d1f0c2a7e1'), 'title': 'Toy Story', 'genre': 'Animation', 'year': 1995, 'rating': 4.0}
+{'_id': ObjectId('6738f1c2a4b9e3d1f0c2a7e4'), 'title': 'Up', 'genre': 'Animation', 'year': 2009, 'rating': 4.5}</code></pre>
+</div>
+<div class="fragment">
+<p><code>find</code> returns a <em>cursor</em>, not a list — loop over it, or wrap it in <code>list(...)</code>.</p>
+<aside class="notes">
+<p><strong>Timing: 5 min (this slide and its two sub-slides).</strong> Quiz 7 Q9 and Q10 both test this directly — <code>find({})</code> returns <em>everything</em> (Q10), and <code>$lt</code> versus <code>$gt</code> (Q9). Say both of those out loud explicitly, they’re easy to mix up under quiz pressure.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Projection:</strong> a second argument picks <em>which fields come back</em>. <code>{"_id": 0}</code> hides <code>_id</code> — the exact pattern the capstone’s <code>flask_app.py</code> uses on every query.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="co"># Comparison operator + projection</span></span>
+<span id="cb12-2"><a></a><span class="cf">for</span> m <span class="kw">in</span> col.find({<span class="st">"rating"</span>: {<span class="st">"$gt"</span>: <span class="fl">3.5</span>}}, {<span class="st">"_id"</span>: <span class="dv">0</span>, <span class="st">"title"</span>: <span class="dv">1</span>, <span class="st">"rating"</span>: <span class="dv">1</span>}):</span>
+<span id="cb12-3"><a></a>    <span class="bu">print</span>(m)</span>
+<span id="cb12-4"><a></a></span>
+<span id="cb12-5"><a></a><span class="co"># Sort (−1 = descending) and limit: the top 2 by rating</span></span>
+<span id="cb12-6"><a></a><span class="bu">print</span>(<span class="bu">list</span>(col.find({}, {<span class="st">"_id"</span>: <span class="dv">0</span>, <span class="st">"title"</span>: <span class="dv">1</span>}).sort(<span class="st">"rating"</span>, <span class="op">-</span><span class="dv">1</span>).limit(<span class="dv">2</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>{'title': 'Toy Story', 'rating': 4.0}
+{'title': 'Up', 'rating': 4.5}
+[{'title': 'Up'}, {'title': 'Toy Story'}]</code></pre>
+</div>
+<div class="fragment">
+<p>Heat (3.5) is <em>not</em> returned: <code>$gt</code> is strictly greater. <code>{"$gte": 3.5}</code> would include it.</p>
+</div>
+</section>
+<section class="slide level2">
+
 <table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Operator</th>
 <th>Meaning</th>
+<th>Example filter</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>$gt</code> / <code>$lt</code></td>
 <td>Greater than / less than</td>
+<td><code>{"year": {"$lt": 2000}}</code></td>
 </tr>
 <tr class="even">
 <td><code>$gte</code> / <code>$lte</code></td>
 <td>≥ / ≤</td>
+<td><code>{"rating": {"$gte": 3.5}}</code></td>
 </tr>
 <tr class="odd">
 <td><code>$ne</code></td>
 <td>Not equal</td>
+<td><code>{"genre": {"$ne": "Crime"}}</code></td>
 </tr>
 <tr class="even">
 <td><code>$in</code></td>
 <td>Value is in a given list</td>
+<td><code>{"genre": {"$in": ["Crime", "Adventure"]}}</code></td>
 </tr>
 <tr class="odd">
 <td><code>$exists</code></td>
 <td>Field exists on the document</td>
+<td><code>{"rating": {"$exists": True}}</code></td>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
+<p>Pattern: <code>{field: {operator: value}}</code>. A bare value, <code>{field: value}</code>, means <em>equals</em>.</p>
+</div>
+</section>
+<section id="crud-update-and-delete" class="slide level2">
+<h2>CRUD — Update and Delete</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="co"># Update ONE matching document: $set replaces a field's value</span></span>
+<span id="cb14-2"><a></a>r <span class="op">=</span> col.update_one({<span class="st">"title"</span>: <span class="st">"Jumanji"</span>}, {<span class="st">"$set"</span>: {<span class="st">"rating"</span>: <span class="fl">3.5</span>}})</span>
+<span id="cb14-3"><a></a><span class="bu">print</span>(r.modified_count)</span>
+<span id="cb14-4"><a></a></span>
+<span id="cb14-5"><a></a><span class="co"># Update ALL matching documents: $mul multiplies a numeric field</span></span>
+<span id="cb14-6"><a></a>r <span class="op">=</span> col.update_many({}, {<span class="st">"$mul"</span>: {<span class="st">"rating"</span>: <span class="dv">2</span>}})     <span class="co"># 5-point scale → 10-point</span></span>
+<span id="cb14-7"><a></a><span class="bu">print</span>(r.modified_count)</span>
+<span id="cb14-8"><a></a></span>
+<span id="cb14-9"><a></a><span class="co"># Delete ALL matching documents</span></span>
+<span id="cb14-10"><a></a>r <span class="op">=</span> col.delete_many({<span class="st">"year"</span>: {<span class="st">"$lt"</span>: <span class="dv">2000</span>}})</span>
+<span id="cb14-11"><a></a><span class="bu">print</span>(r.deleted_count)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>1
+4
+3</code></pre>
+</div>
 <aside class="notes">
-<p><strong>Timing: 5 min.</strong> Quiz 7 Q9 and Q10 both test this directly — <code>find({})</code> returns <em>everything</em> (Q10), and <code>$lt</code> versus <code>$gt</code> (Q9). Say both of those out loud explicitly, they’re easy to mix up under quiz pressure.</p>
+<p><strong>Timing: 4 min (this slide and its sub-slide).</strong> This maps onto Checkpoint 7’s Task 3 (updateOne + $set) and Task 4 (deleteMany) — the operators must be taught plainly, but the examples here deliberately use the movies collection, not the checkpoint’s <code>employees</code> documents or its <code>active</code> field.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1919,40 +2153,14 @@ GET session:abc123</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="crud-update-and-delete" class="slide level2">
-<h2>CRUD — Update and Delete</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="co"># Update ONE matching document</span></span>
-<span id="cb7-2"><a></a>col.update_one(</span>
-<span id="cb7-3"><a></a>    {<span class="st">"name"</span>: <span class="st">"Alice"</span>},</span>
-<span id="cb7-4"><a></a>    {<span class="st">"$set"</span>: {<span class="st">"salary"</span>: <span class="dv">100000</span>}}</span>
-<span id="cb7-5"><a></a>)</span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a><span class="co"># Update ALL matching documents</span></span>
-<span id="cb7-8"><a></a>col.update_many(</span>
-<span id="cb7-9"><a></a>    {<span class="st">"dept"</span>: <span class="st">"Engineering"</span>},</span>
-<span id="cb7-10"><a></a>    {<span class="st">"$mul"</span>: {<span class="st">"salary"</span>: <span class="fl">1.10</span>}}   <span class="co"># 10% raise for everyone matched</span></span>
-<span id="cb7-11"><a></a>)</span>
-<span id="cb7-12"><a></a></span>
-<span id="cb7-13"><a></a><span class="co"># Delete</span></span>
-<span id="cb7-14"><a></a>col.delete_one({<span class="st">"name"</span>: <span class="st">"Bob"</span>})</span>
-<span id="cb7-15"><a></a>col.delete_many({<span class="st">"active"</span>: <span class="va">False</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section class="slide level2">
+
 <ul>
-<li><code>$set</code> replaces a field’s value outright; <code>$mul</code> multiplies a numeric field by a factor.</li>
-<li><code>update_one</code>/<code>delete_one</code> affect only the <strong>first</strong> match; <code>update_many</code>/<code>delete_many</code> affect <strong>every</strong> match.</li>
+<li class="fragment"><code>update_one</code> / <code>delete_one</code> affect only the <em>first</em> match; <code>update_many</code> / <code>delete_many</code> affect <em>every</em> match.</li>
+<li class="fragment">An update needs an <em>operator</em> like <code>$set</code> or <code>$mul</code> — <code>$set</code> replaces a field’s value outright; <code>$mul</code> multiplies a number.</li>
+<li class="fragment"><code>{}</code> as the filter matches <em>every document</em>, so <code>update_many({}, ...)</code> touched all 4 movies.</li>
+<li class="fragment">The delete removed the <em>3 films from 1995</em>; only Up (2009) is left.</li>
 </ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> This maps almost exactly onto Checkpoint 7’s Task 3 (updateOne + $set) and Task 4 (deleteMany) — don’t use the checkpoint’s own <code>active</code>/department fields as the live example here if you want to avoid spoiling it outright, though the operators themselves obviously must be taught plainly.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 </section>
 <section id="pause-discuss-predict-the-query-results" class="slide level2">
 <h2>Pause &amp; Discuss: Predict the Query Results</h2>
@@ -1966,26 +2174,20 @@ GET session:abc123</code></pre>
 </div>
 <div class="callout-content">
 <p>A <code>products</code> collection holds exactly these four documents:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a>{<span class="st">"name"</span>: <span class="st">"A"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">12</span>}</span>
-<span id="cb8-2"><a></a>{<span class="st">"name"</span>: <span class="st">"B"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">30</span>}</span>
-<span id="cb8-3"><a></a>{<span class="st">"name"</span>: <span class="st">"C"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>, <span class="st">"price"</span>: <span class="dv">45</span>}</span>
-<span id="cb8-4"><a></a>{<span class="st">"name"</span>: <span class="st">"D"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>}              <span class="co"># no price field at all</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a></a>{<span class="st">"name"</span>: <span class="st">"A"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">12</span>}</span>
+<span id="cb16-2"><a></a>{<span class="st">"name"</span>: <span class="st">"B"</span>, <span class="st">"category"</span>: <span class="st">"books"</span>, <span class="st">"price"</span>: <span class="dv">30</span>}</span>
+<span id="cb16-3"><a></a>{<span class="st">"name"</span>: <span class="st">"C"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>, <span class="st">"price"</span>: <span class="dv">45</span>}</span>
+<span id="cb16-4"><a></a>{<span class="st">"name"</span>: <span class="st">"D"</span>, <span class="st">"category"</span>: <span class="st">"games"</span>}              <span class="co"># no price field at all</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>These run in order:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a>col.update_one({<span class="st">"category"</span>: <span class="st">"books"</span>}, {<span class="st">"$mul"</span>: {<span class="st">"price"</span>: <span class="fl">0.5</span>}})</span>
-<span id="cb9-2"><a></a>col.find({<span class="st">"price"</span>: {<span class="st">"$lt"</span>: <span class="dv">20</span>}})</span>
-<span id="cb9-3"><a></a>col.delete_many({<span class="st">"price"</span>: {<span class="st">"$gt"</span>: <span class="dv">100</span>}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a>col.update_one({<span class="st">"category"</span>: <span class="st">"books"</span>}, {<span class="st">"$mul"</span>: {<span class="st">"price"</span>: <span class="fl">0.5</span>}})</span>
+<span id="cb17-2"><a></a>col.find({<span class="st">"price"</span>: {<span class="st">"$lt"</span>: <span class="dv">20</span>}})</span>
+<span id="cb17-3"><a></a>col.delete_many({<span class="st">"price"</span>: {<span class="st">"$gt"</span>: <span class="dv">100</span>}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>What does the <code>find</code> return? How many documents does <code>delete_many</code> remove?</p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> <strong>Answer:</strong></p>
-<ul>
-<li><strong><code>update_one</code></strong> changes only the <em>first</em> match, so A becomes 6 and B stays 30. (<code>update_many</code> would have halved both, giving 6 and 15.)</li>
-<li><strong><code>find</code></strong> returns <strong>only A</strong> (price 6). B is 30. D has no <code>price</code> field at all, so a comparison on <code>price</code> never matches it. A missing field is not “less than 20.” This is Monday’s flexible-schema point in action.</li>
-<li><strong><code>delete_many</code></strong> removes <strong>0 documents</strong>. A filter that matches nothing is not an error.</li>
-</ul>
-<p>Side note if asked: “first match” means first in the collection’s stored order. Real code shouldn’t depend on which document that is. If you mean one specific document, filter on something unique, like <code>_id</code>.</p>
+<p><strong>Timing: 4 min (≈2 min silent thinking, ≈2 min discussion).</strong> Answers are on the next sub-slide; reveal after the discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1997,20 +2199,31 @@ GET session:abc123</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="answer-5" class="slide level2">
+<h2>Answer</h2>
+<ul>
+<li class="fragment"><strong><code>update_one</code></strong> changes only the <em>first</em> match: A’s price becomes <em>6.0</em> and B stays 30. (<code>update_many</code> would have halved both: 6.0 and 15.0.)</li>
+<li class="fragment"><strong><code>find</code></strong> returns <em>only A</em>. B is 30. D has <em>no <code>price</code> field at all</em>, so a comparison on <code>price</code> never matches it — a missing field is not “less than 20.” Monday’s flexible schema, in action.</li>
+<li class="fragment"><strong><code>delete_many</code></strong> removes <em>0 documents</em>. A filter that matches nothing is not an error.</li>
+</ul>
+<div class="fragment">
+<p>“First match” means first in the collection’s stored order — real code shouldn’t depend on which one that is. To change one specific document, filter on something unique, like <code>_id</code>.</p>
+</div>
 </section>
 <section id="replication-in-mongodb" class="slide level2">
 <h2>Replication in MongoDB</h2>
-<p>Session 1’s general replication concept, applied concretely: MongoDB uses <strong>replica sets</strong> — typically 3 nodes, 1 primary + 2 secondaries.</p>
+<p>Session 1’s replication, by MongoDB’s names: a <strong>replica set</strong> — typically 3 nodes, 1 <strong>primary</strong> + 2 <strong>secondaries</strong>.</p>
 <pre><code>Write → Primary → Secondary 1
                 → Secondary 2
-Read ← Primary (default) or a Secondary (if read preference allows it)</code></pre>
+Read  ← Primary (default) or a Secondary (if read preference allows it)</code></pre>
 <ul>
-<li>All writes go to the <strong>primary</strong>; changes replicate out to secondaries — asynchronously by default, which is Session 2’s “eventual consistency” in a real product.</li>
-<li>If the primary fails, the remaining secondaries automatically elect a new primary.</li>
-<li><strong>Read preference</strong> (Session 2’s concept, by its real name here): <code>primary</code> (always current) or <code>secondaryPreferred</code> (may be slightly stale, spreads out read load).</li>
+<li class="fragment">All writes go to the <em>primary</em>; secondaries copy its changes <em>in the background</em>.</li>
+<li class="fragment">If the primary fails, the remaining members <em>automatically elect a new primary</em>.</li>
+<li class="fragment">By default, “done” means a <em>majority</em> of members have the write (2 of 3) — Session 2’s middle of the dial. A write confirmed this way survives the primary crashing.</li>
 </ul>
 <aside class="notes">
-<p><strong>Timing: 4 min.</strong> This is the payoff moment for Session 1 and Session 2 — say explicitly “this is the exact same replication and consistency material from last week, now with MongoDB’s own names on it.”</p>
+<p><strong>Timing: 3 min (this slide and its sub-slide).</strong> This is the payoff moment for Sessions 1 and 2 — say explicitly “this is the exact same replication and consistency material from last week, now with MongoDB’s own names on it.” Version note: majority write concern has been the default since MongoDB 5.0 (Atlas runs current versions). Older material often says MongoDB “acknowledges after the primary only” — that was the pre-5.0 default (<code>w: 1</code>), and it is still available.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2022,22 +2235,25 @@ Read ← Primary (default) or a Secondary (if read preference allows it)</code><
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2">
+
+<p><strong>Read preference</strong> — Session 2’s idea, by its real name — is set per collection handle in <code>pymongo</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="im">from</span> pymongo <span class="im">import</span> ReadPreference</span>
+<span id="cb19-2"><a></a></span>
+<span id="cb19-3"><a></a>fresh <span class="op">=</span> col                                     <span class="co"># default: read from the primary</span></span>
+<span id="cb19-4"><a></a>fast  <span class="op">=</span> col.with_options(read_preference<span class="op">=</span>ReadPreference.SECONDARY_PREFERRED)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><code>primary</code> (the default): <em>always current</em>, but every read hits one machine.</li>
+<li class="fragment"><code>secondaryPreferred</code>: <em>spreads reads</em> across secondaries, which <em>may be slightly stale</em>.</li>
+</ul>
 </section>
 <section id="sharding-in-mongodb" class="slide level2">
 <h2>Sharding in MongoDB</h2>
-<p>Session 1’s general sharding concept, applied concretely: when a collection outgrows one machine, split it across <strong>shards</strong> using a <strong>shard key</strong>.</p>
-<pre><code>Shard key: user_id
+<p>Session 1’s sharding, by MongoDB’s names: a <strong>sharded cluster</strong>, split by a <strong>shard key</strong>.</p>
 
-Shard 1: user_id 0 – 9,999,999
-Shard 2: user_id 10,000,000 – 19,999,999
-Shard 3: user_id 20,000,000+</code></pre>
-<ul>
-<li>A router process (<strong><code>mongos</code></strong>) directs each query to the right shard(s), transparently to your application code — you don’t write different queries for a sharded vs.&nbsp;unsharded collection.</li>
-<li>A poorly chosen shard key creates the <strong>hot spots</strong> Session 1 warned about — e.g., sharding by signup date sends all of today’s traffic to one shard.</li>
-<li>In practice, each shard is <em>also</em> a replica set — sharding and replication are combined, not either/or, answering Session 1’s “can a table need both?” callout question directly: yes.</li>
-</ul>
-<aside class="notes">
-<p><strong>Timing: 4 min.</strong> Land the “combined, not either/or” point explicitly — it’s the resolution to the open question from Session 1’s photo-sharing-app callout.</p>
+<img data-src="diags/05-mongo-cluster.svg" alt="Top: a gray box &quot;your app (pymongo)&quot; with an arrow down to a violet box &quot;mongos (router)&quot;, annotated &quot;looks at the shard key, sends the query to the right shard(s)&quot;. Three violet arrows go from mongos down to three dashed boxes labeled &quot;Shard 1 (a replica set)&quot;, &quot;Shard 2 (a replica set)&quot;, and &quot;Shard 3 (a replica set)&quot;. Inside each, an orange &quot;Primary&quot; box has arrows down to two &quot;Secondary&quot; boxes. Caption: &quot;Sharding splits the data. Replication copies each slice. Real clusters do both.&quot;" width="700" class="r-stretch"><aside class="notes">
+<p><strong>Timing: 3 min (this slide and its sub-slide).</strong> Land the “combined, not either/or” point explicitly — it’s the resolution to the open question from Session 1’s photo-sharing-app callout.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2050,23 +2266,32 @@ Shard 3: user_id 20,000,000+</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment">A router process, <em><code>mongos</code></em>, sends each query to the right shard(s) — <em>your code doesn’t change</em>: the same <code>find</code> works on a sharded or unsharded collection.</li>
+<li class="fragment">A poorly chosen shard key creates Session 1’s <em>hot spots</em>. For keys that always grow (dates, counters like <code>order_id</code>), MongoDB can <em>hash the key</em> to spread new writes evenly: <code>sh.shardCollection("shop.orders", { order_id: "hashed" })</code></li>
+<li class="fragment">Each shard is <em>also a replica set</em> — answering Session 1’s “can a table need both?” question: <em>yes</em>, and in practice it always does.</li>
+</ul>
+</section>
 <section id="beyond-crud-counting-for-the-capstone" class="slide level2">
 <h2>Beyond CRUD: Counting for the Capstone</h2>
-<p>One operation beyond plain CRUD is worth knowing now, because the capstone’s <code>flask_app.py</code> needs it for its dashboard’s stat cards:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a><span class="co"># Count documents matching a filter</span></span>
-<span id="cb12-2"><a></a>col.count_documents({<span class="st">"dept"</span>: <span class="st">"Engineering"</span>})</span>
-<span id="cb12-3"><a></a></span>
-<span id="cb12-4"><a></a><span class="co"># A simple aggregation: average salary</span></span>
-<span id="cb12-5"><a></a><span class="im">from</span> pymongo <span class="im">import</span> MongoClient</span>
-<span id="cb12-6"><a></a>col.aggregate([</span>
-<span id="cb12-7"><a></a>    {<span class="st">"$group"</span>: {<span class="st">"_id"</span>: <span class="va">None</span>, <span class="st">"avg_salary"</span>: {<span class="st">"$avg"</span>: <span class="st">"$salary"</span>}}}</span>
-<span id="cb12-8"><a></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li><code>count_documents(filter)</code> — how many documents match, without fetching them.</li>
-<li>MongoDB’s full <strong>aggregation pipeline</strong> (multi-stage <code>$match</code>/<code>$group</code>/<code>$sort</code> chains) is more than this course goes deep on — the capstone only needs simple counts and averages like the example above, not the full pipeline syntax.</li>
-</ul>
+<p>The capstone’s <code>flask_app.py</code> needs two more operations for its dashboard’s stat cards. On the original four movies:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a></a><span class="co"># How many documents match a filter (without fetching them)</span></span>
+<span id="cb20-2"><a></a><span class="bu">print</span>(col.count_documents({<span class="st">"genre"</span>: <span class="st">"Animation"</span>}))</span>
+<span id="cb20-3"><a></a></span>
+<span id="cb20-4"><a></a><span class="co"># A one-stage aggregation: the average rating across ALL documents</span></span>
+<span id="cb20-5"><a></a>pipeline <span class="op">=</span> [{<span class="st">"$group"</span>: {<span class="st">"_id"</span>: <span class="va">None</span>, <span class="st">"avg"</span>: {<span class="st">"$avg"</span>: <span class="st">"$rating"</span>}}}]</span>
+<span id="cb20-6"><a></a><span class="bu">print</span>(<span class="bu">list</span>(col.aggregate(pipeline)))</span>
+<span id="cb20-7"><a></a><span class="bu">print</span>(<span class="bu">list</span>(col.aggregate(pipeline))[<span class="dv">0</span>][<span class="st">"avg"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>2
+[{'_id': None, 'avg': 3.75}]
+3.75</code></pre>
+</div>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> Keep this genuinely light — it exists so students aren’t caught off guard by <code>flask_app.py</code>’s stat-card queries, not to teach the aggregation pipeline as a topic in its own right.</p>
+<p><strong>Timing: 2 min (this slide and its sub-slide).</strong> Keep this genuinely light — it exists so students aren’t caught off guard by <code>flask_app.py</code>’s stat-card queries, not to teach the aggregation pipeline as a topic in its own right. The <code>list(...)[0]["avg"]</code> line is the exact shape of the capstone’s stat-card hint.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2078,15 +2303,25 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><code>count_documents(filter)</code> — <em>how many</em> documents match. <code>{}</code> counts them all.</li>
+<li class="fragment"><code>$group</code> with <code>"_id": None</code> puts <em>every document in one group</em>; <code>"$rating"</code> (with a <code>$</code>) means “the value of the <code>rating</code> field.”</li>
+<li class="fragment"><code>aggregate</code> returns a cursor of result documents — <code>list(...)[0]</code> takes the <em>first (only) one</em>.</li>
+<li class="fragment">The full <strong>aggregation pipeline</strong> (multi-stage <code>$match</code>/<code>$group</code>/<code>$sort</code> chains) goes beyond this course — the capstone only needs counts and averages like these.</li>
+</ul>
 </section>
 <section id="mongodb-atlas-cloud-managed-mongodb" class="slide level2">
 <h2>MongoDB Atlas — Cloud-Managed MongoDB</h2>
 <ul>
-<li>No server to set up yourself — MongoDB Atlas hosts and manages it for you.</li>
-<li>Free tier (M0): enough storage for this course’s work, no credit card required.</li>
-<li>Handles replication, backups, and monitoring automatically — the replica-set mechanics from two slides ago happen behind the scenes.</li>
-<li>Connection string format: <code>mongodb+srv://user:password@cluster.mongodb.net/</code></li>
+<li class="fragment"><em>No server to set up yourself</em> — MongoDB Atlas hosts and manages it for you.</li>
+<li class="fragment">Free tier (<strong>M0</strong>): enough storage for this course’s work, <em>no credit card</em> required.</li>
+<li class="fragment">Even the free tier is a <em>3-member replica set</em>, with backups and monitoring handled for you — today’s replication mechanics, behind the scenes.</li>
+<li class="fragment">Connection string format: <code>mongodb+srv://user:password@cluster0.xxxxx.mongodb.net/</code></li>
 </ul>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -2101,7 +2336,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </div>
 </div>
 <aside class="notes">
-<p><strong>Timing: 3 min.</strong> This is largely logistics for Friday’s lab — keep it brief.</p>
+<p><strong>Timing: 2 min.</strong> This is largely logistics for Friday’s lab — keep it brief.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2113,11 +2348,73 @@ Shard 3: user_id 20,000,000+</code></pre>
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="shell-syntax-vs.-python-syntax" class="slide level2">
+<h2>Shell Syntax vs.&nbsp;Python Syntax</h2>
+<p>Today’s slides used <strong>Python</strong> (<code>pymongo</code>), like Lab 9 and the capstone. Checkpoint 7 and Quiz 7 use the <strong>MongoDB shell</strong> (<code>mongosh</code>). Same operations, different spelling:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Python (<code>pymongo</code>)</th>
+<th>MongoDB shell</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>col.insert_one({...})</code></td>
+<td><code>db.col.insertOne({...})</code></td>
+</tr>
+<tr class="even">
+<td><code>col.find({"price": {"$gt": 20}})</code></td>
+<td><code>db.col.find({price: {$gt: 20}})</code></td>
+</tr>
+<tr class="odd">
+<td><code>col.update_one({...}, {"$set": {...}})</code></td>
+<td><code>db.col.updateOne({...}, {$set: {...}})</code></td>
+</tr>
+<tr class="even">
+<td><code>col.delete_many({...})</code></td>
+<td><code>db.col.deleteMany({...})</code></td>
+</tr>
+<tr class="odd">
+<td><code>True</code> / <code>False</code> / <code>None</code></td>
+<td><code>true</code> / <code>false</code> / <code>null</code></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<ul>
+<li>Python uses <em>snake_case</em> method names; the shell uses <em>camelCase</em>.</li>
+<li>The shell lets you <em>leave field names and <code>$</code> operators unquoted</em>; Python requires quotes.</li>
+</ul>
+<aside class="notes">
+<p><strong>Timing: 2 min.</strong> This was previously only a speaker-note aside on the Create slide — it’s on a slide now because Checkpoint 7 starts in two minutes and is graded in shell syntax.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="checkpoint-7" class="slide level2">
 <h2>Checkpoint 7</h2>
 <p><strong>CP7 (today, last 15 minutes of class):</strong> given a MongoDB collection’s documents, write the query for four tasks: two <code>find()</code> queries (an exact match, and a comparison operator), one <code>updateOne</code> with <code>$set</code>, and one <code>deleteMany</code> with a filter.</p>
-<p>Review before you start: - <code>db.collection.find({field: value})</code> - <code>db.collection.find({field: {$gt: value}})</code> - <code>db.collection.updateOne({filter}, {$set: {field: value}})</code> - <code>db.collection.deleteMany({filter})</code></p>
+<p>Review before you start (shell syntax):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource javascript number-lines code-with-copy"><code class="sourceCode javascript"><span id="cb22-1"><a></a>db<span class="op">.</span><span class="at">collection</span><span class="op">.</span><span class="fu">find</span>({<span class="dt">field</span><span class="op">:</span> value})</span>
+<span id="cb22-2"><a></a>db<span class="op">.</span><span class="at">collection</span><span class="op">.</span><span class="fu">find</span>({<span class="dt">field</span><span class="op">:</span> {<span class="dt">$gt</span><span class="op">:</span> value}})</span>
+<span id="cb22-3"><a></a>db<span class="op">.</span><span class="at">collection</span><span class="op">.</span><span class="fu">updateOne</span>({filter}<span class="op">,</span> {<span class="dt">$set</span><span class="op">:</span> {<span class="dt">field</span><span class="op">:</span> value}})</span>
+<span id="cb22-4"><a></a>db<span class="op">.</span><span class="at">collection</span><span class="op">.</span><span class="fu">deleteMany</span>({filter})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
 <p><strong>Timing: 15 min for the checkpoint itself.</strong> See <code>checkpoints/checkpoint_07.md</code> for the exact graded prompt (an <code>employees</code> collection) — don’t preview its specific documents before students start.</p>
 <style type="text/css">
@@ -2156,11 +2453,11 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 <tr class="odd">
 <td>Strong consistency</td>
-<td>Every read reflects the latest write — costs write latency</td>
+<td>Every read reflects the latest write — costs write latency (synchronous replication)</td>
 </tr>
 <tr class="even">
 <td>Eventual consistency</td>
-<td>Replicas converge over time — reads can briefly be stale</td>
+<td>Replicas converge over time — reads can briefly be stale (asynchronous replication)</td>
 </tr>
 <tr class="odd">
 <td>Document store</td>
@@ -2168,7 +2465,7 @@ Shard 3: user_id 20,000,000+</code></pre>
 </tr>
 <tr class="even">
 <td>MongoDB CRUD</td>
-<td><code>insert_one/many</code>, <code>find</code>, <code>update_one/many</code>, <code>delete_one/many</code></td>
+<td><code>insert_one/many</code>, <code>find</code> (+ projection), <code>update_one/many</code>, <code>delete_one/many</code></td>
 </tr>
 <tr class="odd">
 <td>Replica set / sharded cluster</td>
