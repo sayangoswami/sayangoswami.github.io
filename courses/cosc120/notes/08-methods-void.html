@@ -300,22 +300,6 @@
     border-top: 2px solid var(--jr-border) !important;
     flex-shrink: 0 !important; display: flex !important; flex-direction: column !important;
   }
-  /* Title bar with traffic-light dots */
-  .jr-block .jr-terminal-bar {
-    background: var(--jr-chrome) !important;
-    border-bottom: 1px solid var(--jr-border) !important;
-    display: flex !important; align-items: center !important;
-    gap: 5px !important; padding: 0.3rem 0.6rem !important; flex-shrink: 0 !important;
-  }
-  .jr-block .jr-dot { width: 11px !important; height: 11px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
-  .jr-block .jr-dot-r { background: #ff5f57 !important; }
-  .jr-block .jr-dot-y { background: #ffbd2e !important; }
-  .jr-block .jr-dot-g { background: #28c840 !important; }
-  .jr-block .jr-terminal-title {
-    font-size: 0.68rem !important; font-weight: 600 !important;
-    letter-spacing: 0.06em !important; text-transform: uppercase !important;
-    color: var(--jr-text) !important; opacity: 0.5 !important; margin-left: 4px !important;
-  }
   /* The single unified output+input scrolling area */
   .jr-block .jr-terminal-out {
     margin: 0 !important; padding: 0.55rem 0.75rem !important;
@@ -397,6 +381,45 @@
   /* ── Suppress Quarto's native <pre class="sourceCode"> ──────────────────── */
   .jr-block + div.sourceCode, .jr-block + pre.sourceCode { display: none !important; }
   div.sourceCode:has(+ .jr-block), pre.sourceCode:has(+ .jr-block) { display: none !important; }
+
+  /* Code and output share one configurable viewport. */
+  .jr-block .jr-tabs {
+    display: flex !important; gap: 0.25rem !important; padding: 0.25rem 0.6rem !important;
+    background: var(--jr-chrome) !important; border-bottom: 1px solid var(--jr-border) !important;
+  }
+  .jr-block .jr-tab {
+    background: transparent !important; color: var(--jr-text) !important;
+    border: 0 !important; border-bottom: 3px solid transparent !important;
+    padding: 0.35rem 0.8rem !important; font: inherit !important; cursor: pointer !important;
+  }
+  .jr-block .jr-tab[aria-selected="true"] {
+    border-bottom-color: var(--jr-accent) !important; font-weight: 700 !important;
+  }
+  .jr-block .jr-tab:focus-visible { outline: 2px solid var(--jr-accent) !important; outline-offset: -2px !important; }
+  .jr-block .jr-panel {
+    height: var(--jr-panel-height, 20rem) !important; min-height: 0 !important;
+    overflow: auto !important; box-sizing: border-box !important;
+  }
+  .jr-block .jr-panel[hidden] { display: none !important; }
+  .jr-block .jr-editor-wrap .jr-ace-editor,
+  .jr-block .jr-editor-wrap .cm-editor { height: 100% !important; min-height: 0 !important; max-height: none !important; }
+  .jr-block .jr-output-panel .jr-terminal { height: 100% !important; box-sizing: border-box !important; }
+  .jr-block .jr-output-panel .jr-terminal-out { flex: 1 !important; min-height: 0 !important; max-height: none !important; }
+  .jr-block .jr-output-panel .jr-canvas-wrap { align-items: flex-start !important; }
+
+  /* Optional split layout; each pane keeps its own scrolling area. */
+  .jr-block .jr-view-bar {
+    display: flex !important; justify-content: space-between !important; align-items: center !important;
+    background: var(--jr-chrome) !important; border-bottom: 1px solid var(--jr-border) !important;
+  }
+  .jr-block .jr-view-bar .jr-tabs { border-bottom: 0 !important; }
+  .jr-block .jr-tabs[hidden] { display: none !important; }
+  .jr-block .jr-split-toggle { margin-left: auto !important; font-size: 0.8rem !important; }
+  .jr-block .jr-split-toggle[aria-pressed="true"] { color: var(--jr-accent) !important; }
+  .jr-block .jr-workspace { min-width: 0 !important; }
+  .jr-block .jr-workspace.jr-split { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+  .jr-block .jr-workspace.jr-split > .jr-panel { min-width: 0 !important; }
+  .jr-block .jr-workspace.jr-split > .jr-output-panel { border-left: 1px solid var(--jr-border) !important; }
 
   </style>
 </head>
@@ -543,6 +566,106 @@ function initBlock(block) {
   // Output element — terminal-out for Java, jr-output pre for Processing
   const out = block.querySelector('.jr-terminal-out') || block.querySelector('.jr-output');
 
+  // Keep the existing editor/output nodes alive when switching tabs.
+  const codePanel = block.querySelector('.jr-editor-wrap');
+  const outputPanel = document.createElement('div');
+  outputPanel.className = 'jr-panel jr-output-panel';
+  block.querySelectorAll('.jr-terminal, .jr-canvas-wrap, .jr-output-wrap').forEach(node => outputPanel.append(node));
+  block.append(outputPanel);
+  codePanel.classList.add('jr-panel');
+  const tabList = document.createElement('div');
+  tabList.className = 'jr-tabs';
+  tabList.setAttribute('role', 'tablist');
+  tabList.setAttribute('aria-label', type === 'java' ? 'Java workspace' : 'Processing workspace');
+  const viewBar = document.createElement('div');
+  viewBar.className = 'jr-view-bar';
+  codePanel.before(viewBar);
+  viewBar.append(tabList);
+  const splitButton = document.createElement('button');
+  splitButton.type = 'button';
+  splitButton.className = 'jr-tab jr-split-toggle';
+  splitButton.textContent = 'Side by side';
+  splitButton.setAttribute('aria-pressed', 'false');
+  viewBar.append(splitButton);
+  const workspace = document.createElement('div');
+  workspace.className = 'jr-workspace';
+  viewBar.after(workspace);
+  workspace.append(codePanel, outputPanel);
+  let splitView = false;
+  let activePanel = 0;
+  const panels = [codePanel, outputPanel];
+  const tabs = ['Code', 'Output'].map((label, i) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'jr-tab';
+    tab.textContent = label;
+    tab.id = block.id + '-tab-' + i;
+    tab.setAttribute('role', 'tab');
+    panels[i].id = block.id + '-panel-' + i;
+    panels[i].setAttribute('role', 'tabpanel');
+    panels[i].setAttribute('aria-labelledby', tab.id);
+    panels[i].tabIndex = 0;
+    tab.setAttribute('aria-controls', panels[i].id);
+    tabList.append(tab);
+    return tab;
+  });
+  function showPanel(index) {
+    activePanel = index;
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('aria-selected', String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+      panels[i].hidden = !splitView && i !== index;
+    });
+    if ((splitView || index === 0) && editor) editor.requestMeasure();
+    if (splitView || index === 1) fitCanvas();
+  }
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => showPanel(i));
+    tab.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      event.stopPropagation(); // Reveal must not interpret tab navigation as a slide change.
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? 1 : 1 - i;
+      showPanel(next);
+      tabs[next].focus();
+    });
+  });
+  splitButton.addEventListener('click', () => {
+    splitView = !splitView;
+    workspace.classList.toggle('jr-split', splitView);
+    splitButton.setAttribute('aria-pressed', String(splitView));
+    splitButton.textContent = splitView ? 'Tabbed view' : 'Side by side';
+    tabList.hidden = splitView;
+    // Split mode presents two labelled regions rather than a single selected tab.
+    panels.forEach((panel, i) => {
+      panel.setAttribute('role', splitView ? 'region' : 'tabpanel');
+      if (splitView) {
+        panel.removeAttribute('aria-labelledby');
+        panel.setAttribute('aria-label', i === 0 ? 'Code' : 'Output');
+      } else {
+        panel.removeAttribute('aria-label');
+        panel.setAttribute('aria-labelledby', tabs[i].id);
+      }
+    });
+    showPanel(activePanel);
+  });
+  showPanel(0);
+
+  function fitCanvas() {
+    requestAnimationFrame(() => {
+      const canvas = block.querySelector('canvas');
+      const wrap = block.querySelector('.jr-canvas-wrap');
+      if (!canvas || !wrap || outputPanel.hidden) return;
+      const sw = canvas.width, sh = canvas.height;
+      const availW = wrap.clientWidth - 16;
+      if (sw <= 1 || sh <= 1 || availW <= 0) return;
+      const width = Math.min(sw, availW);
+      canvas.style.width = width + 'px';
+      canvas.style.height = Math.round(sh * width / sw) + 'px';
+    });
+  }
+  if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(outputPanel);
+
   // ── Run button ────────────────────────────────────────────────────────────
   let processingInstance = null;
   let looping = true;
@@ -660,6 +783,7 @@ function initBlock(block) {
   runBtn.addEventListener('click', async () => {
     const code = editor ? editor.state.doc.toString().trim() : '';
     if (!code) return;
+    showPanel(1);
 
     if (type === 'java') {
       runBtn.disabled = true;
@@ -683,23 +807,8 @@ function initBlock(block) {
         fixMouseCoords(processingInstance, canvas);
         canvasWrap.style.display = 'flex';
 
-        // After Processing runs size(), fit canvas width to the container
-        // (preserving aspect ratio) so there is no horizontal overflow.
-        // Height is left at the sketch's native size — the {.scrollable} slide
-        // handles vertical scrolling if the canvas is taller than the viewport.
-        requestAnimationFrame(() => {
-          const sw = canvas.width, sh = canvas.height;
-          if (sw <= 1 || sh <= 1) return;
-          const pad    = 16; // 2×0.5rem padding inside canvas-wrap
-          const availW = canvasWrap.clientWidth - pad;
-          if (availW > 0 && sw > availW) {
-            canvas.style.width  = availW + 'px';
-            canvas.style.height = Math.round(sh * availW / sw) + 'px';
-          } else {
-            canvas.style.width  = sw + 'px';
-            canvas.style.height = sh + 'px';
-          }
-        });
+        // Fit again after the sketch has called size().
+        fitCanvas();
 
         looping = true;
         if (pauseBtn) pauseBtn.disabled = false;
@@ -1911,12 +2020,6 @@ void main() {
 }</div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
@@ -1946,12 +2049,6 @@ void main() {
 IO.println("This line is floating around.")</div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
@@ -1976,12 +2073,6 @@ IO.println("This line is floating around.")</div>
     <div id="jr-3-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
@@ -2007,12 +2098,6 @@ IO.println("This line is floating around.")</div>
     <div id="jr-4-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
@@ -2037,12 +2122,6 @@ IO.println("This line is floating around.")</div>
     <div id="jr-5-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
@@ -2067,12 +2146,6 @@ IO.println("This line is floating around.")</div>
     <div id="jr-6-ace" class="jr-ace-editor" aria-label="Java source code editor"></div>
   </div>
   <div class="jr-terminal">
-    <div class="jr-terminal-bar">
-      <span class="jr-dot jr-dot-r" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-y" aria-hidden="true"></span>
-      <span class="jr-dot jr-dot-g" aria-hidden="true"></span>
-      <span class="jr-terminal-title" aria-hidden="true">Terminal</span>
-    </div>
     <div class="jr-terminal-out" role="log" aria-live="polite" aria-label="Program terminal" tabindex="0" data-hint="Click ▶ Run — if the program asks for input, type here and press Enter"></div>
   </div>
 </div>
