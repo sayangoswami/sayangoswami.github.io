@@ -4302,7 +4302,7 @@
     "href": "cosc420/notes/index.html",
     "title": "COSC420 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nPython Crash Course\n\n\n\n\n\n\n\n\n\nWhat Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\n\n\n\n\n\n\n\n\nLab 6: Python in Colab + Your First Spark Session\n\n\n\n\n\n\n\n\n\nLoading, Filtering, and Selecting Data\n\n\n\n\n\n\n\n\n\nGroupBy, Aggregation, Joins, and Actions\n\n\n\n\n\n\n\n\n\nLab 7: PySpark Transformations\n\n\n\n\n\n\n\n\n\nCheckpoint: PySpark Transformations\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nEL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nPython Crash Course\n\n\n\n\n\n\n\n\n\nWhat Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\n\n\n\n\n\n\n\n\nLab 6: Python in Colab + Your First Spark Session\n\n\n\n\n\n\n\n\n\nLoading, Filtering, and Selecting Data\n\n\n\n\n\n\n\n\n\nGroupBy, Aggregation, Joins, and Actions\n\n\n\n\n\n\n\n\n\nLab 7: PySpark Transformations\n\n\n\n\n\n\n\n\n\nCheckpoint: PySpark Transformations\n\n\n\n\n\n\n\n\n\nWhy Distribute Data? Replication, Sharding, and Single Points of Failure\n\n\n\n\n\n\n\n\n\nThe CAP Theorem, Revisited for Storage\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nEL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc420/notes/el1.html",
@@ -4345,6 +4345,97 @@
     "title": "EL-01: EL1: Python Basics for Java Programmers",
     "section": "Completion criteria",
     "text": "Completion criteria\nEL1 is graded complete/incomplete. It’s complete if:\n\nthe notebook shows every exercise attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe four short-answer questions (Exercises 3–6) and the two reflection questions are answered, even briefly.\n\nA wrong prediction in Exercise 1a is fine, since that exercise is about noticing surprises."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#why-distribute-data-replication-sharding-and-single-points-of-failure",
+    "href": "cosc420/notes/30.html#why-distribute-data-replication-sharding-and-single-points-of-failure",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "text": "Why Distribute Data? Replication, Sharding, and Single Points of Failure\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 6 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: From Compute to Storage\n3 min\n\n\nThe Problem: One Machine, Too Much Load\n4 min\n\n\nReplication: Many Copies of the Same Data\n4 min\n\n\nSharding: Splitting the Data Itself\n4 min\n\n\nReplication vs. Sharding — Choosing Between Them\n5 min\n\n\nThe Cost of Replication\n3 min\n\n\nThe Cost of Sharding\n3 min\n\n\nPause & Discuss: Pick a Shard Key\n4 min\n\n\nSingle Points of Failure, Revisited\n3 min\n\n\nCheckpoint 6\n15 min\n\n\nBridge to Wednesday\n2 min\n\n\n\n9 content slides (~33 min) + Checkpoint 6 + bridge = 50 min. If running long, trim the two “Cost of…” slides to 2 min each. This is Module 5’s foundation session — Wednesday builds directly on today’s replication/sharding vocabulary by asking “and what does CAP have to say about it?”"
+  },
+  {
+    "objectID": "cosc420/notes/30.html#recap-from-compute-to-storage",
+    "href": "cosc420/notes/30.html#recap-from-compute-to-storage",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Recap: From Compute to Storage",
+    "text": "Recap: From Compute to Storage\nModule 4 answered “how do you compute something at scale?” — load data into Spark, transform it, aggregate it, write out a result.\n\nModule 5 answers the next question: where does that result actually live, once it’s computed, so that thousands of users can read it reliably at the same time?\n\n\nA single machine running a single database has exactly the same limits Module 3 opened with — one disk, one CPU, one point of failure — just for storage instead of processing.\n\nTiming: 3 min. Quick bridge only — the point is that “why distribute” is a question we’ve already answered once (Module 3’s big-data motivation), now being asked again about storage specifically."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#the-problem-one-machine-too-much-load",
+    "href": "cosc420/notes/30.html#the-problem-one-machine-too-much-load",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "The Problem: One Machine, Too Much Load",
+    "text": "The Problem: One Machine, Too Much Load\nA single database server can fail in two different ways as demand grows, and they call for two different fixes:\n\nToo much traffic, data fits fine: the machine can’t answer requests fast enough — every read and write funnels through one CPU, one network connection.\nToo much data, traffic is fine: the dataset itself no longer fits on one machine’s disk, regardless of how much traffic there is.\nSingle point of failure, either way: if that one machine goes down, the data is completely unreachable until it comes back. Module 2’s failures were “partial”; here there’s nothing partial about it.\n\n\nTiming: 4 min. Setting up the two-problems framing explicitly here pays off on the very next two slides — replication answers the first bullet, sharding answers the second."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#replication-many-copies-of-the-same-data",
+    "href": "cosc420/notes/30.html#replication-many-copies-of-the-same-data",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Replication: Many Copies of the Same Data",
+    "text": "Replication: Many Copies of the Same Data\nReplication means keeping multiple full copies of the same data on different machines.\n\nEvery replica holds the entire dataset — not a piece of it.\nReads can be served by any replica, spreading read traffic across machines instead of funneling it through one.\nIf one replica goes down, the others still have every record — the single point of failure goes away for reads.\nWrites are more subtle: usually one replica (the primary) accepts writes, and the change is then copied out to the others.\n\n\nTiming: 4 min (this slide and its two sub-slides). Keep the “primary accepts writes” detail brief here — Session 2 goes deep on exactly how that copying happens (sync vs. async) and why it matters for consistency."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#sharding-splitting-the-data-itself",
+    "href": "cosc420/notes/30.html#sharding-splitting-the-data-itself",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Sharding: Splitting the Data Itself",
+    "text": "Sharding: Splitting the Data Itself\nSharding means splitting the dataset itself across multiple machines — each machine holds a different slice of the data, not a full copy.\n\n\n\nTiming: 4 min (this slide and its sub-slide). Contrast explicitly with the replication figure: replication = same data N times; sharding = 1/N of the data, N times. That contrast is the single most important idea in today’s session. Put the two figures side by side if you can (flip back one slide)."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#replication-vs.-sharding-choosing-between-them",
+    "href": "cosc420/notes/30.html#replication-vs.-sharding-choosing-between-them",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Replication vs. Sharding — Choosing Between Them",
+    "text": "Replication vs. Sharding — Choosing Between Them\n\n\n\n\n\n\n\n\n\nReplication\nSharding\n\n\n\n\nSolves\nRead throughput, availability\nData volume, write throughput\n\n\nEach node holds\nA full copy of all the data\nA fraction of the data\n\n\nUse when\nThe dataset fits on one machine, but there’s too much read traffic\nThe dataset itself is too large for one machine\n\n\nSingle point of failure?\nFixed — any replica can serve reads if another fails\nNot fixed by sharding alone — losing one shard still loses its slice of data"
+  },
+  {
+    "objectID": "cosc420/notes/30.html#answer",
+    "href": "cosc420/notes/30.html#answer",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Answer",
+    "text": "Answer\n\nProfiles (2 GB, 200,000 reads/s): replication. The data fits easily on one machine; the problem is read traffic, so spread reads across many full copies.\nUpload log (40 TB, growing): sharding. No single machine holds it, and every upload is a new write, so split both the storage and the writes.\nBoth? Yes. The upload log is sharded for size, but losing one shard would lose its slice — so in practice each shard is itself replicated. Session 5 shows MongoDB doing exactly this."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#the-cost-of-replication",
+    "href": "cosc420/notes/30.html#the-cost-of-replication",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "The Cost of Replication",
+    "text": "The Cost of Replication\nReplication isn’t free — it trades storage and consistency for read throughput and availability.\n\nStorage cost multiplies: 3 replicas means 3× the storage for the same data.\nReplicas can briefly disagree: if a write hasn’t finished copying to every replica yet, a read from a lagging replica can return stale (out-of-date) data.\nThis lag is usually milliseconds, but never exactly zero — “how much staleness is acceptable” is a real design decision. Wednesday goes deep on this.\n\n\nTiming: 3 min. Plant this seed deliberately — “replicas can briefly disagree” is precisely what Wednesday’s session expands into strong vs. eventual consistency."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#the-cost-of-sharding",
+    "href": "cosc420/notes/30.html#the-cost-of-sharding",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "The Cost of Sharding",
+    "text": "The Cost of Sharding\nSharding isn’t free either — it trades query simplicity for scale.\n\nCross-shard queries are expensive: “find everyone named Alice” now has to ask every shard and merge the results, instead of asking one machine.\nA bad shard key creates hot spots: if the key clusters traffic onto one shard (e.g., sharding by signup date when everyone signs up “today”), that shard becomes the new single overloaded machine.\nResharding is hard: changing the shard key later means physically moving large amounts of data between machines.\n\n\nTiming: 3 min. The hot-spot point is the one worth emphasizing if time is short — it’s the most common real mistake, and it directly explains why choosing a good shard key matters, not just that one is required."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#pause-discuss-pick-a-shard-key",
+    "href": "cosc420/notes/30.html#pause-discuss-pick-a-shard-key",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Pause & Discuss: Pick a Shard Key",
+    "text": "Pause & Discuss: Pick a Shard Key\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nAn online store’s orders collection has outgrown one machine and is being sharded across 4 shards. Three shard keys have been proposed:\n(a) order_date (b) customer_country (c) customer_id\nOn Black Friday, which key would pile almost every new write onto a single shard? Which key lets “show me my order history” go to just one shard? Is there a query that key (c) makes slower?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide so students reviewing later have them; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#answer-1",
+    "href": "cosc420/notes/30.html#answer-1",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Answer",
+    "text": "Answer\n\n(a) order_date is the hot-spot trap. Every order placed today has today’s date, so every Black Friday write lands on the one shard holding the newest dates while the other three sit idle.\n(b) customer_country has few, skewed values (a US store’s orders are mostly US), so you get one giant shard that can’t be split any further.\n(c) customer_id has many values spread evenly, so writes spread out, and all of one customer’s orders share a key — “my order history” is a single-shard query.\nWhat (c) makes slower: any query that isn’t by customer, like “total sales today.” That has to ask all 4 shards and merge.\n\n\nNo shard key makes every query cheap. Choose it for the queries you run most."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#single-points-of-failure-revisited",
+    "href": "cosc420/notes/30.html#single-points-of-failure-revisited",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Single Points of Failure, Revisited",
+    "text": "Single Points of Failure, Revisited\nA single point of failure (SPOF) is any one component whose failure takes down the whole system. Module 3’s lone NameNode was one; an un-replicated database is another.\n\nReplication removes the SPOF for reads — any surviving replica can still answer queries.\nIt does not, by itself, remove the SPOF for writes: with one primary, if the primary goes down, something has to take over — a real, nontrivial problem.\nSharding alone removes no SPOF — it changes what is lost: one shard’s slice instead of everything.\n\n\nThat “something has to take over” step — failover — is exactly what went wrong in Module 2’s GitHub case study: promoting a new primary during a network partition is what created the split-brain.\n\nTiming: 3 min. Explicitly naming the GitHub case study connection here rewards students who retained Module 2 — say it out loud rather than assuming they’ll make the connection themselves."
+  },
+  {
+    "objectID": "cosc420/notes/30.html#bridge-to-next-session",
+    "href": "cosc420/notes/30.html#bridge-to-next-session",
+    "title": "Why Distribute Data? Replication, Sharding, and Single Points of Failure",
+    "section": "Bridge to Next Session",
+    "text": "Bridge to Next Session\nToday assumed replicas eventually catch up with each other, and left “how eventually?” mostly unanswered. That question is exactly where Module 2’s CAP theorem comes back — now applied specifically to storage.\n\nTiming: 2 min. Short forward-reference only."
   },
   {
     "objectID": "cosc420/notes/28-lab7.html",
@@ -10792,6 +10883,90 @@
     "title": "Checkpoint: PySpark Transformations",
     "section": "Problem 2",
     "text": "Problem 2\nYou have a PySpark DataFrame called sales with the following schema:\nroot\n |-- product: string\n |-- category: string\n |-- units_sold: integer\n |-- revenue: double\nSample data (csv format):\nproduct,category,units_sold,revenue\nLaptop,Electronics,120,144000\nPhone,Electronics,340,102000\nDesk,Furniture,85,25500\nChair,Furniture,200,30000\nTablet,Electronics,95,28500\nLamp,Furniture,310,15500\n\n\nYour Task\nWrite PySpark code (assume sales DataFrame already exists) to:\n\nFilter the DataFrame to keep only rows where revenue is greater than 25000.0.\nSort the filtered results by revenue in descending order.\nShow the top 3 rows of the sorted result."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#the-cap-theorem-revisited-for-storage",
+    "href": "cosc420/notes/31.html#the-cap-theorem-revisited-for-storage",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "The CAP Theorem, Revisited for Storage",
+    "text": "The CAP Theorem, Revisited for Storage\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Replication’s Loose Thread\n3 min\n\n\nRecap: The CAP Theorem (from Module 2)\n3 min\n\n\nApplying CAP to a Replicated Database\n5 min\n\n\nStrong Consistency\n4 min\n\n\nEventual Consistency\n4 min\n\n\nSynchronous vs. Asynchronous Replication\n5 min\n\n\nPause & Discuss: Where Did My Comment Go?\n4 min\n\n\nA Worked Scenario: Checking Your Bank Balance\n5 min\n\n\nRead Preference: Choosing Where to Read From\n4 min\n\n\nConsistency Is a Spectrum, Not a Switch\n4 min\n\n\nBridge to Friday’s Worksheet\n3 min\n\n\n\n11 slides, ~44 min, leaving ~6 min of slack for discussion. This session leans on Module 2’s CAP content directly — don’t re-derive the theorem from scratch, just re-anchor it and apply it."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#recap-replications-loose-thread",
+    "href": "cosc420/notes/31.html#recap-replications-loose-thread",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Recap: Replication’s Loose Thread",
+    "text": "Recap: Replication’s Loose Thread\nMonday ended on an unresolved tension: replicas are supposed to hold “the same data,” but a write takes time to copy from the primary to every replica. For that window of time, they don’t quite agree.\n\nToday’s question: what should a read do when it lands in that window?\n\nTiming: 3 min. This is the whole session in one sentence — keep this slide tight so it lands as a genuine open question, not a rhetorical one."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#recap-the-cap-theorem-from-module-2",
+    "href": "cosc420/notes/31.html#recap-the-cap-theorem-from-module-2",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Recap: The CAP Theorem (from Module 2)",
+    "text": "Recap: The CAP Theorem (from Module 2)\nModule 2, Session 2 covered this in full — a fast re-anchor:\n\n\n\n\n\n\n\nConsistency\nEvery read gets the latest write, or an error\n\n\nAvailability\nEvery request to a working node gets a response\n\n\nPartition tolerance\nThe system keeps working despite a network split\n\n\n\n\nThe theorem: during a network partition, a distributed system must choose between Consistency and Availability — it cannot fully guarantee both at once.\n\nTiming: 3 min. Genuinely just a recap slide — if a student is shaky on this, point them back to Module 2’s slides rather than re-teaching the proof sketch here."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#applying-cap-to-a-replicated-database",
+    "href": "cosc420/notes/31.html#applying-cap-to-a-replicated-database",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Applying CAP to a Replicated Database",
+    "text": "Applying CAP to a Replicated Database\nA replica set (Monday’s picture: one primary, several replicas) is itself a small distributed system — so CAP applies to it directly.\n\nIf a network partition separates a replica from the primary, that replica has a choice:\n\nRefuse to answer reads until it can confirm it’s caught up → favors Consistency\nAnswer with whatever data it has, possibly stale → favors Availability\n\n\n\nThis is exactly Module 2’s trade-off, applied to “should this replica answer this read?”\n\nTiming: 5 min (this slide and its sub-slide). The sub-slide’s callout is the pivot from “CAP during rare partitions” to “consistency trade-offs during totally normal operation” — make sure that shift is explicit, since it’s easy to think CAP only matters when something is broken."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#strong-consistency",
+    "href": "cosc420/notes/31.html#strong-consistency",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Strong Consistency",
+    "text": "Strong Consistency\nStrong consistency: every read reflects the most recent write, no matter which replica answers it.\n\nTo guarantee this, a write can’t be “done” until enough replicas have confirmed it that no read could see stale data.\nCost: writes are slower — the primary waits for confirmation before responding.\nBenefit: no surprises. Once a write succeeds, every later read, from any replica, sees it.\n\n\nTiming: 4 min. Keep this and the next slide symmetric in structure (definition → cost → benefit) so the contrast is easy to hold in mind together."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#eventual-consistency",
+    "href": "cosc420/notes/31.html#eventual-consistency",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Eventual Consistency",
+    "text": "Eventual Consistency\nEventual consistency: replicas are allowed to be temporarily out of sync — but if no new writes happen, they will all eventually converge to the same value.\n\nThe primary responds “done” as soon as it has the write, without waiting for replicas.\nCost: a read right after a write might hit a replica that hasn’t caught up, and see the old value.\nBenefit: writes are fast, and the system keeps working even if a replica is slow or unreachable.\n\n\nTiming: 4 min (this slide and its sub-slide). The callout’s answer is the bridge into the next slide: synchronous replication would have to wait for replicas to confirm before acknowledging the write — which is strong consistency’s mechanism, described from the replication-mechanics angle instead of the CAP angle."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#synchronous-vs.-asynchronous-replication",
+    "href": "cosc420/notes/31.html#synchronous-vs.-asynchronous-replication",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Synchronous vs. Asynchronous Replication",
+    "text": "Synchronous vs. Asynchronous Replication\nThis is the actual mechanism behind the strong/eventual distinction:\n\n\n\n\n\n\n\n\n\nSynchronous replication\nAsynchronous replication\n\n\n\n\nPrimary waits for replicas before confirming write?\nYes\nNo\n\n\nWrite speed\nSlower\nFaster\n\n\nConsistency\nStrong\nEventual\n\n\nRisk if primary crashes right after a write\nNone — replicas already have it\nReplicas may be missing the most recent write(s)\n\n\n\n\nTiming: 5 min (this slide and its sub-slide). This table is the payoff of the whole strong-vs-eventual discussion — make sure students leave able to map “strong consistency” → “synchronous replication” and “eventual consistency” → “asynchronous replication” without hesitation. Walk the figure on the next sub-slide arrow by arrow; the red “crash here” box is the last row of the table."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#pause-discuss-where-did-my-comment-go",
+    "href": "cosc420/notes/31.html#pause-discuss-where-did-my-comment-go",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Pause & Discuss: Where Did My Comment Go?",
+    "text": "Pause & Discuss: Where Did My Comment Go?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA site stores comments in a replica set (1 primary, 2 replicas). It uses asynchronous replication and reads from any replica.\n(a) You post a comment and see “Saved!” You refresh, and your comment is missing. You refresh again, and it’s back. What happened?\n(b) On a different day, the primary crashes 50 ms after telling you “Saved!”, and a replica is promoted to primary. Could your comment be gone for good?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide; reveal after the discussion. If a student asks, (a) has a name: a read-your-own-writes violation."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#answer",
+    "href": "cosc420/notes/31.html#answer",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Answer",
+    "text": "Answer\n\n(a) The first refresh was served by a replica that hadn’t received the write yet (replication lag); the second by one that had caught up. Nothing was lost — that’s eventual consistency showing a stale read. Common fix: read your own data from the primary.\n(b) Yes. With async replication the primary says “done” as soon as it has the write. If it crashes before copying it anywhere, the new primary never had it — gone, even though you were told it succeeded. That’s the red box in the async diagram. Prevention: wait for replicas (all, or a majority) before saying “done”, paying extra write latency.\n\n\nComments can live with (a). A bank can’t live with (b) — next slide."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#a-worked-scenario-checking-your-bank-balance",
+    "href": "cosc420/notes/31.html#a-worked-scenario-checking-your-bank-balance",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "A Worked Scenario: Checking Your Bank Balance",
+    "text": "A Worked Scenario: Checking Your Bank Balance\nYou just transferred $500 out of your checking account. One second later, you refresh the app and check your balance.\n\nStrong consistency: your new balance is guaranteed correct, every time — worth the extra write latency for money, where “slightly out of date” is unacceptable.\nEventual consistency, and you got unlucky: you might briefly see your old balance, as if the transfer hadn’t happened — even though it went through.\nCompare a social media “like” count: if it’s briefly off by one because of replication lag, nobody notices or cares.\n\n\nTiming: 5 min (this slide and its sub-slide). The intended takeaway for the callout: the deciding property is roughly “cost of showing stale data” versus “cost of slower writes” — not some fixed rule about what kind of app it is."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#read-preference-choosing-where-to-read-from",
+    "href": "cosc420/notes/31.html#read-preference-choosing-where-to-read-from",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Read Preference: Choosing Where to Read From",
+    "text": "Read Preference: Choosing Where to Read From\nMany real databases let you choose, per query, how strict to be — rather than picking strong or eventual consistency for the whole system once and for all.\n\nRead from the primary: always current, but funnels all reads through one machine — no read-scaling benefit from having replicas at all.\nRead from a replica (“secondary” reads): spreads read load, at the cost of possibly-stale results.\nThis setting is usually called read preference — a real, named MongoDB option you’ll use in Session 5.\n\n\nTiming: 4 min. Flag explicitly that this is forward-referencing real MongoDB terminology — students will see “read preference” again a week from now (Session 5) and should recognize it as the same idea introduced here, not a new concept."
+  },
+  {
+    "objectID": "cosc420/notes/31.html#consistency-is-a-spectrum-not-a-switch",
+    "href": "cosc420/notes/31.html#consistency-is-a-spectrum-not-a-switch",
+    "title": "The CAP Theorem, Revisited for Storage",
+    "section": "Consistency Is a Spectrum, Not a Switch",
+    "text": "Consistency Is a Spectrum, Not a Switch\nStrong and eventual consistency are the two ends of a range, not the only two options:\n\nSome systems let you wait for confirmation from just some replicas — e.g., a majority (2 of 3) — a middle ground between the extremes. MongoDB does this by default (Session 5).\nSome systems guarantee causal consistency: if event B happened because of event A, every node sees A before B — even if unrelated events arrive in different orders on different nodes.\nThe terminology varies by database. What matters for this course: consistency is a design choice with a dial, not a fixed property a database either has or doesn’t.\n\n\nTiming: 4 min. Keep this conceptual and brief — the goal is “there’s more nuance here than strong-vs-eventual if you go looking,” not to teach every consistency model by name. Why a majority is a sweet spot, if asked: any two majorities of the same replica set overlap in at least one node, so a newly elected primary is guaranteed to include every majority-confirmed write."
   },
   {
     "objectID": "cosc420/notes/el2.html",
