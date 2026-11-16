@@ -12,6 +12,32 @@
     ]
   },
   {
+    "listing": "/cosc120/notes/index.html",
+    "items": [
+      "/cosc120/notes/01-intro.html",
+      "/cosc120/notes/02-variables.html",
+      "/cosc120/notes/03-arithmetic.html",
+      "/cosc120/notes/04-type-conversion.html",
+      "/cosc120/notes/05-conditionals.html",
+      "/cosc120/notes/06-boolean-logic.html",
+      "/cosc120/notes/06.html",
+      "/cosc120/notes/07-strings.html",
+      "/cosc120/notes/08-methods-void.html",
+      "/cosc120/notes/09-methods-parameters.html",
+      "/cosc120/notes/09-worksheet-methods.html",
+      "/cosc120/notes/10-methods-return.html",
+      "/cosc120/notes/11-while-loops.html",
+      "/cosc120/notes/12-for-loops.html",
+      "/cosc120/notes/13-loop-patterns.html",
+      "/cosc120/notes/15-arrays-basics.html",
+      "/cosc120/notes/18-oop-concepts.html",
+      "/cosc120/notes/19-classes.html",
+      "/cosc120/notes/20-instance-methods.html",
+      "/cosc120/notes/midterm-review.html",
+      "/cosc120/notes/worksheet-input-processing-output.html"
+    ]
+  },
+  {
     "listing": "/cosc420/notes/index.html",
     "items": [
       "/cosc420/notes/01-intro.html",
@@ -51,26 +77,6 @@
     ]
   },
   {
-    "listing": "/cosc120/notes/index.html",
-    "items": [
-      "/cosc120/notes/01-intro.html",
-      "/cosc120/notes/02-variables.html",
-      "/cosc120/notes/03-arithmetic.html",
-      "/cosc120/notes/04-type-conversion.html",
-      "/cosc120/notes/05-conditionals.html",
-      "/cosc120/notes/06-boolean-logic.html",
-      "/cosc120/notes/06.html",
-      "/cosc120/notes/07-strings.html",
-      "/cosc120/notes/08-methods-void.html",
-      "/cosc120/notes/09-methods-parameters.html",
-      "/cosc120/notes/09-worksheet-methods.html",
-      "/cosc120/notes/10-methods-return.html",
-      "/cosc120/notes/11-while-loops.html",
-      "/cosc120/notes/midterm-review.html",
-      "/cosc120/notes/worksheet-input-processing-output.html"
-    ]
-  },
-  {
     "listing": "/cosc435/notes/index.html",
     "items": [
       "/cosc435/notes/01-intro.html",
@@ -91,6 +97,7 @@
       "/cosc435/notes/17.html",
       "/cosc435/notes/18.html",
       "/cosc435/notes/19.html",
+      "/cosc435/notes/20.html",
       "/cosc435/notes/el1.html",
       "/cosc435/notes/el2.html"
     ]

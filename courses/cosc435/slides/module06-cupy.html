@@ -102,6 +102,8 @@
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -114,6 +116,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -230,10 +233,54 @@ Preview / EL-04 content re-dated and re-placed at the end of the Nov 16
 session where it belongs (Quiz 6 opens that session, not this one).
 
 The Nov 23 kickoff deliberately does NOT re-explain team-formation details
-(team size, trio variant, grading structure) already covered in
+(trio variant, grading structure) already covered in
 slides/module07-capstone.qmd's own "Team Structure" section — it announces
 the kickoff and points forward, matching how other modules avoid duplicating
 content that belongs to a later module.
+
+AUDIT PASS 2026-11-16 (slide-audit, whole deck): YAML now matches module05
+(incremental lists, chalkboard, scrollable). Crowded slides split into
+sub-slides with italic keywords; Key Takeaways added for each session.
+Fixed:
+  - Quiz 6: was "15 min, Blackboard, covers all of Module 5". quiz06.md is an
+    open-slides CodeCheck quiz on C5.1 (stride-halving reduction) and C5.3
+    (stencil boundary policy) only — scan and atomics are not on it.
+  - argpartition: slide claimed expected O(N) per row, "faster than a full
+    sort". True for NumPy, NOT for CuPy: the CuPy docs say "For its
+    implementation reason, cupy.argpartition fully sorts the given array as
+    cupy.argsort does." Slide now says so; argpartition is still the right
+    call for its contract (top-K set, order not guaranteed) and portability.
+  - RNG slide claimed the cp.random code "generates the capstone's data —
+    you'll see it directly in CK-13 and CK-14's setup cells". Those cells use
+    NumPy's np.random.default_rng on the CPU (then normalize with keepdims).
+    Slide now shows the CuPy equivalent and says why the capstone uses NumPy
+    (CuPy's generator gives different numbers for the same seed).
+  - Under the Hood: cp.mean doesn't dispatch to "the underlying CUDA
+    libraries" — reductions and element-wise ops are CuPy's own generated
+    kernels (compiled on first use, then cached; can route to CUB). Matmul
+    is the one that goes to cuBLAS. Added the warm-up + synchronize timing
+    pattern Lab 12 Part 2 / Ex 2 rely on.
+  - Interop example called undefined my_numba_kernel/blocks/threads; now a
+    complete program with output. Capstone row of the CuPy-vs-Numba table
+    said "tiled kernel (CK-13/14)" — CK-13 is the naive kernel.
+  - Table row "new algorithm (reduction, scan) → Numba" contradicted the
+    first slide (cp.sum / cp.cumsum exist); reworded to "a variant no
+    library offers".
+  - z-score example now matches Lab 12 Ex 1 (+ 1e-8 in the denominator).
+  - OpenACC directives described as "comments the compiler interprets" — in
+    C/C++ they're #pragma lines; only Fortran's !$acc are comments.
+    WebGPU kernels are written in WGSL (launched from JavaScript).
+  - Session 2 "This Week" now mentions EL-05 (due Sun Nov 22).
+Added: axis/keepdims broadcasting slide (CK-12 needs keepdims; previously
+only in the notes), softmax definition + overflow threshold on the CK-12
+preview (identity only — students still have to pick the shift), a tiny
+autograd example with output, device-mismatch error text, CUDA → HIP /
+Metal / WGSL vocabulary table, "where the field is heading" trends.
+Figures: cupy-library-stack, axis-keepdims, forward-pass-shapes,
+cupy-numba-zero-copy (slides/diags/).
+NOT verified by running: CuPy/PyTorch aren't installed on the authoring
+machine. Outputs on slides are from the documented APIs and Lab 12's own
+expected prints; re-run on Colab before class if in doubt.
 -->
 </section>
 <section>
@@ -244,13 +291,13 @@ content that belongs to a later module.
 <section id="todays-plan" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Quiz 6 first (15 min, Blackboard) — covers all of Module 5</li>
-<li>Then: why you’d reach for a library instead of writing a kernel by hand</li>
-<li>CuPy’s pitch — NumPy syntax, GPU execution</li>
-<li>Three CuPy operations you’ll use directly in the capstone</li>
+<li class="fragment"><strong>Quiz 6 first</strong> (CodeCheck, open slides): <em>stride-halving reduction</em> and a <em>stencil boundary policy</em> from Module 5</li>
+<li class="fragment">Then: why you’d reach for a <em>library</em> instead of writing a kernel by hand</li>
+<li class="fragment">CuPy’s pitch: <em>NumPy syntax, GPU execution</em></li>
+<li class="fragment">Three CuPy operations you’ll use directly in the <em>capstone</em></li>
 </ul>
 <aside class="notes">
-<p>~1 min. ~35 min of lecture time after the quiz. This session sets up Lab 12 directly — nearly every code example here reappears as a lab exercise two days later.</p>
+<p>~1 min. ~35 min of lecture time after the quiz. Quiz 6 is the two-problem CodeCheck quiz (C5.1 reduction, C5.3 stencil clamp) — prefix scan and atomics are NOT on it, in case students ask. This session sets up Lab 12 directly — nearly every code example here reappears as a lab exercise on Friday.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -266,11 +313,19 @@ content that belongs to a later module.
 <section id="the-problem-with-writing-every-kernel-by-hand" class="slide level2">
 <h2>The Problem with Writing Every Kernel by Hand</h2>
 <ul>
-<li>Every kernel this semester (Modules 2-5) has been hand-written: you declared the launch configuration, wrote the indexing, managed shared memory yourself</li>
-<li>That’s the right skill to have — but for <strong>standard, well-known operations</strong> (sum, mean, sort, matrix multiply), you’d be re-deriving code that GPU vendors have already spent years hand-tuning</li>
-<li>NVIDIA ships a whole ecosystem of libraries for exactly this: <strong>cuBLAS</strong> (dense linear algebra — matrix multiply, among others), <strong>cuDNN</strong> (deep-learning primitives — convolutions, activations), <strong>cuFFT</strong> (Fourier transforms), <strong>cuRAND</strong> (random number generation), <strong>cuSPARSE</strong> (sparse matrix operations), and more</li>
-<li><strong>CuPy</strong> is a Python array library that wraps this whole ecosystem behind a NumPy-shaped API — you get the libraries’ hand-tuned performance without calling any of them directly</li>
+<li class="fragment">Every kernel in Modules 2–5 was <em>hand-written</em>: you chose the <em>launch configuration</em>, wrote the <em>indexing</em>, managed <em>shared memory</em> yourself</li>
+<li class="fragment">That’s the right skill to have. But for <em>standard operations</em> (sum, mean, sort, matrix multiply) you’d be re-deriving code GPU vendors have <em>spent years tuning</em></li>
 </ul>
+<div class="fragment">
+<p>NVIDIA ships a library for each of these:</p>
+<ul>
+<li class="fragment"><strong>cuBLAS</strong>: dense linear algebra (<em>matrix multiply</em>, among others)</li>
+<li class="fragment"><strong>cuDNN</strong>: deep-learning building blocks (<em>convolutions</em>, activations)</li>
+<li class="fragment"><strong>cuFFT</strong>: Fourier transforms · <strong>cuRAND</strong>: random numbers · <strong>cuSPARSE</strong>: sparse matrices</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>CuPy</strong> is a Python array library that wraps this ecosystem behind a <em>NumPy-shaped API</em>: you get the tuned code without calling any of these libraries yourself.</p>
 <aside class="notes">
 <p>~3 min. This directly answers “why does this course teach both Numba and CuPy” — Numba is for when no library does what you need; CuPy is for when one already does, and does it better than you’d write it in a semester.</p>
 <style type="text/css">
@@ -284,12 +339,15 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/cupy-library-stack.svg" alt="A layered diagram. At the top, an orange box 'your Python code' has two arrows down. The left arrow goes to a wide blue box 'CuPy: a NumPy-shaped API' listing the calls cp.mean(x), A @ B, cp.argpartition(...), rng.standard_normal(...). The right arrow goes to a purple box 'Numba, @cuda.jit'. Below CuPy, five boxes each get an arrow from CuPy: 'cuBLAS: matrix multiply', 'cuRAND: random numbers', 'cuFFT: Fourier', 'cuSPARSE: sparse', and a gray box 'CuPy's own kernels'. Below Numba, a yellow box 'your kernel (Modules 2–5)'. Every one of these boxes has an arrow down to a single wide gray box at the bottom, 'CUDA → the GPU'. Caption under the CuPy side: 'CuPy: NVIDIA (or CuPy) already wrote and tuned the kernel'. Caption under the Numba side: 'Numba: you write it'." width="900" class="r-stretch"><p>Both paths end up as kernels on the same GPU. The difference is <em>who wrote the kernel</em>.</p>
 </section>
 <section id="cupy-the-pitch" class="slide level2">
 <h2>CuPy: The Pitch</h2>
-<blockquote>
-<p>CuPy is an open-source array library for GPU-accelerated computing with Python. CuPy uses CUDA Toolkit libraries including cuBLAS, cuDNN, cuRAND, cuSolver, cuSPARSE, cuFFT and NCCL to make full use of the GPU architecture.</p>
-</blockquote>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a></a><span class="im">import</span> cupy  <span class="im">as</span> cp</span>
 <span id="cb1-3"><a></a></span>
@@ -297,15 +355,15 @@ content that belongs to a later module.
 <span id="cb1-5"><a></a>x_cpu <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], dtype<span class="op">=</span>np.float32)</span>
 <span id="cb1-6"><a></a>y_cpu <span class="op">=</span> np.sqrt(x_cpu)</span>
 <span id="cb1-7"><a></a></span>
-<span id="cb1-8"><a></a><span class="co"># CuPy on GPU — nearly identical API</span></span>
+<span id="cb1-8"><a></a><span class="co"># CuPy on GPU: nearly identical API</span></span>
 <span id="cb1-9"><a></a>x_gpu <span class="op">=</span> cp.array([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>], dtype<span class="op">=</span>cp.float32)</span>
 <span id="cb1-10"><a></a>y_gpu <span class="op">=</span> cp.sqrt(x_gpu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Almost all NumPy code ports to CuPy by changing <code>np.</code> to <code>cp.</code> — the array now lives in GPU memory, but the Python-level API is (almost) unchanged</li>
-<li>Under the hood, <code>cp.sqrt</code> dispatches to a real GPU kernel — you’re not simulating anything, this genuinely runs on the GPU</li>
+<li class="fragment">Most NumPy code ports by changing <em><code>np.</code> to <code>cp.</code></em>: the array now lives in <em>GPU memory</em>, but the Python API is (almost) unchanged</li>
+<li class="fragment"><code>cp.sqrt</code> launches a <em>real GPU kernel</em>: nothing is simulated, it genuinely runs on the GPU</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Worth a quick live demo if time allows: take a NumPy one-liner from Module 0, swap the import, and show it just works.</p>
+<p>~2 min. Worth a quick live demo if time allows: take a NumPy one-liner from Module 0, swap the import, and show it just works. “Almost”: a few NumPy functions are missing, and anything that needs a Python value (printing, <code>if</code>, <code>float(...)</code>) forces a copy back to the host.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -327,20 +385,49 @@ content that belongs to a later module.
 <span id="cb2-5"><a></a>data_cpu <span class="op">=</span> np.random.randn(<span class="dv">5000</span>, <span class="dv">200</span>).astype(np.float32)</span>
 <span id="cb2-6"><a></a>data_gpu <span class="op">=</span> cp.asarray(data_cpu)</span>
 <span id="cb2-7"><a></a></span>
-<span id="cb2-8"><a></a><span class="co"># 2. Compute on GPU — no kernel required</span></span>
-<span id="cb2-9"><a></a>mean_gpu <span class="op">=</span> cp.mean(data_gpu, axis<span class="op">=</span><span class="dv">0</span>)   <span class="co"># column means</span></span>
-<span id="cb2-10"><a></a>std_gpu  <span class="op">=</span> cp.std(data_gpu,  axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb2-11"><a></a>z_gpu    <span class="op">=</span> (data_gpu <span class="op">-</span> mean_gpu) <span class="op">/</span> std_gpu</span>
+<span id="cb2-8"><a></a><span class="co"># 2. Compute on GPU: no kernel required</span></span>
+<span id="cb2-9"><a></a>mean_gpu <span class="op">=</span> cp.mean(data_gpu, axis<span class="op">=</span><span class="dv">0</span>)   <span class="co"># column means, shape (200,)</span></span>
+<span id="cb2-10"><a></a>std_gpu  <span class="op">=</span> cp.std(data_gpu,  axis<span class="op">=</span><span class="dv">0</span>)   <span class="co"># column stds,  shape (200,)</span></span>
+<span id="cb2-11"><a></a>z_gpu    <span class="op">=</span> (data_gpu <span class="op">-</span> mean_gpu) <span class="op">/</span> (std_gpu <span class="op">+</span> <span class="fl">1e-8</span>)</span>
 <span id="cb2-12"><a></a></span>
 <span id="cb2-13"><a></a><span class="co"># 3. Bring the result back</span></span>
 <span id="cb2-14"><a></a>z_cpu <span class="op">=</span> cp.asnumpy(z_gpu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Same host↔︎device transfer discipline from Module 2 (<code>cuda.to_device()</code>/<code>copy_to_host()</code>), just spelled <code>cp.asarray()</code>/<code>cp.asnumpy()</code></li>
-<li>Three lines replace what would be an entire shared-memory kernel in Numba — broadcasting, column-wise reduction, and element-wise division are all GPU-accelerated transparently</li>
-<li>This exact pattern is Lab 12 Exercise 1</li>
+<li class="fragment">Same <em>host↔︎device transfer</em> discipline as Module 2’s <code>cuda.to_device()</code> / <code>copy_to_host()</code>, spelled <em><code>cp.asarray()</code> / <code>cp.asnumpy()</code></em></li>
+<li class="fragment">Three lines do a <em>column reduction</em>, <em>broadcasting</em>, and <em>element-wise</em> math, all on the GPU</li>
+<li class="fragment">This exact pattern is <em>Lab 12 Exercise 1</em> (the column-wise z-score)</li>
 </ul>
 <aside class="notes">
-<p>~3 min. Point out explicitly: this is computing a column-wise z-score (Lab 12 Exercise 1). Spend a moment on <code>axis=</code> and why the per-column statistics broadcast against the rows. CK-12 asks for a row-wise reduction, where that needs <code>keepdims=True</code>.</p>
+<p>~3 min. The <code>+ 1e-8</code> guards against a zero-std column, and matches the lab’s formula. Spend a moment on <code>axis=</code> and why the per-column statistics broadcast against the rows — next slide makes it visual.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="axis-and-keepdims-which-way-you-reduce" class="slide level2">
+<h2><code>axis</code> and <code>keepdims</code>: Which Way You Reduce</h2>
+<p><code>axis</code> names the dimension that <em>disappears</em>. Broadcasting then lines shapes up <em>from the right</em>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>x.shape                                <span class="co"># (5000, 200)</span></span>
+<span id="cb3-2"><a></a>x.mean(axis<span class="op">=</span><span class="dv">0</span>).shape                   <span class="co"># (200,)     one per column</span></span>
+<span id="cb3-3"><a></a>x.mean(axis<span class="op">=</span><span class="dv">1</span>).shape                   <span class="co"># (5000,)    one per row</span></span>
+<span id="cb3-4"><a></a>x.mean(axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>).shape    <span class="co"># (5000, 1)  one per row, still 2-D</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/axis-keepdims.svg" alt="Three panels side by side, each starting with x of shape (5000, 200). Panel 1, 'm = x.mean(axis=0)': the shapes are written right-aligned, x: (5000, 200) above m: (200,), with the note 'compare from the right'. A green bar labeled (200,) sits on top of a gray matrix labeled x (5000, 200), with small arrows down into it and a dashed arrow running down the side. Caption: '✓ one mean per column, copied down every row'. Panel 2, 'm = x.mean(axis=1)': x: (5000, 200) above m: (5000,) in red, and a red box '200 ≠ 5000'. Caption: '✗ ValueError: operands could not be broadcast together'. Panel 3, 'm = x.mean(axis=1, keepdims=True)': x: (5000, 200) above m: (5000, 1). A tall thin green column labeled (5000, 1) sits to the left of the gray matrix, with a dashed arrow running across the top. Caption: '✓ one mean per row, copied across every column'." width="900" class="r-stretch"><ul>
+<li class="fragment">Column statistics (<code>axis=0</code>) broadcast <em>for free</em>: the trailing 200s match</li>
+<li class="fragment">Row statistics need <em><code>keepdims=True</code></em>: without it, CuPy compares 200 with 5000 and raises a <em>broadcast error</em></li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is the one idea CK-12 tests that Lab 12 Ex 1 doesn’t: CK-12 is a row-wise operation on a non-square matrix, so a missing keepdims is an immediate error. Make sure students can say <em>why</em> (compare from the right).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -356,14 +443,23 @@ content that belongs to a later module.
 <section id="what-happens-under-the-hood" class="slide level2">
 <h2>What Happens Under the Hood</h2>
 <ul>
-<li><code>cp.asarray()</code> → the same kind of host→device memory copy as <code>cuda.to_device()</code></li>
-<li><code>cp.mean()</code> → an optimized reduction kernel, dispatched to the underlying CUDA libraries (conceptually similar to the tree reduction you hand-wrote in Module 5, but vendor-tuned)</li>
-<li><code>data_gpu - mean_gpu</code>, <code>/ std_gpu</code> → element-wise kernels, generated and launched automatically — no <code>@cuda.jit</code>, no launch configuration, no bounds guard written by you</li>
-<li><code>cp.asnumpy()</code> → device→host copy</li>
-<li>CuPy manages device memory allocation, execution streams, and synchronization for you — you only call <code>cp.cuda.Stream.null.synchronize()</code> explicitly when you need to <em>time</em> something (Module 3’s lesson about asynchronous launches still applies underneath)</li>
+<li class="fragment"><code>cp.asarray()</code>: a <em>host→device copy</em>, same as <code>cuda.to_device()</code></li>
+<li class="fragment"><code>cp.mean()</code>, <code>cp.std()</code>: CuPy’s <em>own reduction kernels</em>, the same idea as Module 5’s <em>tree reduction</em>, but already tuned</li>
+<li class="fragment"><code>data_gpu - mean_gpu</code>, <code>/ ...</code>: <em>element-wise kernels</em> CuPy writes for you: no <code>@cuda.jit</code>, no launch configuration, no bounds guard</li>
+<li class="fragment"><code>A @ B</code> (next slide) is different: it calls <em>cuBLAS</em></li>
+<li class="fragment"><code>cp.asnumpy()</code>: a <em>device→host copy</em>. It <em>waits</em> for the GPU to finish first</li>
 </ul>
+<div class="fragment">
+<p>Each kernel is <em>compiled the first time</em> you use it, then cached. And launches are still <em>asynchronous</em> (Module 3). So to time CuPy:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a>_ <span class="op">=</span> A_gpu <span class="op">@</span> B_gpu                     <span class="co"># warm-up: first call initializes cuBLAS</span></span>
+<span id="cb4-2"><a></a>cp.cuda.Stream.null.synchronize()</span>
+<span id="cb4-3"><a></a></span>
+<span id="cb4-4"><a></a>t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb4-5"><a></a>C_gpu <span class="op">=</span> A_gpu <span class="op">@</span> B_gpu</span>
+<span id="cb4-6"><a></a>cp.cuda.Stream.null.synchronize()     <span class="co"># wait for the GPU before stopping the clock</span></span>
+<span id="cb4-7"><a></a>ms <span class="op">=</span> (time.perf_counter() <span class="op">-</span> t0) <span class="op">*</span> <span class="dv">1000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <aside class="notes">
-<p>~3 min. Contrast explicitly with Numba: every one of these five steps was something you wrote by hand in Modules 2-5. CuPy’s abstraction is higher-level — the cost is less direct control over exactly how each operation is implemented, which is the right trade for “standard” operations and the wrong trade when you need a specific, novel algorithm.</p>
+<p>~3 min. Contrast with Numba: every one of these steps was something you wrote by hand in Modules 2-5. CuPy’s abstraction is higher-level — the cost is less direct control. The warm-up matters: without it Lab 12 Ex 2 measured ~81 ms of cuBLAS initialization vs.&nbsp;0.8 ms of Numba kernel, which made a hand-written kernel look 100× faster than cuBLAS. Same lesson as Module 3’s first-launch JIT compile.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -375,75 +471,25 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="key-operation-matrix-multiply" class="slide level2">
 <h2>Key Operation: Matrix Multiply</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>A_gpu <span class="op">=</span> cp.random.randn(<span class="dv">1024</span>, <span class="dv">512</span>, dtype<span class="op">=</span>cp.float32)</span>
-<span id="cb3-2"><a></a>B_gpu <span class="op">=</span> cp.random.randn(<span class="dv">512</span>, <span class="dv">1024</span>, dtype<span class="op">=</span>cp.float32)</span>
-<span id="cb3-3"><a></a></span>
-<span id="cb3-4"><a></a><span class="co"># Dispatches to cuBLAS SGEMM — one of the most optimized routines ever written</span></span>
-<span id="cb3-5"><a></a>C_gpu <span class="op">=</span> A_gpu <span class="op">@</span> B_gpu        <span class="co"># shape (1024, 1024)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li><code>@</code> on two CuPy arrays calls cuBLAS’s SGEMM routine — decades of hand-tuning across every NVIDIA GPU generation, doing tiling, prefetching, and vectorized loads far more aggressively than a semester-long course can teach</li>
-<li>Lab 12 Exercise 2 has you measure this directly against <strong>your own Lab 9 tiled kernel</strong>, not just take “cuBLAS is faster” on faith — you’ll get a real number, and explain it in a markdown reflection</li>
-<li>Whichever way that comparison lands, the reasoning matters more than the number: a hand-written kernel like Lab 9’s is real, working code — cuBLAS is the same idea, refined far beyond what’s practical to hand-tune in one course</li>
-</ul>
-<aside class="notes">
-<p>~3 min. Don’t state a winner here — let Lab 12 Exercise 2 be the actual measurement. It’s usually close, and being close is itself the interesting result (a correctly-tiled kernel is not that far from a professionally-tuned library, even though the library will typically still win).</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="key-operation-partial-sort-with-argpartition" class="slide level2">
-<h2>Key Operation: Partial Sort with <code>argpartition</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a>scores_gpu <span class="op">=</span> cp.random.randn(<span class="dv">500</span>, <span class="dv">10_000</span>, dtype<span class="op">=</span>cp.float32)</span>
-<span id="cb4-2"><a></a>K <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb4-3"><a></a></span>
-<span id="cb4-4"><a></a><span class="co"># For each row: find the indices of the K largest values</span></span>
-<span id="cb4-5"><a></a><span class="co"># Does NOT guarantee order within the K — faster than a full sort</span></span>
-<span id="cb4-6"><a></a>top_k_idx <span class="op">=</span> cp.argpartition(<span class="op">-</span>scores_gpu, K, axis<span class="op">=</span><span class="dv">1</span>)[:, :K]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li><code>cp.argpartition</code> places the K largest values into the first K positions of each row, without fully sorting them relative to each other — for “give me the top K,” you don’t need a full sort, and skipping it is faster</li>
-<li>Expected O(N) time per row versus O(N log N) for a full sort — the difference matters when K is much smaller than N, exactly the capstone’s situation (K=10, N=100,000)</li>
-<li>This is the capstone’s second GPU operation, right after the similarity computation: find the top-K most similar items per query</li>
-</ul>
-<aside class="notes">
-<p>~2 min. This is CK-14 Part B’s operation directly. Worth a concrete number: for K=10 out of N=100,000, a full sort does unnecessary extra work ordering 99,990 values nobody asked for.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="key-operation-random-number-generation" class="slide level2">
-<h2>Key Operation: Random Number Generation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a>rng <span class="op">=</span> cp.random.default_rng(seed<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb5-2"><a></a>embeddings <span class="op">=</span> rng.standard_normal((<span class="dv">100_000</span>, <span class="dv">64</span>), dtype<span class="op">=</span>cp.float32)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a>A_gpu <span class="op">=</span> cp.random.randn(<span class="dv">1024</span>, <span class="dv">512</span>, dtype<span class="op">=</span>cp.float32)</span>
+<span id="cb5-2"><a></a>B_gpu <span class="op">=</span> cp.random.randn(<span class="dv">512</span>, <span class="dv">1024</span>, dtype<span class="op">=</span>cp.float32)</span>
 <span id="cb5-3"><a></a></span>
-<span id="cb5-4"><a></a><span class="co"># Normalize to unit vectors</span></span>
-<span id="cb5-5"><a></a>norms <span class="op">=</span> cp.linalg.norm(embeddings, axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb5-6"><a></a>unit_embeddings <span class="op">=</span> embeddings <span class="op">/</span> norms</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-4"><a></a>C_gpu <span class="op">=</span> A_gpu <span class="op">@</span> B_gpu        <span class="co"># shape (1024, 1024): cuBLAS SGEMM</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>CuPy’s random number generator runs on the GPU — generating millions of random values is itself a parallel operation, not something worth doing on the CPU first and transferring over</li>
-<li>Normalization via broadcasting is the same syntax you’ve used in NumPy since Module 0</li>
-<li>This exact pattern generates the capstone’s synthetic database and query embeddings — you’ll see it directly in CK-13 and CK-14’s setup cells</li>
+<li class="fragment"><code>@</code> on two float32 CuPy arrays calls cuBLAS’s <em>SGEMM</em> routine (<em>S</em> = single precision)</li>
+<li class="fragment">cuBLAS does <em>tiling</em> (your Lab 9 idea), plus prefetching, vectorized loads and per-GPU tuning, <em>far beyond</em> what a course can cover</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Lab 12 Exercise 2</em> times this against <em>your own Lab 9 tiled kernel</em>: you’ll get a <em>real number</em>, not “cuBLAS is faster” on faith</li>
+<li class="fragment">Whichever way it lands, <em>explain why</em>: your tiled kernel uses the same core idea as cuBLAS, which has had years more tuning on top</li>
 </ul>
 <aside class="notes">
-<p>~2 min. Worth naming explicitly: this is where the capstone’s “100,000 songs, each with 64 numbers” data actually comes from — not a real dataset, a GPU-generated synthetic one, and this is the code that generates it.</p>
+<p>~3 min. Don’t state a winner here — let Lab 12 Exercise 2 be the actual measurement. cuBLAS will typically win, sometimes by a solid margin; a correctly tiled kernel landing within a small factor is itself the interesting result.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -455,6 +501,76 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="key-operation-top-k-with-argpartition" class="slide level2">
+<h2>Key Operation: Top-K with <code>argpartition</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a>scores_gpu <span class="op">=</span> cp.random.randn(<span class="dv">500</span>, <span class="dv">10_000</span>, dtype<span class="op">=</span>cp.float32)</span>
+<span id="cb6-2"><a></a>K <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb6-3"><a></a></span>
+<span id="cb6-4"><a></a><span class="co"># For each row: indices of the K largest values (in no particular order)</span></span>
+<span id="cb6-5"><a></a>top_k_idx <span class="op">=</span> cp.argpartition(<span class="op">-</span>scores_gpu, K, axis<span class="op">=</span><span class="dv">1</span>)[:, :K]   <span class="co"># shape (500, 5)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><code>argpartition(a, K)</code> guarantees only that the <em>K smallest</em> values end up in the <em>first K positions</em>: their order among themselves is <em>not</em> guaranteed</li>
+<li class="fragment">Negating the scores turns “K smallest” into <em>“K largest”</em></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p><strong>Why not just sort?</strong></p>
+<ul>
+<li class="fragment">In NumPy, <code>argpartition</code> runs in <em>expected O(N)</em> per row, versus <em>O(N log N)</em> for a full sort: a real win when K ≪ N</li>
+<li class="fragment"><em>CuPy is different:</em> its docs say <code>cp.argpartition</code> currently <em>fully sorts</em> the array, like <code>cp.argsort</code>. On the GPU you get the right <em>answer</em>, not the asymptotic saving</li>
+<li class="fragment">We still use it: it states the <em>intent</em> (“top-K, order doesn’t matter”), the code <em>ports to NumPy</em>, and the sort runs <em>on the GPU</em>, next to the data</li>
+</ul>
+<div class="fragment">
+<p>This is the capstone’s <em>second step</em>: after computing the 1,000 × 100,000 similarity matrix, find the <em>K = 10 most similar items</em> per query (CK-14 Part B).</p>
+<aside class="notes">
+<p>~3 min. This is CK-14 Part B’s operation directly (and Lab 12 Ex 3, whose hint is “argpartition puts the k SMALLEST in front”). The CuPy full-sort note is verbatim from docs.cupy.dev’s cupy.argpartition page — worth saying out loud, because it’s a good example of “the same API name doesn’t promise the same algorithm.” Don’t let students write that argpartition is O(N) on CuPy in their CK-14 reflection.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="key-operation-random-numbers-on-the-gpu" class="slide level2">
+<h2>Key Operation: Random Numbers on the GPU</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a>rng <span class="op">=</span> cp.random.default_rng(seed<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb7-2"><a></a>emb <span class="op">=</span> rng.standard_normal((<span class="dv">100_000</span>, <span class="dv">64</span>), dtype<span class="op">=</span>cp.float32)   <span class="co"># made on the GPU</span></span>
+<span id="cb7-3"><a></a></span>
+<span id="cb7-4"><a></a><span class="co"># Normalize every row to a unit vector</span></span>
+<span id="cb7-5"><a></a>norms    <span class="op">=</span> cp.linalg.norm(emb, axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)        <span class="co"># shape (100000, 1)</span></span>
+<span id="cb7-6"><a></a>unit_emb <span class="op">=</span> emb <span class="op">/</span> norms</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment">CuPy’s generator runs <em>on the GPU</em> (via <em>cuRAND</em>): no need to make data on the CPU and <em>transfer it over</em></li>
+<li class="fragment"><code>keepdims=True</code> again: a <em>per-row</em> norm, divided across <em>every column</em></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">The capstone’s setup cells do the same thing with <em>NumPy’s</em> <code>default_rng</code> on the CPU</li>
+<li class="fragment">Why? CuPy’s generator gives <em>different numbers</em> for the same seed, and the capstone needs <em>identical data</em> for the CPU reference and the GPU pipeline</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The capstone’s “100,000 songs, each with 64 numbers” is synthetic — CK-13/CK-14’s setup cells generate it with np.random.default_rng(SEED).standard_normal(…) and normalize exactly like this. Generating on the GPU is the right move when you don’t need to reproduce a CPU result.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="cupy-vs.-numba-when-to-use-each" class="slide level2">
 <h2>CuPy vs.&nbsp;Numba: When to Use Each</h2>
@@ -475,30 +591,33 @@ content that belongs to a later module.
 <td>CuPy</td>
 </tr>
 <tr class="even">
-<td>Custom operation with no library equivalent</td>
-<td>Numba <code>@cuda.jit</code></td>
-</tr>
-<tr class="odd">
 <td>Quick port of existing NumPy code</td>
 <td>CuPy</td>
 </tr>
+<tr class="odd">
+<td>Custom operation with no library equivalent</td>
+<td>Numba <code>@cuda.jit</code></td>
+</tr>
 <tr class="even">
-<td>Need full control over memory layout and synchronization</td>
+<td>A variant no library offers (e.g.&nbsp;a custom combiner, a fused stencil)</td>
 <td>Numba</td>
 </tr>
 <tr class="odd">
-<td>Writing a new algorithm (reduction, scan) from scratch</td>
+<td>Full control over memory layout and synchronization</td>
 <td>Numba</td>
 </tr>
 <tr class="even">
-<td>Capstone’s similarity + top-K pipeline</td>
-<td>Numba for the tiled kernel (CK-13/14), CuPy for <code>argpartition</code></td>
+<td>Capstone: similarity, then top-K</td>
+<td>Numba kernel for similarity (naive in CK-13, tiled in CK-14), CuPy <code>argpartition</code> for top-K</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section class="slide level2">
+
 <ul>
-<li>This table is Lab 12 Exercise 4’s actual question, in table form — there’s rarely one universally “correct” tool, only a better fit for a specific situation</li>
-<li>The capstone itself uses <strong>both</strong>: a hand-written Numba kernel for the similarity computation (where the tiling optimization is the point of the exercise) and CuPy for top-K selection (a standard operation with no reason to reinvent it)</li>
+<li class="fragment">This table is <em>Lab 12 Exercise 4’s</em> question in table form: there’s rarely one <em>“correct” tool</em>, only a <em>better fit</em></li>
+<li class="fragment">The capstone uses <strong>both</strong>: a <em>hand-written Numba kernel</em> where tiling is the point of the exercise, and <em>CuPy</em> for top-K, a standard operation with no reason to reinvent it</li>
 </ul>
 <aside class="notes">
 <p>~3 min. Emphasize there’s no single right answer for most rows — this table is a starting heuristic, and Lab 12 Exercise 4 asks students to reason through a specific scenario (a 10M×128 real-time z-score pipeline) rather than just recite the table.</p>
@@ -516,22 +635,59 @@ content that belongs to a later module.
 </section>
 <section id="interoperability-cupy-and-numba-together" class="slide level2">
 <h2>Interoperability: CuPy and Numba Together</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="im">import</span> numba.cuda <span class="im">as</span> cuda</span>
-<span id="cb6-2"><a></a></span>
-<span id="cb6-3"><a></a>x_cp <span class="op">=</span> cp.zeros(<span class="dv">1000</span>, dtype<span class="op">=</span>cp.float32)</span>
-<span id="cb6-4"><a></a></span>
-<span id="cb6-5"><a></a><span class="co"># CuPy arrays live in ordinary CUDA device memory — Numba can use them directly</span></span>
-<span id="cb6-6"><a></a>my_numba_kernel[blocks, threads](x_cp)   <span class="co"># works, no conversion needed</span></span>
-<span id="cb6-7"><a></a></span>
-<span id="cb6-8"><a></a><span class="co"># After Numba modifies it in place, CuPy sees the updated result immediately</span></span>
-<span id="cb6-9"><a></a>result <span class="op">=</span> cp.<span class="bu">sum</span>(x_cp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>CuPy and Numba both allocate from the same GPU memory — a CuPy array can be passed straight into a <code>@cuda.jit</code> kernel, and a Numba-allocated device array can be wrapped by CuPy, with <strong>no copy</strong> in either direction</li>
-<li>This means the CuPy-vs-Numba choice (previous slide) isn’t all-or-nothing per project — you can mix both within a single pipeline, exactly as the capstone does</li>
-<li>Practical implication: you never need to round-trip through host memory just to switch which tool operates on your data next</li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="im">import</span> cupy <span class="im">as</span> cp</span>
+<span id="cb8-2"><a></a><span class="im">from</span> numba <span class="im">import</span> cuda</span>
+<span id="cb8-3"><a></a></span>
+<span id="cb8-4"><a></a><span class="at">@cuda.jit</span></span>
+<span id="cb8-5"><a></a><span class="kw">def</span> add_one(x):</span>
+<span id="cb8-6"><a></a>    i <span class="op">=</span> cuda.grid(<span class="dv">1</span>)</span>
+<span id="cb8-7"><a></a>    <span class="cf">if</span> i <span class="op">&lt;</span> x.shape[<span class="dv">0</span>]:</span>
+<span id="cb8-8"><a></a>        x[i] <span class="op">+=</span> <span class="fl">1.0</span></span>
+<span id="cb8-9"><a></a></span>
+<span id="cb8-10"><a></a>x_cp <span class="op">=</span> cp.zeros(<span class="dv">1000</span>, dtype<span class="op">=</span>cp.float32)     <span class="co"># allocated by CuPy</span></span>
+<span id="cb8-11"><a></a></span>
+<span id="cb8-12"><a></a>threads <span class="op">=</span> <span class="dv">256</span></span>
+<span id="cb8-13"><a></a>blocks  <span class="op">=</span> (x_cp.size <span class="op">+</span> threads <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> threads</span>
+<span id="cb8-14"><a></a>add_one[blocks, threads](x_cp)              <span class="co"># Numba uses CuPy's memory directly</span></span>
+<span id="cb8-15"><a></a></span>
+<span id="cb8-16"><a></a><span class="bu">print</span>(<span class="bu">float</span>(cp.<span class="bu">sum</span>(x_cp)))                  <span class="co"># CuPy sees Numba's writes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>1000.0</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/cupy-numba-zero-copy.svg" alt="A blue box 'x_cp = cp.zeros(1000, ...)' labeled 'CuPy allocates it' and a purple box 'add_one[blocks, threads](x_cp)' labeled 'Numba writes into it in place'. An arrow from each box points down to the same row of gray cells, all holding 1.0, inside a dashed region labeled 'GPU memory: 1000 float32s, after the kernel ran'. Below: 'Same pointer, two views: no copy, no trip through host memory', and in small code text 'shared through __cuda_array_interface__ (pointer + shape + dtype)'." width="760" class="r-stretch"><ul>
+<li class="fragment">CuPy and Numba both use <em>ordinary CUDA device memory</em>: a CuPy array goes <em>straight into</em> a <code>@cuda.jit</code> kernel, and <code>cp.asarray(numba_device_array)</code> wraps a Numba array, with <em>no copy</em> either way</li>
+<li class="fragment">So the choice isn’t <em>all-or-nothing</em>: mix both in one pipeline, exactly as CK-14 does (Numba similarity → <code>cp.asarray</code> → CuPy top-K)</li>
 </ul>
 <aside class="notes">
-<p>~2 min. This is the practical payoff of the previous slide’s table — students don’t have to pick one tool and commit to it for the whole capstone. Reinforce: zero-copy handoff between the two, not “convert and copy.”</p>
+<p>~2 min. This is the practical payoff of the previous table — students don’t have to pick one tool and commit to it for the whole capstone. Reinforce: zero-copy handoff between the two, not “convert and copy.” CK-14 Part B does exactly <code>sim_cp = cp.asarray(sim_tiled)</code>.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="key-takeaways-cupy" class="slide level2">
+<h2>Key Takeaways: CuPy</h2>
+<ul>
+<li class="fragment">CuPy = <em>NumPy API, GPU execution</em>. Same three steps: <em><code>cp.asarray</code> → compute → <code>cp.asnumpy</code></em></li>
+<li class="fragment"><code>axis</code> picks the dimension that disappears; use <em><code>keepdims=True</code></em> for row-wise statistics</li>
+<li class="fragment">Time CuPy like any GPU code: <em>warm up</em>, then <em>synchronize</em> before stopping the clock</li>
+<li class="fragment"><code>@</code> → <em>cuBLAS</em>; <code>cp.argpartition</code> → top-K (but on CuPy it <em>fully sorts</em>)</li>
+<li class="fragment"><em>Library for standard operations, Numba for custom ones</em>, and they share GPU memory <em>without copying</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -547,8 +703,8 @@ content that belongs to a later module.
 <section id="this-week" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 12 (Fri, Nov 20):</strong> All five exercises — CuPy z-score, CuPy-vs-NumPy-vs-Numba matmul timing, CuPy <code>argpartition</code> top-K, a CuPy-vs-Numba reflection, and PyTorch tensors/forward pass — <strong>CK-12</strong> same day</li>
-<li><strong>Nov 18 (next lecture):</strong> PyTorch — a different GPU library, built for a different purpose (neural networks) than CuPy’s general-purpose array operations</li>
+<li class="fragment"><strong>Lab 12 (Fri, Nov 20):</strong> five exercises: CuPy <em>z-score</em>, <em>matmul timing</em> (NumPy vs.&nbsp;CuPy vs.&nbsp;your Lab 9 kernel), CuPy <em>top-K</em>, a <em>CuPy-vs-Numba</em> reflection, and <em>PyTorch</em> tensors / forward pass. <strong>CK-12</strong> the same day</li>
+<li class="fragment"><strong>Nov 18 (next lecture):</strong> PyTorch, a GPU library built for a <em>different purpose</em> (neural networks) than CuPy’s general array math</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Quick pointer slide.</p>
@@ -568,13 +724,26 @@ content that belongs to a later module.
 <h2>Checkpoint Preview</h2>
 <p>Checkpoint CK-12 will ask you to:</p>
 <ul>
-<li>Transfer a NumPy matrix to the GPU as a CuPy array</li>
-<li>Compute a <strong>row-wise softmax</strong> on the GPU, choosing the right axis and keeping dimensions for broadcasting</li>
-<li>Make it numerically stable: the inputs are large enough that a naive <code>exp()</code> overflows <code>float32</code></li>
-<li>Reduce on the GPU and bring results back as NumPy arrays / Python floats</li>
+<li class="fragment">Transfer a NumPy matrix to the GPU as a <em>CuPy array</em></li>
+<li class="fragment">Compute a <strong>row-wise softmax</strong> on the GPU, choosing the <em>right axis</em> and <em>keeping dimensions</em> for broadcasting</li>
+<li class="fragment">Make it <em>numerically stable</em>: the inputs are large enough that a naive <code>exp()</code> <em>overflows float32</em></li>
+<li class="fragment">Reduce on the GPU and bring results back as <em>NumPy arrays / Python floats</em></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p><strong>Softmax</strong>, for one row <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[\text{softmax}(x)_j = \frac{e^{x_j}}{\sum_k e^{x_k}}\]</span></p>
+<ul>
+<li class="fragment">Each row becomes <em>positive numbers that sum to 1</em></li>
+<li class="fragment">float32 <code>exp()</code> overflows to <code>inf</code> once its input passes about <em>88.7</em>; then you get <code>inf / inf</code> = <em>NaN</em></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Useful fact: subtracting the <em>same constant</em> from every value in a row <em>doesn’t change</em> its softmax. Which constant makes overflow impossible is for you to work out</li>
 </ul>
 <aside class="notes">
-<p>~1 min. 20-minute timed, paired with Lab 12 (Nov 20). REWRITTEN 2026-10-02: it was Lab 12’s z-score again. Worth one sentence here on softmax(x) = softmax(x − c), which the checkpoint’s Background also gives. CuPy-only by instructor decision — PyTorch is practiced in this lab (Exercise 5) but not independently checkpointed, since a 20-minute window doesn’t comfortably fit two separate library skills (see checkpoints/ck12-cupy-lab.md’s instructor notes).</p>
+<p>~1 min. 20-minute timed, paired with Lab 12 (Nov 20). REWRITTEN 2026-10-02: it was Lab 12’s z-score again. The shift-invariance identity is also in the checkpoint’s Background; the slide deliberately stops short of saying “the row max”. CuPy-only by instructor decision — PyTorch is practiced in this lab (Exercise 5) but not independently checkpointed, since a 20-minute window doesn’t comfortably fit two separate library skills (see checkpoints/ck12-cupy-lab.md’s instructor notes).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -586,12 +755,13 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="el-04" class="slide level2">
-<h2>EL-04</h2>
+<section id="el-04-why-the-capstone-looks-the-way-it-does" class="slide level2">
+<h2>EL-04: Why the Capstone Looks the Way It Does</h2>
 <ul>
-<li><strong>Due Sun, Nov 1</strong> (before this session — already assigned): read Spotify’s “From Idea to Execution” on embeddings, watch Vox’s “How Netflix Recommends Movies,” and reflect on the embedding connection to the capstone, the scale challenge, and the ethics of recommendation optimization</li>
-<li>Directly motivates the capstone’s structure: it’s a recommendation system, built the same way real ones are, just at a smaller scale</li>
+<li class="fragment"><strong>EL-04</strong> (due Sun, Nov 1, <em>already submitted</em>): Spotify’s <em>“From Idea to Execution”</em> on embeddings, Vox’s <em>“How Netflix Recommends Movies”</em>, and your reflection on <em>scale</em> and <em>ethics</em></li>
+<li class="fragment">The capstone is the <em>same structure</em> as those systems: items as <em>embedding vectors</em>, similarity by <em>dot product</em>, then <em>top-K</em>, just at a smaller scale</li>
 </ul>
 <aside class="notes">
 <p>~1 min. This is a pointer/reminder slide, not a new assignment — EL-04’s due date (Nov 1) falls well before this Nov 16 lecture. Worth a brief show-of-hands on who’s completed it, since it directly primes the capstone framing used throughout this module.</p>
@@ -618,10 +788,10 @@ content that belongs to a later module.
 <section id="todays-plan-1" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Where PyTorch fits: a library built for neural networks, not general array math</li>
-<li>Tensors — PyTorch’s array type, and moving them to the GPU</li>
-<li>Autograd — what it is conceptually, and why we won’t be using it this session</li>
-<li>A complete forward pass through a small network, on the GPU</li>
+<li class="fragment">Where PyTorch fits: a library built for <em>neural networks</em>, not general array math</li>
+<li class="fragment"><em>Tensors</em>: PyTorch’s array type, and moving them to the GPU</li>
+<li class="fragment"><em>Autograd</em>: what it is, and why we turn it <em>off</em></li>
+<li class="fragment">A complete <em>forward pass</em> through a small network, on the GPU</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Full 50-min session, no quiz. This session’s code is deliberately lighter than Nov 16’s — PyTorch’s role in this course is intentionally narrow (inference only), per syllabus.md’s own scope note that C6.2 is “one lab, reinforced at Capstone,” not a deep dive.</p>
@@ -640,10 +810,13 @@ content that belongs to a later module.
 <section id="where-pytorch-fits" class="slide level2">
 <h2>Where PyTorch Fits</h2>
 <ul>
-<li>CuPy (Nov 16) is a <strong>general-purpose</strong> GPU array library — anything you’d do with NumPy, CuPy can likely do on the GPU</li>
-<li><strong>PyTorch</strong> is a GPU library built specifically for <strong>machine learning</strong>: defining neural networks, running them, and (when needed) training them</li>
-<li>The GPU-to-ML connection is direct: modern AI models (the kind behind image generators, recommendation systems, chatbots) are built and run almost entirely using libraries like PyTorch, on GPUs — this is a large part of <em>why</em> GPU programming is such an in-demand skill today (Module 1’s opening pitch, made concrete)</li>
-<li>This course teaches PyTorch at a deliberately narrow slice: moving data to the GPU and running a pretrained model’s forward pass — not training a model from scratch, which is its own, much longer topic</li>
+<li class="fragment">CuPy (Nov 16) is a <em>general-purpose</em> GPU array library: most things you’d do with NumPy</li>
+<li class="fragment"><strong>PyTorch</strong> is built for <em>machine learning</em>: defining neural networks, <em>running</em> them, and <em>training</em> them</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Modern AI models (image generators, recommendation systems, chatbots) are built and run with libraries like PyTorch, <em>on GPUs</em>: a big part of <em>why GPU programming is in demand</em> (Module 1’s pitch, made concrete)</li>
+<li class="fragment">This course takes a <em>narrow slice</em>: move data to the GPU and run a model’s <em>forward pass</em>. <em>Training</em> from scratch is its own, much longer topic</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Set expectations explicitly: this is one lecture and one lab exercise, not a machine-learning course. The goal is recognizing the GPU-programming ideas (device transfer, GPU execution) inside a tool students will likely encounter again, not becoming a PyTorch expert.</p>
@@ -658,47 +831,63 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="tensors-pytorchs-array-type" class="slide level2">
 <h2>Tensors: PyTorch’s Array Type</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="im">import</span> torch</span>
-<span id="cb7-2"><a></a></span>
-<span id="cb7-3"><a></a><span class="co"># A tensor looks and acts like a NumPy array</span></span>
-<span id="cb7-4"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)          <span class="co"># 32 samples, 128 features each</span></span>
-<span id="cb7-5"><a></a><span class="bu">print</span>(x_cpu.shape, x_cpu.device)      <span class="co"># torch.Size([32, 128]) cpu</span></span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a><span class="co"># Move it to the GPU — PyTorch's version of cuda.to_device() / cp.asarray()</span></span>
-<span id="cb7-8"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)</span>
-<span id="cb7-9"><a></a><span class="bu">print</span>(x_gpu.device)                   <span class="co"># cuda:0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>A PyTorch <strong>tensor</strong> is PyTorch’s array type — conceptually the same idea as a NumPy array or a CuPy array, just PyTorch’s own implementation, built with neural-network workloads in mind</li>
-<li><code>.to('cuda')</code> is PyTorch’s device-transfer call — the same underlying idea as <code>cuda.to_device()</code> (Module 2) and <code>cp.asarray()</code> (Nov 16), spelled differently because it’s a different library</li>
-<li><code>.cpu()</code> is the reverse — PyTorch’s equivalent of <code>.copy_to_host()</code> / <code>cp.asnumpy()</code>. Three libraries, three spellings, the same host↔︎device transfer concept every time</li>
-</ul>
-<aside class="notes">
-<p>~3 min. Explicitly name the pattern-matching across libraries — students should recognize “oh, this is the same host/device transfer idea from Module 2 and Nov 16, just PyTorch’s syntax for it” rather than treating this as unrelated new material.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="im">import</span> torch</span>
+<span id="cb10-2"><a></a></span>
+<span id="cb10-3"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)          <span class="co"># 32 samples, 128 features each</span></span>
+<span id="cb10-4"><a></a><span class="bu">print</span>(x_cpu.shape, x_cpu.device)</span>
+<span id="cb10-5"><a></a></span>
+<span id="cb10-6"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)              <span class="co"># host → device</span></span>
+<span id="cb10-7"><a></a><span class="bu">print</span>(x_gpu.device)</span>
+<span id="cb10-8"><a></a></span>
+<span id="cb10-9"><a></a>x_back <span class="op">=</span> x_gpu.cpu()                  <span class="co"># device → host</span></span>
+<span id="cb10-10"><a></a><span class="bu">print</span>(x_back.device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>torch.Size([32, 128]) cpu
+cuda:0
+cpu</code></pre>
+</div>
 </section>
-<section id="autograd-what-it-is-conceptually" class="slide level2">
-<h2>Autograd: What It Is (Conceptually)</h2>
+<section class="slide level2">
+
 <ul>
-<li>PyTorch’s other major feature, beyond tensors, is <strong>autograd</strong> — automatic differentiation</li>
-<li>When training a neural network, you need the <em>gradient</em> (how much the output would change if you nudged each internal number slightly) to know which direction to adjust the model’s parameters to make it more accurate</li>
-<li>Autograd tracks every operation performed on a tensor (as long as that tensor has <code>requires_grad=True</code>), building a record of the computation as it happens — then <code>.backward()</code> walks that record backward, computing every needed gradient automatically via the chain rule</li>
-<li>This is genuinely one of PyTorch’s most important features for <strong>training</strong> a model — but this course does not train models, only runs already-trained ones (next slide explains why that matters)</li>
+<li class="fragment">A <strong>tensor</strong> is PyTorch’s array: the <em>same idea</em> as a NumPy or CuPy array, built with <em>neural-network workloads</em> in mind</li>
+<li class="fragment"><em><code>.to('cuda')</code></em> is the host→device copy; <em><code>.cpu()</code></em> is the way back</li>
 </ul>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Host → device</th>
+<th>Device → host</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Numba (Module 2)</td>
+<td><code>cuda.to_device(a)</code></td>
+<td><code>d_a.copy_to_host()</code></td>
+</tr>
+<tr class="even">
+<td>CuPy (Nov 16)</td>
+<td><code>cp.asarray(a)</code></td>
+<td><code>cp.asnumpy(a_gpu)</code></td>
+</tr>
+<tr class="odd">
+<td>PyTorch</td>
+<td><code>t.to('cuda')</code></td>
+<td><code>t_gpu.cpu()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Three libraries, three spellings, <em>one idea</em>.</p>
 <aside class="notes">
-<p>~3 min. This is deliberately conceptual, not hands-on — students won’t write autograd code in this course. The goal is recognizing the term and roughly what problem it solves, since “autograd” is schedule.md’s own committed sub-topic and a term students will encounter constantly if they go further with PyTorch.</p>
+<p>~3 min. Explicitly name the pattern-matching across libraries — students should recognize “oh, this is the same host/device transfer idea from Module 2 and Nov 16, just PyTorch’s syntax for it” rather than treating this as unrelated new material. <code>cuda:0</code> means GPU number 0 — Colab has exactly one.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -710,15 +899,57 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="autograd-what-it-is" class="slide level2">
+<h2>Autograd: What It Is</h2>
+<ul>
+<li class="fragment">PyTorch’s other big feature is <strong>autograd</strong>: <em>automatic differentiation</em></li>
+<li class="fragment">Training needs the <em>gradient</em>: how much the output changes if you <em>nudge each parameter</em> slightly. That tells you which way to adjust the model</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Autograd <em>records every operation</em> on a tensor that has <code>requires_grad=True</code></li>
+<li class="fragment">Then <code>.backward()</code> walks that record <em>backwards</em>, applying the <em>chain rule</em> to get every gradient</li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
+<p>A tiny example, for recognition only:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>w <span class="op">=</span> torch.tensor(<span class="fl">3.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-2"><a></a>y <span class="op">=</span> w <span class="op">*</span> w            <span class="co"># y = w², and autograd records the multiply</span></span>
+<span id="cb12-3"><a></a>y.backward()         <span class="co"># dy/dw = 2w</span></span>
+<span id="cb12-4"><a></a><span class="bu">print</span>(w.grad)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>tensor(6.)</code></pre>
+</div>
+<div class="fragment">
+<p>This course <em>doesn’t train models</em>: we only run <em>already-trained</em> ones. Next slide: why that means turning autograd <em>off</em>.</p>
+<aside class="notes">
+<p>~3 min. Deliberately conceptual — students won’t write autograd code in this course. The goal is recognizing the term and roughly what problem it solves, since “autograd” is schedule.md’s own committed sub-topic and a term students will encounter constantly if they go further with PyTorch.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="inference-running-a-model-without-training-it" class="slide level2">
 <h2>Inference: Running a Model Without Training It</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="cf">with</span> torch.no_grad():           <span class="co"># disable autograd — we're not training</span></span>
-<span id="cb8-2"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)   <span class="co"># the forward pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="cf">with</span> torch.no_grad():           <span class="co"># autograd off: we're not training</span></span>
+<span id="cb14-2"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)   <span class="co"># the forward pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><strong>Inference</strong> means running a model to get its output, without updating the model itself — exactly what happens when a trained image classifier labels a new photo, or a trained recommendation model scores a new user</li>
-<li><code>torch.no_grad()</code> explicitly turns autograd <strong>off</strong> for the code inside it — since inference never needs a gradient, tracking the computation graph would only cost extra memory and time for no benefit</li>
-<li>This is the single most important line for this course’s PyTorch use: it’s the difference between “just get the answer” (inference, what we do) and “also prepare to compute gradients” (training, what we don’t do)</li>
+<li class="fragment"><strong>Inference</strong> = running a model to get its output, <em>without changing the model</em>: a trained classifier <em>labelling a new photo</em>, a recommender <em>scoring a new user</em></li>
+<li class="fragment"><code>torch.no_grad()</code> turns autograd <em>off</em> inside the block: no gradient needed, so recording the computation would only cost <em>memory and time</em></li>
+<li class="fragment">This line is the difference between <em>“just get the answer”</em> (inference, what we do) and <em>“prepare to compute gradients”</em> (training, what we don’t)</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Tie directly back to the previous slide: autograd is a real, powerful feature — and the correct move whenever you’re <em>not</em> training is to explicitly disable it. This is the practical payoff of understanding autograd conceptually, even without using it.</p>
@@ -736,33 +967,71 @@ content that belongs to a later module.
 </section>
 <section id="a-complete-forward-pass" class="slide level2">
 <h2>A Complete Forward Pass</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="im">import</span> torch</span>
-<span id="cb9-2"><a></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
-<span id="cb9-3"><a></a></span>
-<span id="cb9-4"><a></a>torch.manual_seed(<span class="dv">12</span>)</span>
-<span id="cb9-5"><a></a></span>
-<span id="cb9-6"><a></a><span class="co"># A tiny 2-layer network — imagine this is a pretrained classifier</span></span>
-<span id="cb9-7"><a></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb9-8"><a></a>    nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
-<span id="cb9-9"><a></a>    nn.ReLU(),</span>
-<span id="cb9-10"><a></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">10</span>),</span>
-<span id="cb9-11"><a></a>).to(<span class="st">'cuda'</span>)                      <span class="co"># move the model's parameters to the GPU too</span></span>
-<span id="cb9-12"><a></a></span>
-<span id="cb9-13"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)      <span class="co"># 32 samples, 128 features each</span></span>
-<span id="cb9-14"><a></a></span>
-<span id="cb9-15"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)          <span class="co"># move the input to the GPU</span></span>
-<span id="cb9-16"><a></a><span class="cf">with</span> torch.no_grad():</span>
-<span id="cb9-17"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)     <span class="co"># forward pass — runs entirely on the GPU</span></span>
-<span id="cb9-18"><a></a></span>
-<span id="cb9-19"><a></a>logits_cpu <span class="op">=</span> logits_gpu.cpu()     <span class="co"># bring the result back</span></span>
-<span id="cb9-20"><a></a><span class="bu">print</span>(logits_cpu.shape)           <span class="co"># torch.Size([32, 10])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers="|7-11|11|13|15|16-17|19-20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="im">import</span> torch</span>
+<span id="cb15-2"><a></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb15-3"><a></a></span>
+<span id="cb15-4"><a></a>torch.manual_seed(<span class="dv">12</span>)</span>
+<span id="cb15-5"><a></a></span>
+<span id="cb15-6"><a></a><span class="co"># A tiny 2-layer network: imagine it's a pretrained classifier</span></span>
+<span id="cb15-7"><a></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb15-8"><a></a>    nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
+<span id="cb15-9"><a></a>    nn.ReLU(),</span>
+<span id="cb15-10"><a></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">10</span>),</span>
+<span id="cb15-11"><a></a>).to(<span class="st">'cuda'</span>)                      <span class="co"># move the model's weights to the GPU</span></span>
+<span id="cb15-12"><a></a></span>
+<span id="cb15-13"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)      <span class="co"># 32 samples, 128 features each</span></span>
+<span id="cb15-14"><a></a></span>
+<span id="cb15-15"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)          <span class="co"># move the input to the GPU</span></span>
+<span id="cb15-16"><a></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb15-17"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)     <span class="co"># forward pass, entirely on the GPU</span></span>
+<span id="cb15-18"><a></a></span>
+<span id="cb15-19"><a></a>logits_cpu <span class="op">=</span> logits_gpu.cpu()     <span class="co"># bring the result back</span></span>
+<span id="cb15-20"><a></a><span class="bu">print</span>(logits_cpu.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Output:</strong> <code>torch.Size([32, 10])</code></p>
+<aside class="notes">
+<p>~4 min across the three sub-slides. Click through: the model, the model’s .to(‘cuda’), the input, the input’s .to(‘cuda’), the forward pass, the result coming back. This is the exact code Lab 12 Exercise 5 has students complete.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
 <ul>
-<li><code>nn.Sequential</code> chains layers together — here, a linear layer (128 inputs → 64 outputs), a ReLU activation, and a second linear layer (64 → 10 outputs, e.g.&nbsp;10 class scores)</li>
-<li><strong>Both</strong> the model’s parameters (<code>.to('cuda')</code> on the model) and the input data (<code>.to('cuda')</code> on <code>x_cpu</code>) must be on the same device before <code>model(x_gpu)</code> runs — a common early error is forgetting one of the two and getting a device-mismatch error</li>
-<li>This is Lab 12 Exercise 5’s exact pattern, with the three <code># YOUR CODE HERE</code> lines being the <code>.to('cuda')</code> call, the forward pass, and the <code>.cpu()</code> call</li>
+<li class="fragment"><strong>Lines 7–11:</strong> <code>nn.Sequential</code> <em>chains layers</em>: a linear layer (<em>128 → 64</em>), a <em>ReLU</em> (negatives become 0), and a second linear layer (<em>64 → 10</em>, e.g.&nbsp;10 class scores)</li>
+<li class="fragment"><strong>Lines 11 and 15:</strong> <em>both</em> the model’s weights <em>and</em> the input must be on the GPU before <code>model(x_gpu)</code> runs</li>
+<li class="fragment"><strong>Lines 16–17:</strong> the forward pass, inside <em><code>no_grad()</code></em></li>
+<li class="fragment"><strong>Lines 19–20:</strong> <code>.cpu()</code> brings the <em>(32, 10)</em> result back</li>
+<li class="fragment"><em>Lab 12 Exercise 5</em>: your three <code># YOUR CODE HERE</code> lines are the input’s <code>.to('cuda')</code>, the forward pass, and the <code>.cpu()</code></li>
+</ul>
+<div class="fragment">
+<p>Forget one <code>.to('cuda')</code> and you get the most common PyTorch GPU error:</p>
+<pre><code>RuntimeError: Expected all tensors to be on the same device,
+but found at least two devices, cuda:0 and cpu!</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/forward-pass-shapes.svg" alt="Two regions: a CPU column on the left and a dashed GPU region on the right. On the CPU side, a gray box 'x_cpu (32, 128)' has a thick blue arrow labeled &quot;.to('cuda')&quot; to a gray box 'x_gpu (32, 128)' at the top of the GPU region. Inside the GPU region, boxes go down in a column joined by arrows: 'x_gpu (32, 128)', purple 'Linear: 128 → 64', gray '(32, 64)', purple 'ReLU: negatives → 0', gray '(32, 64)', purple 'Linear: 64 → 10', and green 'logits_gpu (32, 10)'. A purple bracket beside the three purple layer boxes says &quot;model: its weights live here too, after model.to('cuda')&quot;. From logits_gpu, a thick blue arrow labeled '.cpu()' goes left to a green box 'logits_cpu (32, 10)' on the CPU side." width="820" class="r-stretch"><p>The <em>32 rows</em> (samples) never change; each layer changes <em>how many numbers describe each sample</em>.</p>
+</section>
+<section id="key-takeaways-pytorch" class="slide level2">
+<h2>Key Takeaways: PyTorch</h2>
+<ul>
+<li class="fragment">A <em>tensor</em> is PyTorch’s array. <em><code>.to('cuda')</code></em> and <em><code>.cpu()</code></em> are its host↔︎device copies</li>
+<li class="fragment"><em>Model and data</em> must both be on the GPU, or you get a <em>device-mismatch error</em></li>
+<li class="fragment"><em>Autograd</em> records operations so training can compute gradients</li>
+<li class="fragment">For inference, wrap the forward pass in <em><code>torch.no_grad()</code></em></li>
 </ul>
 <aside class="notes">
-<p>~4 min. Walk through the shape transformation explicitly: 32×128 in, through a 128→64 layer, through ReLU (same shape, just zeroes out negatives), through a 64→10 layer, out as 32×10. This is the exact code Lab 12 Exercise 5 has students complete.</p>
+<p>~1 min.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -778,8 +1047,9 @@ content that belongs to a later module.
 <section id="this-week-1" class="slide level2">
 <h2>This Week</h2>
 <ul>
-<li><strong>Lab 12 (Fri, Nov 20):</strong> Exercise 5 — complete the forward-pass pattern above; the lab’s other four exercises are CuPy (previewed Nov 16)</li>
-<li><strong>Nov 23 (next lecture):</strong> A survey of the wider GPU ecosystem beyond CUDA, plus the capstone kickoff</li>
+<li class="fragment"><strong>EL-05</strong> (due <em>Sun, Nov 22</em>): energy, carbon and GPU computing</li>
+<li class="fragment"><strong>Lab 12 (Fri, Nov 20):</strong> <em>Exercise 5</em> is the forward-pass pattern above; Exercises 1–4 are CuPy (Nov 16)</li>
+<li class="fragment"><strong>Nov 23 (next lecture):</strong> the <em>wider GPU ecosystem</em> beyond CUDA, plus the <em>capstone kickoff</em></li>
 </ul>
 <aside class="notes">
 <p>~1 min. Quick pointer slide. No separate checkpoint preview here — PyTorch isn’t independently checkpointed this semester (see Nov 16’s Checkpoint Preview note).</p>
@@ -806,9 +1076,9 @@ content that belongs to a later module.
 <section id="todays-plan-2" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li>Beyond CUDA: what other GPU programming ecosystems exist, and why they exist</li>
-<li>Where the field is heading, and what that means for your career</li>
-<li>Capstone kickoff: the project you’ve been building toward all semester officially starts today</li>
+<li class="fragment">Beyond CUDA: what <em>other GPU programming ecosystems</em> exist, and <em>why</em></li>
+<li class="fragment">Where the field is heading, and what that means for <em>your career</em></li>
+<li class="fragment"><strong>Capstone kickoff:</strong> the project you’ve been building toward <em>officially starts today</em></li>
 </ul>
 <aside class="notes">
 <p>~1 min. This is the last Module 6 session before Fall Break (Nov 25/27, no class) — Module 7’s capstone-focused lectures don’t resume until Nov 30. Keep the ecosystem survey brisk; leave real time for the kickoff logistics, since team formation needs to happen before the break.</p>
@@ -827,17 +1097,48 @@ content that belongs to a later module.
 <section id="cuda-isnt-the-only-gpu-language" class="slide level2">
 <h2>CUDA Isn’t the Only GPU Language</h2>
 <ul>
-<li>Everything this semester has used <strong>CUDA</strong>, NVIDIA’s GPU programming platform — for good reason: it’s the most mature, most widely used, and has the deepest tooling and library ecosystem (Nov 16’s cuBLAS/cuDNN/etc.)</li>
-<li>But CUDA only runs on NVIDIA hardware. Several other approaches exist for programming GPUs from other vendors, or across vendors:
-<ul>
-<li><strong>HIP</strong> (AMD): a CUDA-like C++ API designed so that CUDA code can be automatically translated (or written portably) to also run on AMD GPUs</li>
-<li><strong>OpenACC</strong>: a directive-based approach — you annotate ordinary C/C++/Fortran loops with compiler pragmas (comments the compiler interprets), and the compiler generates the parallel GPU code for you, rather than you writing kernels by hand</li>
-<li><strong>WebGPU</strong>: a modern, cross-vendor API for running GPU compute (and graphics) directly inside a web browser — works on NVIDIA, AMD, Intel, and mobile GPUs alike, all from JavaScript</li>
-<li><strong>Apple Metal</strong>: Apple’s own GPU programming API, used across macOS and iOS devices</li>
-</ul></li>
+<li class="fragment">Everything this semester used <strong>CUDA</strong>, NVIDIA’s platform: the <em>most mature</em>, <em>most widely used</em>, with the deepest <em>libraries</em> (Nov 16’s cuBLAS, cuDNN, …)</li>
+<li class="fragment">But CUDA runs <em>only on NVIDIA hardware</em></li>
 </ul>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Runs on</th>
+<th>How you write kernels</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>HIP</strong></td>
+<td>AMD GPUs (and NVIDIA)</td>
+<td>C++ almost identical to CUDA; tools (<em>hipify</em>) translate CUDA source</td>
+</tr>
+<tr class="even">
+<td><strong>OpenACC</strong></td>
+<td>NVIDIA, AMD, multicore CPUs</td>
+<td><em>Directives</em> on ordinary loops (<code>#pragma acc</code> in C/C++); the compiler writes the kernel</td>
+</tr>
+<tr class="odd">
+<td><strong>WebGPU</strong></td>
+<td>Any GPU, <em>inside a web browser</em></td>
+<td>Kernels in <em>WGSL</em>, launched from JavaScript</td>
+</tr>
+<tr class="even">
+<td><strong>Metal</strong></td>
+<td>Apple GPUs (Mac, iPhone, iPad)</td>
+<td>Metal Shading Language (C++-based)</td>
+</tr>
+</tbody>
+</table>
 <aside class="notes">
-<p>~4 min. Frame this as “the landscape,” not “you need to learn these too” — a brief tour is the point, not depth. If time allows, ask if anyone has encountered any of these already (WebGPU shows up in browser-based ML demos; Metal is relevant to anyone doing iOS/Mac development).</p>
+<p>~4 min. Frame this as “the landscape,” not “you need to learn these too.” If time allows, ask if anyone has encountered any of these (WebGPU shows up in browser-based ML demos; Metal matters to anyone doing iOS/Mac development). Intel’s equivalent is SYCL / oneAPI, if anyone asks. In Fortran, OpenACC directives are <code>!$acc</code> comments; in C/C++ they’re pragmas.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -849,15 +1150,78 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
+</section>
+<section id="same-ideas-different-names" class="slide level2">
+<h2>Same Ideas, Different Names</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>This course (Numba)</th>
+<th>HIP</th>
+<th>Metal</th>
+<th>WebGPU (WGSL)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>thread block</td>
+<td>block</td>
+<td>threadgroup</td>
+<td>workgroup</td>
+</tr>
+<tr class="even">
+<td><code>cuda.shared.array</code></td>
+<td><code>__shared__</code></td>
+<td><code>threadgroup</code> memory</td>
+<td><code>var&lt;workgroup&gt;</code></td>
+</tr>
+<tr class="odd">
+<td><code>cuda.syncthreads()</code></td>
+<td><code>__syncthreads()</code></td>
+<td><code>threadgroup_barrier(...)</code></td>
+<td><code>workgroupBarrier()</code></td>
+</tr>
+<tr class="even">
+<td>warp (32 threads)</td>
+<td>wavefront (64 on most AMD data-centre GPUs)</td>
+<td>SIMD-group</td>
+<td>subgroup</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Tiling, coalescing, reductions and barriers <em>carry straight over</em>. What changes is <em>syntax</em> and <em>a few numbers</em> (like the warp size).</p>
+<aside class="notes">
+<p>~2 min. This table is the concrete evidence for the next slide’s last bullet. Students who did Module 4’s tiled matmul could read a Metal or WGSL tiled matmul and recognize every part.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="why-so-many-approaches" class="slide level2">
 <h2>Why So Many Approaches?</h2>
 <ul>
-<li><strong>Vendor lock-in</strong> is the core tension: CUDA’s maturity comes from being NVIDIA-exclusive, which is exactly why AMD, cross-platform, and browser-based alternatives exist — each trades some of CUDA’s tooling depth for running on hardware CUDA can’t reach</li>
-<li><strong>Abstraction level</strong> varies deliberately: OpenACC’s directive-based approach trades some performance control (you’re not hand-tuning launch configuration the way this course has all semester) for a much lower barrier to parallelizing existing code</li>
-<li><strong>Where code runs</strong> matters increasingly: WebGPU exists because browser-based and edge-device GPU compute is a growing category CUDA (a desktop/server/Linux-first platform) doesn’t reach well</li>
-<li>None of these replace what you’ve learned this semester — the <em>concepts</em> (thread parallelism, memory hierarchy, minimizing host↔︎device transfer, avoiding divergence) transfer directly to every one of them, even though the exact syntax differs</li>
+<li class="fragment"><strong>Vendor lock-in</strong> is the core tension: CUDA’s maturity comes from being <em>NVIDIA-only</em>; each alternative trades some of that depth for <em>hardware CUDA can’t reach</em></li>
+<li class="fragment"><strong>Abstraction level</strong> varies on purpose: OpenACC gives up <em>fine control</em> (no hand-tuned launch configuration) for a <em>much lower barrier</em> to parallelizing existing code</li>
+<li class="fragment"><strong>Where code runs</strong> matters more and more: WebGPU exists because <em>browser and edge-device</em> GPU compute is a growing category CUDA doesn’t serve</li>
 </ul>
+<div class="fragment">
+<p>None of these replace what you learned. The <em>concepts</em> (thread parallelism, the memory hierarchy, minimizing host↔︎device transfer, avoiding divergence) <em>transfer directly</em>; only the syntax differs.</p>
 <aside class="notes">
 <p>~2 min. This is the reassuring payoff of the survey: students haven’t learned “a CUDA course,” they’ve learned GPU programming concepts that CUDA happens to be an excellent vehicle for teaching. That transfers.</p>
 <style type="text/css">
@@ -871,13 +1235,39 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="where-the-field-is-heading-and-career-context" class="slide level2">
-<h2>Where the Field Is Heading, and Career Context</h2>
+<section id="where-the-field-is-heading" class="slide level2">
+<h2>Where the Field Is Heading</h2>
 <ul>
-<li>GPU programming skill has moved from a niche graphics/HPC specialty to one of the most broadly in-demand skills in computing — spanning ML/AI infrastructure, scientific computing, finance, genomics, robotics, and real-time graphics</li>
-<li>The concepts from this course (occupancy, coalescing, shared-memory tiling, reduction/scan patterns, library vs.&nbsp;custom-kernel judgment) are the same concepts a working GPU engineer reasons about daily, regardless of which specific language or vendor’s hardware they’re targeting</li>
-<li>The library-vs-custom-kernel judgment call from Nov 16 (C6.3) is itself a career-relevant skill: most GPU-programming jobs involve far more “which existing tool solves this” reasoning than “write a kernel from scratch” — knowing when <em>not</em> to hand-roll something is as valuable as knowing how</li>
+<li class="fragment"><strong>Higher-level kernel languages:</strong> tools like <em>Triton</em> let you write GPU kernels <em>in Python</em> at the level of <em>tiles</em>, with the compiler handling details you managed by hand (like shared memory)</li>
+<li class="fragment"><strong>Lower precision for AI:</strong> <em>16-bit and 8-bit</em> number formats on dedicated <em>matrix units</em> (tensor cores) trade precision for <em>much higher throughput</em>: the float32-vs-float64 trade-off from Lab 5, pushed further</li>
+<li class="fragment"><strong>Portability:</strong> more code written once for <em>several vendors</em> (HIP, SYCL, WebGPU), as AI demand pushes non-NVIDIA hardware</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Keep this to recognition — the point is that Modules 3–5’s ideas (tiles, memory hierarchy, precision trade-offs) are exactly what these newer tools automate or push further. Lab 5’s float64-accumulator trap is the precision callback.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="career-context" class="slide level2">
+<h2>Career Context</h2>
+<ul>
+<li class="fragment">GPU programming has moved from a <em>niche graphics/HPC specialty</em> to a <em>broadly in-demand skill</em>: ML/AI infrastructure, scientific computing, finance, genomics, robotics, real-time graphics</li>
+<li class="fragment">This course’s concepts (<em>occupancy, coalescing, shared-memory tiling, reduction/scan</em>) are what working GPU engineers <em>reason about daily</em>, whatever the language or vendor</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">The <em>library-vs-custom-kernel</em> judgment from Nov 16 (C6.3) is itself a career skill: most jobs involve far more <em>“which existing tool solves this?”</em> than <em>“write a kernel from scratch”</em></li>
+<li class="fragment">Knowing <em>when not to hand-roll</em> something is as valuable as knowing how</li>
 </ul>
 <aside class="notes">
 <p>~2 min. Good moment to connect back to Module 1’s opening pitch (“GPU programming is one of the most in-demand skills in computing”) — this slide is that promise, revisited with a full semester of concrete skill behind it instead of just a claim.</p>
@@ -892,14 +1282,19 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
 <section id="the-capstone-starts-today" class="slide level2">
 <h2>The Capstone Starts Today</h2>
+<p>Recall the Module 0 teaser, <em>“Songs as Numbers”</em>:</p>
+<blockquote>
+<p>100,000 songs, each a <em>64-number fingerprint</em>. Find the <em>10 best matches</em> for each of <em>1,000 users</em>, by <em>dot product</em>.</p>
+</blockquote>
+<div class="fragment">
+<p>That is the capstone. Every module built a piece of it:</p>
 <ul>
-<li>Recall the Day-1 teaser (Module 0/1): a music recommendation system — 100,000 songs, each a 64-number “fingerprint,” matched against user preferences via a dot product, at scale</li>
-<li>That is the capstone. Every module this semester has been building toward implementing it: kernels (Module 2), memory optimization (Modules 3-4), parallel patterns (Module 5), and the libraries (this module) all combine into one working GPU pipeline</li>
-<li>Two milestones ahead: <strong>CK-13</strong> (due Tue, Dec 1 — problem scoping, baseline, working GPU connection) and <strong>CK-14</strong> (due finals week — full implementation, profiling, and optimization). Dec 4 and Dec 11 are in-class work/demo days connected to each milestone, not the deadlines themselves</li>
-<li>Full details — team structure, grading philosophy, the optimization challenge, academic integrity expectations — are covered in Module 7’s own lecture, starting Nov 30</li>
+<li class="fragment"><em>Kernels</em> (Module 2) · <em>memory optimization</em> and <em>tiling</em> (Modules 3–4) · <em>parallel patterns</em> (Module 5) · <em>libraries</em> (this module)</li>
+<li class="fragment">The pipeline: a <em>1,000 × 100,000 similarity matrix</em> (a matrix multiply), then <em>top-K per row</em></li>
 </ul>
 <aside class="notes">
 <p>~2 min. Deliberately brief — Module 7 owns the full depth of this material (team structure, grading, Part F’s optimization challenge). Today’s job is the announcement and the logistics needed <em>before</em> the break, not a repeat of that content.</p>
@@ -914,16 +1309,85 @@ content that belongs to a later module.
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</div>
 </section>
-<section id="team-formation-do-this-before-the-break" class="slide level2">
-<h2>Team Formation — Do This Before the Break</h2>
+<section class="slide level2">
+
+<p><strong>Two milestones</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Due</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>CK-13</strong></td>
+<td><em>Tue, Dec 1</em></td>
+<td>Problem scoping, <em>NumPy baseline</em>, a working <em>naive GPU kernel</em></td>
+</tr>
+<tr class="even">
+<td><strong>CK-14</strong></td>
+<td><em>Finals week</em></td>
+<td><em>Tiled kernel</em> + CuPy top-K, <em>profiling</em>, <em>optimization</em></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>Teams of 2 (one trio permitted if enrollment is odd) — declare your team by the end of this week, before Fall Break</li>
-<li>Use the time over break (Nov 25-27, no class) to at least discuss problem framing with your teammate — Module 7’s CK-13 milestone (due Dec 1) comes up fast once class resumes Nov 30, only a few days later</li>
-<li>If you don’t yet have a teammate, say so now — instructor will help match remaining students before the break, not after</li>
+<li class="fragment"><em>Dec 4</em> and <em>Dec 11</em> are in-class <em>work/demo days</em> for each milestone, <em>not</em> the deadlines</li>
+<li class="fragment">Full details (grading, the optimization challenge, academic integrity) come in <em>Module 7</em>, starting Nov 30</li>
 </ul>
 <aside class="notes">
-<p>~2 min. This is the one piece of today’s content that’s genuinely time-sensitive — leave a few minutes at the end of class specifically for students to find partners in the room, rather than leaving it to chance over a message board after class ends.</p>
+<p>~1 min. Due dates match schedule.md’s CK 13/14 footnote and module07-capstone.qmd’s Key Dates table.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="team-formation-do-this-before-the-break" class="slide level2">
+<h2>Team Formation: Do This Before the Break</h2>
+<ul>
+<li class="fragment"><em>Teams of 2</em> (one trio if enrollment is odd): <em>declare your team this week</em>, before Fall Break</li>
+<li class="fragment">Over break (Nov 25–27, no class), at least <em>discuss problem framing</em> with your teammate: CK-13 is due <em>Dec 1</em>, one day after class resumes</li>
+<li class="fragment">No teammate yet? <em>Say so now</em>: the instructor will match remaining students <em>before the break</em>, not after</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is the one piece of today’s content that’s genuinely time-sensitive — leave a few minutes at the end of class specifically for students to find partners in the room, rather than leaving it to chance over a message board after class ends. module07-capstone.qmd’s Key Dates table lists “Nov 23: teams declared” — collecting declarations in the room today is ideal.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="key-takeaways-the-ecosystem" class="slide level2">
+<h2>Key Takeaways: The Ecosystem</h2>
+<ul>
+<li class="fragment">CUDA is the <em>most mature</em> GPU platform, but <em>not the only one</em>: HIP, OpenACC, WebGPU and Metal reach <em>other hardware</em></li>
+<li class="fragment">The <em>concepts</em> from this course <em>transfer</em>; the vocabulary changes (block ↔︎ workgroup ↔︎ threadgroup)</li>
+<li class="fragment">The capstone is the <em>Module 0 teaser</em>, built from every module’s pieces: <em>find a teammate before the break</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -939,9 +1403,9 @@ content that belongs to a later module.
 <section id="looking-ahead" class="slide level2">
 <h2>Looking Ahead</h2>
 <ul>
-<li><strong>Nov 25 &amp; 27:</strong> Fall Break — no class</li>
-<li><strong>Nov 30 (Module 7 resumes):</strong> GPU-accelerated image processing walkthrough, then ML inference on GPU (Dec 2) — full capstone depth begins here</li>
-<li><strong>Dec 1:</strong> CK-13 due (Milestone 1) — just before Dec 4’s in-class Capstone Lab 1 work session</li>
+<li class="fragment"><strong>Nov 25 &amp; 27:</strong> Fall Break, no class</li>
+<li class="fragment"><strong>Nov 30 (Module 7):</strong> GPU <em>image processing</em> walkthrough; then <em>ML inference on the GPU</em> (Dec 2)</li>
+<li class="fragment"><strong>Dec 1:</strong> <em>CK-13 due</em> (Milestone 1), before Dec 4’s in-class Capstone Lab 1</li>
 </ul>
 <aside class="notes">
 <p>~1 min. Closing pointer slide.</p>
@@ -973,6 +1437,7 @@ content that belongs to a later module.
   <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../../site_libs/revealjs/plugin/pyxcd-bridge/pyxcd-bridge.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
@@ -995,7 +1460,8 @@ content that belongs to a later module.
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -1166,7 +1632,7 @@ content that belongs to a later module.
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, PyxcdBridge, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, PyxcdBridge, QuartoSupport,
 
           RevealMath,
           RevealNotes,
