@@ -278,6 +278,26 @@ autograd example with output, device-mismatch error text, CUDA → HIP /
 Metal / WGSL vocabulary table, "where the field is heading" trends.
 Figures: cupy-library-stack, axis-keepdims, forward-pass-shapes,
 cupy-numba-zero-copy (slides/diags/).
+EXPANDED 2026-11-18 (Nov 18 session): added Part 1, ~20 min of from-zero ML
+background for students with no ML course (model/parameters, feature vectors
+and batches, neuron = weighted sum, layer = matmul X W^T + b, ReLU and why
+stacked linear layers collapse, logits/argmax, training loop with loss and
+gradient + fog/hill analogy, training vs inference, ML ops -> course GPU
+patterns). Part 2 gained 'nn.Linear really is a matmul' and 'logits to
+predictions' slides. New figures: neuron-weighted-sum, training-vs-inference.
+Standalone copy of the session: notes/21.qmd (keep in sync).
+Added an ungraded live MNIST training demo (Colab sample_data) before the
+Key Takeaways: outside C6.2's inference-only scope, so no map entry.
+The demo shows 8 test digits, then the same 8 with untrained vs. trained guesses.
+FULL NN INTRO 2026-11-18 (instructor decision, intentionally beyond C6.2 and
+the 50-min slot; spills into Nov 23): Part 1 adds flattening, neuron as
+pattern detector, dense layer, softmax, cross-entropy, gradient descent,
+learning rate, backprop worked example, batches/epochs/SGD, train/test and
+overfitting, CNN/transformer pointers, vocabulary table. Demo now trains 10
+epochs with an accuracy history plot and first-layer weight images. Figures:
+image-to-vector, dense-layer, layer-matmul, relu-graph, mlp-network,
+softmax-bars, cross-entropy-curve, gradient-descent, learning-rate,
+backprop-graph, overfitting-curves. Not graded; no competency-map change.
 NOT verified by running: CuPy/PyTorch aren't installed on the authoring
 machine. Outputs on slides are from the documented APIs and Lab 12's own
 expected prints; re-run on Colab before class if in doubt.
@@ -788,13 +808,14 @@ expected prints; re-run on Colab before class if in doubt.
 <section id="todays-plan-1" class="slide level2">
 <h2>Today’s Plan</h2>
 <ul>
-<li class="fragment">Where PyTorch fits: a library built for <em>neural networks</em>, not general array math</li>
-<li class="fragment"><em>Tensors</em>: PyTorch’s array type, and moving them to the GPU</li>
-<li class="fragment"><em>Autograd</em>: what it is, and why we turn it <em>off</em></li>
-<li class="fragment">A complete <em>forward pass</em> through a small network, on the GPU</li>
+<li class="fragment"><strong>Part 1, no code yet:</strong> what a <em>neural network</em> actually is, built up from a weighted sum you already know how to compute</li>
+<li class="fragment">How networks are <em>trained</em>: loss, gradients, gradient descent, backpropagation, overfitting</li>
+<li class="fragment">What <em>inference</em> means, and why it’s this course’s focus</li>
+<li class="fragment"><strong>Part 2, PyTorch:</strong> <em>tensors</em>, moving them to the GPU, <em>autograd</em>, and a complete <em>forward pass</em> on the GPU</li>
+<li class="fragment"><strong>Demo:</strong> train a small network on <em>real handwritten digits</em>, live</li>
 </ul>
 <aside class="notes">
-<p>~1 min. Full 50-min session, no quiz. This session’s code is deliberately lighter than Nov 16’s — PyTorch’s role in this course is intentionally narrow (inference only), per syllabus.md’s own scope note that C6.2 is “one lab, reinforced at Capstone,” not a deep dive.</p>
+<p>~1 min. No quiz. This session deliberately runs well past 50 minutes (instructor decision 2026-11-18: a full intro to neural networks, beyond C6.2’s scope); continue into the Nov 23 slot as needed, since the capstone kickoff is light. Rough budget: Part 1 ~45 min, Part 2 ~20 min, MNIST demo ~15 min. Assume NO machine-learning background: most students haven’t taken an ML course, and Part 2 only makes sense once “layer”, “weights”, “forward pass” and “training” mean something concrete. PyTorch’s role in this course is still intentionally narrow (inference only), per syllabus.md’s scope note that C6.2 is “one lab, reinforced at Capstone.”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -807,16 +828,818 @@ expected prints; re-run on Colab before class if in doubt.
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-1-what-is-a-neural-network" class="title-slide slide level1 center">
+<h1>Part 1 · What Is a Neural Network?</h1>
+
+</section>
+<section id="a-model-is-a-function-with-knobs" class="slide level2">
+<h2>A Model Is a Function with Knobs</h2>
+<ul>
+<li class="fragment">A <strong>model</strong> is a function: <em>numbers in, numbers out</em>
+<ul>
+<li class="fragment">a photo in → “how cat-like, how dog-like?” out</li>
+<li class="fragment">a user’s listening history in → “how much will they like each song?” out</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">What makes it a <em>model</em> and not an ordinary function: its behavior is set by thousands to billions of <em>adjustable numbers</em> called <strong>parameters</strong> (or <strong>weights</strong>)</li>
+<li class="fragment"><em>Nobody types the weights in by hand.</em> They are <em>learned</em> from examples. That learning step is <strong>training</strong></li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">Ordinary program: a person writes the <em>rules</em>. Model: a person writes a <em>simple structure</em> (multiply, add, repeat), and the rules end up <em>inside the numbers</em></li>
+</ul>
+<aside class="notes">
+<p>~2 min. The key mental shift for non-ML students: a normal program has its logic written by a person; a model has a fixed, simple structure and all of the “logic” lives in the numbers. Try: “write an if-statement that tells a handwritten 4 from a 9.” Nobody can. That’s the class of problem models are for. Keep stressing that the structure is simple arithmetic, which is exactly why it suits a GPU.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="step-0-everything-becomes-numbers" class="slide level2">
+<h2>Step 0: Everything Becomes Numbers</h2>
+<ul>
+<li class="fragment">A model only sees <em>numbers</em>, so every input is first turned into a list of numbers, a <strong>feature vector</strong>
+<ul>
+<li class="fragment">a 28 × 28 grayscale image → <em>784 numbers</em>, one brightness per pixel</li>
+<li class="fragment">a song in the capstone → an <em>embedding vector</em> (EL-04)</li>
+<li class="fragment">a word in a chatbot → also an embedding vector</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Models process many inputs at once, a <strong>batch</strong>. Stack 32 feature vectors of length 128 and you get a <em>(32, 128) matrix</em></li>
+<li class="fragment"><em>One row per input, one column per feature</em>: the same layout as every 2D array since Module 0</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The (32, 128) shape is deliberate: it’s the exact input shape in today’s forward-pass code and Lab 12 Exercise 5, so students will recognize it later.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/image-to-vector.svg" alt="Top left: an 8 by 8 grid of pixel squares, labeled 'a 28 × 28 image (drawn 8 × 8 here)', with dark squares forming the digit 7. The top row is outlined in solid blue and labeled 'row 0'; the second row is outlined in dashed orange and labeled 'row 1'. To the right: 'every pixel is one number: 0 = white, 1 = black ink'. A downward arrow labeled 'flatten: .reshape(784)' leads to a single long strip of squares: the 8 squares of row 0 (solid blue outline), then the 8 squares of row 1 (dashed orange outline, mostly dark), then '… rows 2 – 27'. A purple bracket under the strip says 'one row of 784 numbers: what the model actually sees'." width="760" class="r-stretch"><ul>
+<li class="fragment"><em>Flattening</em> lays the rows end to end: row 0, then row 1, and so on. It’s the same <em>row-major</em> layout as a 2D array in memory (Module 0’s <code>reshape</code>)</li>
+<li class="fragment">The model loses the 2D picture; it only sees <em>784 numbers in a fixed order</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min. Worth a sentence: this simple network can’t “see” that pixel 0 and pixel 28 are vertical neighbors; it has to learn that from data. Networks built for images (CNNs, last slide of Part 1) keep the 2D layout instead.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-smallest-piece-one-neuron" class="slide level2">
+<h2>The Smallest Piece: One Neuron</h2>
+
+<img data-src="diags/neuron-weighted-sum.svg" alt="Three gray input boxes on the left, labeled 'inputs (features)': 'x₁ = 2', 'x₂ = 0', 'x₃ = 1'. A blue arrow goes from each into a purple circle labeled 'one neuron' containing 'multiply, add up, + b'. The arrows are labeled, under the heading 'weights (learned numbers)', 'w₁ = 0.5', 'w₂ = −1', 'w₃ = 3'. A thick arrow goes from the circle to a green box 'score = 3', labeled 'output'. Below, a yellow box shows the arithmetic: '(2)(0.5) + (0)(−1) + (1)(3) + b = 1 + 0 + 3 + (−1) = 3', with the note 'bias b = −1 is one more learned number'." width="720" class="r-stretch"><ul>
+<li class="fragment">A <strong>neuron</strong> multiplies each input by its own <em>weight</em>, adds them up, and adds a <em>bias</em>: a <strong>weighted sum</strong></li>
+<li class="fragment">That’s a <em>dot product</em> plus one number: <code>score = x · w + b</code>. You computed dot products in Lab 9 and will again in the capstone</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Walk through the arithmetic on the board. Intuition for the weights: a big positive weight means “this feature pushes the score up”, negative means “pushes it down”, zero means “ignore this feature” (x₂ contributes nothing here regardless). Training is the process of finding good values for w₁, w₂, w₃ and b. The name “neuron” is a loose historical analogy to brain cells; it’s just this arithmetic.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-neuron-is-a-pattern-detector" class="slide level2">
+<h2>A Neuron Is a Pattern Detector</h2>
+<ul>
+<li class="fragment">A dot product is <em>large</em> when the input <em>looks like</em> the weights: big where the weights are big, small where they’re negative</li>
+<li class="fragment">So each neuron’s weights are a <strong>template</strong>, and its score says <em>“how much does this input match my pattern?”</em></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">For digit images: a neuron’s 784 weights <em>are</em> a 28 × 28 picture. Positive where it <em>wants</em> ink, negative where ink <em>argues against</em> its pattern</li>
+<li class="fragment">That’s the <em>capstone’s similarity search</em> in disguise: score = dot product between a query and a stored vector</li>
+<li class="fragment">In the demo at the end, we’ll <em>draw the learned weights as images</em> and see the templates</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is the most useful intuition for what networks “do”, and it connects directly to the capstone’s dot-product similarity. Hidden-layer templates in practice are blobby stroke fragments, not clean digits: the output layer combines several of them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="a-layer-many-neurons-at-once" class="slide level2">
+<h2>A Layer: Many Neurons at Once</h2>
+
+<img data-src="diags/dense-layer.svg" alt="Left: four gray input circles x₁ to x₄ under the label '4 inputs', and three purple neuron circles n₁ to n₃ under the label '3 neurons'. Lines connect every input to every neuron; the four lines into n₁ are thick and blue, the rest thin and gray. Caption below: 'every input connects to every neuron: 4 × 3 = 12 weights'. Right: a 3 by 4 grid titled 'weight matrix W (3, 4)' with cells w₁₁ through w₃₄. The top row, w₁₁ to w₁₄, is shaded blue, with the blue note '← neuron 1's 4 weights'. Caption below: 'one row per neuron, one column per input'." width="760" class="r-stretch"><ul>
+<li class="fragment">A <strong>layer</strong> is many neurons looking at the <em>same input</em>, each with its <em>own</em> weights</li>
+<li class="fragment">Store each neuron’s weights as <em>one row</em>, and the layer’s weights are a <em>matrix</em>: 64 neurons × 128 inputs → a <em>(64, 128) weight matrix</em> plus 64 biases</li>
+<li class="fragment">Also called a <em>fully connected</em>, <em>dense</em>, or (in PyTorch) <strong>Linear</strong> layer</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Trace the blue lines to the blue row: “these four arrows ARE this row of the matrix.” That one correspondence is what makes the next slide (layer = matmul) click.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-layer-is-a-matrix-multiply" class="slide level2">
+<h2>A Layer Is a Matrix Multiply</h2>
+<p>Run a whole batch through the layer and <em>every input meets every neuron</em>:</p>
+<p><span class="math display">\[
+\underbrace{Y}_{(32,\,64)} = \underbrace{X}_{(32,\,128)} \; \underbrace{W^{T}}_{(128,\,64)} + \underbrace{b}_{(64)}
+\]</span></p>
+<div class="fragment">
+<p><img data-src="diags/layer-matmul.svg" alt="Three rectangles in a row: 'X (32, 128)' times 'Wᵀ (128, 64)' plus b equals 'Y (32, 64)'. One horizontal band of X is shaded blue, with an arrow labeled 'row i: input i's 128 features'. One vertical band of Wᵀ is shaded orange, labeled 'column j: neuron j's 128 weights'. One small square of Y is shaded purple, labeled 'Y[i, j] = row i · column j (+ bias j)'. Caption across the bottom: '32 × 64 = 2,048 dot products, all independent: one GPU thread each'." width="700"></p>
+<ul>
+<li class="fragment"><em>That’s exactly your Lab 9 matmul</em>: one output cell per dot product. The <code>+ b</code> <em>broadcasts</em> the 64 biases across all 32 rows (Module 0)</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This is the most important slide of Part 1 for this course: a neural-network layer IS a matmul. Everything students learned about tiling, shared memory, and cuBLAS (Nov 16) applies directly. Why W transposed: PyTorch stores one row of W per neuron, so W is (out, in) = (64, 128); we’ll verify that in code in Part 2.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-not-just-stack-matrix-multiplies" class="slide level2">
+<h2>Why Not Just Stack Matrix Multiplies?</h2>
+<ul>
+<li class="fragment">Stacking layers lets a model build up more complex patterns, but two linear layers in a row <em>collapse into one</em>: <code>(X W₁ᵀ) W₂ᵀ = X (W₂ W₁)ᵀ</code>, a single matrix. Stacking 100 of them gains <em>nothing</em></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Fix: between layers, apply a simple <strong>nonlinear</strong> function <em>to every number separately</em>. The most common one is <strong>ReLU</strong>: <em>negatives become 0, positives pass through</em></li>
+</ul>
+<pre><code>before ReLU:  [-2.0,  0.5,  3.0, -1.0]
+after ReLU:   [ 0.0,  0.5,  3.0,  0.0]</code></pre>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="diags/relu-graph.svg" alt="A graph with horizontal axis z and vertical axis ReLU(z). The line is flat along the axis at 0 for all negative z (drawn red, with a red dot at z = −2 labeled 'negative → 0, ReLU(−2) = 0'), then bends at the origin and rises diagonally for positive z (drawn blue, with a blue dot at z = 3 labeled 'positive passes through, ReLU(3) = 3'). The formula 'ReLU(z) = max(0, z)' is written underneath." width="520" class="r-stretch"><ul>
+<li class="fragment">Each neuron becomes an <em>on/off detector</em>: it passes a signal only when its pattern <em>matches enough</em> (score &gt; 0)</li>
+<li class="fragment">That <em>bend</em> at 0 is what lets stacked layers represent things one matmul can’t</li>
+<li class="fragment">ReLU is an <em>element-wise</em> operation: one thread per element, the very first kind of kernel you wrote in Module 2</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Don’t prove the collapse formally, just point out that a product of matrices is a matrix. Students don’t need to know other activation functions (sigmoid, tanh, GELU), but can be told they exist and do the same job: bend the line.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="putting-it-together-todays-network" class="slide level2">
+<h2>Putting It Together: Today’s Network</h2>
+<pre><code>input      (32, 128)    32 inputs, 128 features each
+  Linear   128 → 64     matmul + bias       → (32, 64)
+  ReLU                  element-wise        → (32, 64)
+  Linear   64 → 10      matmul + bias       → (32, 10)
+output     (32, 10)     10 logits per input</code></pre>
+<div class="fragment">
+<ul>
+<li class="fragment">Running data <em>through the layers, in order, start to finish</em> is called the <strong>forward pass</strong></li>
+<li class="fragment">The middle layer is a <strong>hidden layer</strong>: you never see its outputs directly, only the final scores</li>
+<li class="fragment">“<strong>Deep</strong> learning” just means <em>many</em> hidden layers stacked this way</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is the exact model in Part 2’s code and in Lab 12 Exercise 5 — tell students so. Walking through the shapes here means the PyTorch code later reads as “oh, it’s this table”. Parameter count for this (128-input) version: 128×64 + 64 + 64×10 + 10 = 8,906.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<p>The same shape of network for <em>digit images</em> (the demo at the end):</p>
+
+<img data-src="diags/mlp-network.svg" alt="A network drawn as three columns of circles with lines connecting every circle in one column to every circle in the next. Left column, gray, labeled 'input layer, 784 pixels': circles x₁, x₂, x₃, a vertical ellipsis, and x₇₈₄. Middle column, purple, labeled 'hidden layer, 64 neurons, then ReLU': three circles and an ellipsis. Right column, green, labeled 'output layer, 10 logits, one per digit': circles 0, 1, an ellipsis, and 9. Above the first set of connections: 'Linear 784 → 64, 50,176 weights + 64 biases'. Above the second: 'Linear 64 → 10, 640 weights + 10 biases'." width="780" class="r-stretch"><ul>
+<li class="fragment"><em>Every line is one weight</em>: 50,890 learned numbers in total. A modern chatbot has <em>billions</em>: same idea, much bigger matrices, many more layers</li>
+</ul>
+<aside class="notes">
+<p>~1 min. The circles-and-lines picture is the one students will see everywhere online; the point is that each column-to-column bundle of lines is one weight matrix, i.e.&nbsp;one matmul.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="scores-out-logits" class="slide level2">
+<h2>Scores Out: Logits</h2>
+<ul>
+<li class="fragment">The <em>last</em> layer has one neuron per possible answer. For 10 digits, each input gets <em>10 scores</em></li>
+<li class="fragment">These raw scores are called <strong>logits</strong>. <em>Bigger = the model thinks that answer is more likely</em></li>
+</ul>
+<div class="fragment">
+<pre><code>logits for one image:   [1.2, -0.3, 4.1, 0.0, ...]    (10 numbers)
+prediction:             digit 2   ← the position of the biggest score</code></pre>
+<ul>
+<li class="fragment">“Position of the biggest” is <strong>argmax</strong></li>
+</ul>
+<aside class="notes">
+<p>~1 min. “Logit” is just ML jargon for “raw, unnormalized score”.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="from-logits-to-probabilities-softmax" class="slide level2">
+<h2>From Logits to Probabilities: Softmax</h2>
+
+<img data-src="diags/softmax-bars.svg" alt="Two bar charts joined by a thick arrow labeled 'softmax'. Left, titled 'logits (raw scores)': blue bars for &quot;3&quot;, &quot;5&quot; and &quot;8&quot; with values 2.0, 1.0 and 0.1, captioned 'any size, any sign'. Right, titled 'probabilities': green bars for the same three digits with values 0.66, 0.24 and 0.10, captioned 'all between 0 and 1, sum = 1.00'. The formula underneath reads 'softmax(z)[i] = exp(z[i]) / sum of exp(z[j]) over all j'." width="700" class="r-stretch"><ul>
+<li class="fragment"><strong>Softmax</strong> turns logits into <em>probabilities</em>: exponentiate each, then divide by the total</li>
+<li class="fragment">It <em>keeps the order</em> (the biggest logit is still the most likely answer) and makes them <em>sum to 1</em></li>
+<li class="fragment">You’ll implement softmax, <em>numerically stably</em>, in CK-12</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Check the numbers if anyone asks: e² ≈ 7.39, e¹ ≈ 2.72, e^0.1 ≈ 1.11, total ≈ 11.21, so 0.66 / 0.24 / 0.10 (shown for 3 classes, not 10, to keep it readable). Don’t give away the max-shift trick for CK-12; “numerically stably” is the hint.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="where-do-the-weights-come-from-training" class="slide level2">
+<h2>Where Do the Weights Come From? Training</h2>
+<ul>
+<li class="fragment">A brand-new network starts with <em>random</em> weights, so its guesses are <em>garbage</em></li>
+<li class="fragment">Training fixes that using <em>lots of examples with known answers</em> (“this image is a 7”):</li>
+</ul>
+<div class="fragment">
+<p><img data-src="diags/training-vs-inference.svg" alt="Two panels separated by a dashed line. Left panel, titled 'TRAINING: repeat millions of times', has four boxes in a loop joined by arrows: blue '1. forward pass, make a guess' → orange '2. loss, how wrong was it?' → red '3. backward pass, gradient for each weight' → yellow '4. update, nudge each weight a little downhill' → back up to box 1, with the arrow labeled 'repeat'. Right panel, titled 'INFERENCE: what we do', has only two boxes: blue '1. forward pass, make a guess' with a green arrow down to green 'use the answer ✓', and the note 'weights stay fixed, no gradients needed'." width="820"></p>
+<aside class="notes">
+<p>~1 min here; the next several slides unpack the four steps one at a time.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment"><strong>Loss:</strong> <em>one number</em> measuring how wrong the guesses were. Lower is better</li>
+<li class="fragment"><strong>Gradient:</strong> for <em>each</em> weight, “if I increase this weight a tiny bit, does the loss go <em>up or down</em>, and by how much?”</li>
+<li class="fragment"><strong>Update:</strong> move every weight a small step in the direction that <em>lowers</em> the loss, then repeat with the next batch</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Analogy: you’re on a hillside <em>in thick fog</em> and want to reach the valley. You can’t see the valley, but you can feel <em>which way the ground slopes</em> under your feet. Take a small step downhill. Repeat</li>
+<li class="fragment">The <em>height</em> is the loss, your <em>position</em> is the weights, the <em>slope</em> is the gradient</li>
+</ul>
+<aside class="notes">
+<p>~3 min. This is the core intuition of all of deep learning (“gradient descent”); it’s worth slowing down. The hill has millions of dimensions (one per weight), but the idea is the same.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="step-2-up-close-measuring-how-wrong" class="slide level2">
+<h2>Step 2 Up Close: Measuring “How Wrong”</h2>
+<ul>
+<li class="fragment">For classification, the standard loss is <strong>cross-entropy</strong>: softmax the logits, then look at the probability <em>p</em> the model gave the <em>correct</em> answer</li>
+</ul>
+<p><span class="math display">\[
+\text{loss} = -\log(p)
+\]</span></p>
+<div class="fragment">
+<p><img data-src="diags/cross-entropy-curve.svg" alt="A graph titled 'loss = −log(p)'. The horizontal axis is 'probability the model gave the CORRECT answer', from 0 to 1. A purple curve starts very high near p = 0 and falls steeply, flattening toward 0 at p = 1. A red dot at p = 0.1 is labeled 'p = 0.1 → loss 2.30, confidently wrong ✗'. A green dot at p = 0.9 is labeled 'p = 0.9 → loss 0.11, confident and right ✓'." width="520"></p>
+<ul>
+<li class="fragment"><em>Confident and right</em> → loss near 0. <em>Confident and wrong</em> → loss shoots up</li>
+<li class="fragment">The training loss is the <em>average</em> over the batch</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Students don’t need to know why it’s a log (information theory); the shape is what matters: it punishes confident wrong answers far more than unsure ones. PyTorch’s nn.CrossEntropyLoss (used in the demo) does the softmax and the −log in one step.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="steps-34-up-close-gradient-descent" class="slide level2">
+<h2>Steps 3–4 Up Close: Gradient Descent</h2>
+
+<img data-src="diags/gradient-descent.svg" alt="A U-shaped curve on axes labeled 'a weight w' (horizontal) and 'loss' (vertical). An orange dot high on the left side is labeled 'start: random weight'. A dashed red tangent line through it is labeled 'slope here = gradient (steep: the loss drops fast to the right)'. Blue arrows hop from the start through four blue dots down the curve toward the bottom, each hop smaller than the last. The bottom is labeled 'minimum: lowest loss'. Blue text reads 'each step: w ← w − lr × gradient'." width="640" class="r-stretch"><ul>
+<li class="fragment">The update rule for <em>every</em> weight: <strong>w ← w − lr × gradient</strong></li>
+<li class="fragment"><em>Minus</em>, because the gradient points <em>uphill</em>: we step the other way</li>
+<li class="fragment">Steps get <em>smaller on their own</em> near the bottom, because the slope flattens out</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This picture has one weight so it fits on a slide; the real network has 50,890, and the update rule is applied to each one independently — an embarrassingly parallel element-wise update, i.e.&nbsp;another GPU-friendly operation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-learning-rate" class="slide level2">
+<h2>The Learning Rate</h2>
+
+<img data-src="diags/learning-rate.svg" alt="Three copies of the same U-shaped loss curve, titled 'same loss curve, three learning rates (lr)'. Left, captioned in red 'too small: tiny steps, slow ✗': five dots crowded close together high on the left side, still far from the bottom. Middle, captioned in green 'about right ✓': dots hop steadily down to the bottom. Right, captioned in red 'too big: overshoots, loss grows ✗': red arrows jump back and forth across the bowl, landing higher each time." width="820" class="r-stretch"><ul>
+<li class="fragment"><strong>lr</strong> (<em>learning rate</em>) sets the <em>step size</em>. It’s chosen by a person, not learned: a <strong>hyperparameter</strong></li>
+<li class="fragment">Too small wastes time; too big <em>never settles</em> (or blows up). The demo uses <code>lr=0.1</code></li>
+</ul>
+<aside class="notes">
+<p>~1 min. Finding a good learning rate is mostly trial and error in practice. Fancier optimizers (Adam etc.) adapt the step size automatically; students just need the name “learning rate” and the too-small/too-big picture.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="step-3-up-close-where-gradients-come-from" class="slide level2">
+<h2>Step 3 Up Close: Where Gradients Come From</h2>
+<ul>
+<li class="fragment">A network is <em>a chain of simple operations</em>. Each one knows its own <em>local slope</em> (multiply, add, square, ReLU, …)</li>
+<li class="fragment"><strong>Backpropagation</strong>: run the chain <em>forward</em> to get the loss, then walk it <em>backward</em>, multiplying local slopes as you go (the <em>chain rule</em>)</li>
+</ul>
+<div class="fragment">
+<p><img data-src="diags/backprop-graph.svg" alt="A computation graph for a single neuron with a squared-error loss. Yellow 'w = 3' and gray 'x = 2' feed blue arrows into a purple '×' circle; its output 'wx = 6' goes to a purple '+' circle, which also receives yellow 'b = 1' from below; its output 'y = 7' goes to a purple box '(y − 5)²', which outputs green 'L = 4'. Blue solid arrows show this forward direction. Red dashed arrows run backward under each link with gradient labels: '∂L/∂y = 4 (= 2(y − 5))' from the loss box back to '+', '∂L/∂(wx) = 4 (+ passes it back unchanged)' from '+' back to '×', '∂L/∂b = 4' from '+' down to b, and '∂L/∂w = 4 × x = 8' from '×' up and around to w. A legend says blue = 'forward: compute values', red dashed = 'backward: compute gradients'." width="820"></p>
+</div>
+</section>
+<section class="slide level2">
+
+<ul>
+<li class="fragment">Reading the backward pass: the loss wants <em>y</em> lower (∂L/∂y = 4 &gt; 0). <code>+</code> passes that along to <em>wx</em> and to <em>b</em>. <code>×</code> scales it by the <em>other</em> input: ∂L/∂w = 4 × <em>x</em> = 8</li>
+<li class="fragment">So the update <em>lowers</em> both w and b: with lr = 0.1, w → 3 − 0.8 = <em>2.2</em> and b → 1 − 0.4 = <em>0.6</em>, making <em>y</em> closer to 5</li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">The backward pass costs about <em>as much as the forward pass</em>, and it’s the <em>same kinds of operations</em> (matmuls, element-wise)</li>
+<li class="fragment"><em>You never write this by hand.</em> PyTorch’s <strong>autograd</strong> (Part 2) records the forward chain and does the backward walk for you</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Optional depth: only walk through the numbers if the room is with you; the takeaway is “gradients come from walking the chain backward, automatically.” Check: new y = 2.2 × 2 + 0.6 = 5.0 — this toy example lands exactly on the target in one step, which is luck of the numbers, not typical.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="batches-epochs-and-sgd" class="slide level2">
+<h2>Batches, Epochs, and SGD</h2>
+<ul>
+<li class="fragment">Computing the loss over <em>all</em> training examples before every step would be slow. Instead, each step uses a small random <strong>batch</strong></li>
+</ul>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+<th>In the demo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>batch</strong></td>
+<td>the examples used for <em>one</em> update step</td>
+<td>64 images</td>
+</tr>
+<tr class="even">
+<td><strong>step</strong> (iteration)</td>
+<td>one trip around the training loop</td>
+<td>≈ 313 per epoch</td>
+</tr>
+<tr class="odd">
+<td><strong>epoch</strong></td>
+<td>one full pass through <em>all</em> training data</td>
+<td>10 epochs</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<ul>
+<li class="fragment">Gradient descent on random batches is <strong>SGD</strong>, <em>stochastic gradient descent</em>: each step’s slope is a <em>noisy estimate</em>, but it’s <em>much</em> cheaper and works well</li>
+<li class="fragment">Batch size is also a <em>GPU decision</em>: bigger batches → bigger matmuls → better GPU utilization (but more memory)</li>
+</ul>
+<aside class="notes">
+<p>~2 min. 20,000 images / 64 per batch ≈ 313 steps per epoch. The batch-size/GPU tradeoff connects to the Dec 2 lecture’s “batching strategy” topic.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="did-it-learn-or-memorize-train-vs.-test" class="slide level2">
+<h2>Did It Learn, or Memorize? Train vs.&nbsp;Test</h2>
+<ul>
+<li class="fragment">A model can get very good at its <em>training</em> examples by <em>memorizing</em> them, and still fail on new ones</li>
+<li class="fragment">So we always hold back a <strong>test set</strong> the model <em>never trains on</em>, and judge it only there</li>
+</ul>
+<div class="fragment">
+<p><img data-src="diags/overfitting-curves.svg" alt="A graph of loss (vertical) against epochs (horizontal) with two curves. The solid blue 'training loss (solid) (images it learns from)' falls steadily and levels off near the bottom. The dashed orange 'test loss (dashed) (images it never sees)' falls at first, reaches a minimum, then rises again. A dashed green vertical line at the test-loss minimum is labeled 'best point ✓'. Left of it: 'both improving'. Right of it, in red: 'overfitting ✗ test loss rises: memorizing, not learning'." width="800"></p>
+<ul>
+<li class="fragment"><strong>Overfitting:</strong> training loss keeps falling while test loss <em>rises</em>. Stop near the <em>best point</em></li>
+<li class="fragment">The demo tracks <em>both</em> accuracies every epoch, so you can watch for this</li>
+</ul>
+<aside class="notes">
+<p>~2 min. This is an idealized sketch; in the short demo the gap stays small. The habit of evaluating on held-out data is the single most important ML-methodology idea for a non-ML audience.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="training-vs.-inference" class="slide level2">
+<h2>Training vs.&nbsp;Inference</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Training</strong></th>
+<th><strong>Inference</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Goal</td>
+<td><em>Find</em> good weights</td>
+<td><em>Use</em> the weights</td>
+</tr>
+<tr class="even">
+<td>Weights</td>
+<td>Change every step</td>
+<td><em>Fixed</em></td>
+</tr>
+<tr class="odd">
+<td>Steps</td>
+<td>Forward, loss, backward, update</td>
+<td><em>Forward pass only</em></td>
+</tr>
+<tr class="even">
+<td>Gradients needed?</td>
+<td>Yes</td>
+<td><em>No</em></td>
+</tr>
+<tr class="odd">
+<td>How often</td>
+<td>Once (weeks, often thousands of GPUs)</td>
+<td>Every time someone <em>uses</em> the model</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<ul>
+<li class="fragment">Every photo tagged, song recommended, or chatbot reply is <em>inference</em> on an <em>already-trained</em> model</li>
+<li class="fragment"><strong>The course’s focus is inference:</strong> start from a model and run its forward pass on the GPU. Training appears only in today’s demo</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Point out the scale asymmetry: training is expensive but happens rarely; inference is cheaper per call but happens billions of times, which is why fast GPU inference is a big industry concern (and why Module 7’s capstone is an inference-style workload).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-this-is-a-gpu-problem" class="slide level2">
+<h2>Why This Is a GPU Problem</h2>
+<ul>
+<li class="fragment">Every step of training and inference is something you’ve already put on a GPU:</li>
+</ul>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Network piece</th>
+<th>GPU pattern</th>
+<th>Where you saw it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear layer (forward <em>and</em> backward)</td>
+<td><em>Matrix multiply</em></td>
+<td>Lab 9 tiled kernel; CuPy <code>@</code> → cuBLAS (Nov 16)</td>
+</tr>
+<tr class="even">
+<td>Adding the bias</td>
+<td><em>Broadcast</em> add</td>
+<td>Module 0; CuPy <code>keepdims</code></td>
+</tr>
+<tr class="odd">
+<td>ReLU, weight update</td>
+<td><em>Element-wise</em> map</td>
+<td>Module 2’s first kernels</td>
+</tr>
+<tr class="even">
+<td>Softmax, loss average</td>
+<td><em>Reductions</em> (max, sum)</td>
+<td>Module 5; CK-12</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Batches</em> make the matrices big, and big matrices are where a GPU’s thousands of cores pay off</li>
+<li class="fragment">So: neural networks are the <em>biggest single reason</em> GPUs are in such demand (Module 1’s pitch, made concrete)</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Closing the core of Part 1: reframe everything they learned this semester as the building blocks of ML.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="beyond-this-network" class="slide level2">
+<h2>Beyond This Network</h2>
+<ul>
+<li class="fragment">What we built is a <strong>multilayer perceptron</strong> (MLP): Linear, ReLU, Linear. Real systems use the <em>same ingredients</em> in other arrangements:
+<ul>
+<li class="fragment"><strong>Convolutional networks (CNNs)</strong> for images: small weight templates <em>slid across</em> the 2D image, a <em>stencil</em> (Lab 7’s blur!) with learned weights</li>
+<li class="fragment"><strong>Transformers</strong> for language (the “T” in GPT): <em>attention</em> scores every word against every other word, which is a <em>matmul</em> plus a <em>softmax</em></li>
+<li class="fragment"><strong>Embeddings</strong> turn words, songs, or users into vectors: the capstone’s input</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<ul>
+<li class="fragment">Different architectures, <em>same GPU workload</em>: matmuls, element-wise ops, reductions. That’s why one GPU skill set covers all of them</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Recognition only, no details. The CNN-as-learned-stencil and attention-as-matmul-plus-softmax connections are deliberately chosen to reuse course vocabulary. The Dec 2 lecture (ML inference on GPU, LLM connection) picks up the transformer thread.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="part-1-vocabulary" class="slide level2">
+<h2>Part 1 Vocabulary</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>One-line meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>parameter / weight</td>
+<td>a learned number inside the model</td>
+</tr>
+<tr class="even">
+<td>neuron</td>
+<td>weighted sum + bias (a dot product)</td>
+</tr>
+<tr class="odd">
+<td>layer (Linear)</td>
+<td>many neurons at once = a matmul</td>
+</tr>
+<tr class="even">
+<td>ReLU</td>
+<td>negatives → 0; the “bend” between layers</td>
+</tr>
+<tr class="odd">
+<td>forward pass</td>
+<td>run input through all layers, in order</td>
+</tr>
+<tr class="even">
+<td>logits / softmax</td>
+<td>raw scores / scores turned into probabilities</td>
+</tr>
+<tr class="odd">
+<td>loss</td>
+<td>one number: how wrong the guesses were</td>
+</tr>
+<tr class="even">
+<td>gradient</td>
+<td>per weight: which way, and how steeply, the loss changes</td>
+</tr>
+<tr class="odd">
+<td>backpropagation</td>
+<td>computing all gradients by walking the chain backward</td>
+</tr>
+<tr class="even">
+<td>learning rate</td>
+<td>step size of each update</td>
+</tr>
+<tr class="odd">
+<td>batch / epoch</td>
+<td>examples per step / one pass over all the data</td>
+</tr>
+<tr class="even">
+<td>training / inference</td>
+<td>finding the weights / using them</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>~1 min. A reference slide for studying; don’t read it aloud. Good place to pause for questions before switching to code.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-2-pytorch" class="title-slide slide level1 center">
+<h1>Part 2 · PyTorch</h1>
+
+</section>
 <section id="where-pytorch-fits" class="slide level2">
 <h2>Where PyTorch Fits</h2>
 <ul>
 <li class="fragment">CuPy (Nov 16) is a <em>general-purpose</em> GPU array library: most things you’d do with NumPy</li>
-<li class="fragment"><strong>PyTorch</strong> is built for <em>machine learning</em>: defining neural networks, <em>running</em> them, and <em>training</em> them</li>
+<li class="fragment"><strong>PyTorch</strong> is built for <em>neural networks</em>: ready-made layers, the forward pass, and the <em>training</em> machinery (gradients) from Part 1</li>
 </ul>
 <div class="fragment">
 <ul>
-<li class="fragment">Modern AI models (image generators, recommendation systems, chatbots) are built and run with libraries like PyTorch, <em>on GPUs</em>: a big part of <em>why GPU programming is in demand</em> (Module 1’s pitch, made concrete)</li>
-<li class="fragment">This course takes a <em>narrow slice</em>: move data to the GPU and run a model’s <em>forward pass</em>. <em>Training</em> from scratch is its own, much longer topic</li>
+<li class="fragment">You <em>could</em> write today’s network in CuPy with <code>@</code>, <code>+</code> and <code>cp.maximum(z, 0)</code>. PyTorch saves you from that and adds <em>autograd</em> for training</li>
+<li class="fragment">This course takes a <em>narrow slice</em>: move data to the GPU and run a model’s <em>forward pass</em></li>
 </ul>
 <aside class="notes">
 <p>~2 min. Set expectations explicitly: this is one lecture and one lab exercise, not a machine-learning course. The goal is recognizing the GPU-programming ideas (device transfer, GPU execution) inside a tool students will likely encounter again, not becoming a PyTorch expert.</p>
@@ -835,16 +1658,16 @@ expected prints; re-run on Colab before class if in doubt.
 </section>
 <section id="tensors-pytorchs-array-type" class="slide level2">
 <h2>Tensors: PyTorch’s Array Type</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a></a><span class="im">import</span> torch</span>
-<span id="cb10-2"><a></a></span>
-<span id="cb10-3"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)          <span class="co"># 32 samples, 128 features each</span></span>
-<span id="cb10-4"><a></a><span class="bu">print</span>(x_cpu.shape, x_cpu.device)</span>
-<span id="cb10-5"><a></a></span>
-<span id="cb10-6"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)              <span class="co"># host → device</span></span>
-<span id="cb10-7"><a></a><span class="bu">print</span>(x_gpu.device)</span>
-<span id="cb10-8"><a></a></span>
-<span id="cb10-9"><a></a>x_back <span class="op">=</span> x_gpu.cpu()                  <span class="co"># device → host</span></span>
-<span id="cb10-10"><a></a><span class="bu">print</span>(x_back.device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="im">import</span> torch</span>
+<span id="cb13-2"><a></a></span>
+<span id="cb13-3"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)          <span class="co"># a batch: 32 inputs, 128 features each</span></span>
+<span id="cb13-4"><a></a><span class="bu">print</span>(x_cpu.shape, x_cpu.device)</span>
+<span id="cb13-5"><a></a></span>
+<span id="cb13-6"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)              <span class="co"># host → device</span></span>
+<span id="cb13-7"><a></a><span class="bu">print</span>(x_gpu.device)</span>
+<span id="cb13-8"><a></a></span>
+<span id="cb13-9"><a></a>x_back <span class="op">=</span> x_gpu.cpu()                  <span class="co"># device → host</span></span>
+<span id="cb13-10"><a></a><span class="bu">print</span>(x_back.device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p><strong>Output:</strong></p>
 <pre><code>torch.Size([32, 128]) cpu
@@ -901,34 +1724,70 @@ cpu</code></pre>
       }</style></aside>
 </div>
 </section>
+<section id="a-linear-layer-really-is-a-matmul" class="slide level2">
+<h2>A Linear Layer Really Is a Matmul</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a>layer <span class="op">=</span> nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>)                 <span class="co"># 64 neurons, 128 inputs each</span></span>
+<span id="cb15-4"><a></a><span class="bu">print</span>(layer.weight.shape, layer.bias.shape)</span>
+<span id="cb15-5"><a></a></span>
+<span id="cb15-6"><a></a>x <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)</span>
+<span id="cb15-7"><a></a>by_hand <span class="op">=</span> x <span class="op">@</span> layer.weight.T <span class="op">+</span> layer.bias  <span class="co"># Part 1's formula</span></span>
+<span id="cb15-8"><a></a><span class="bu">print</span>(torch.allclose(layer(x), by_hand))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong></p>
+<pre><code>torch.Size([64, 128]) torch.Size([64])
+True</code></pre>
+<ul>
+<li class="fragment">The weights are <em>one row per neuron</em>, <code>(64, 128)</code>, hence the <code>.T</code></li>
+<li class="fragment"><code>nn.Linear</code> creates its weights <em>randomly</em>. A trained model’s would come from training</li>
+</ul>
+<aside class="notes">
+<p>~2 min. The payoff of Part 1: the PyTorch layer is literally X Wᵀ + b. <code>layer(x)</code> (calling the layer like a function) runs its forward pass. allclose rather than == because the two paths may round float32 slightly differently.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
 <section id="autograd-what-it-is" class="slide level2">
 <h2>Autograd: What It Is</h2>
 <ul>
-<li class="fragment">PyTorch’s other big feature is <strong>autograd</strong>: <em>automatic differentiation</em></li>
-<li class="fragment">Training needs the <em>gradient</em>: how much the output changes if you <em>nudge each parameter</em> slightly. That tells you which way to adjust the model</li>
+<li class="fragment">Training (Part 1) needs the <em>gradient</em> of the loss for <em>every</em> weight. For millions of weights, working that out by hand is hopeless</li>
+<li class="fragment">PyTorch’s <strong>autograd</strong> (<em>automatic differentiation</em>) does it for you</li>
 </ul>
 <div class="fragment">
 <ul>
 <li class="fragment">Autograd <em>records every operation</em> on a tensor that has <code>requires_grad=True</code></li>
-<li class="fragment">Then <code>.backward()</code> walks that record <em>backwards</em>, applying the <em>chain rule</em> to get every gradient</li>
+<li class="fragment">Then <code>.backward()</code> walks that record <em>backwards</em>, applying the <em>chain rule</em> to get every gradient: the red backward pass in Part 1’s backprop figure, done for you</li>
 </ul>
 </div>
 </section>
 <section class="slide level2">
 
 <p>A tiny example, for recognition only:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a></a>w <span class="op">=</span> torch.tensor(<span class="fl">3.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb12-2"><a></a>y <span class="op">=</span> w <span class="op">*</span> w            <span class="co"># y = w², and autograd records the multiply</span></span>
-<span id="cb12-3"><a></a>y.backward()         <span class="co"># dy/dw = 2w</span></span>
-<span id="cb12-4"><a></a><span class="bu">print</span>(w.grad)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a>w <span class="op">=</span> torch.tensor(<span class="fl">3.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-2"><a></a>y <span class="op">=</span> w <span class="op">*</span> w            <span class="co"># y = w², and autograd records the multiply</span></span>
+<span id="cb17-3"><a></a>y.backward()         <span class="co"># dy/dw = 2w</span></span>
+<span id="cb17-4"><a></a><span class="bu">print</span>(w.grad)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p><strong>Output:</strong></p>
 <pre><code>tensor(6.)</code></pre>
 </div>
 <div class="fragment">
-<p>This course <em>doesn’t train models</em>: we only run <em>already-trained</em> ones. Next slide: why that means turning autograd <em>off</em>.</p>
+<ul>
+<li class="fragment">In the fog analogy: at <code>w = 3</code>, the ground slopes <em>upward</em> with steepness 6, so a training step would <em>decrease</em> <code>w</code></li>
+<li class="fragment">This course <em>doesn’t train</em>: we only run <em>already-trained</em> models. Next slide: why that means turning autograd <em>off</em></li>
+</ul>
 <aside class="notes">
-<p>~3 min. Deliberately conceptual — students won’t write autograd code in this course. The goal is recognizing the term and roughly what problem it solves, since “autograd” is schedule.md’s own committed sub-topic and a term students will encounter constantly if they go further with PyTorch.</p>
+<p>~3 min. Deliberately conceptual — students won’t write autograd code in this course. The goal is recognizing the term and connecting it to the “gradient” step from Part 1, since “autograd” is schedule.md’s own committed sub-topic and a term students will encounter constantly if they go further with PyTorch.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -944,12 +1803,12 @@ cpu</code></pre>
 </section>
 <section id="inference-running-a-model-without-training-it" class="slide level2">
 <h2>Inference: Running a Model Without Training It</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a></a><span class="cf">with</span> torch.no_grad():           <span class="co"># autograd off: we're not training</span></span>
-<span id="cb14-2"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)   <span class="co"># the forward pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="cf">with</span> torch.no_grad():           <span class="co"># autograd off: we're not training</span></span>
+<span id="cb19-2"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)   <span class="co"># the forward pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li class="fragment"><strong>Inference</strong> = running a model to get its output, <em>without changing the model</em>: a trained classifier <em>labelling a new photo</em>, a recommender <em>scoring a new user</em></li>
-<li class="fragment"><code>torch.no_grad()</code> turns autograd <em>off</em> inside the block: no gradient needed, so recording the computation would only cost <em>memory and time</em></li>
-<li class="fragment">This line is the difference between <em>“just get the answer”</em> (inference, what we do) and <em>“prepare to compute gradients”</em> (training, what we don’t)</li>
+<li class="fragment"><strong>Inference</strong> = forward pass only, <em>weights fixed</em> (Part 1’s right-hand panel)</li>
+<li class="fragment">By default, the model’s weights have <code>requires_grad=True</code>, so autograd would <em>record</em> the whole forward pass, just in case you call <code>.backward()</code></li>
+<li class="fragment"><code>torch.no_grad()</code> turns that recording <em>off</em> inside the block: we’ll never call <code>.backward()</code>, so the record would only cost <em>memory and time</em></li>
 </ul>
 <aside class="notes">
 <p>~2 min. Tie directly back to the previous slide: autograd is a real, powerful feature — and the correct move whenever you’re <em>not</em> training is to explicitly disable it. This is the practical payoff of understanding autograd conceptually, even without using it.</p>
@@ -967,29 +1826,29 @@ cpu</code></pre>
 </section>
 <section id="a-complete-forward-pass" class="slide level2">
 <h2>A Complete Forward Pass</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-code-line-numbers="|7-11|11|13|15|16-17|19-20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a><span class="im">import</span> torch</span>
-<span id="cb15-2"><a></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
-<span id="cb15-3"><a></a></span>
-<span id="cb15-4"><a></a>torch.manual_seed(<span class="dv">12</span>)</span>
-<span id="cb15-5"><a></a></span>
-<span id="cb15-6"><a></a><span class="co"># A tiny 2-layer network: imagine it's a pretrained classifier</span></span>
-<span id="cb15-7"><a></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb15-8"><a></a>    nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
-<span id="cb15-9"><a></a>    nn.ReLU(),</span>
-<span id="cb15-10"><a></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">10</span>),</span>
-<span id="cb15-11"><a></a>).to(<span class="st">'cuda'</span>)                      <span class="co"># move the model's weights to the GPU</span></span>
-<span id="cb15-12"><a></a></span>
-<span id="cb15-13"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)      <span class="co"># 32 samples, 128 features each</span></span>
-<span id="cb15-14"><a></a></span>
-<span id="cb15-15"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)          <span class="co"># move the input to the GPU</span></span>
-<span id="cb15-16"><a></a><span class="cf">with</span> torch.no_grad():</span>
-<span id="cb15-17"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)     <span class="co"># forward pass, entirely on the GPU</span></span>
-<span id="cb15-18"><a></a></span>
-<span id="cb15-19"><a></a>logits_cpu <span class="op">=</span> logits_gpu.cpu()     <span class="co"># bring the result back</span></span>
-<span id="cb15-20"><a></a><span class="bu">print</span>(logits_cpu.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-code-line-numbers="|7-11|11|13|15|16-17|19-20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a></a><span class="im">import</span> torch</span>
+<span id="cb20-2"><a></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb20-3"><a></a></span>
+<span id="cb20-4"><a></a>torch.manual_seed(<span class="dv">12</span>)</span>
+<span id="cb20-5"><a></a></span>
+<span id="cb20-6"><a></a><span class="co"># Part 1's network: imagine its weights came from training</span></span>
+<span id="cb20-7"><a></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb20-8"><a></a>    nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
+<span id="cb20-9"><a></a>    nn.ReLU(),</span>
+<span id="cb20-10"><a></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">10</span>),</span>
+<span id="cb20-11"><a></a>).to(<span class="st">'cuda'</span>)                      <span class="co"># move the model's weights to the GPU</span></span>
+<span id="cb20-12"><a></a></span>
+<span id="cb20-13"><a></a>x_cpu <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">128</span>)      <span class="co"># 32 inputs, 128 features each</span></span>
+<span id="cb20-14"><a></a></span>
+<span id="cb20-15"><a></a>x_gpu <span class="op">=</span> x_cpu.to(<span class="st">'cuda'</span>)          <span class="co"># move the input to the GPU</span></span>
+<span id="cb20-16"><a></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb20-17"><a></a>    logits_gpu <span class="op">=</span> model(x_gpu)     <span class="co"># forward pass, entirely on the GPU</span></span>
+<span id="cb20-18"><a></a></span>
+<span id="cb20-19"><a></a>logits_cpu <span class="op">=</span> logits_gpu.cpu()     <span class="co"># bring the result back</span></span>
+<span id="cb20-20"><a></a><span class="bu">print</span>(logits_cpu.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>Output:</strong> <code>torch.Size([32, 10])</code></p>
 <aside class="notes">
-<p>~4 min across the three sub-slides. Click through: the model, the model’s .to(‘cuda’), the input, the input’s .to(‘cuda’), the forward pass, the result coming back. This is the exact code Lab 12 Exercise 5 has students complete.</p>
+<p>~4 min across the three sub-slides. Click through: the model, the model’s .to(‘cuda’), the input, the input’s .to(‘cuda’), the forward pass, the result coming back. This is the exact code Lab 12 Exercise 5 has students complete. The weights here are random (nothing was trained), so the outputs are meaningless numbers — but the GPU work is identical to running a real trained model.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1005,10 +1864,10 @@ cpu</code></pre>
 <section class="slide level2">
 
 <ul>
-<li class="fragment"><strong>Lines 7–11:</strong> <code>nn.Sequential</code> <em>chains layers</em>: a linear layer (<em>128 → 64</em>), a <em>ReLU</em> (negatives become 0), and a second linear layer (<em>64 → 10</em>, e.g.&nbsp;10 class scores)</li>
+<li class="fragment"><strong>Lines 7–11:</strong> <code>nn.Sequential</code> <em>chains layers</em> in order: exactly Part 1’s table (<em>128 → 64</em>, ReLU, <em>64 → 10</em>)</li>
 <li class="fragment"><strong>Lines 11 and 15:</strong> <em>both</em> the model’s weights <em>and</em> the input must be on the GPU before <code>model(x_gpu)</code> runs</li>
 <li class="fragment"><strong>Lines 16–17:</strong> the forward pass, inside <em><code>no_grad()</code></em></li>
-<li class="fragment"><strong>Lines 19–20:</strong> <code>.cpu()</code> brings the <em>(32, 10)</em> result back</li>
+<li class="fragment"><strong>Lines 19–20:</strong> <code>.cpu()</code> brings the <em>(32, 10)</em> logits back</li>
 <li class="fragment"><em>Lab 12 Exercise 5</em>: your three <code># YOUR CODE HERE</code> lines are the input’s <code>.to('cuda')</code>, the forward pass, and the <code>.cpu()</code></li>
 </ul>
 <div class="fragment">
@@ -1020,15 +1879,347 @@ but found at least two devices, cuda:0 and cpu!</code></pre>
 <section class="slide level2">
 
 
-<img data-src="diags/forward-pass-shapes.svg" alt="Two regions: a CPU column on the left and a dashed GPU region on the right. On the CPU side, a gray box 'x_cpu (32, 128)' has a thick blue arrow labeled &quot;.to('cuda')&quot; to a gray box 'x_gpu (32, 128)' at the top of the GPU region. Inside the GPU region, boxes go down in a column joined by arrows: 'x_gpu (32, 128)', purple 'Linear: 128 → 64', gray '(32, 64)', purple 'ReLU: negatives → 0', gray '(32, 64)', purple 'Linear: 64 → 10', and green 'logits_gpu (32, 10)'. A purple bracket beside the three purple layer boxes says &quot;model: its weights live here too, after model.to('cuda')&quot;. From logits_gpu, a thick blue arrow labeled '.cpu()' goes left to a green box 'logits_cpu (32, 10)' on the CPU side." width="820" class="r-stretch"><p>The <em>32 rows</em> (samples) never change; each layer changes <em>how many numbers describe each sample</em>.</p>
+<img data-src="diags/forward-pass-shapes.svg" alt="Two regions: a CPU column on the left and a dashed GPU region on the right. On the CPU side, a gray box 'x_cpu (32, 128)' has a thick blue arrow labeled &quot;.to('cuda')&quot; to a gray box 'x_gpu (32, 128)' at the top of the GPU region. Inside the GPU region, boxes go down in a column joined by arrows: 'x_gpu (32, 128)', purple 'Linear: 128 → 64', gray '(32, 64)', purple 'ReLU: negatives → 0', gray '(32, 64)', purple 'Linear: 64 → 10', and green 'logits_gpu (32, 10)'. A purple bracket beside the three purple layer boxes says &quot;model: its weights live here too, after model.to('cuda')&quot;. From logits_gpu, a thick blue arrow labeled '.cpu()' goes left to a green box 'logits_cpu (32, 10)' on the CPU side." width="820" class="r-stretch"><p>The <em>32 rows</em> (inputs) never change; each layer changes <em>how many numbers describe each input</em>.</p>
+</section>
+<section id="from-logits-to-predictions" class="slide level2">
+<h2>From Logits to Predictions</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a></a>preds <span class="op">=</span> logits_cpu.argmax(dim<span class="op">=</span><span class="dv">1</span>)   <span class="co"># biggest score in each row</span></span>
+<span id="cb22-2"><a></a><span class="bu">print</span>(preds.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong> <code>torch.Size([32])</code></p>
+<ul>
+<li class="fragment"><em>One predicted class per input</em>. <code>dim=1</code> means “across each row”, the same as <code>axis=1</code> in NumPy and CuPy</li>
+<li class="fragment">With random weights these predictions are meaningless; with <em>trained</em> weights, this is the model’s answer</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Optional if short on time. Shows the last step of Part 1’s “scores out” slide in code, and reinforces the axis/keepdims material from Nov 16.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="demo-training-a-network-on-real-data" class="slide level2">
+<h2>Demo: Training a Network on Real Data</h2>
+<ul>
+<li class="fragment">One time only, we’ll <em>train</em>: Part 1’s four-step loop, on <em>real handwritten digits</em></li>
+<li class="fragment"><strong>MNIST:</strong> 28 × 28 grayscale images of the digits 0–9. Colab ships a copy in <em><code>/content/sample_data/</code></em>, so there’s nothing to download</li>
+<li class="fragment"><em>Watch, don’t memorize:</em> this demo isn’t in the lab, checkpoint, or exams. The goal is to see the training loop and inference <em>actually work</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min intro; whole demo ~15 min. Run it live in a fresh Colab GPU runtime (Runtime → Change runtime type → T4). Run all the cells once before class too: it confirms the outputs, and loading the CSVs takes a few seconds. Ungraded and outside C6.2 (inference only), so no competency-map entry.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="demo-step-1-load-the-data-onto-the-gpu" class="slide level2">
+<h2>Demo Step 1: Load the Data onto the GPU</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np, torch, torch.nn <span class="im">as</span> nn</span>
+<span id="cb23-2"><a></a></span>
+<span id="cb23-3"><a></a>tr <span class="op">=</span> np.loadtxt(<span class="st">'/content/sample_data/mnist_train_small.csv'</span>, delimiter<span class="op">=</span><span class="st">','</span>, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb23-4"><a></a>te <span class="op">=</span> np.loadtxt(<span class="st">'/content/sample_data/mnist_test.csv'</span>,        delimiter<span class="op">=</span><span class="st">','</span>, dtype<span class="op">=</span>np.float32)</span>
+<span id="cb23-5"><a></a></span>
+<span id="cb23-6"><a></a><span class="co"># column 0 = the digit (label); columns 1-784 = pixels 0-255, scaled to 0-1</span></span>
+<span id="cb23-7"><a></a>X_tr <span class="op">=</span> torch.from_numpy(tr[:, <span class="dv">1</span>:] <span class="op">/</span> <span class="dv">255</span>).to(<span class="st">'cuda'</span>)</span>
+<span id="cb23-8"><a></a>y_tr <span class="op">=</span> torch.from_numpy(tr[:, <span class="dv">0</span>]).<span class="bu">long</span>().to(<span class="st">'cuda'</span>)</span>
+<span id="cb23-9"><a></a>X_te <span class="op">=</span> torch.from_numpy(te[:, <span class="dv">1</span>:] <span class="op">/</span> <span class="dv">255</span>).to(<span class="st">'cuda'</span>)</span>
+<span id="cb23-10"><a></a>y_te <span class="op">=</span> torch.from_numpy(te[:, <span class="dv">0</span>]).<span class="bu">long</span>().to(<span class="st">'cuda'</span>)</span>
+<span id="cb23-11"><a></a><span class="bu">print</span>(X_tr.shape, X_te.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong> <code>torch.Size([20000, 784]) torch.Size([10000, 784])</code></p>
+<ul>
+<li class="fragment">Each image is <em>784 numbers</em>, one row per image: Part 1’s “everything becomes numbers”</li>
+<li class="fragment"><em>20,000</em> training images to learn from; <em>10,000 test images</em> the model never trains on, to check it honestly</li>
+<li class="fragment">The whole dataset is about <em>60 MB</em>, so we copy it to the GPU <em>once</em>, not once per batch (Module 2: host↔︎device copies are slow)</li>
+</ul>
+<aside class="notes">
+<p>~1.5 min. <code>.long()</code> because PyTorch’s classification loss wants integer class labels. Dividing by 255 keeps the inputs small (0 to 1); training is much less stable on raw 0-255 values. Holding out a test set is the one ML-methodology idea worth naming: a model can memorize its training examples, so we judge it only on images it has never seen.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="demo-step-2-what-does-the-data-look-like" class="slide level2">
+<h2>Demo Step 2: What Does the Data Look Like?</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb24-2"><a></a></span>
+<span id="cb24-3"><a></a><span class="kw">def</span> show(X, y, preds<span class="op">=</span><span class="va">None</span>, n<span class="op">=</span><span class="dv">8</span>):</span>
+<span id="cb24-4"><a></a>    <span class="co">"""Draw the first n images; title each with its label, or with a guess."""</span></span>
+<span id="cb24-5"><a></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, n, figsize<span class="op">=</span>(<span class="dv">2</span> <span class="op">*</span> n, <span class="fl">2.4</span>))</span>
+<span id="cb24-6"><a></a>    <span class="cf">for</span> k, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb24-7"><a></a>        ax.imshow(X[k].cpu().numpy().reshape(<span class="dv">28</span>, <span class="dv">28</span>), cmap<span class="op">=</span><span class="st">'gray_r'</span>)  <span class="co"># 784 → 28×28</span></span>
+<span id="cb24-8"><a></a>        ax.axis(<span class="st">'off'</span>)</span>
+<span id="cb24-9"><a></a>        <span class="cf">if</span> preds <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb24-10"><a></a>            ax.set_title(<span class="ss">f"label: </span><span class="sc">{</span>y[k]<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb24-11"><a></a>        <span class="cf">else</span>:</span>
+<span id="cb24-12"><a></a>            ok <span class="op">=</span> preds[k].item() <span class="op">==</span> y[k].item()</span>
+<span id="cb24-13"><a></a>            ax.set_title(<span class="ss">f"guess </span><span class="sc">{</span>preds[k]<span class="sc">.</span>item()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="st">'right'</span> <span class="cf">if</span> ok <span class="cf">else</span> <span class="st">'WRONG'</span><span class="sc">}</span><span class="ss">)"</span>,</span>
+<span id="cb24-14"><a></a>                         color<span class="op">=</span><span class="st">'green'</span> <span class="cf">if</span> ok <span class="cf">else</span> <span class="st">'red'</span>)</span>
+<span id="cb24-15"><a></a>    plt.show()</span>
+<span id="cb24-16"><a></a></span>
+<span id="cb24-17"><a></a>show(X_te, y_te)              <span class="co"># the first 8 test images, with their true labels</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Output:</em> a row of 8 small handwritten digits, each titled with its <em>true label</em></li>
+<li class="fragment"><code>reshape(28, 28)</code> <em>undoes the flattening</em>: the model sees a row of 784 numbers, we see a picture</li>
+<li class="fragment"><code>.cpu()</code> first: <em>matplotlib can’t read GPU memory</em>, the same host↔︎device rule as everywhere else</li>
+<li class="fragment"><code>show</code> takes optional <code>preds</code>: we’ll <em>reuse it</em> to see the model’s guesses on these same 8 images</li>
+</ul>
+<aside class="notes">
+<p>~1.5 min. Run live; the picture is the point. Ask: “how would you write rules by hand to tell a 4 from a 9?” Nobody can, which is exactly why we learn the weights from examples instead (Part 1’s “nobody types the weights in by hand”). gray_r draws ink dark on white. Titles say right/WRONG in words as well as green/red, so they don’t rely on color alone.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="demo-step-3-the-model-before-training" class="slide level2">
+<h2>Demo Step 3: The Model, Before Training</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb25-2"><a></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb25-3"><a></a>    nn.Linear(<span class="dv">784</span>, <span class="dv">64</span>),           <span class="co"># was 128 → 64: each input is now 784 pixels</span></span>
+<span id="cb25-4"><a></a>    nn.ReLU(),</span>
+<span id="cb25-5"><a></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">10</span>),            <span class="co"># 10 logits: one per digit</span></span>
+<span id="cb25-6"><a></a>).to(<span class="st">'cuda'</span>)</span>
+<span id="cb25-7"><a></a></span>
+<span id="cb25-8"><a></a><span class="kw">def</span> accuracy(X, y):</span>
+<span id="cb25-9"><a></a>    <span class="cf">with</span> torch.no_grad():                         <span class="co"># inference: autograd off</span></span>
+<span id="cb25-10"><a></a>        preds <span class="op">=</span> model(X).argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb25-11"><a></a>        <span class="cf">return</span> (preds <span class="op">==</span> y).<span class="bu">float</span>().mean().item() <span class="co"># fraction correct</span></span>
+<span id="cb25-12"><a></a></span>
+<span id="cb25-13"><a></a><span class="bu">print</span>(<span class="ss">f"before training: </span><span class="sc">{</span>accuracy(X_te, y_te)<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong> about <code>0.1</code></p>
+<ul>
+<li class="fragment"><em>Random weights, random guesses:</em> 1 right out of every 10 digits</li>
+<li class="fragment"><code>accuracy</code> is exactly the <em>forward pass + argmax</em> from earlier today</li>
+</ul>
+<aside class="notes">
+<p>~1 min. The exact before-training number depends on the random weights (often between 0.05 and 0.15); the point is it’s near chance. Ask the room “what would random guessing score?” before revealing it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-untrained-models-guesses" class="slide level2">
+<h2>The Untrained Model’s Guesses</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a></a><span class="kw">def</span> predict(X):</span>
+<span id="cb26-2"><a></a>    <span class="cf">with</span> torch.no_grad():                 <span class="co"># inference</span></span>
+<span id="cb26-3"><a></a>        <span class="cf">return</span> model(X).argmax(dim<span class="op">=</span><span class="dv">1</span>)     <span class="co"># forward pass + argmax</span></span>
+<span id="cb26-4"><a></a></span>
+<span id="cb26-5"><a></a>show(X_te, y_te, predict(X_te[:<span class="dv">8</span>]))       <span class="co"># same 8 images as before</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Output:</em> the same 8 digits, now titled with the model’s <em>guesses</em>. Expect <em>mostly WRONG</em>, maybe one or two right <em>by luck</em></li>
+<li class="fragment">The guesses often <em>repeat the same digit</em>: random weights tend to favor one class</li>
+<li class="fragment">This <em>is</em> inference: a forward pass plus argmax. <em>The code is fine; the weights are useless</em></li>
+</ul>
+<aside class="notes">
+<p>~1 min. Leave this on screen for a moment: it sets up the payoff after training. With random weights, it’s common for most of the 8 guesses to be the same digit. Exact guesses depend on the seed; don’t promise any particular pattern.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="demo-step-4-the-training-loop" class="slide level2">
+<h2>Demo Step 4: The Training Loop</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-code-line-numbers="|1-3|5-8|9|10-11|12|13-14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a></a>loss_fn <span class="op">=</span> nn.CrossEntropyLoss()                        <span class="co"># how wrong? (cross-entropy)</span></span>
+<span id="cb27-2"><a></a>opt <span class="op">=</span> torch.optim.SGD(model.parameters(), lr<span class="op">=</span><span class="fl">0.1</span>)      <span class="co"># the "nudge" (lr = learning rate)</span></span>
+<span id="cb27-3"><a></a>history <span class="op">=</span> []                                           <span class="co"># accuracy after each epoch</span></span>
+<span id="cb27-4"><a></a></span>
+<span id="cb27-5"><a></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):                                <span class="co"># 10 passes over the data</span></span>
+<span id="cb27-6"><a></a>    perm <span class="op">=</span> torch.randperm(<span class="bu">len</span>(X_tr), device<span class="op">=</span><span class="st">'cuda'</span>)    <span class="co"># shuffle the order</span></span>
+<span id="cb27-7"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(X_tr), <span class="dv">64</span>):                  <span class="co"># batches of 64 images</span></span>
+<span id="cb27-8"><a></a>        idx <span class="op">=</span> perm[i:i <span class="op">+</span> <span class="dv">64</span>]</span>
+<span id="cb27-9"><a></a>        loss <span class="op">=</span> loss_fn(model(X_tr[idx]), y_tr[idx])    <span class="co"># 1. forward  2. loss</span></span>
+<span id="cb27-10"><a></a>        opt.zero_grad()                                <span class="co"># clear last batch's gradients</span></span>
+<span id="cb27-11"><a></a>        loss.backward()                                <span class="co"># 3. backward (autograd)</span></span>
+<span id="cb27-12"><a></a>        opt.step()                                     <span class="co"># 4. update every weight</span></span>
+<span id="cb27-13"><a></a>    history.append((epoch, accuracy(X_tr, y_tr), accuracy(X_te, y_te)))</span>
+<span id="cb27-14"><a></a>    <span class="bu">print</span>(<span class="ss">f"epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">: train acc </span><span class="sc">{</span>history[<span class="op">-</span><span class="dv">1</span>][<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">  test acc </span><span class="sc">{</span>history[<span class="op">-</span><span class="dv">1</span>][<span class="dv">2</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li class="fragment"><em>Lines 9–12 are the training-loop figure</em>, one line per box. <code>lr=0.1</code> is the <em>size</em> of each downhill step</li>
+<li class="fragment">10 epochs × about 313 batches ≈ <em>3,100 trips</em> around the loop. Takes several seconds on the T4</li>
+<li class="fragment">After each epoch we record accuracy on <em>both</em> the training and the test images (Part 1’s train vs.&nbsp;test)</li>
+</ul>
+<aside class="notes">
+<p>~3 min. Click through the highlights and point back at the training-vs-inference figure for lines 9–12. Things to name: CrossEntropyLoss = softmax + −log(p) from the cross-entropy slide; SGD = “stochastic gradient descent”, the fog-walk with a random batch each step; zero_grad is needed because PyTorch adds new gradients onto old ones by default. Test accuracy should climb fast in the first epoch or two, then creep up.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="demo-watching-it-learn" class="slide level2">
+<h2>Demo: Watching It Learn</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a></a>epochs, train_acc, test_acc <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>history)</span>
+<span id="cb28-2"><a></a>plt.plot(epochs, train_acc, <span class="st">'o-'</span>,  label<span class="op">=</span><span class="st">'training images'</span>)</span>
+<span id="cb28-3"><a></a>plt.plot(epochs, test_acc,  <span class="st">'s--'</span>, label<span class="op">=</span><span class="st">'test images (never trained on)'</span>)</span>
+<span id="cb28-4"><a></a>plt.xlabel(<span class="st">'epoch'</span>)<span class="op">;</span> plt.ylabel(<span class="st">'accuracy'</span>)<span class="op">;</span> plt.legend()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Output:</em> two curves that <em>rise quickly, then level off</em>. Training accuracy usually ends a little <em>above</em> test accuracy</li>
+<li class="fragment">This is the <em>overfitting figure</em> from Part 1, flipped: accuracy goes <em>up</em> where loss goes <em>down</em></li>
+<li class="fragment">A <em>small gap</em> means the model is <em>learning</em>, not just memorizing. If test accuracy started <em>falling</em> while training kept rising, that would be overfitting</li>
+</ul>
+<aside class="notes">
+<p>~2 min. With 20,000 images and only 10 epochs, the gap typically stays small (a percentage point or two). Optional: rerun with range(50) after class to see whether the gap widens. Solid line with circles vs dashed with squares, so the two curves don’t rely on color.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="demo-step-5-test-it" class="slide level2">
+<h2>Demo Step 5: Test It</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a></a><span class="bu">print</span>(<span class="ss">f"after training: </span><span class="sc">{</span>accuracy(X_te, y_te)<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<p><strong>Output:</strong> typically around <code>0.95</code></p>
+<ul>
+<li class="fragment">From <em>10%</em> to about <em>95%</em> on 10,000 images it has <em>never seen</em>, with only <em>50,890</em> learned numbers and a few seconds of GPU time</li>
+<li class="fragment">After training, <em>using</em> the model is the same <code>no_grad()</code> forward pass as Lab 12 Exercise 5. <em>That’s inference</em></li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Try it yourself (optional):</em> time the training loop with <code>.to('cpu')</code> instead of <code>'cuda'</code>. A model this small may <em>not</em> be faster on the GPU: too little work per batch to keep thousands of cores busy (Module 2’s occupancy, Module 3’s timing)</li>
+</ul>
+<aside class="notes">
+<p>~1 min. Expect roughly 0.95–0.97 depending on the run; say “about 95%” rather than promising a number. Parameter count: 784×64 + 64 + 64×10 + 10 = 50,890. The CPU-vs-GPU point is a deliberate callback: GPUs win when there’s enough parallel work, and real models are thousands of times bigger than this one. Don’t time it live unless there’s spare time; it’s an invitation, not a task.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-same-8-images-after-training" class="slide level2">
+<h2>The Same 8 Images, After Training</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a></a>show(X_te, y_te, predict(X_te[:<span class="dv">8</span>]))       <span class="co"># identical call: only the weights changed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Output:</em> the same 8 digits, now <em>almost all right</em>. At about 95% accuracy, expect <em>7 or 8 of 8</em></li>
+<li class="fragment"><em>Nothing in the code changed</em> between the two pictures: same <code>model</code>, same <code>predict</code>. Training changed <em>only the weights</em></li>
+<li class="fragment">That’s Part 1 in one picture: the <em>structure</em> is fixed arithmetic; the <em>behavior</em> lives in the learned numbers</li>
+</ul>
+<aside class="notes">
+<p>~1 min. If one comes out WRONG, that’s a gift: look at the image together. It’s often a genuinely sloppy digit a person might also misread. Optional extension if there’s time: show(X_te[8:], …) for a different 8 (note: preds must line up, so call predict(X_te[8:16]) and show(X_te[8:16], y_te[8:16], …)).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="what-did-the-hidden-neurons-learn" class="slide level2">
+<h2>What Did the Hidden Neurons Learn?</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a></a>W <span class="op">=</span> model[<span class="dv">0</span>].weight.detach().cpu()           <span class="co"># (64, 784): one row per hidden neuron</span></span>
+<span id="cb31-2"><a></a>v <span class="op">=</span> W.<span class="bu">abs</span>().<span class="bu">max</span>().item()                     <span class="co"># one shared color scale</span></span>
+<span id="cb31-3"><a></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">8</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">4</span>))</span>
+<span id="cb31-4"><a></a><span class="cf">for</span> k, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes.flat):           <span class="co"># the first 16 of the 64 neurons</span></span>
+<span id="cb31-5"><a></a>    ax.imshow(W[k].reshape(<span class="dv">28</span>, <span class="dv">28</span>).numpy(), cmap<span class="op">=</span><span class="st">'RdBu'</span>, vmin<span class="op">=-</span>v, vmax<span class="op">=</span>v)</span>
+<span id="cb31-6"><a></a>    ax.axis(<span class="st">'off'</span>)</span>
+<span id="cb31-7"><a></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<ul>
+<li class="fragment"><em>Output:</em> 16 small 28 × 28 pictures. <em>Blue</em> = positive weight (“ink here <em>raises</em> my score”), <em>red</em> = negative (“ink here <em>lowers</em> it”)</li>
+<li class="fragment">These are the <strong>templates</strong> from Part 1’s “a neuron is a pattern detector”: blobby <em>strokes and fragments</em>, not clean digits. The output layer <em>combines</em> them</li>
+<li class="fragment"><code>.detach()</code> because the weights still have <code>requires_grad=True</code>; matplotlib needs a plain array</li>
+</ul>
+<aside class="notes">
+<p>~2 min. Students usually find this the most surprising slide: they’ve just seen that the “knowledge” of the model is literally these pictures. Before training these would be random speckle; worth showing by re-running the cell on a fresh untrained model if there’s interest. RdBu is a diverging, color-blind-friendlier palette; white = weight near 0 (that pixel doesn’t matter to this neuron, e.g.&nbsp;the image borders, where there’s never ink).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
 </section>
 <section id="key-takeaways-pytorch" class="slide level2">
 <h2>Key Takeaways: PyTorch</h2>
 <ul>
+<li class="fragment">A neural network is <em>layers of weighted sums</em> (matmuls) with <em>ReLU</em> in between; the <strong>forward pass</strong> runs data through them in order</li>
+<li class="fragment"><strong>Training</strong> <em>finds</em> the weights (forward, loss, gradients, update, repeat); <strong>inference</strong> <em>uses</em> them (forward pass only). We do inference</li>
 <li class="fragment">A <em>tensor</em> is PyTorch’s array. <em><code>.to('cuda')</code></em> and <em><code>.cpu()</code></em> are its host↔︎device copies</li>
 <li class="fragment"><em>Model and data</em> must both be on the GPU, or you get a <em>device-mismatch error</em></li>
-<li class="fragment"><em>Autograd</em> records operations so training can compute gradients</li>
-<li class="fragment">For inference, wrap the forward pass in <em><code>torch.no_grad()</code></em></li>
+<li class="fragment"><em>Autograd</em> computes gradients for training. For inference, wrap the forward pass in <em><code>torch.no_grad()</code></em></li>
 </ul>
 <aside class="notes">
 <p>~1 min.</p>
@@ -1052,7 +2243,7 @@ but found at least two devices, cuda:0 and cpu!</code></pre>
 <li class="fragment"><strong>Nov 23 (next lecture):</strong> the <em>wider GPU ecosystem</em> beyond CUDA, plus the <em>capstone kickoff</em></li>
 </ul>
 <aside class="notes">
-<p>~1 min. Quick pointer slide. No separate checkpoint preview here — PyTorch isn’t independently checkpointed this semester (see Nov 16’s Checkpoint Preview note).</p>
+<p>~1 min. Quick pointer slide. No separate checkpoint preview here — PyTorch isn’t independently checkpointed this semester (see Nov 16’s Checkpoint Preview note). EL-05 connects naturally to today’s “training takes weeks on thousands of GPUs” point.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
