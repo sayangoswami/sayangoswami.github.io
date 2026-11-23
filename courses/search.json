@@ -4862,7 +4862,7 @@
     "href": "cosc420/notes/index.html",
     "title": "COSC420 — Slides",
     "section": "",
-    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nPython Crash Course\n\n\n\n\n\n\n\n\n\nWhat Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\n\n\n\n\n\n\n\n\nLab 6: Python in Colab + Your First Spark Session\n\n\n\n\n\n\n\n\n\nLoading, Filtering, and Selecting Data\n\n\n\n\n\n\n\n\n\nGroupBy, Aggregation, Joins, and Actions\n\n\n\n\n\n\n\n\n\nLab 7: PySpark Transformations\n\n\n\n\n\n\n\n\n\nCheckpoint: PySpark Transformations\n\n\n\n\n\n\n\n\n\nWhy Distribute Data? Replication, Sharding, and Single Points of Failure\n\n\n\n\n\n\n\n\n\nThe CAP Theorem, Revisited for Storage\n\n\n\n\n\n\n\n\n\nLab 8: Spark on real data\n\n\n\n\n\n\n\n\n\nThe Storage Design Worksheet\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nEL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Lecture slide decks for COSC420.\n\n\n\n\n\n\n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\nProcesses vs. Threads\n\n\n\n\n\n\n\n\n\nLab 1: The Race Condition Game\n\n\n\n\n\n\n\n\n\nRace Conditions In Depth\n\n\n\n\n\n\n\n\n\nLab 2: Java Threading Exercises\n\n\n\n\n\n\n\n\n\nSynchronization, Locks, and Their Failure Modes\n\n\n\n\n\n\n\n\n\nThread Pools, ExecutorService\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nCheckpoint 1: Fix a Synchronization Bug\n\n\n\n\n\n\n\n\n\nReview\n\n\n\n\n\n\n\n\n\nWhat Makes Distributed Systems Hard\n\n\n\n\n\n\n\n\n\nThe CAP Theorem\n\n\n\n\n\n\n\n\n\nCase Study Discussion: A Real Network Partition\n\n\n\n\n\n\n\n\n\nClient-Server Model & What Happens When You Type a URL\n\n\n\n\n\n\n\n\n\nREST APIs: Anatomy of a Request & Response\n\n\n\n\n\n\n\n\n\nCheckpoint 2: Reading a REST API Response\n\n\n\n\n\n\n\n\n\nLab 3: Calling a REST API in Java\n\n\n\n\n\n\n\n\n\nBig Data and MapReduce\n\n\n\n\n\n\n\n\n\nHadoop: HDFS, YARN & MapReduce Architecture\n\n\n\n\n\n\n\n\n\nMidterm Review\n\n\n\n\n\n\n\n\n\nLab 4: Write Your Own MapReduce Job\n\n\n\n\n\n\n\n\n\nLab 5: End-to-End Hadoop — HDFS + MapReduce\n\n\n\n\n\n\n\n\n\nPython Crash Course\n\n\n\n\n\n\n\n\n\nWhat Is Spark? Architecture, RDDs vs. DataFrames, Lazy Evaluation\n\n\n\n\n\n\n\n\n\nLab 6: Python in Colab + Your First Spark Session\n\n\n\n\n\n\n\n\n\nLoading, Filtering, and Selecting Data\n\n\n\n\n\n\n\n\n\nGroupBy, Aggregation, Joins, and Actions\n\n\n\n\n\n\n\n\n\nLab 7: PySpark Transformations\n\n\n\n\n\n\n\n\n\nCheckpoint: PySpark Transformations\n\n\n\n\n\n\n\n\n\nWhy Distribute Data? Replication, Sharding, and Single Points of Failure\n\n\n\n\n\n\n\n\n\nThe CAP Theorem, Revisited for Storage\n\n\n\n\n\n\n\n\n\nLab 8: PySpark Analysis of a Real Dataset\n\n\n\n\n\n\n\n\n\nThe Storage Design Worksheet\n\n\n\n\n\n\n\n\n\nThe NoSQL Landscape\n\n\n\n\n\n\n\n\n\nMongoDB: Collections, Documents, and CRUD\n\n\n\n\n\n\n\n\n\nEL-01: EL1: Python Basics for Java Programmers\n\n\n\n\n\n\n\n\n\nEL2: Functions, Lists and Dictionaries: A Mini Ratings Pipeline\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "cosc420/notes/el1.html",
@@ -4907,67 +4907,165 @@
     "text": "Completion criteria\nEL1 is graded complete/incomplete. It’s complete if:\n\nthe notebook shows every exercise attempted. Each check cell shows ✅, or the exercise has a genuine attempt and a note saying where you got stuck;\nthe four short-answer questions (Exercises 3–6) and the two reflection questions are answered, even briefly.\n\nA wrong prediction in Exercise 1a is fine, since that exercise is about noticing surprises."
   },
   {
+    "objectID": "cosc420/notes/33.html#the-nosql-landscape",
+    "href": "cosc420/notes/33.html#the-nosql-landscape",
+    "title": "The NoSQL Landscape",
+    "section": "The NoSQL Landscape",
+    "text": "The NoSQL Landscape\n\nFull-session timing plan (50 min total):\n\n\n\nSlide\nTime\n\n\n\n\nRecap: Storage Design Is Solved — Now, What Software?\n3 min\n\n\nWhy Not Just a Relational Database?\n4 min\n\n\nThe NoSQL Landscape\n4 min\n\n\nDocument Stores\n4 min\n\n\nKey-Value Stores\n4 min\n\n\nPause & Discuss: A Shopping Cart in a Key-Value Store?\n4 min\n\n\nColumn-Family Stores\n4 min\n\n\nGraph Databases\n4 min\n\n\nChoosing the Right Type\n5 min\n\n\nNoSQL vs. Relational — The Real Trade-off\n4 min\n\n\nBridge: MongoDB, Specifically\n3 min\n\n\n\n11 slides, ~43 min, leaving ~7 min of slack."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#recap-storage-design-is-solved-now-what-software",
+    "href": "cosc420/notes/33.html#recap-storage-design-is-solved-now-what-software",
+    "title": "The NoSQL Landscape",
+    "section": "Recap: Storage Design Is Solved — Now, What Software?",
+    "text": "Recap: Storage Design Is Solved — Now, What Software?\nThe last three sessions covered concepts that apply to any storage system — replication, sharding, consistency. Today: the actual kinds of database software that implement these concepts, and which kind fits which job.\n\nTiming: 3 min. Fast bridge — the shift is from “storage design theory” to “here are the products.”"
+  },
+  {
+    "objectID": "cosc420/notes/33.html#why-not-just-a-relational-database",
+    "href": "cosc420/notes/33.html#why-not-just-a-relational-database",
+    "title": "The NoSQL Landscape",
+    "section": "Why Not Just a Relational Database?",
+    "text": "Why Not Just a Relational Database?\nRelational databases (PostgreSQL, MySQL) are excellent for structured, transactional data — and remain the right choice for a huge share of real applications. They start to struggle when you need to:\n\nStore data whose structure varies from record to record (not every record has the same fields)\nScale out, in Module 3’s terms — spread data and load across many machines — rather than scale up (buying one bigger, more expensive machine)\nServe extremely high read or write volume with a simpler, less rigid query model\n\n\nNoSQL (“Not only SQL”) databases are a family of alternatives designed around these needs.\n\nTiming: 4 min. Resist framing this as “NoSQL is better” — it’s a trade-off, and this session’s last content slide (“NoSQL vs. Relational — The Real Trade-off”) makes that explicit again."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#the-nosql-landscape-1",
+    "href": "cosc420/notes/33.html#the-nosql-landscape-1",
+    "title": "The NoSQL Landscape",
+    "section": "The NoSQL Landscape",
+    "text": "The NoSQL Landscape\n\n\n\n\n\n\n\n\n\nType\nData Model\nExamples\nBest For\n\n\n\n\nDocument\nJSON-like documents\nMongoDB, CouchDB\nUser profiles, product catalogs, flexible records\n\n\nKey-Value\nPlain key → value\nRedis, DynamoDB\nCaching, sessions, extremely simple lookups\n\n\nColumn-Family\nRows grouped by a partition key, optimized for huge write volume\nCassandra, HBase\nTime-series, write-heavy logging\n\n\nGraph\nNodes and edges with relationships\nNeo4j\nSocial networks, recommendations, fraud detection\n\n\n\n\nWe focus on document stores (MongoDB) for the rest of this module — the most common general-purpose choice in industry, and what the capstone uses.\n\nTiming: 4 min. Quiz 7 Q4 tests “which type is MongoDB” directly — make sure “document store” sticks as MongoDB’s category before moving on."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#document-stores-the-mental-model",
+    "href": "cosc420/notes/33.html#document-stores-the-mental-model",
+    "title": "The NoSQL Landscape",
+    "section": "Document Stores — The Mental Model",
+    "text": "Document Stores — The Mental Model\n\nData is stored as documents — JSON-like objects — instead of rows in a table.\nDocuments in the same collection do not need identical fields.\nThere’s no schema to define upfront — you just insert documents.\n\n// User document\n{ \"name\": \"Alice\", \"email\": \"alice@example.com\", \"premium\": true }\n\n// Another user document — different fields, same collection\n{ \"name\": \"Bob\", \"email\": \"bob@example.com\", \"age\": 29, \"plan\": \"free\" }\n\n\n\n\n\n\n\nThe flip side\n\n\nFlexible schema is a trade-off, not a pure win: nothing stops one document from having a typo’d field name (\"emial\") that silently doesn’t match the others — the database won’t catch it for you.\n\n\n\n\nTiming: 4 min. Quiz 7 Q7 tests this exact property (two documents, same collection, different fields — true). The callout previews the “cost” side that the end-of-session trade-off slide expands on."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#key-value-stores",
+    "href": "cosc420/notes/33.html#key-value-stores",
+    "title": "The NoSQL Landscape",
+    "section": "Key-Value Stores",
+    "text": "Key-Value Stores\nThe simplest possible model: every value is stored under a unique key, and you look it up by that key.\nSET session:abc123 \"user_id=42,expires=...\"\nGET session:abc123\n\nOutput of the GET:\n\"user_id=42,expires=...\"\n\n\nYou can only find a value by its exact key — there’s no “find every value containing X.”\nExtremely fast, often in-memory (Redis) — ideal when you always look things up by one key.\nCommon uses: caching, session storage, rate limiting, real-time leaderboards.\n\n\nTiming: 4 min (this slide and its sub-slide). Tie “real-time leaderboards” back to Session 3’s Scenario 3 — same use case, now with a concrete technology attached to it. The sub-slide resolves the obvious question “how can Redis do a leaderboard if values are opaque?”"
+  },
+  {
+    "objectID": "cosc420/notes/33.html#pause-discuss-a-shopping-cart-in-a-key-value-store",
+    "href": "cosc420/notes/33.html#pause-discuss-a-shopping-cart-in-a-key-value-store",
+    "title": "The NoSQL Landscape",
+    "section": "Pause & Discuss: A Shopping Cart in a Key-Value Store?",
+    "text": "Pause & Discuss: A Shopping Cart in a Key-Value Store?\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nYou’re storing shopping carts. Two options:\nOption 1: Redis (key-value). Key cart:user42, and the value is the whole cart as one blob.\nOption 2: MongoDB (document). One document per cart, with an items array inside it.\nFor showing a user their own cart, which works better? Then marketing asks: “How many carts right now contain the new headphones?” Which option makes you regret your choice, and why?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#answer",
+    "href": "cosc420/notes/33.html#answer",
+    "title": "The NoSQL Landscape",
+    "section": "Answer",
+    "text": "Answer\n\nA user’s own cart: both work. Redis is likely faster — in memory, and an exact-key lookup is its sweet spot. Carts and sessions are a classic Redis use.\nMarketing’s question: this is where you regret Redis. It can’t search inside the blob, so you’d fetch every cart and scan them in your own code. MongoDB can query fields inside documents, so it’s a single query (Wednesday shows the syntax).\nPrinciple: key-value wins when you always look things up by the exact key. Once you need to query by what’s inside the value, you want a store that understands its structure.\n\n\nReal systems often use both: Redis for fast per-user reads, and a queryable store as the system of record."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#column-family-stores",
+    "href": "cosc420/notes/33.html#column-family-stores",
+    "title": "The NoSQL Landscape",
+    "section": "Column-Family Stores",
+    "text": "Column-Family Stores\nDesigned for massive write throughput distributed across many machines — think logging billions of events per day.\n\nRows are grouped by a partition key, and each row stores only the columns it actually has — sparse rows (HBase even lets each row invent new columns on the fly).\nNo joins, and query patterns are deliberately limited — you design tables around the queries you’ll run, not the other way around.\nUsed where write volume is enormous and constant: Netflix, Apple, and Instagram all run Cassandra for parts of their infrastructure.\n\n\nTiming: 4 min. Keep this brief relative to document/key-value — it’s the least directly relevant type to this course’s labs and capstone, included for landscape completeness and because Quiz 7 references NoSQL types generally."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#graph-databases",
+    "href": "cosc420/notes/33.html#graph-databases",
+    "title": "The NoSQL Landscape",
+    "section": "Graph Databases",
+    "text": "Graph Databases\nBuilt around relationships as first-class data, not an afterthought.\n\nNodes (entities) and edges (relationships between them), both of which can have their own properties.\nIdeal when the interesting questions are about connections: “friends of friends,” “people who bought A also bought B,” fraud rings, recommendation engines.\n\n\nA “friends of friends” query in Neo4j’s Cypher language — follow two FRIEND edges out from Ana:\nMATCH (me:Person {name: \"Ana\"})-[:FRIEND]-&gt;()-[:FRIEND]-&gt;(fof)\nRETURN DISTINCT fof.name\nIn a relational database, the same question needs the friendships table joined to itself — and one more self-join for every extra hop.\n\nTiming: 4 min. Quiz 7 Q5’s recommendation-engine question maps directly here — say the “people who bought A also bought B” phrase out loud, since it’s close to the quiz’s own wording."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#choosing-the-right-type",
+    "href": "cosc420/notes/33.html#choosing-the-right-type",
+    "title": "The NoSQL Landscape",
+    "section": "Choosing the Right Type",
+    "text": "Choosing the Right Type\n\n\n\n\n\n\n\nScenario\nBest fit\n\n\n\n\nFlexible, general-purpose records — user profiles, catalogs\nDocument (MongoDB)\n\n\nExact-key lookups, need extreme speed\nKey-value (Redis)\n\n\nEnormous, constant write volume\nColumn-family (Cassandra)\n\n\nThe interesting question is about relationships\nGraph (Neo4j)\n\n\nTransactions, strict schema, strong consistency by default\nRelational (PostgreSQL/MySQL)\n\n\n\n\n\n\n\n\n\n\nThink about it\n\n\nA ride-sharing app needs: (1) driver profile records that vary a bit driver-to-driver, (2) a constant firehose of GPS location pings from every active driver, and (3) “which drivers are friends/referred each other” for a referral bonus program. Which NoSQL type fits each piece?\n\n\n\n\nTiming: 5 min (this slide and its answer sub-slide). The point is that one real system often uses multiple NoSQL types for different parts of itself, not just one."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#answer-1",
+    "href": "cosc420/notes/33.html#answer-1",
+    "title": "The NoSQL Landscape",
+    "section": "Answer",
+    "text": "Answer\n\n(1) Driver profiles → document store: flexible records whose fields vary a bit.\n(2) GPS pings → column-family: an enormous, constant stream of writes.\n(3) Referrals → graph: the question is about who is connected to whom.\n\n\nOne real system, three different database types — each for the part it fits best."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#nosql-vs.-relational-the-real-trade-off",
+    "href": "cosc420/notes/33.html#nosql-vs.-relational-the-real-trade-off",
+    "title": "The NoSQL Landscape",
+    "section": "NoSQL vs. Relational — The Real Trade-off",
+    "text": "NoSQL vs. Relational — The Real Trade-off\n\n\n\n\n\n\n\n\n\nRelational\nNoSQL (general)\n\n\n\n\nSchema\nFixed, enforced upfront\nFlexible or absent\n\n\nJoins\nFirst-class, well-optimized\nLimited or discouraged\n\n\nConsistency\nStrong, by default\nOften tunable — your choice, per Session 2\n\n\nHorizontal scaling\nHarder\nDesigned in from the start\n\n\nBest for\nTransactional, strongly related data\nHigh-scale, flexible, or high-write-volume data\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\nNeither family is “better.” The right choice depends on your data’s shape, your consistency needs, and your scale — the same design questions from Sessions 1–3, now pointed at a concrete product decision instead of an abstract scenario.\n\n\n\n\nTiming: 4 min. Quiz 7 Q6 tests two of this table’s rows directly (schema flexibility, and “no universally superior option”) — this slide is close to that question’s own framing."
+  },
+  {
+    "objectID": "cosc420/notes/33.html#bridge-mongodb-specifically",
+    "href": "cosc420/notes/33.html#bridge-mongodb-specifically",
+    "title": "The NoSQL Landscape",
+    "section": "Bridge: MongoDB, Specifically",
+    "text": "Bridge: MongoDB, Specifically\nWednesday: hands-on with the one NoSQL database this course actually uses — MongoDB. Collections, documents, and the four CRUD operations you’ll need for Checkpoint 7, Lab 9, and the capstone.\n\nTiming: 3 min. Forward-reference only."
+  },
+  {
     "objectID": "cosc420/notes/32-lab8.html",
     "href": "cosc420/notes/32-lab8.html",
-    "title": "Lab 8: Spark on real data",
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
     "section": "",
-    "text": "Date: November 6\nDuration: 50 minutes\nPoints: 10\nCompetency: C4.2 — Write PySpark DataFrame transformations including groupBy, orderBy, and joins\n\n\n\nToday you apply PySpark to a real dataset: MovieLens (latest-small) — about 100,000 movie ratings collected from real users. You will run multi-step analyses, join two DataFrames, and think about what the data actually tells you.\nThis is the same dataset and the same two files (ratings.csv, movies.csv) used in the capstone — the loading code and column names here carry over directly, and Task 2’s aggregation is close to the capstone’s Result 2.\n\n\n\n\n\nOpen the classroom terminal (https://hadoop-terminal.sayangoswami.dev/, same login as Lab 4/5). Fetch the dataset directly from there — no need to download it to your laptop and find a way to get it onto the container:\nmkdir -p ~/lab8 && cd ~/lab8\ncurl -fsSL -o ml-latest-small.zip https://files.grouplens.org/datasets/movielens/ml-latest-small.zip\nunzip ml-latest-small.zip\nUpload ratings.csv and movies.csv into your own HDFS directory:\nhdfs dfs -mkdir -p /user/&lt;your-username&gt;/lab8\nhdfs dfs -put ml-latest-small/ratings.csv /user/&lt;your-username&gt;/lab8/\nhdfs dfs -put ml-latest-small/movies.csv  /user/&lt;your-username&gt;/lab8/\nhdfs dfs -ls /user/&lt;your-username&gt;/lab8/\nOpen a new Colab notebook, Lab8_MovieLens, and run Lab 7 Task 4’s three connection cells at the top (pip install + %load_ext, %%spark config, %spark add). The ttyd/HDFS work in Steps 1–2 happens in the classroom terminal; all the PySpark code below runs from this notebook.\n\n\n\n\n\nBoth files are proper CSVs with headers — no need to specify separators or column names by hand. Remember every cell needs %%spark as its first line (Lab 7 Task 4). Without it, the cell runs in Colab, which can’t see your HDFS files.\nratings = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/ratings.csv\",\n    header=True,\n    inferSchema=True\n)\n\nratings.printSchema()\nratings.show(5)\nprint(f\"Total ratings: {ratings.count()}\")\nprint(f\"Unique users:  {ratings.select('userId').distinct().count()}\")\nprint(f\"Unique movies: {ratings.select('movieId').distinct().count()}\")\nmovies = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/movies.csv\",\n    header=True,\n    inferSchema=True\n)\n\nmovies.show(5)\nQuestion: How many ratings, unique users, and unique movies are in the dataset? (Exact numbers vary slightly by download — report what your own run actually printed.)\n\n\n\n\nFind the top 10 movies by average rating, but only include movies that have been rated at least 50 times (to avoid obscure films with 1–2 perfect ratings skewing the results).\nfrom pyspark.sql.functions import avg, count, round as spark_round, desc\n\n# YOUR CODE HERE\n# Steps:\n# 1. groupBy \"movieId\", compute avg rating and count\n# 2. filter to movies with count &gt;= 50\n# 3. join with the movies DataFrame to get the title\n# 4. select title, avg_rating, num_ratings\n# 5. orderBy avg_rating descending, show top 10\nQuestion: What is the highest-rated movie with ≥ 50 ratings? Does the result surprise you?\n\n\n\n\nHow many times was each rating value given? (MovieLens ratings run 0.5–5.0 in 0.5 steps, not just whole numbers 1–5.)\n# YOUR CODE HERE\n# groupBy \"rating\", count, orderBy \"rating\"\nQuestion: What is the most common rating? What does this tell you about how users rate movies — do they tend to rate things they liked or disliked?\n\n\n\n\nFind the 10 users who have submitted the most ratings.\n# YOUR CODE HERE\n# groupBy \"userId\", count, orderBy desc, limit 10\nThen answer: How many movies did the most active user rate? What percentage of the total movie catalog (unique movies) did they rate?\n\n\n\n\nShow all ratings for a Star Wars film of your choice (there are several in this dataset — titles include the episode number, e.g. \"Star Wars: Episode IV - A New Hope (1977)\"). How many ratings did it receive and what is its average rating?\n# YOUR CODE HERE\n# Hint: join ratings with movies on movieId, filter where title contains \"Star Wars\"\n# then compute count and avg\n\n\n\n\nUpload to Blackboard:\n\nScreenshot — Task 2 output (top 10 movies table)\nScreenshot — Task 3 output (rating distribution)\nNotebook file — download your Colab notebook (File → Download → .ipynb)\nAnswers — paste your 4 answers into the Blackboard text box"
+    "text": "Date: November 6\nDuration: 50 minutes\nPoints: 10\nCompetency: C4.2 — Write PySpark DataFrame transformations including groupBy, orderBy, and joins"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#background",
     "href": "cosc420/notes/32-lab8.html#background",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Today you apply PySpark to a real dataset: MovieLens (latest-small) — about 100,000 movie ratings collected from real users. You will run multi-step analyses, join two DataFrames, and think about what the data actually tells you.\nThis is the same dataset and the same two files (ratings.csv, movies.csv) used in the capstone — the loading code and column names here carry over directly, and Task 2’s aggregation is close to the capstone’s Result 2."
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Background",
+    "text": "Background\nToday you apply PySpark to a real dataset: MovieLens (latest-small) — about 100,000 movie ratings collected from real users. You will run multi-step analyses, join two DataFrames, and think about what the data actually tells you.\nThis is the same dataset and the same two files (ratings.csv, movies.csv) used in the capstone — the loading code and column names here carry over directly, and Task 2’s aggregation is close to the capstone’s Result 2."
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#setup",
     "href": "cosc420/notes/32-lab8.html#setup",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Open the classroom terminal (https://hadoop-terminal.sayangoswami.dev/, same login as Lab 4/5). Fetch the dataset directly from there — no need to download it to your laptop and find a way to get it onto the container:\nmkdir -p ~/lab8 && cd ~/lab8\ncurl -fsSL -o ml-latest-small.zip https://files.grouplens.org/datasets/movielens/ml-latest-small.zip\nunzip ml-latest-small.zip\nUpload ratings.csv and movies.csv into your own HDFS directory:\nhdfs dfs -mkdir -p /user/&lt;your-username&gt;/lab8\nhdfs dfs -put ml-latest-small/ratings.csv /user/&lt;your-username&gt;/lab8/\nhdfs dfs -put ml-latest-small/movies.csv  /user/&lt;your-username&gt;/lab8/\nhdfs dfs -ls /user/&lt;your-username&gt;/lab8/\nOpen a new Colab notebook, Lab8_MovieLens, and run Lab 7 Task 4’s three connection cells at the top (pip install + %load_ext, %%spark config, %spark add). The ttyd/HDFS work in Steps 1–2 happens in the classroom terminal; all the PySpark code below runs from this notebook."
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Setup",
+    "text": "Setup\n\nOpen the classroom terminal (https://hadoop-terminal.sayangoswami.dev/, same login as Lab 4/5). Fetch the dataset directly from there — no need to download it to your laptop and find a way to get it onto the container:\nmkdir -p ~/lab8 && cd ~/lab8\ncurl -fsSL -o ml-latest-small.zip https://files.grouplens.org/datasets/movielens/ml-latest-small.zip\nunzip ml-latest-small.zip\nUpload ratings.csv and movies.csv into your own HDFS directory:\nhdfs dfs -mkdir -p /user/&lt;your-username&gt;/lab8\nhdfs dfs -put ml-latest-small/ratings.csv /user/&lt;your-username&gt;/lab8/\nhdfs dfs -put ml-latest-small/movies.csv  /user/&lt;your-username&gt;/lab8/\nhdfs dfs -ls /user/&lt;your-username&gt;/lab8/\nOpen a new Colab notebook, Lab8_MovieLens, and run Lab 7 Task 4’s three connection cells at the top (pip install + %load_ext, %%spark config, %spark add). The ttyd/HDFS work in Steps 1–2 happens in the classroom terminal; all the PySpark code below runs from this notebook."
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#task-1-load-and-inspect-the-data-10-min",
     "href": "cosc420/notes/32-lab8.html#task-1-load-and-inspect-the-data-10-min",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Both files are proper CSVs with headers — no need to specify separators or column names by hand. Remember every cell needs %%spark as its first line (Lab 7 Task 4). Without it, the cell runs in Colab, which can’t see your HDFS files.\nratings = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/ratings.csv\",\n    header=True,\n    inferSchema=True\n)\n\nratings.printSchema()\nratings.show(5)\nprint(f\"Total ratings: {ratings.count()}\")\nprint(f\"Unique users:  {ratings.select('userId').distinct().count()}\")\nprint(f\"Unique movies: {ratings.select('movieId').distinct().count()}\")\nmovies = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/movies.csv\",\n    header=True,\n    inferSchema=True\n)\n\nmovies.show(5)\nQuestion: How many ratings, unique users, and unique movies are in the dataset? (Exact numbers vary slightly by download — report what your own run actually printed.)"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Task 1 — Load and Inspect the Data (10 min)",
+    "text": "Task 1 — Load and Inspect the Data (10 min)\nBoth files are proper CSVs with headers — no need to specify separators or column names by hand. Remember every cell needs %%spark as its first line (Lab 7 Task 4). Without it, the cell runs in Colab, which can’t see your HDFS files.\nratings = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/ratings.csv\",\n    header=True,\n    inferSchema=True\n)\n\nratings.printSchema()\nratings.show(5)\nprint(f\"Total ratings: {ratings.count()}\")\nprint(f\"Unique users:  {ratings.select('userId').distinct().count()}\")\nprint(f\"Unique movies: {ratings.select('movieId').distinct().count()}\")\nmovies = spark.read.csv(\n    \"hdfs:///user/&lt;your-username&gt;/lab8/movies.csv\",\n    header=True,\n    inferSchema=True\n)\n\nmovies.show(5)\nQuestion: How many ratings, unique users, and unique movies are in the dataset? (Exact numbers vary slightly by download — report what your own run actually printed.)"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#task-2-top-10-highest-rated-movies-15-min",
     "href": "cosc420/notes/32-lab8.html#task-2-top-10-highest-rated-movies-15-min",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Find the top 10 movies by average rating, but only include movies that have been rated at least 50 times (to avoid obscure films with 1–2 perfect ratings skewing the results).\nfrom pyspark.sql.functions import avg, count, round as spark_round, desc\n\n# YOUR CODE HERE\n# Steps:\n# 1. groupBy \"movieId\", compute avg rating and count\n# 2. filter to movies with count &gt;= 50\n# 3. join with the movies DataFrame to get the title\n# 4. select title, avg_rating, num_ratings\n# 5. orderBy avg_rating descending, show top 10\nQuestion: What is the highest-rated movie with ≥ 50 ratings? Does the result surprise you?"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Task 2 — Top 10 Highest-Rated Movies (15 min)",
+    "text": "Task 2 — Top 10 Highest-Rated Movies (15 min)\nFind the top 10 movies by average rating, but only include movies that have been rated at least 50 times (to avoid obscure films with 1–2 perfect ratings skewing the results).\nfrom pyspark.sql.functions import avg, count, round as spark_round, desc\n\n# YOUR CODE HERE\n# Steps:\n# 1. groupBy \"movieId\", compute avg rating and count\n# 2. filter to movies with count &gt;= 50\n# 3. join with the movies DataFrame to get the title\n# 4. select title, avg_rating, num_ratings\n# 5. orderBy avg_rating descending, show top 10\nQuestion: What is the highest-rated movie with ≥ 50 ratings? Does the result surprise you?"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#task-3-rating-distribution-10-min",
     "href": "cosc420/notes/32-lab8.html#task-3-rating-distribution-10-min",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "How many times was each rating value given? (MovieLens ratings run 0.5–5.0 in 0.5 steps, not just whole numbers 1–5.)\n# YOUR CODE HERE\n# groupBy \"rating\", count, orderBy \"rating\"\nQuestion: What is the most common rating? What does this tell you about how users rate movies — do they tend to rate things they liked or disliked?"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Task 3 — Rating Distribution (10 min)",
+    "text": "Task 3 — Rating Distribution (10 min)\nHow many times was each rating value given? (MovieLens ratings run 0.5–5.0 in 0.5 steps, not just whole numbers 1–5.)\n# YOUR CODE HERE\n# groupBy \"rating\", count, orderBy \"rating\"\nQuestion: What is the most common rating? What does this tell you about how users rate movies — do they tend to rate things they liked or disliked?"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#task-4-most-active-users-10-min",
     "href": "cosc420/notes/32-lab8.html#task-4-most-active-users-10-min",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Find the 10 users who have submitted the most ratings.\n# YOUR CODE HERE\n# groupBy \"userId\", count, orderBy desc, limit 10\nThen answer: How many movies did the most active user rate? What percentage of the total movie catalog (unique movies) did they rate?"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Task 4 — Most Active Users (10 min)",
+    "text": "Task 4 — Most Active Users (10 min)\nFind the 10 users who have submitted the most ratings.\n# YOUR CODE HERE\n# groupBy \"userId\", count, orderBy desc, limit 10\nThen answer: How many movies did the most active user rate? What percentage of the total movie catalog (unique movies) did they rate?"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#task-5-join-and-filter-5-min",
     "href": "cosc420/notes/32-lab8.html#task-5-join-and-filter-5-min",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Show all ratings for a Star Wars film of your choice (there are several in this dataset — titles include the episode number, e.g. \"Star Wars: Episode IV - A New Hope (1977)\"). How many ratings did it receive and what is its average rating?\n# YOUR CODE HERE\n# Hint: join ratings with movies on movieId, filter where title contains \"Star Wars\"\n# then compute count and avg"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Task 5 — Join and Filter (5 min)",
+    "text": "Task 5 — Join and Filter (5 min)\nShow all ratings for a Star Wars film of your choice (there are several in this dataset — titles include the episode number, e.g. \"Star Wars: Episode IV - A New Hope (1977)\"). How many ratings did it receive and what is its average rating?\n# YOUR CODE HERE\n# Hint: join ratings with movies on movieId, filter where title contains \"Star Wars\"\n# then compute count and avg"
   },
   {
     "objectID": "cosc420/notes/32-lab8.html#submission",
     "href": "cosc420/notes/32-lab8.html#submission",
-    "title": "Lab 8: Spark on real data",
-    "section": "",
-    "text": "Upload to Blackboard:\n\nScreenshot — Task 2 output (top 10 movies table)\nScreenshot — Task 3 output (rating distribution)\nNotebook file — download your Colab notebook (File → Download → .ipynb)\nAnswers — paste your 4 answers into the Blackboard text box"
+    "title": "Lab 8: PySpark Analysis of a Real Dataset",
+    "section": "Submission",
+    "text": "Submission\nUpload to Blackboard:\n\nScreenshot — Task 2 output (top 10 movies table)\nScreenshot — Task 3 output (rating distribution)\nNotebook file — download your Colab notebook (File → Download → .ipynb)\nAnswers — paste your 4 answers into the Blackboard text box"
   },
   {
     "objectID": "cosc420/notes/30.html#why-distribute-data-replication-sharding-and-single-points-of-failure",
@@ -11695,6 +11793,111 @@
     "title": "The Storage Design Worksheet",
     "section": "Wrap-Up",
     "text": "Wrap-Up\nEvery real storage decision comes down to combining the same handful of tools:\n\nreplicate for availability and read scale,\nshard for volume and write scale,\nand dial consistency to match how much staleness a given piece of data can tolerate.\n\n\nMonday: what kind of database actually implements these tools — the landscape of NoSQL database types.\n\nTiming: 6 min (including whatever discussion time is left over from the previous slides). Close on the forward-reference to keep momentum into Monday."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#mongodb-collections-documents-and-crud",
+    "href": "cosc420/notes/34.html#mongodb-collections-documents-and-crud",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "MongoDB: Collections, Documents, and CRUD",
+    "text": "MongoDB: Collections, Documents, and CRUD\n\nFull-session timing plan (50 min total, ~15 min of which is Checkpoint 7 itself):\n\n\n\nSlide\nTime\n\n\n\n\nRecap + Today’s Plan\n2 min\n\n\nMongoDB Concepts\n3 min\n\n\nCRUD — Create\n3 min\n\n\nCRUD — Read (+ projection, operators)\n5 min\n\n\nCRUD — Update and Delete\n4 min\n\n\nPause & Discuss: Predict the Query Results\n4 min\n\n\nReplication in MongoDB\n3 min\n\n\nSharding in MongoDB\n3 min\n\n\nBeyond CRUD: Counting for the Capstone\n2 min\n\n\nMongoDB Atlas\n2 min\n\n\nShell Syntax vs. Python Syntax\n2 min\n\n\nCheckpoint 7\n15 min\n\n\nModule 5 Summary + Bridge\n2 min\n\n\n\n11 content slides (~33 min) + Checkpoint 7 + summary = 50 min. Lab 9 (Friday) and the capstone give students many more hours of hands-on CRUD practice than this single lecture can — keep the pace brisk and rely on the labs to build muscle memory. The CRUD examples deliberately use a movies collection (the capstone’s domain) rather than an employees collection, so they don’t preview Checkpoint 7’s data."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#recap-todays-plan",
+    "href": "cosc420/notes/34.html#recap-todays-plan",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Recap + Today’s Plan",
+    "text": "Recap + Today’s Plan\nMonday and last week gave you the concepts (replication, sharding, consistency, document stores). Today: the actual syntax — MongoDB’s terminology, and the four CRUD operations (Create, Read, Update, Delete) you’ll be tested on today and use for the rest of the course.\n\nTiming: 2 min. Brief orientation only."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#mongodb-concepts",
+    "href": "cosc420/notes/34.html#mongodb-concepts",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "MongoDB Concepts",
+    "text": "MongoDB Concepts\n\n\n\nMongoDB\nRelational equivalent\n\n\n\n\nDatabase\nDatabase\n\n\nCollection\nTable\n\n\nDocument\nRow\n\n\nField\nColumn\n\n\n_id\nPrimary key (auto-generated)\n\n\n\n\nIn Python, the pymongo driver gets you from a connection to a collection in three lines:\nfrom pymongo import MongoClient\n\nclient = MongoClient(\"mongodb+srv://...\")   # your Atlas connection string\ndb     = client[\"cosc420\"]\ncol    = db[\"movies\"]\n\nTiming: 3 min. This mapping table is worth reading straight through once — it’s the Rosetta Stone for everything that follows. Neither the database nor the collection has to exist beforehand: MongoDB creates both the first time you insert into them."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#crud-create",
+    "href": "cosc420/notes/34.html#crud-create",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "CRUD — Create",
+    "text": "CRUD — Create\n# Insert one document\nresult = col.insert_one({\"title\": \"Toy Story\", \"genre\": \"Animation\",\n                         \"year\": 1995, \"rating\": 4.0})\nprint(result.inserted_id)\n\n# Insert many documents at once\nresult = col.insert_many([\n    {\"title\": \"Heat\",    \"genre\": \"Crime\",     \"year\": 1995, \"rating\": 3.5},\n    {\"title\": \"Jumanji\", \"genre\": \"Adventure\", \"year\": 1995, \"rating\": 3.0},\n    {\"title\": \"Up\",      \"genre\": \"Animation\", \"year\": 2009, \"rating\": 4.5},\n])\nprint(len(result.inserted_ids))\n\nOutput (your ObjectId will differ):\n6738f1c2a4b9e3d1f0c2a7e1\n3\n\n\nTiming: 3 min. Quiz 7 Q8 tests insertOne syntax directly (shell form: db.students.insertOne(...)) — the Python driver spells it insert_one (snake_case) while the MongoDB shell spells it insertOne (camelCase). Lab 9 uses the Python form and Checkpoint 7 uses shell syntax; the “Shell Syntax vs. Python Syntax” slide before the checkpoint puts the mapping on screen."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#crud-read",
+    "href": "cosc420/notes/34.html#crud-read",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "CRUD — Read",
+    "text": "CRUD — Read\nfind(filter) returns every document matching the filter. find({}) (or find()) matches everything.\n# Exact-match filter: every Animation film\nfor m in col.find({\"genre\": \"Animation\"}):\n    print(m)\n\nOutput:\n{'_id': ObjectId('6738f1c2a4b9e3d1f0c2a7e1'), 'title': 'Toy Story', 'genre': 'Animation', 'year': 1995, 'rating': 4.0}\n{'_id': ObjectId('6738f1c2a4b9e3d1f0c2a7e4'), 'title': 'Up', 'genre': 'Animation', 'year': 2009, 'rating': 4.5}\n\n\nfind returns a cursor, not a list — loop over it, or wrap it in list(...).\n\nTiming: 5 min (this slide and its two sub-slides). Quiz 7 Q9 and Q10 both test this directly — find({}) returns everything (Q10), and $lt versus $gt (Q9). Say both of those out loud explicitly, they’re easy to mix up under quiz pressure."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#crud-update-and-delete",
+    "href": "cosc420/notes/34.html#crud-update-and-delete",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "CRUD — Update and Delete",
+    "text": "CRUD — Update and Delete\n# Update ONE matching document: $set replaces a field's value\nr = col.update_one({\"title\": \"Jumanji\"}, {\"$set\": {\"rating\": 3.5}})\nprint(r.modified_count)\n\n# Update ALL matching documents: $mul multiplies a numeric field\nr = col.update_many({}, {\"$mul\": {\"rating\": 2}})     # 5-point scale → 10-point\nprint(r.modified_count)\n\n# Delete ALL matching documents\nr = col.delete_many({\"year\": {\"$lt\": 2000}})\nprint(r.deleted_count)\n\nOutput:\n1\n4\n3\n\n\nTiming: 4 min (this slide and its sub-slide). This maps onto Checkpoint 7’s Task 3 (updateOne + $set) and Task 4 (deleteMany) — the operators must be taught plainly, but the examples here deliberately use the movies collection, not the checkpoint’s employees documents or its active field."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#pause-discuss-predict-the-query-results",
+    "href": "cosc420/notes/34.html#pause-discuss-predict-the-query-results",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Pause & Discuss: Predict the Query Results",
+    "text": "Pause & Discuss: Predict the Query Results\n\n\n\n\n\n\nBreather — think on your own (2 min), then we discuss\n\n\nA products collection holds exactly these four documents:\n{\"name\": \"A\", \"category\": \"books\", \"price\": 12}\n{\"name\": \"B\", \"category\": \"books\", \"price\": 30}\n{\"name\": \"C\", \"category\": \"games\", \"price\": 45}\n{\"name\": \"D\", \"category\": \"games\"}              # no price field at all\nThese run in order:\ncol.update_one({\"category\": \"books\"}, {\"$mul\": {\"price\": 0.5}})\ncol.find({\"price\": {\"$lt\": 20}})\ncol.delete_many({\"price\": {\"$gt\": 100}})\nWhat does the find return? How many documents does delete_many remove?\n\n\n\n\nTiming: 4 min (≈2 min silent thinking, ≈2 min discussion). Answers are on the next sub-slide; reveal after the discussion."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#answer",
+    "href": "cosc420/notes/34.html#answer",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Answer",
+    "text": "Answer\n\nupdate_one changes only the first match: A’s price becomes 6.0 and B stays 30. (update_many would have halved both: 6.0 and 15.0.)\nfind returns only A. B is 30. D has no price field at all, so a comparison on price never matches it — a missing field is not “less than 20.” Monday’s flexible schema, in action.\ndelete_many removes 0 documents. A filter that matches nothing is not an error.\n\n\n“First match” means first in the collection’s stored order — real code shouldn’t depend on which one that is. To change one specific document, filter on something unique, like _id."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#replication-in-mongodb",
+    "href": "cosc420/notes/34.html#replication-in-mongodb",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Replication in MongoDB",
+    "text": "Replication in MongoDB\nSession 1’s replication, by MongoDB’s names: a replica set — typically 3 nodes, 1 primary + 2 secondaries.\nWrite → Primary → Secondary 1\n                → Secondary 2\nRead  ← Primary (default) or a Secondary (if read preference allows it)\n\nAll writes go to the primary; secondaries copy its changes in the background.\nIf the primary fails, the remaining members automatically elect a new primary.\nBy default, “done” means a majority of members have the write (2 of 3) — Session 2’s middle of the dial. A write confirmed this way survives the primary crashing.\n\n\nTiming: 3 min (this slide and its sub-slide). This is the payoff moment for Sessions 1 and 2 — say explicitly “this is the exact same replication and consistency material from last week, now with MongoDB’s own names on it.” Version note: majority write concern has been the default since MongoDB 5.0 (Atlas runs current versions). Older material often says MongoDB “acknowledges after the primary only” — that was the pre-5.0 default (w: 1), and it is still available."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#sharding-in-mongodb",
+    "href": "cosc420/notes/34.html#sharding-in-mongodb",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Sharding in MongoDB",
+    "text": "Sharding in MongoDB\nSession 1’s sharding, by MongoDB’s names: a sharded cluster, split by a shard key.\n\n\nTiming: 3 min (this slide and its sub-slide). Land the “combined, not either/or” point explicitly — it’s the resolution to the open question from Session 1’s photo-sharing-app callout."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#beyond-crud-counting-for-the-capstone",
+    "href": "cosc420/notes/34.html#beyond-crud-counting-for-the-capstone",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Beyond CRUD: Counting for the Capstone",
+    "text": "Beyond CRUD: Counting for the Capstone\nThe capstone’s flask_app.py needs two more operations for its dashboard’s stat cards. On the original four movies:\n# How many documents match a filter (without fetching them)\nprint(col.count_documents({\"genre\": \"Animation\"}))\n\n# A one-stage aggregation: the average rating across ALL documents\npipeline = [{\"$group\": {\"_id\": None, \"avg\": {\"$avg\": \"$rating\"}}}]\nprint(list(col.aggregate(pipeline)))\nprint(list(col.aggregate(pipeline))[0][\"avg\"])\n\nOutput:\n2\n[{'_id': None, 'avg': 3.75}]\n3.75\n\n\nTiming: 2 min (this slide and its sub-slide). Keep this genuinely light — it exists so students aren’t caught off guard by flask_app.py’s stat-card queries, not to teach the aggregation pipeline as a topic in its own right. The list(...)[0][\"avg\"] line is the exact shape of the capstone’s stat-card hint."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#mongodb-atlas-cloud-managed-mongodb",
+    "href": "cosc420/notes/34.html#mongodb-atlas-cloud-managed-mongodb",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "MongoDB Atlas — Cloud-Managed MongoDB",
+    "text": "MongoDB Atlas — Cloud-Managed MongoDB\n\nNo server to set up yourself — MongoDB Atlas hosts and manages it for you.\nFree tier (M0): enough storage for this course’s work, no credit card required.\nEven the free tier is a 3-member replica set, with backups and monitoring handled for you — today’s replication mechanics, behind the scenes.\nConnection string format: mongodb+srv://user:password@cluster0.xxxxx.mongodb.net/\n\n\n\n\n\n\n\n\nTip\n\n\nAtlas is what you’ll use in Lab 9, the capstone, and — realistically — in most entry-level industry jobs. The managed service is exactly what lets you use everything from today without running a database server yourself.\n\n\n\n\nTiming: 2 min. This is largely logistics for Friday’s lab — keep it brief."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#shell-syntax-vs.-python-syntax",
+    "href": "cosc420/notes/34.html#shell-syntax-vs.-python-syntax",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Shell Syntax vs. Python Syntax",
+    "text": "Shell Syntax vs. Python Syntax\nToday’s slides used Python (pymongo), like Lab 9 and the capstone. Checkpoint 7 and Quiz 7 use the MongoDB shell (mongosh). Same operations, different spelling:\n\n\n\n\n\n\n\nPython (pymongo)\nMongoDB shell\n\n\n\n\ncol.insert_one({...})\ndb.col.insertOne({...})\n\n\ncol.find({\"price\": {\"$gt\": 20}})\ndb.col.find({price: {$gt: 20}})\n\n\ncol.update_one({...}, {\"$set\": {...}})\ndb.col.updateOne({...}, {$set: {...}})\n\n\ncol.delete_many({...})\ndb.col.deleteMany({...})\n\n\nTrue / False / None\ntrue / false / null\n\n\n\n\n\nPython uses snake_case method names; the shell uses camelCase.\nThe shell lets you leave field names and $ operators unquoted; Python requires quotes.\n\n\nTiming: 2 min. This was previously only a speaker-note aside on the Create slide — it’s on a slide now because Checkpoint 7 starts in two minutes and is graded in shell syntax."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#checkpoint-7",
+    "href": "cosc420/notes/34.html#checkpoint-7",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Checkpoint 7",
+    "text": "Checkpoint 7\nCP7 (today, last 15 minutes of class): given a MongoDB collection’s documents, write the query for four tasks: two find() queries (an exact match, and a comparison operator), one updateOne with $set, and one deleteMany with a filter.\nReview before you start (shell syntax):\ndb.collection.find({field: value})\ndb.collection.find({field: {$gt: value}})\ndb.collection.updateOne({filter}, {$set: {field: value}})\ndb.collection.deleteMany({filter})\n\nTiming: 15 min for the checkpoint itself. See checkpoints/checkpoint_07.md for the exact graded prompt (an employees collection) — don’t preview its specific documents before students start."
+  },
+  {
+    "objectID": "cosc420/notes/34.html#module-5-summary",
+    "href": "cosc420/notes/34.html#module-5-summary",
+    "title": "MongoDB: Collections, Documents, and CRUD",
+    "section": "Module 5 Summary",
+    "text": "Module 5 Summary\n\n\n\n\n\n\n\nConcept\nKey idea\n\n\n\n\nReplication\nFull copies of the data on multiple nodes — solves read throughput and availability\n\n\nSharding\nSplitting the data itself across nodes — solves data volume and write throughput\n\n\nStrong consistency\nEvery read reflects the latest write — costs write latency (synchronous replication)\n\n\nEventual consistency\nReplicas converge over time — reads can briefly be stale (asynchronous replication)\n\n\nDocument store\nJSON-like documents, flexible schema — MongoDB\n\n\nMongoDB CRUD\ninsert_one/many, find (+ projection), update_one/many, delete_one/many\n\n\nReplica set / sharded cluster\nMongoDB’s names for replication and sharding, combined in practice\n\n\n\nConnects to: Checkpoints 6 & 7, Quiz 7, Lab 9, Final Q31–Q45, Capstone (spark_job.py’s direct-to-MongoDB writes, flask_app.py’s queries)\n\nTiming: 2 min. Bridge to Friday’s Lab 9 (MongoDB Atlas CRUD, hands-on) and Quiz 7, both on Nov 20 — then to Module 6: “everything computed and stored so far still needs a way for a user to actually see it — that’s Flask and the REST API, next.”"
   },
   {
     "objectID": "cosc420/notes/el2.html",
